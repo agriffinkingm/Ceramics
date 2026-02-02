@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceramics Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Karla:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --clay-warm: #E8DDD3;
+            --clay-dark: #8B7968;
+            --terracotta: #C67B5C;
+            --stone: #4A4238;
+            --ivory: #FAF8F5;
+            --charcoal: #2C2820;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Karla', sans-serif;
+            background: var(--ivory);
+            color: var(--charcoal);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(250, 248, 245, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(139, 121, 104, 0.1);
+        }
+        
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            color: var(--stone);
+            text-transform: lowercase;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--stone);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--terracotta);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+        
+        .nav-links a.active {
+            color: var(--terracotta);
+        }
+        
+        /* Main Content */
+        main {
+            margin-top: 120px;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 3rem 6rem;
+        }
+        
+        section {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+        
+        section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .section-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            font-weight: 300;
+            color: var(--stone);
+            margin-bottom: 1rem;
+            letter-spacing: 0.02em;
+        }
+        
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--clay-dark);
+            max-width: 600px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+        
+        /* Gallery Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+        
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            background: var(--clay-warm);
+            aspect-ratio: 3/4;
+            cursor: pointer;
+            transition: transform 0.4s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-8px);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(44, 40, 32, 0.9), transparent);
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+        }
+        
+        .gallery-item:hover .gallery-overlay {
+            transform: translateY(0);
+        }
+        
+        .gallery-overlay h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--ivory);
+            margin-bottom: 0.5rem;
+        }
+        
+        .gallery-overlay p {
+            color: var(--clay-warm);
+            font-size: 0.9rem;
+        }
+        
+        /* Available Pieces */
+        .available-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        
+        .piece-card {
+            background: white;
+            border: 1px solid rgba(139, 121, 104, 0.15);
+            overflow: hidden;
+            transition: box-shadow 0.4s ease;
+        }
+        
+        .piece-card:hover {
+            box-shadow: 0 12px 40px rgba(139, 121, 104, 0.15);
+        }
+        
+        .piece-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: var(--clay-warm);
+            overflow: hidden;
+        }
+        
+        .piece-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+        
+        .piece-card:hover .piece-image img {
+            transform: scale(1.08);
+        }
+        
+        .piece-info {
+            padding: 2rem;
+        }
+        
+        .piece-info h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--stone);
+            margin-bottom: 0.5rem;
+        }
+        
+        .piece-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--clay-dark);
+        }
+        
+        .piece-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .piece-description {
+            color: var(--stone);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+        
+        .piece-price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            color: var(--terracotta);
+            font-weight: 500;
+        }
+        
+        .contact-btn {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.8rem 2rem;
+            background: var(--stone);
+            color: var(--ivory);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .contact-btn:hover {
+            background: var(--terracotta);
+            transform: translateY(-2px);
+        }
+        
+        /* Placeholder State */
+        .placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            text-align: center;
+            padding: 4rem;
+        }
+        
+        .placeholder-content {
+            max-width: 500px;
+        }
+        
+        .placeholder-content h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--stone);
+            margin-bottom: 1rem;
+        }
+        
+        .placeholder-content p {
+            color: var(--clay-dark);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .upload-hint {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: var(--clay-warm);
+            color: var(--stone);
+            border-radius: 2px;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-content {
+                flex-direction: column;
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+            
+            .nav-links {
+                gap: 1.5rem;
+            }
+            
+            main {
+                padding: 0 1.5rem 4rem;
+                margin-top: 140px;
+            }
+            
+            .section-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .gallery-grid,
+            .available-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-content">
+            <div class="logo">ceramics</div>
+            <ul class="nav-links">
+                <li><a href="#gallery" class="nav-link active">gallery</a></li>
+                <li><a href="#available" class="nav-link">available</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Gallery Section -->
+        <section id="gallery-section" class="active">
+            <div class="section-header">
+                <h1>Gallery</h1>
+                <p>A curated collection of handcrafted ceramic pieces, each one unique and made with care.</p>
+            </div>
+            
+            <div class="gallery-grid">
+                <!-- Placeholder for images -->
+                <div class="gallery-item">
+                    <div class="placeholder">
+                        <div class="placeholder-content">
+                            <h2>Your work here</h2>
+                            <p>Add your ceramic images to bring your gallery to life</p>
+                            <span class="upload-hint">Images coming soon</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Available Pieces Section -->
+        <section id="available-section">
+            <div class="section-header">
+                <h1>Available</h1>
+                <p>One-of-a-kind pieces ready to find their home. Each piece is handmade and available for purchase.</p>
+            </div>
+            
+            <div class="available-grid">
+                <!-- Example piece - you can duplicate and customize -->
+                <div class="piece-card">
+                    <div class="piece-image">
+                        <div class="placeholder">
+                            <div class="placeholder-content">
+                                <span class="upload-hint">Piece image</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="piece-info">
+                        <h3>Untitled Vessel</h3>
+                        <div class="piece-meta">
+                            <span>Stoneware</span>
+                            <span>•</span>
+                            <span>8" × 6"</span>
+                        </div>
+                        <p class="piece-description">
+                            Add a description of your piece here. Describe the technique, glaze, or inspiration behind the work.
+                        </p>
+                        <div class="piece-price">$000</div>
+                        <button class="contact-btn">Inquire</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = {
+            'gallery': document.getElementById('gallery-section'),
+            'available': document.getElementById('available-section')
+        };
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.getAttribute('href').substring(1);
+                
+                // Update active states
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                
+                // Show target section
+                Object.values(sections).forEach(section => section.classList.remove('active'));
+                sections[target].classList.add('active');
+                
+                // Smooth scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Smooth scroll on page load
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
+        });
+    </script>
+</body>
+</html>
