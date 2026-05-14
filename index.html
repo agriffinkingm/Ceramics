@@ -367,6 +367,120 @@
                 gap: 2rem;
             }
         }
+        /* Music Section */
+        .music-player {
+            max-width: 620px;
+            margin: 0 auto;
+            padding: 3rem 0;
+        }
+
+        .now-playing {
+            background: white;
+            border: 1px solid rgba(139, 121, 104, 0.15);
+            padding: 2rem 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .now-playing-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--clay-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        #npTitle {
+            display: block;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 400;
+            color: var(--stone);
+            margin-bottom: 1.25rem;
+        }
+
+        .progress-wrap {
+            height: 2px;
+            background: var(--clay-warm);
+            cursor: pointer;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--terracotta);
+            transition: width 0.1s linear;
+        }
+
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--clay-dark);
+            letter-spacing: 0.05em;
+        }
+
+        .track-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.1rem 1.5rem;
+            background: white;
+            border: 1px solid rgba(139, 121, 104, 0.15);
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .track-item:hover {
+            box-shadow: 0 4px 16px rgba(139, 121, 104, 0.12);
+            transform: translateY(-1px);
+        }
+
+        .track-item.is-playing {
+            border-color: var(--terracotta);
+        }
+
+        .track-play-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 1px solid var(--clay-dark);
+            background: none;
+            color: var(--stone);
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .track-item.is-playing .track-play-btn {
+            background: var(--terracotta);
+            border-color: var(--terracotta);
+            color: var(--ivory);
+        }
+
+        .track-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            color: var(--stone);
+            flex: 1;
+        }
+
+        .track-dur {
+            font-size: 0.8rem;
+            color: var(--clay-dark);
+            letter-spacing: 0.05em;
+        }
+
         /* Contact Section */
 .contact-content {
     max-width: 600px;
@@ -419,6 +533,7 @@
             <ul class="nav-links">
     <li><a href="#gallery" class="nav-link active">gallery</a></li>
     <li><a href="#available" class="nav-link">available</a></li>
+    <li><a href="#music" class="nav-link">music</a></li>
     <li><a href="#contact" class="nav-link">contact</a></li>
 </ul>
    </div>
@@ -516,6 +631,29 @@
 </div>
 </section>
 
+<!-- Music Section -->
+<section id="music-section">
+    <div class="section-header">
+        <h1>Music</h1>
+        <p>Original tracks.</p>
+    </div>
+    <div class="music-player">
+        <div class="now-playing">
+            <div class="now-playing-label">Now Playing</div>
+            <span id="npTitle">—</span>
+            <div class="progress-wrap" id="progressWrap">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="time-row">
+                <span id="currentTime">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+        <div class="track-list" id="trackList"></div>
+    </div>
+    <audio id="audioEl"></audio>
+</section>
+
 <!-- Contact Section -->
 <section id="contact-section">
     <div class="section-header">
@@ -552,6 +690,7 @@
         const sections = {
     'gallery': document.getElementById('gallery-section'),
     'available': document.getElementById('available-section'),
+    'music': document.getElementById('music-section'),
     'contact': document.getElementById('contact-section')
 };
 
@@ -575,6 +714,87 @@
 
         // Smooth scroll on page load
         window.scrollTo(0, 0);
+
+        // Music player
+        const MUSIC = [
+            { title: "Sentinel", src: "music/sentinel.wav" },
+        ];
+
+        const audio = document.getElementById("audioEl");
+        const trackList = document.getElementById("trackList");
+        const npTitle = document.getElementById("npTitle");
+        const progressBar = document.getElementById("progressBar");
+        const progressWrap = document.getElementById("progressWrap");
+        const currentTimeEl = document.getElementById("currentTime");
+        const durationEl = document.getElementById("duration");
+        let currentIdx = null;
+
+        function fmt(s) {
+            if (!isFinite(s)) return "0:00";
+            const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+            return `${m}:${sec.toString().padStart(2, "0")}`;
+        }
+
+        function setPlaying(idx) {
+            document.querySelectorAll(".track-item").forEach((el, i) => {
+                el.classList.toggle("is-playing", i === idx && !audio.paused);
+                el.querySelector(".track-play-btn").textContent = (i === idx && !audio.paused) ? "▐▐" : "▶";
+            });
+        }
+
+        function loadTrack(idx) {
+            audio.src = MUSIC[idx].src;
+            npTitle.textContent = MUSIC[idx].title;
+            currentIdx = idx;
+            audio.play();
+            setPlaying(idx);
+        }
+
+        trackList.innerHTML = MUSIC.map((t, i) => `
+            <div class="track-item" data-idx="${i}">
+                <button class="track-play-btn">▶</button>
+                <div class="track-name">${t.title}</div>
+                <span class="track-dur" data-idx="${i}">—</span>
+            </div>
+        `).join("");
+
+        MUSIC.forEach((t, i) => {
+            const tmp = new Audio(t.src);
+            tmp.addEventListener("loadedmetadata", () => {
+                const el = trackList.querySelector(`.track-dur[data-idx="${i}"]`);
+                if (el) el.textContent = fmt(tmp.duration);
+            });
+        });
+
+        trackList.querySelectorAll(".track-item").forEach(el => {
+            el.addEventListener("click", () => {
+                const idx = +el.dataset.idx;
+                if (idx === currentIdx) {
+                    audio.paused ? audio.play() : audio.pause();
+                } else {
+                    loadTrack(idx);
+                }
+                setPlaying(idx);
+            });
+        });
+
+        audio.addEventListener("timeupdate", () => {
+            if (!audio.duration) return;
+            progressBar.style.width = (audio.currentTime / audio.duration * 100) + "%";
+            currentTimeEl.textContent = fmt(audio.currentTime);
+            durationEl.textContent = fmt(audio.duration);
+        });
+
+        audio.addEventListener("ended", () => {
+            const next = (currentIdx + 1) < MUSIC.length ? currentIdx + 1 : 0;
+            loadTrack(next);
+        });
+
+        progressWrap.addEventListener("click", e => {
+            if (!audio.duration) return;
+            const r = progressWrap.getBoundingClientRect();
+            audio.currentTime = ((e.clientX - r.left) / r.width) * audio.duration;
+        });
     });
 </script>
 </body>
