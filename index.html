@@ -415,9 +415,8 @@ body.fs-lock { overflow: hidden; }
             <select class="fs-select" id="fsStruct">
                 <option value="closed">Closed</option>
                 <option value="open">Open</option>
-                <option value="drop2">Drop 2</option>
-                <option value="spread">Spread</option>
                 <option value="random">Random</option>
+                <option value="lead">Voice Leading</option>
             </select>
         </div>
     </div>
@@ -452,30 +451,33 @@ body.fs-lock { overflow: hidden; }
 <script>
 (function() {
 var ALL_KEYS = ['A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C', 'B', 'Bb'];
-var ALL_CHORDS = ['Major', 'Major7', '6', '7', '9', 'Maj9', '6/9', '13', 'minor', 'minor7', 'm6', 'm9', 'mMaj7', 'm7b5', '7b5', '7#5', '7sus4', 'diminished', 'augmented'];
+var ALL_CHORDS = ['Major', 'Maj7', '7', '6', 'aug', 'dim', 'min7b5', 'min7', 'min', 'sus4', '7sus4', '9', 'Maj9', '6/9', '13', 'min6', 'min9', 'minMaj7', '7b5', '7#5'];
 var INTERVALS = {
-    'Major':      [0, 4, 7, 12],
-    'Major7':     [0, 4, 7, 11],
-    '6':          [0, 4, 7, 9],
-    '7':          [0, 4, 7, 10],
-    '9':          [0, 4, 7, 10, 14],
-    'Maj9':       [0, 4, 7, 11, 14],
-    '6/9':        [0, 4, 7, 9, 14],
-    '13':         [0, 4, 7, 10, 21],
-    'minor':      [0, 3, 7, 12],
-    'minor7':     [0, 3, 7, 10],
-    'm6':         [0, 3, 7, 9],
-    'm9':         [0, 3, 7, 10, 14],
-    'mMaj7':      [0, 3, 7, 11],
-    'm7b5':       [0, 3, 6, 10],
-    '7b5':        [0, 4, 6, 10],
-    '7#5':        [0, 4, 8, 10],
-    '7sus4':      [0, 5, 7, 10],
-    'diminished': [0, 3, 6, 9],
-    'augmented':  [0, 4, 8, 12]
+    'Major':   [0, 4, 7, 12],
+    'Maj7':    [0, 4, 7, 11],
+    '7':       [0, 4, 7, 10],
+    '6':       [0, 4, 7, 9],
+    'aug':     [0, 4, 8, 12],
+    'dim':     [0, 3, 6, 9],
+    'min7b5':  [0, 3, 6, 10],
+    'min7':    [0, 3, 7, 10],
+    'min':     [0, 3, 7, 12],
+    'sus4':    [0, 5, 7, 12],
+    '7sus4':   [0, 5, 7, 10],
+    '9':       [0, 4, 7, 10, 14],
+    'Maj9':    [0, 4, 7, 11, 14],
+    '6/9':     [0, 4, 7, 9, 14],
+    '13':      [0, 4, 7, 10, 21],
+    'min6':    [0, 3, 7, 9],
+    'min9':    [0, 3, 7, 10, 14],
+    'minMaj7': [0, 4, 7, 11],
+    '7b5':     [0, 4, 6, 10],
+    '7#5':     [0, 4, 8, 10]
 };
 var FREQS = { 'A': 220.00, 'Bb': 233.08, 'B': 246.94, 'C': 261.63, 'Db': 277.18, 'D': 293.66,
               'Eb': 311.13, 'E': 329.63, 'F': 349.23, 'Gb': 369.99, 'G': 392.00, 'Ab': 415.30 };
+
+var KEY_SEMI = { 'C': 0, 'Db': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'Gb': 6, 'G': 7, 'Ab': 8, 'A': 9, 'Bb': 10, 'B': 11 };
 
 var INSTRUMENTS = {
     rhodes:  { partials: [1, 0.5, 0.14, 0.06, 0.02], attack: 0.05, level: 0.13, filter: 3000, detune: 4,  vibRate: 4.5, vibDepth: 2 },
@@ -484,8 +486,8 @@ var INSTRUMENTS = {
     choir:   { partials: [0.85, 0.32, 0.1, 0.04], attack: 0.5, level: 0.14, filter: 1200, detune: 7, vibRate: 4.6, vibDepth: 7 }
 };
 
-var DEFAULT_KEYS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-var DEFAULT_CHORDS = ['Major', 'Major7', 'minor', 'minor7', 'diminished', 'augmented'];
+var DEFAULT_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+var DEFAULT_CHORDS = ['Major', 'Maj7', '7', '6', 'aug', 'dim', 'min7b5', 'min7', 'min'];
 var wheelKeys = DEFAULT_KEYS.slice();
 var wheelChords = DEFAULT_CHORDS.slice();
 
@@ -509,13 +511,13 @@ function moveItem(arr, from, to) {
 
 function saveCfg() {
     try {
-        localStorage.setItem('fsCfg2', JSON.stringify({ k: wheelKeys, c: wheelChords, v: currentInst, s: chordStyle }));
+        localStorage.setItem('fsCfg3', JSON.stringify({ k: wheelKeys, c: wheelChords, v: currentInst, s: chordStyle }));
     } catch (e) {}
 }
 
 function loadCfg() {
     try {
-        var raw = localStorage.getItem('fsCfg2');
+        var raw = localStorage.getItem('fsCfg3');
         if (!raw) return;
         var cfg = JSON.parse(raw);
         function ok(list, all) {
@@ -526,7 +528,7 @@ function loadCfg() {
         if (ok(cfg.k, ALL_KEYS)) wheelKeys = cfg.k;
         if (ok(cfg.c, ALL_CHORDS)) wheelChords = cfg.c;
         if (cfg.v && INSTRUMENTS[cfg.v]) currentInst = cfg.v;
-        if (cfg.s && ['closed', 'open', 'drop2', 'spread', 'random'].indexOf(cfg.s) >= 0) chordStyle = cfg.s;
+        if (cfg.s && ['closed', 'open', 'random', 'lead'].indexOf(cfg.s) >= 0) chordStyle = cfg.s;
     } catch (e) {}
 }
 
@@ -978,15 +980,50 @@ function fadeOutVoices() {
     voices = [];
 }
 
-function voiceChord(ivs, mode) {
+var lastVoicing = null;
+
+function dedupeSort(v) {
+    var out = [];
+    for (var m = 0; m < v.length; m++) if (out.indexOf(v[m]) < 0) out.push(v[m]);
+    out.sort(function(a, b) { return a - b; });
+    return out;
+}
+
+function leadVoicing(rootAbs, ivs) {
+    var pcs = [];
+    for (var i = 0; i < ivs.length; i++) {
+        var pc = ((rootAbs + ivs[i]) % 12 + 12) % 12;
+        if (pcs.indexOf(pc) < 0) pcs.push(pc);
+    }
+    var targets = lastVoicing && lastVoicing.length ? lastVoicing.slice() : null;
+    var out = [];
+    var center = 0;
+    if (targets) { for (var c = 0; c < targets.length; c++) center += targets[c]; center /= targets.length; }
+    else center = rootAbs + 6;
+    for (var p = 0; p < pcs.length; p++) {
+        var anchor = targets && targets.length ? targets[Math.min(p, targets.length - 1)] : center;
+        var oct = Math.round((anchor - pcs[p]) / 12);
+        var note = pcs[p] + oct * 12;
+        while (note < center - 14) note += 12;
+        while (note > center + 16) note -= 12;
+        while (out.indexOf(note) >= 0) note += 12;
+        out.push(note);
+    }
+    out = dedupeSort(out);
+    lastVoicing = out.slice();
+    return out;
+}
+
+function voiceChord(ivs, mode, rootAbs) {
+    if (mode === 'lead') {
+        var abs = leadVoicing(rootAbs, ivs);
+        var rel = [];
+        for (var q = 0; q < abs.length; q++) rel.push(abs[q] - rootAbs);
+        return rel;
+    }
     var v = ivs.slice();
-    if (mode === 'drop2' && v.length >= 3) {
-        v[v.length - 2] -= 12;
-    } else if (mode === 'open') {
+    if (mode === 'open') {
         for (var i = 1; i < v.length; i += 2) v[i] += 12;
-    } else if (mode === 'spread') {
-        for (var j = 2; j < v.length; j++) v[j] += 12;
-        v[v.length - 1] += 12;
     } else if (mode === 'random') {
         for (var k = 1; k < v.length; k++) {
             var r = Math.random();
@@ -994,9 +1031,11 @@ function voiceChord(ivs, mode) {
             else if (r < 0.5) v[k] -= 12;
         }
     }
-    var out = [];
-    for (var m = 0; m < v.length; m++) if (out.indexOf(v[m]) < 0) out.push(v[m]);
-    out.sort(function(a, b) { return a - b; });
+    var out = dedupeSort(v);
+    if (mode !== 'lead') {
+        lastVoicing = [];
+        for (var z = 0; z < out.length; z++) lastVoicing.push(rootAbs + out[z]);
+    }
     return out;
 }
 
@@ -1009,7 +1048,8 @@ function setChord(key, chord) {
     var t = audioCtx.currentTime;
     var base = FREQS[key];
     voices.push(makeVoice(base / 2, currentInst, t));
-    var ivs = voiceChord(INTERVALS[chord], chordStyle);
+    var rootAbs = KEY_SEMI[key];
+    var ivs = voiceChord(INTERVALS[chord], chordStyle, rootAbs);
     for (var i = 0; i < ivs.length; i++) {
         voices.push(makeVoice(base * Math.pow(2, ivs[i] / 12), currentInst, t));
     }
@@ -1019,6 +1059,7 @@ function setChord(key, chord) {
 function stopSound() {
     if (playingId === null) return;
     playingId = null;
+    lastVoicing = null;
     fadeOutVoices();
 }
 
@@ -1122,16 +1163,19 @@ function segmentAt(circle, n, x, y) {
     return Math.min(idx, n - 1);
 }
 
-function wheelFont(labels, n) {
-    var maxLen = 0;
+function wheelFont(labels, n, circle) {
+    var maxLen = 1;
     for (var i = 0; i < labels.length; i++) if (labels[i].length > maxLen) maxLen = labels[i].length;
-    var base = maxLen > 6 ? 170 : 250;
-    return Math.max(16, Math.min(30, Math.round(base / n)));
+    var rm = circle ? (circle.rOut + circle.rIn) / 2 : 200;
+    var arc = (Math.PI * rm) / n;
+    var byArc = (arc * 0.82) / (maxLen * 0.58);
+    var byBand = (circle ? (circle.rOut - circle.rIn) : 100) * 0.42;
+    return Math.max(11, Math.min(30, Math.round(Math.min(byArc, byBand))));
 }
 
 function drawWheel(circle, labels, activeIdx, title) {
     var n = labels.length, step = 180 / n;
-    var fpx = wheelFont(labels, n);
+    var fpx = wheelFont(labels, n, circle);
     for (var i = 0; i < n; i++) {
         var a1 = rad(180 + i * step), a2 = rad(180 + (i + 1) * step);
         ctx.beginPath();
