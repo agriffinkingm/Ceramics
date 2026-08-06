@@ -410,6 +410,16 @@ body.fs-lock { overflow: hidden; }
                 <option value="strings">Strings</option>
             </select>
         </div>
+        <div class="fs-voice-row">
+            <label for="fsStruct">Struct</label>
+            <select class="fs-select" id="fsStruct">
+                <option value="closed">Closed</option>
+                <option value="open">Open</option>
+                <option value="drop2">Drop 2</option>
+                <option value="spread">Spread</option>
+                <option value="random">Random</option>
+            </select>
+        </div>
     </div>
     <div class="fs-stage" id="fsStage">
         <video id="fsVideo" autoplay playsinline muted></video>
@@ -418,9 +428,11 @@ body.fs-lock { overflow: hidden; }
     </div>
     <div class="fs-readout"><span class="fs-now" id="fsNow">&mdash;</span></div>
     <div class="fs-status" id="fsStatus">Camera is off</div>
-    <div class="fs-timbre" id="fsTimbre" style="display: none;">
+    <div class="fs-timbre" id="fsTimbre">
         <div class="fs-timbre-title" id="fsTimbreTitle">Choir Timbre</div>
         <div class="fs-knobs" id="fsKnobs"></div>
+        <div class="fs-timbre-title" style="margin-top: 1.2rem;">Global</div>
+        <div class="fs-knobs" id="fsKnobsGlobal"></div>
     </div>
     <div class="fs-edit">
         <div class="fs-edit-row">
@@ -440,14 +452,25 @@ body.fs-lock { overflow: hidden; }
 <script>
 (function() {
 var ALL_KEYS = ['A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C', 'B', 'Bb'];
-var ALL_CHORDS = ['Major', 'Major7', '6', 'minor', 'minor7', 'm7b5', 'diminished', 'augmented'];
+var ALL_CHORDS = ['Major', 'Major7', '6', '7', '9', 'Maj9', '6/9', '13', 'minor', 'minor7', 'm6', 'm9', 'mMaj7', 'm7b5', '7b5', '7#5', '7sus4', 'diminished', 'augmented'];
 var INTERVALS = {
     'Major':      [0, 4, 7, 12],
     'Major7':     [0, 4, 7, 11],
     '6':          [0, 4, 7, 9],
+    '7':          [0, 4, 7, 10],
+    '9':          [0, 4, 7, 10, 14],
+    'Maj9':       [0, 4, 7, 11, 14],
+    '6/9':        [0, 4, 7, 9, 14],
+    '13':         [0, 4, 7, 10, 21],
     'minor':      [0, 3, 7, 12],
     'minor7':     [0, 3, 7, 10],
+    'm6':         [0, 3, 7, 9],
+    'm9':         [0, 3, 7, 10, 14],
+    'mMaj7':      [0, 3, 7, 11],
     'm7b5':       [0, 3, 6, 10],
+    '7b5':        [0, 4, 6, 10],
+    '7#5':        [0, 4, 8, 10],
+    '7sus4':      [0, 5, 7, 10],
     'diminished': [0, 3, 6, 9],
     'augmented':  [0, 4, 8, 12]
 };
@@ -468,9 +491,11 @@ var video, canvas, ctx;
 var audioCtx = null, master = null;
 var camOn = false, audioOn = true;
 var selKey = 'C', selChord = 'Major', currentInst = 'choir';
+var chordStyle = 'closed';
 var voices = [], playingId = null;
 var hands = null, handsReady = false, sending = false;
 var bothHands = false, waveCache = {}, previewTimer = null;
+var globalFilt = null, gLfoOsc = null, gLfoGain = null;
 var dragInfo = null, pop = null;
 
 function moveItem(arr, from, to) {
@@ -482,7 +507,7 @@ function moveItem(arr, from, to) {
 
 function saveCfg() {
     try {
-        localStorage.setItem('fsCfg', JSON.stringify({ k: wheelKeys, c: wheelChords, v: currentInst }));
+        localStorage.setItem('fsCfg', JSON.stringify({ k: wheelKeys, c: wheelChords, v: currentInst, s: chordStyle }));
     } catch (e) {}
 }
 
@@ -499,6 +524,7 @@ function loadCfg() {
         if (ok(cfg.k, ALL_KEYS)) wheelKeys = cfg.k;
         if (ok(cfg.c, ALL_CHORDS)) wheelChords = cfg.c;
         if (cfg.v && INSTRUMENTS[cfg.v]) currentInst = cfg.v;
+        if (cfg.s && ['closed', 'open', 'drop2', 'spread', 'random'].indexOf(cfg.s) >= 0) chordStyle = cfg.s;
     } catch (e) {}
 }
 
@@ -662,6 +688,15 @@ function init() {
     var sel = document.getElementById('fsVoice');
     sel.value = currentInst;
     renderTimbre();
+    var stSel = document.getElementById('fsStruct');
+    stSel.value = chordStyle;
+    stSel.addEventListener('change', function() {
+        chordStyle = stSel.value;
+        saveCfg();
+        if (bothHands) { playingId = null; setChord(selKey, selChord); }
+        else previewChord();
+    });
+
     sel.addEventListener('change', function() {
         currentInst = sel.value;
         saveCfg();
@@ -709,28 +744,63 @@ function ensureAudio() {
         comp.connect(audioCtx.destination);
         master = audioCtx.createGain();
         master.gain.value = 1.0;
-        master.connect(comp);
+        globalFilt = audioCtx.createBiquadFilter();
+        globalFilt.type = 'lowpass';
+        globalFilt.Q.value = 0.6;
+        master.connect(globalFilt);
+        globalFilt.connect(comp);
+        gLfoOsc = audioCtx.createOscillator();
+        gLfoGain = audioCtx.createGain();
+        gLfoOsc.connect(gLfoGain);
+        gLfoGain.connect(globalFilt.frequency);
+        gLfoOsc.start();
+        updateGlobalFx();
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
 }
 
+function updateGlobalFx() {
+    if (!globalFilt) return;
+    var g = timbre.global;
+    var tc = audioCtx.currentTime;
+    globalFilt.frequency.setTargetAtTime(g.filter, tc, 0.04);
+    gLfoOsc.frequency.setTargetAtTime(0.1 + (g.lfo / 100) * 7.9, tc, 0.04);
+    gLfoGain.gain.setTargetAtTime(g.filter * 0.45 * (g.lfo / 100), tc, 0.04);
+}
+
 function getWave(name) {
-    if (!waveCache[name]) {
-        var p = INSTRUMENTS[name].partials;
+    var p = INSTRUMENTS[name].partials.slice();
+    var key = name;
+    var tb = timbre[name];
+    if (name === 'rhodes' && tb) {
+        var tine = tb.tine / 100;
+        for (var a = 2; a < p.length; a++) p[a] *= (0.25 + tine * 2.5);
+        key += '|t' + Math.round(tb.tine / 4);
+    }
+    if (name === 'organ' && tb) {
+        var dr = tb.draw / 100;
+        for (var b = 2; b < p.length; b++) p[b] *= (0.15 + dr * 1.4);
+        key += '|d' + Math.round(tb.draw / 4);
+    }
+    if (!waveCache[key]) {
         var re = new Float32Array(p.length + 1);
         var im = new Float32Array(p.length + 1);
         for (var i = 0; i < p.length; i++) im[i + 1] = p[i];
-        waveCache[name] = audioCtx.createPeriodicWave(re, im);
+        waveCache[key] = audioCtx.createPeriodicWave(re, im);
     }
-    return waveCache[name];
+    return waveCache[key];
 }
 
 var TIMBRE_DEFS = {
-    choir: [
-        { id: 'voices', label: 'Voices', min: 1, max: 12, step: 1, def: 6 },
-        { id: 'filter', label: 'Filter', min: 60, max: 18000, log: true, def: 1200 },
-        { id: 'lfo', label: 'LFO', min: 0, max: 100, step: 1, def: 0 }
-    ]
+    choir:   [ { id: 'voices', label: 'Voices', min: 1, max: 12, step: 1, def: 6 } ],
+    rhodes:  [ { id: 'tine', label: 'Tine', min: 0, max: 100, step: 1, def: 40 },
+               { id: 'trem', label: 'Tremolo', min: 0, max: 100, step: 1, def: 30 } ],
+    organ:   [ { id: 'draw', label: 'Drawbars', min: 0, max: 100, step: 1, def: 60 },
+               { id: 'leslie', label: 'Leslie', min: 0, max: 100, step: 1, def: 0 } ],
+    strings: [ { id: 'swell', label: 'Swell', min: 0, max: 100, step: 1, def: 40 },
+               { id: 'ensemble', label: 'Ensemble', min: 0, max: 100, step: 1, def: 35 } ],
+    global:  [ { id: 'filter', label: 'Filter', min: 60, max: 18000, log: true, def: 18000 },
+               { id: 'lfo', label: 'LFO', min: 0, max: 100, step: 1, def: 0 } ]
 };
 var timbre = {};
 (function() {
@@ -809,23 +879,19 @@ function makeKnob(def, inst) {
     return wrap;
 }
 function renderTimbre() {
-    var panel = document.getElementById('fsTimbre');
-    var defs = TIMBRE_DEFS[currentInst];
-    if (!defs) { panel.style.display = 'none'; return; }
-    panel.style.display = '';
+    document.getElementById('fsTimbre').style.display = '';
     document.getElementById('fsTimbreTitle').textContent = currentInst.charAt(0).toUpperCase() + currentInst.slice(1) + ' Timbre';
     var box = document.getElementById('fsKnobs');
     box.innerHTML = '';
+    var defs = TIMBRE_DEFS[currentInst] || [];
     for (var i = 0; i < defs.length; i++) box.appendChild(makeKnob(defs[i], currentInst));
+    var gbox = document.getElementById('fsKnobsGlobal');
+    gbox.innerHTML = '';
+    for (var j = 0; j < TIMBRE_DEFS.global.length; j++) gbox.appendChild(makeKnob(TIMBRE_DEFS.global[j], 'global'));
 }
 function applyTimbre(inst, param) {
+    if (inst === 'global') { if (audioCtx) updateGlobalFx(); return; }
     if (inst !== currentInst) return;
-    if (param === 'filter' && audioCtx) {
-        for (var i = 0; i < voices.length; i++) {
-            if (voices[i].filt) { try { voices[i].filt.frequency.setTargetAtTime(timbre[inst].filter, audioCtx.currentTime, 0.04); } catch (e) {} }
-        }
-        return;
-    }
     if (voices.length && playingId !== null) {
         playingId = null;
         setChord(selKey, selChord);
@@ -835,21 +901,29 @@ function applyTimbre(inst, param) {
 function makeVoice(freq, instName, t) {
     var inst = INSTRUMENTS[instName];
     var tb = timbre[instName] || null;
-    var cutoff = tb && tb.filter ? tb.filter : inst.filter;
-    var count = tb && tb.voices ? tb.voices : (inst.detune ? 2 : 1);
+    var count = (instName === 'choir' && tb && tb.voices) ? tb.voices : (inst.detune ? 2 : 1);
     var baseCount = inst.detune ? 2 : 1;
     var level = inst.level * Math.sqrt(baseCount / count);
+    var attack = inst.attack;
+    if (instName === 'strings' && tb) attack = 0.05 + (tb.swell / 100) * 1.45;
+    var spread = inst.detune || 6;
+    if (instName === 'strings' && tb) spread = 2 + (tb.ensemble / 100) * 23;
+    var vibRate = inst.vibRate;
+    var vibDepth = inst.vibDepth;
+    if (instName === 'organ' && tb && tb.leslie > 0) {
+        vibRate = 0.8 + (tb.leslie / 100) * 6.2;
+        vibDepth = 5;
+    }
     var vg = audioCtx.createGain();
     vg.gain.setValueAtTime(0.0001, t);
-    vg.gain.linearRampToValueAtTime(level, t + inst.attack);
+    vg.gain.linearRampToValueAtTime(level, t + attack);
     var filt = audioCtx.createBiquadFilter();
     filt.type = 'lowpass';
-    filt.frequency.value = cutoff;
+    filt.frequency.value = inst.filter;
     filt.Q.value = 0.5;
     vg.connect(filt);
     filt.connect(master);
     var nodes = [];
-    var spread = inst.detune || 6;
     var detunes = [];
     if (count === 1) detunes = [0];
     else { for (var d = 0; d < count; d++) detunes.push(-spread + (2 * spread) * (d / (count - 1))); }
@@ -861,8 +935,8 @@ function makeVoice(freq, instName, t) {
         o.detune.value = detunes[i];
         var lfo = audioCtx.createOscillator();
         var lg = audioCtx.createGain();
-        lfo.frequency.value = inst.vibRate * (0.85 + 0.3 * Math.random());
-        lg.gain.value = inst.vibDepth;
+        lfo.frequency.value = vibRate * (0.85 + 0.3 * Math.random());
+        lg.gain.value = vibDepth;
         lfo.connect(lg);
         lg.connect(o.detune);
         lfo.start(t);
@@ -870,15 +944,19 @@ function makeVoice(freq, instName, t) {
         o.start(t);
         nodes.push(o); nodes.push(lfo);
     }
-    if (tb && tb.lfo > 0) {
-        var fl = audioCtx.createOscillator();
-        var flg = audioCtx.createGain();
-        fl.frequency.value = 0.1 + (tb.lfo / 100) * 7.9;
-        flg.gain.value = cutoff * 0.45 * (tb.lfo / 100);
-        fl.connect(flg);
-        flg.connect(filt.frequency);
-        fl.start(t);
-        nodes.push(fl);
+    var ampAmt = 0;
+    var ampRate = 5.2;
+    if (instName === 'rhodes' && tb && tb.trem > 0) { ampAmt = tb.trem / 100; }
+    if (instName === 'organ' && tb && tb.leslie > 0) { ampAmt = 0.35 + (tb.leslie / 100) * 0.4; ampRate = vibRate; }
+    if (ampAmt > 0) {
+        var al = audioCtx.createOscillator();
+        var alg = audioCtx.createGain();
+        al.frequency.value = ampRate;
+        alg.gain.value = level * 0.45 * ampAmt;
+        al.connect(alg);
+        alg.connect(vg.gain);
+        al.start(t);
+        nodes.push(al);
     }
     return { nodes: nodes, g: vg, filt: filt };
 }
@@ -898,8 +976,30 @@ function fadeOutVoices() {
     voices = [];
 }
 
+function voiceChord(ivs, mode) {
+    var v = ivs.slice();
+    if (mode === 'drop2' && v.length >= 3) {
+        v[v.length - 2] -= 12;
+    } else if (mode === 'open') {
+        for (var i = 1; i < v.length; i += 2) v[i] += 12;
+    } else if (mode === 'spread') {
+        for (var j = 2; j < v.length; j++) v[j] += 12;
+        v[v.length - 1] += 12;
+    } else if (mode === 'random') {
+        for (var k = 1; k < v.length; k++) {
+            var r = Math.random();
+            if (r < 0.35) v[k] += 12;
+            else if (r < 0.5) v[k] -= 12;
+        }
+    }
+    var out = [];
+    for (var m = 0; m < v.length; m++) if (out.indexOf(v[m]) < 0) out.push(v[m]);
+    out.sort(function(a, b) { return a - b; });
+    return out;
+}
+
 function setChord(key, chord) {
-    var id = key + '|' + chord + '|' + currentInst;
+    var id = key + '|' + chord + '|' + currentInst + '|' + chordStyle;
     if (id === playingId) return;
     playingId = id;
     ensureAudio();
@@ -907,7 +1007,7 @@ function setChord(key, chord) {
     var t = audioCtx.currentTime;
     var base = FREQS[key];
     voices.push(makeVoice(base / 2, currentInst, t));
-    var ivs = INTERVALS[chord];
+    var ivs = voiceChord(INTERVALS[chord], chordStyle);
     for (var i = 0; i < ivs.length; i++) {
         voices.push(makeVoice(base * Math.pow(2, ivs[i] / 12), currentInst, t));
     }
