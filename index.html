@@ -333,26 +333,13 @@
     <main>
         <!-- Gallery Section -->
         <section id="gallery-section" class="active">
-            <div class="section-header">
-                <h1>Gallery</h1>
-                <p></p>
-            </div>
-            
             <div class="gallery-grid">
                 <!-- Placeholder for images -->
                 <div class="gallery-item">
                     <img src="images/oxalis.jpg" alt="Ceramic">
-                    <div class="gallery-overlay">
-                        <h3>Oxalis in a planter</h3>
-                        <p>slipcast stoneware</p>
-                    </div>
                 </div>
                 <div class="gallery-item">
     <img src="images/chives.jpg" alt="Chives ceramic piece">
-    <div class="gallery-overlay">
-        <h3>Chives</h3>
-        <p>Handcrafted ceramic</p>
-    </div>
 </div>
             </div>
         </section>
@@ -390,6 +377,7 @@
 .fs-pop button { padding: 0.4rem 0.6rem; background: var(--clay-warm); border: 1px solid rgba(139, 121, 104, 0.2); font-size: 0.8rem; color: var(--stone); cursor: pointer; }
 .fs-pop button:hover { background: var(--terracotta); color: var(--ivory); }
 .fs-pop button.cur { background: var(--stone); color: var(--ivory); }
+@media (max-width: 768px) { .fs-stage { aspect-ratio: 3/4; } .fs-readout .fs-now { font-size: 2.2rem; min-height: 3rem; } .fs-voice { padding: 0.7rem 1.2rem; font-size: 0.8rem; } .fs-edit-label { flex: 0 0 48px; } .fs-edit-hint { margin-left: 0; } }
 </style>
 
             <div class="section-header">
@@ -628,6 +616,7 @@ function init() {
     video = document.getElementById('fsVideo');
     canvas = document.getElementById('fsCanvas');
     ctx = canvas.getContext('2d');
+    if (window.innerWidth < 768) { canvas.width = 720; canvas.height = 960; document.getElementById('fsStage').style.aspectRatio = '3 / 4'; }
     loadCfg();
     ensureValidSelection();
     document.getElementById('fsWebcamBtn').addEventListener('click', toggleCam);
@@ -768,6 +757,11 @@ function toggleCam() {
         navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } })
         .then(function(stream) { video.srcObject = stream; return video.play(); })
         .then(function() {
+            if (video.videoWidth) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                document.getElementById('fsStage').style.aspectRatio = video.videoWidth + ' / ' + video.videoHeight;
+            }
             camOn = true;
             document.getElementById('fsWebcamBtn').textContent = 'Stop Camera';
             document.getElementById('fsStatus').textContent = 'Loading hand tracker...';
@@ -799,7 +793,8 @@ function startTracking() {
     }
     if (!hands) {
         hands = new Hands({ locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f; } });
-        hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.6, minTrackingConfidence: 0.5 });
+        var mc = (navigator.maxTouchPoints > 0 || window.innerWidth < 768) ? 0 : 1;
+        hands.setOptions({ maxNumHands: 2, modelComplexity: mc, minDetectionConfidence: 0.6, minTrackingConfidence: 0.5 });
         hands.onResults(onResults);
     }
     handsReady = true;
@@ -819,6 +814,12 @@ function rad(d) { return d * Math.PI / 180; }
 
 function geom() {
     var w = canvas.width, h = canvas.height;
+    if (h > w) {
+        var rp = Math.min(w * 0.42, h * 0.21);
+        return { w: w, h: h,
+            left:  { cx: w * 0.5, cy: h * 0.27, rOut: rp, rIn: rp * 0.45 },
+            right: { cx: w * 0.5, cy: h * 0.75, rOut: rp, rIn: rp * 0.45 } };
+    }
     var r = Math.min(w * 0.21, h * 0.42);
     return { w: w, h: h,
         left:  { cx: w * 0.26, cy: h * 0.52, rOut: r, rIn: r * 0.45 },
@@ -904,7 +905,7 @@ function onResults(r) {
 
     for (var k = 0; k < tips.length; k++) {
         ctx.beginPath();
-        ctx.arc(tips[k].x, tips[k].y, 14, 0, Math.PI * 2);
+        ctx.arc(tips[k].x, tips[k].y, Math.max(10, Math.round(Math.min(g.w, g.h) * 0.022)), 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(198, 123, 92, 0.55)';
         ctx.fill();
         ctx.strokeStyle = '#FAF8F5';
