@@ -1139,13 +1139,16 @@ function rad(d) { return d * Math.PI / 180; }
 
 function geom() {
     var w = canvas.width, h = canvas.height;
-    var cx = w * 0.5, cy = h * 0.97;
-    var r = Math.min(w * 0.48, h * 0.92);
-    var rIn = r * 0.5;
+    var gap = w * 0.045;
+    var cy = h * 0.93;
+    var r = Math.min(w * 0.5 - gap, h * 0.86);
+    var rIn = r * 0.25;
     return { w: w, h: h,
-        left:  { cx: cx, cy: cy, rOut: r, rIn: rIn, a0: 180, span: 90 },
-        right: { cx: cx, cy: cy, rOut: r, rIn: rIn, a0: 270, span: 90 } };
+        left:  { cx: w * 0.5 - gap, cy: cy, rOut: r, rIn: rIn, a0: 180, span: 90 },
+        right: { cx: w * 0.5 + gap, cy: cy, rOut: r, rIn: rIn, a0: 270, span: 90 } };
 }
+
+function labelRadius(circle) { return circle.rIn + (circle.rOut - circle.rIn) * 0.62; }
 
 function segmentAt(circle, n, x, y) {
     var dx = x - circle.cx, dy = y - circle.cy;
@@ -1161,7 +1164,7 @@ function segmentAt(circle, n, x, y) {
 function wheelFont(labels, n, circle) {
     var maxLen = 1;
     for (var i = 0; i < labels.length; i++) if (labels[i].length > maxLen) maxLen = labels[i].length;
-    var rm = circle ? (circle.rOut + circle.rIn) / 2 : 200;
+    var rm = circle ? labelRadius(circle) : 200;
     var spanRad = circle && circle.span ? circle.span * Math.PI / 180 : Math.PI;
     var arc = (spanRad * rm) / n;
     var byArc = (arc * 0.82) / (maxLen * 0.58);
@@ -1184,19 +1187,19 @@ function drawWheel(circle, labels, activeIdx, title) {
         ctx.lineWidth = 1.5;
         ctx.stroke();
         var mid = rad(circle.a0 + i * step + step / 2);
-        var rm = (circle.rOut + circle.rIn) / 2;
+        var rm = labelRadius(circle);
         ctx.fillStyle = '#FAF8F5';
         ctx.font = (i === activeIdx ? '600 ' : '400 ') + fpx + 'px Karla, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(labels[i], circle.cx + rm * Math.cos(mid), circle.cy + rm * Math.sin(mid));
     }
-    ctx.fillStyle = 'rgba(250, 248, 245, 0.85)';
-    ctx.font = '400 18px Karla, sans-serif';
+    ctx.fillStyle = 'rgba(250, 248, 245, 0.8)';
+    ctx.font = '400 ' + Math.max(10, Math.min(18, Math.round(circle.rIn * 0.3))) + 'px Karla, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     var tmid = rad(circle.a0 + circle.span / 2);
-    var tr = circle.rIn * 0.72;
+    var tr = circle.rIn * 0.52;
     ctx.fillText(title, circle.cx + tr * Math.cos(tmid), circle.cy + tr * Math.sin(tmid));
 }
 
