@@ -351,7 +351,11 @@
 .fs-controls { display: flex; gap: 1rem; justify-content: center; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
 .fs-stage { position: relative; width: 100%; aspect-ratio: 16/9; background: #111; overflow: hidden; border: 1px solid rgba(139, 121, 104, 0.25); cursor: pointer; }
 .fs-stage video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-.fs-stage canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.fs-stage canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.fs-fullbtn { position: absolute; top: 0.6rem; right: 0.6rem; z-index: 20; width: 2.6rem; height: 2.6rem; background: rgba(20, 18, 15, 0.45); color: #FAF8F5; border: 1px solid rgba(250, 248, 245, 0.4); border-radius: 4px; font-size: 1.2rem; line-height: 1; cursor: pointer; }
+.fs-fullbtn:hover { background: rgba(198, 123, 92, 0.7); }
+.fs-stage.fs-full { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: 5000; aspect-ratio: auto !important; border: none; }
+body.fs-lock { overflow: hidden; }
 .fs-readout { display: flex; justify-content: center; align-items: baseline; margin-top: 1.2rem; }
 .fs-readout .fs-now { font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: var(--terracotta); min-height: 4rem; }
 .fs-status { text-align: center; font-size: 0.9rem; color: var(--clay-dark); margin-bottom: 1.8rem; }
@@ -382,7 +386,7 @@
 
             <div class="section-header">
                 <h1>Fingerstrument</h1>
-                <p>Hold both hands up to your camera. Point a finger inside the left wheel to pick a key and inside the right wheel to pick a chord. The chord sustains while both hands are visible. Click the video to hear the current chord.</p>
+                <p>Hold both hands up to your camera. Point a finger inside the left wheel to pick a key and inside the right wheel to pick a chord. The chord sustains while both hands are visible. Click the video to hear the current chord. On iPhone, flip the ring/silent switch off and turn the volume up to hear sound.</p>
             </div>
 
 <div class="fs-wrap">
@@ -402,6 +406,7 @@
     <div class="fs-stage" id="fsStage">
         <video id="fsVideo" autoplay playsinline muted></video>
         <canvas id="fsCanvas" width="1280" height="720"></canvas>
+        <button class="fs-fullbtn" id="fsFullBtn" type="button" title="Fullscreen">&#x26F6;</button>
     </div>
     <div class="fs-readout"><span class="fs-now" id="fsNow">&mdash;</span></div>
     <div class="fs-status" id="fsStatus">Camera is off</div>
@@ -622,6 +627,26 @@ function init() {
     document.getElementById('fsWebcamBtn').addEventListener('click', toggleCam);
     document.getElementById('fsAudioBtn').addEventListener('click', toggleAudio);
     document.getElementById('fsStage').addEventListener('click', previewChord);
+    var fb = document.getElementById('fsFullBtn');
+    fb.addEventListener('click', function(ev) {
+        ev.stopPropagation();
+        var st = document.getElementById('fsStage');
+        var on = !st.classList.contains('fs-full');
+        st.classList.toggle('fs-full', on);
+        document.body.classList.toggle('fs-lock', on);
+        fb.innerHTML = on ? '&#x2715;' : '&#x26F6;';
+        fb.title = on ? 'Exit fullscreen' : 'Fullscreen';
+        if (on && st.requestFullscreen) { st.requestFullscreen().catch(function() {}); }
+        else if (!on && document.fullscreenElement && document.exitFullscreen) { document.exitFullscreen().catch(function() {}); }
+    });
+    document.addEventListener('fullscreenchange', function() {
+        if (!document.fullscreenElement) {
+            var st = document.getElementById('fsStage');
+            st.classList.remove('fs-full');
+            document.body.classList.remove('fs-lock');
+            fb.innerHTML = '&#x26F6;';
+        }
+    });
     var sel = document.getElementById('fsVoice');
     sel.value = currentInst;
     sel.addEventListener('change', function() {
@@ -641,7 +666,27 @@ function init() {
     drawIdle();
 }
 
+var SILENT_WAV = 'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YSADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
+var silentEl = null;
 function ensureAudio() {
+    if (!silentEl) {
+        try {
+            silentEl = new Audio(SILENT_WAV);
+            silentEl.loop = true;
+            silentEl.volume = 0.01;
+            silentEl.setAttribute('playsinline', '');
+            silentEl.play().catch(function() { silentEl = null; });
+        } catch (e) { silentEl = null; }
+    }
+    if (audioCtx) {
+        try {
+            var ub = audioCtx.createBuffer(1, 1, 22050);
+            var us = audioCtx.createBufferSource();
+            us.buffer = ub;
+            us.connect(audioCtx.destination);
+            us.start(0);
+        } catch (e) {}
+    }
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         var comp = audioCtx.createDynamicsCompressor();
