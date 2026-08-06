@@ -206,102 +206,6 @@
             font-size: 0.9rem;
         }
         
-        /* Available Pieces */
-        .available-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 3rem;
-            margin-top: 3rem;
-        }
-        
-        .piece-card {
-            background: white;
-            border: 1px solid rgba(139, 121, 104, 0.15);
-            overflow: hidden;
-            transition: box-shadow 0.4s ease;
-        }
-        
-        .piece-card:hover {
-            box-shadow: 0 12px 40px rgba(139, 121, 104, 0.15);
-        }
-        
-        .piece-image {
-            width: 100%;
-            aspect-ratio: 1;
-            background: var(--clay-warm);
-            overflow: hidden;
-        }
-        
-        .piece-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-        
-        .piece-card:hover .piece-image img {
-            transform: scale(1.08);
-        }
-        
-        .piece-info {
-            padding: 2rem;
-        }
-        
-        .piece-info h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem;
-            font-weight: 400;
-            color: var(--stone);
-            margin-bottom: 0.5rem;
-        }
-        
-        .piece-meta {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem; 
-            font-size: 0.9rem;
-            color: var(--clay-dark);
-        }
-        
-        .piece-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        
-        .piece-description {
-            color: var(--stone);
-            margin-bottom: 1.5rem;
-            line-height: 1.7;
-        }
-        
-        .piece-price {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            color: var(--terracotta);
-            font-weight: 500;
-        }
-        
-        .contact-btn {
-            display: inline-block;
-            margin-top: 1rem;
-            padding: 0.8rem 2rem;
-            background: var(--stone);
-            color: var(--ivory);
-            text-decoration: none;
-            font-size: 0.9rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .contact-btn:hover {
-            background: var(--terracotta);
-            transform: translateY(-2px);
-        }
-        
         /* Placeholder State */
         .placeholder {
             display: flex;
@@ -367,120 +271,6 @@
                 gap: 2rem;
             }
         }
-        /* Music Section */
-        .music-player {
-            max-width: 620px;
-            margin: 0 auto;
-            padding: 3rem 0;
-        }
-
-        .now-playing {
-            background: white;
-            border: 1px solid rgba(139, 121, 104, 0.15);
-            padding: 2rem 2.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .now-playing-label {
-            font-size: 0.75rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--clay-dark);
-            margin-bottom: 0.75rem;
-        }
-
-        #npTitle {
-            display: block;
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem;
-            font-weight: 400;
-            color: var(--stone);
-            margin-bottom: 1.25rem;
-        }
-
-        .progress-wrap {
-            height: 2px;
-            background: var(--clay-warm);
-            cursor: pointer;
-            margin-bottom: 0.75rem;
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: var(--terracotta);
-            transition: width 0.1s linear;
-        }
-
-        .time-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.78rem;
-            color: var(--clay-dark);
-            letter-spacing: 0.05em;
-        }
-
-        .track-list {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .track-item {
-            display: flex;
-            align-items: center;
-            gap: 1.25rem;
-            padding: 1.1rem 1.5rem;
-            background: white;
-            border: 1px solid rgba(139, 121, 104, 0.15);
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-
-        .track-item:hover {
-            box-shadow: 0 4px 16px rgba(139, 121, 104, 0.12);
-            transform: translateY(-1px);
-        }
-
-        .track-item.is-playing {
-            border-color: var(--terracotta);
-        }
-
-        .track-play-btn {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: 1px solid var(--clay-dark);
-            background: none;
-            color: var(--stone);
-            font-size: 0.75rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
-        }
-
-        .track-item.is-playing .track-play-btn {
-            background: var(--terracotta);
-            border-color: var(--terracotta);
-            color: var(--ivory);
-        }
-
-        .track-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.2rem;
-            color: var(--stone);
-            flex: 1;
-        }
-
-        .track-dur {
-            font-size: 0.8rem;
-            color: var(--clay-dark);
-            letter-spacing: 0.05em;
-        }
-
         /* Contact Section */
 .contact-content {
     max-width: 600px;
@@ -532,8 +322,8 @@
             <div class="logo">ceramics</div>
             <ul class="nav-links">
     <li><a href="#gallery" class="nav-link active">gallery</a></li>
-    <li><a href="#available" class="nav-link">available</a></li>
-    <li><a href="#music" class="nav-link">music</a></li>
+    
+    
     <li><a href="#fingerstrument" class="nav-link">fingerstrument</a></li>
 
 <li><a href="#contact" class="nav-link">contact</a></li>
@@ -567,124 +357,47 @@
             </div>
         </section>
 
-        <!-- Available Pieces Section -->
-        <section id="available-section">
-    <div class="section-header">
-        <h1>Available</h1>
-        <p>One-of-a-kind pieces ready to find their home. Each piece is handmade and available for purchase.</p>
-    </div>
-    
-    <div class="available-grid">
-        <!-- Example piece - you can duplicate and customize -->
-        <div class="piece-card">
-            <div class="piece-image">
-                <img src="images/lightbluemini.jpg" alt="Light blue mini vase">
-            </div>
-            <div class="piece-info">
-                <h3>Light Blue Mini</h3>
-                <div class="piece-meta">
-                    <span>Stoneware</span>
-                    <span>•</span>
-                    <span>3.5" × 3.5"</span>
-                </div>
-                <p class="piece-description">
-                    Mini moon. Oxblood and crystal celadon.
-                </p>
-                <div class="piece-price">$50</div>
-          <a href="#contact" class="contact-btn nav-link">Inquire</a>
-            </div>
-        </div>
-    <div class="piece-card">
-    <div class="piece-image">
-        <img src="images/oxbloodthrown.jpg" alt="Oxblood thrown vessel">
-    </div>
-    <div class="piece-info">
-        <h3>Oxblood Vessel</h3>
-        <div class="piece-meta">
-            <span>Stoneware</span>
-            <span>•</span>
-            <span>6" × 8"</span>
-        </div>
-        <p class="piece-description">
-           Slipcast vessel with oxblood glaze.
-        </p>
-        <div class="piece-price">$85</div>
-        <a href="#contact" class="contact-btn nav-link">Inquire</a>
-    </div>
-</div>
-        <div class="piece-card">
-    <div class="piece-image">
-        <img src="images/oxblood.jpg" alt="Oxblood ceramic piece">
-    </div>
-    <div class="piece-info">
-        <h3>Oxblood Vase</h3>
-        <div class="piece-meta">
-            <span>Stoneware</span>
-            <span>•</span>
-            <span>5" × 4"</span>
-        </div>
-        <p class="piece-description">
-           Slipcast.
-        </p>
-        <div class="piece-price">$65</div>
-        <a href="#contact" class="contact-btn nav-link">Inquire</a>
-    </div>
-</div>
-</div>
-</section>
-
-<!-- Music Section -->
-<section id="music-section">
-    <div class="section-header">
-        <h1>Music</h1>
-        <p>Original tracks.</p>
-    </div>
-    <div class="music-player">
-        <div class="now-playing">
-            <div class="now-playing-label">Now Playing</div>
-            <span id="npTitle">—</span>
-            <div class="progress-wrap" id="progressWrap">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
-            <div class="time-row">
-                <span id="currentTime">0:00</span>
-                <span id="duration">0:00</span>
-            </div>
-        </div>
-        <div class="track-list" id="trackList"></div>
-    </div>
-    <audio id="audioEl"></audio>
-</section>
-
-<!-- Fingerstrument Section -->
-<section id="fingerstrument-section">
+        <!-- Fingerstrument Section -->
+        <section id="fingerstrument-section">
 <style>
 .fs-wrap { max-width: 960px; margin: 0 auto; }
 .fs-controls { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; }
-.fs-stage { position: relative; width: 100%; aspect-ratio: 16/9; background: #111; overflow: hidden; border: 1px solid rgba(139, 121, 104, 0.25); }
+.fs-stage { position: relative; width: 100%; aspect-ratio: 16/9; background: #111; overflow: hidden; border: 1px solid rgba(139, 121, 104, 0.25); cursor: pointer; }
 .fs-stage video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .fs-stage canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-.fs-readout { display: flex; justify-content: center; align-items: baseline; gap: 1rem; margin-top: 1.5rem; }
+.fs-readout { display: flex; justify-content: center; align-items: baseline; margin-top: 1.2rem; }
 .fs-readout .fs-now { font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: var(--terracotta); min-height: 4rem; }
-.fs-status { margin-top: 0.5rem; text-align: center; font-size: 0.9rem; color: var(--clay-dark); }
+.fs-status { text-align: center; font-size: 0.9rem; color: var(--clay-dark); margin-bottom: 1.8rem; }
+.fs-voice-label { text-align: center; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay-dark); margin-bottom: 0.9rem; }
+.fs-voices { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+.fs-voice { padding: 0.8rem 2rem; background: var(--clay-warm); color: var(--stone); border: 1px solid rgba(139, 121, 104, 0.2); font-family: 'Karla', sans-serif; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; }
+.fs-voice:hover { background: var(--clay-dark); color: var(--ivory); }
+.fs-voice.active { background: var(--terracotta); border-color: var(--terracotta); color: var(--ivory); }
 </style>
 
-<div class="section-header">
-<h1>Fingerstrument</h1>
-<p>Hold both hands up to your camera. Point your left index finger inside the left circle to pick a key, right finger inside the right circle to pick a chord. The chord sustains while both hands are visible.</p>
-</div>
+            <div class="section-header">
+                <h1>Fingerstrument</h1>
+                <p>Hold both hands up to your camera. Point a finger inside the left wheel to pick a key and inside the right wheel to pick a chord. The chord sustains while both hands are visible. Click the video to hear the current chord.</p>
+            </div>
 
 <div class="fs-wrap">
-<div class="fs-controls">
-<button class="contact-btn" id="fsWebcamBtn">Start Camera</button>
-<button class="contact-btn" id="fsAudioBtn">Audio: On</button>
-</div>
-<div class="fs-stage">
-<video id="fsVideo" autoplay playsinline muted></video>
-<canvas id="fsCanvas" width="1280" height="720"></canvas>
-</div>
-<div class="fs-readout"><span class="fs-now" id="fsNow">&mdash;</span></div>
-<div class="fs-status" id="fsStatus">Camera is off</div>
+    <div class="fs-controls">
+        <button class="contact-btn" id="fsWebcamBtn">Start Camera</button>
+        <button class="contact-btn" id="fsAudioBtn">Audio: On</button>
+    </div>
+    <div class="fs-stage" id="fsStage">
+        <video id="fsVideo" autoplay playsinline muted></video>
+        <canvas id="fsCanvas" width="1280" height="720"></canvas>
+    </div>
+    <div class="fs-readout"><span class="fs-now" id="fsNow">&mdash;</span></div>
+    <div class="fs-status" id="fsStatus">Camera is off</div>
+    <div class="fs-voice-label">Voicing</div>
+    <div class="fs-voices">
+        <button class="fs-voice active" data-v="rhodes">Rhodes</button>
+        <button class="fs-voice" data-v="organ">Organ</button>
+        <button class="fs-voice" data-v="strings">Strings</button>
+        <button class="fs-voice" data-v="choir">Choir</button>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
@@ -693,247 +406,323 @@
 var KEYS_CCW = ['A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C', 'B', 'Bb'];
 var CHORDS_CCW = ['Major', 'Major7', '6', 'minor', 'minor7', 'm7b5', 'diminished', 'augmented'];
 var INTERVALS = {
-  'Major': [0, 4, 7],
-  'Major7': [0, 4, 7, 11],
-  '6': [0, 4, 7, 9],
-  'minor': [0, 3, 7],
-  'minor7': [0, 3, 7, 10],
-  'm7b5': [0, 3, 6, 10],
-  'diminished': [0, 3, 6],
-  'augmented': [0, 4, 8]
+    'Major':      [0, 4, 7, 12],
+    'Major7':     [0, 4, 7, 11],
+    '6':          [0, 4, 7, 9],
+    'minor':      [0, 3, 7, 12],
+    'minor7':     [0, 3, 7, 10],
+    'm7b5':       [0, 3, 6, 10],
+    'diminished': [0, 3, 6, 9],
+    'augmented':  [0, 4, 8, 12]
 };
-var FREQS = { 'A': 220.00, 'Bb': 233.08, 'B': 246.94, 'C': 261.63, 'Db': 277.18, 'D': 293.66, 'Eb': 311.13, 'E': 329.63, 'F': 349.23, 'Gb': 369.99, 'G': 392.00, 'Ab': 415.30 };
+var FREQS = { 'A': 220.00, 'Bb': 233.08, 'B': 246.94, 'C': 261.63, 'Db': 277.18, 'D': 293.66,
+              'Eb': 311.13, 'E': 329.63, 'F': 349.23, 'Gb': 369.99, 'G': 392.00, 'Ab': 415.30 };
+
+var INSTRUMENTS = {
+    rhodes:  { partials: [1, 0.5, 0.14, 0.06, 0.02], attack: 0.05, level: 0.13, filter: 3000, detune: 4,  vibRate: 4.5, vibDepth: 2 },
+    organ:   { partials: [0.9, 0.7, 0.45, 0.3, 0.2, 0.12], attack: 0.03, level: 0.10, filter: 6500, detune: 0,  vibRate: 6.2, vibDepth: 2 },
+    strings: { saw: true, attack: 0.6, level: 0.075, filter: 1600, detune: 9, vibRate: 5.0, vibDepth: 6 },
+    choir:   { partials: [0.85, 0.32, 0.1, 0.04], attack: 0.5, level: 0.14, filter: 1200, detune: 7, vibRate: 4.6, vibDepth: 7 }
+};
 
 var video, canvas, ctx;
 var audioCtx = null, master = null;
 var camOn = false, audioOn = true;
-var selKey = 'C', selChord = 'Major';
+var selKey = 'C', selChord = 'Major', currentInst = 'rhodes';
 var voices = [], playingId = null;
 var hands = null, handsReady = false, sending = false;
+var bothHands = false, waveCache = {}, previewTimer = null;
 
 function init() {
-  video = document.getElementById('fsVideo');
-  canvas = document.getElementById('fsCanvas');
-  ctx = canvas.getContext('2d');
-  document.getElementById('fsWebcamBtn').addEventListener('click', toggleCam);
-  document.getElementById('fsAudioBtn').addEventListener('click', toggleAudio);
+    video = document.getElementById('fsVideo');
+    canvas = document.getElementById('fsCanvas');
+    ctx = canvas.getContext('2d');
+    document.getElementById('fsWebcamBtn').addEventListener('click', toggleCam);
+    document.getElementById('fsAudioBtn').addEventListener('click', toggleAudio);
+    document.getElementById('fsStage').addEventListener('click', previewChord);
+    var vbtns = document.querySelectorAll('.fs-voice');
+    for (var i = 0; i < vbtns.length; i++) {
+        (function(b) {
+            b.addEventListener('click', function() {
+                currentInst = b.getAttribute('data-v');
+                for (var j = 0; j < vbtns.length; j++) vbtns[j].classList.remove('active');
+                b.classList.add('active');
+                if (bothHands) { playingId = null; setChord(selKey, selChord); }
+                else previewChord();
+            });
+        })(vbtns[i]);
+    }
+    drawIdle();
 }
 
 function ensureAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    master = audioCtx.createGain();
-    master.gain.value = 0.9;
-    master.connect(audioCtx.destination);
-  }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var comp = audioCtx.createDynamicsCompressor();
+        comp.threshold.value = -18;
+        comp.ratio.value = 6;
+        comp.connect(audioCtx.destination);
+        master = audioCtx.createGain();
+        master.gain.value = 1.0;
+        master.connect(comp);
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function getWave(name) {
+    if (!waveCache[name]) {
+        var p = INSTRUMENTS[name].partials;
+        var re = new Float32Array(p.length + 1);
+        var im = new Float32Array(p.length + 1);
+        for (var i = 0; i < p.length; i++) im[i + 1] = p[i];
+        waveCache[name] = audioCtx.createPeriodicWave(re, im);
+    }
+    return waveCache[name];
+}
+
+function makeVoice(freq, instName, t) {
+    var inst = INSTRUMENTS[instName];
+    var vg = audioCtx.createGain();
+    vg.gain.setValueAtTime(0.0001, t);
+    vg.gain.linearRampToValueAtTime(inst.level, t + inst.attack);
+    var filt = audioCtx.createBiquadFilter();
+    filt.type = 'lowpass';
+    filt.frequency.value = inst.filter;
+    filt.Q.value = 0.5;
+    vg.connect(filt);
+    filt.connect(master);
+    var nodes = [];
+    var detunes = inst.detune ? [-inst.detune, inst.detune] : [0];
+    for (var i = 0; i < detunes.length; i++) {
+        var o = audioCtx.createOscillator();
+        if (inst.saw) o.type = 'sawtooth';
+        else o.setPeriodicWave(getWave(instName));
+        o.frequency.value = freq;
+        o.detune.value = detunes[i];
+        var lfo = audioCtx.createOscillator();
+        var lg = audioCtx.createGain();
+        lfo.frequency.value = inst.vibRate;
+        lg.gain.value = inst.vibDepth;
+        lfo.connect(lg);
+        lg.connect(o.detune);
+        lfo.start(t);
+        o.connect(vg);
+        o.start(t);
+        nodes.push(o); nodes.push(lfo);
+    }
+    return { nodes: nodes, g: vg };
 }
 
 function fadeOutVoices() {
-  if (!audioCtx) return;
-  var t = audioCtx.currentTime;
-  voices.forEach(function(v) {
-    try {
-      v.g.gain.cancelScheduledValues(t);
-      v.g.gain.setValueAtTime(v.g.gain.value, t);
-      v.g.gain.linearRampToValueAtTime(0, t + 0.18);
-      v.o.stop(t + 0.25);
-    } catch (e) {}
-  });
-  voices = [];
+    if (!audioCtx) return;
+    var t = audioCtx.currentTime;
+    for (var i = 0; i < voices.length; i++) {
+        var v = voices[i];
+        try {
+            v.g.gain.cancelScheduledValues(t);
+            v.g.gain.setValueAtTime(Math.max(v.g.gain.value, 0.0001), t);
+            v.g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+            for (var n = 0; n < v.nodes.length; n++) v.nodes[n].stop(t + 0.32);
+        } catch (e) {}
+    }
+    voices = [];
 }
 
 function setChord(key, chord) {
-  var id = key + '|' + chord;
-  if (id === playingId) return;
-  playingId = id;
-  ensureAudio();
-  fadeOutVoices();
-  var t = audioCtx.currentTime;
-  var base = FREQS[key];
-  INTERVALS[chord].forEach(function(iv) {
-    var o = audioCtx.createOscillator();
-    var g = audioCtx.createGain();
-    o.type = 'sine';
-    o.frequency.value = base * Math.pow(2, iv / 12);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.07, t + 0.15);
-    o.connect(g);
-    g.connect(master);
-    o.start();
-    voices.push({ o: o, g: g });
-  });
-  document.getElementById('fsNow').textContent = key + ' ' + chord;
+    var id = key + '|' + chord + '|' + currentInst;
+    if (id === playingId) return;
+    playingId = id;
+    ensureAudio();
+    fadeOutVoices();
+    var t = audioCtx.currentTime;
+    var base = FREQS[key];
+    voices.push(makeVoice(base / 2, currentInst, t));
+    var ivs = INTERVALS[chord];
+    for (var i = 0; i < ivs.length; i++) {
+        voices.push(makeVoice(base * Math.pow(2, ivs[i] / 12), currentInst, t));
+    }
+    document.getElementById('fsNow').textContent = key + ' ' + chord;
 }
 
 function stopSound() {
-  if (playingId === null) return;
-  playingId = null;
-  fadeOutVoices();
+    if (playingId === null) return;
+    playingId = null;
+    fadeOutVoices();
+}
+
+function previewChord() {
+    if (!audioOn) return;
+    ensureAudio();
+    playingId = null;
+    setChord(selKey, selChord);
+    if (previewTimer) clearTimeout(previewTimer);
+    previewTimer = setTimeout(function() { if (!bothHands) stopSound(); }, 1600);
 }
 
 function toggleAudio() {
-  audioOn = !audioOn;
-  document.getElementById('fsAudioBtn').textContent = audioOn ? 'Audio: On' : 'Audio: Off';
-  if (!audioOn) stopSound();
+    audioOn = !audioOn;
+    document.getElementById('fsAudioBtn').textContent = audioOn ? 'Audio: On' : 'Audio: Off';
+    if (!audioOn) stopSound(); else previewChord();
 }
 
 function toggleCam() {
-  if (!camOn) {
-    ensureAudio();
-    navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } })
-      .then(function(stream) {
-        video.srcObject = stream;
-        return video.play();
-      })
-      .then(function() {
-        camOn = true;
-        document.getElementById('fsWebcamBtn').textContent = 'Stop Camera';
-        document.getElementById('fsStatus').textContent = 'Loading hand tracker...';
-        startTracking();
-      })
-      .catch(function(err) {
-        document.getElementById('fsStatus').textContent = 'Camera error: ' + err.name;
-      });
-  } else {
-    camOn = false;
-    if (video.srcObject) video.srcObject.getTracks().forEach(function(t) { t.stop(); });
-    video.srcObject = null;
-    stopSound();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    document.getElementById('fsWebcamBtn').textContent = 'Start Camera';
-    document.getElementById('fsStatus').textContent = 'Camera is off';
-    document.getElementById('fsNow').innerHTML = '&mdash;';
-  }
+    if (!camOn) {
+        ensureAudio();
+        navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } })
+        .then(function(stream) { video.srcObject = stream; return video.play(); })
+        .then(function() {
+            camOn = true;
+            document.getElementById('fsWebcamBtn').textContent = 'Stop Camera';
+            document.getElementById('fsStatus').textContent = 'Loading hand tracker...';
+            startTracking();
+        })
+        .catch(function(err) {
+            document.getElementById('fsStatus').textContent = 'Camera error: ' + err.name;
+        });
+    } else {
+        camOn = false;
+        if (video.srcObject) {
+            var tr = video.srcObject.getTracks();
+            for (var i = 0; i < tr.length; i++) tr[i].stop();
+        }
+        video.srcObject = null;
+        stopSound();
+        bothHands = false;
+        drawIdle();
+        document.getElementById('fsWebcamBtn').textContent = 'Start Camera';
+        document.getElementById('fsStatus').textContent = 'Camera is off';
+        document.getElementById('fsNow').innerHTML = '&mdash;';
+    }
 }
 
 function startTracking() {
-  if (!window.Hands) {
-    document.getElementById('fsStatus').textContent = 'Hand tracking library failed to load - check your connection and refresh';
-    return;
-  }
-  if (!hands) {
-    hands = new Hands({ locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f; } });
-    hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.6, minTrackingConfidence: 0.5 });
-    hands.onResults(onResults);
-  }
-  handsReady = true;
-  loop();
+    if (!window.Hands) {
+        document.getElementById('fsStatus').textContent = 'Hand tracking failed to load - refresh the page';
+        return;
+    }
+    if (!hands) {
+        hands = new Hands({ locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f; } });
+        hands.setOptions({ maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.6, minTrackingConfidence: 0.5 });
+        hands.onResults(onResults);
+    }
+    handsReady = true;
+    loop();
 }
 
 function loop() {
-  if (!camOn) return;
-  if (handsReady && !sending && video.readyState >= 2) {
-    sending = true;
-    hands.send({ image: video }).then(function() { sending = false; }).catch(function() { sending = false; });
-  }
-  requestAnimationFrame(loop);
+    if (!camOn) return;
+    if (handsReady && !sending && video.readyState >= 2) {
+        sending = true;
+        hands.send({ image: video }).then(function() { sending = false; }).catch(function() { sending = false; });
+    }
+    requestAnimationFrame(loop);
 }
 
-function rad(deg) { return deg * Math.PI / 180; }
+function rad(d) { return d * Math.PI / 180; }
 
 function geom() {
-  var w = canvas.width, h = canvas.height;
-  var r = Math.min(w * 0.21, h * 0.42);
-  return {
-    w: w, h: h,
-    left:  { cx: w * 0.26, cy: h * 0.52, rOut: r, rIn: r * 0.45 },
-    right: { cx: w * 0.74, cy: h * 0.52, rOut: r, rIn: r * 0.45 }
-  };
+    var w = canvas.width, h = canvas.height;
+    var r = Math.min(w * 0.21, h * 0.42);
+    return { w: w, h: h,
+        left:  { cx: w * 0.26, cy: h * 0.52, rOut: r, rIn: r * 0.45 },
+        right: { cx: w * 0.74, cy: h * 0.52, rOut: r, rIn: r * 0.45 } };
 }
 
 function segmentAt(circle, n, x, y) {
-  var dx = x - circle.cx, dy = y - circle.cy;
-  var dist = Math.sqrt(dx * dx + dy * dy);
-  if (dist > circle.rOut * 1.08) return -1;
-  var screenAng = Math.atan2(dy, dx) * 180 / Math.PI;
-  var ccw = ((-90 - screenAng) % 360 + 360) % 360;
-  return Math.floor(ccw / (360 / n));
+    var dx = x - circle.cx, dy = y - circle.cy;
+    if (Math.sqrt(dx * dx + dy * dy) > circle.rOut * 1.08) return -1;
+    var screenAng = Math.atan2(dy, dx) * 180 / Math.PI;
+    var ccw = ((-90 - screenAng) % 360 + 360) % 360;
+    return Math.floor(ccw / (360 / n));
 }
 
 function drawWheel(circle, labels, activeIdx, title) {
-  var n = labels.length, step = 360 / n;
-  for (var i = 0; i < n; i++) {
-    var a1 = rad(-90 - i * step), a2 = rad(-90 - (i + 1) * step);
-    ctx.beginPath();
-    ctx.arc(circle.cx, circle.cy, circle.rOut, a1, a2, true);
-    ctx.arc(circle.cx, circle.cy, circle.rIn, a2, a1, false);
-    ctx.closePath();
-    ctx.fillStyle = i === activeIdx ? 'rgba(198, 123, 92, 0.65)' : 'rgba(20, 18, 15, 0.35)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(250, 248, 245, 0.6)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    var mid = rad(-90 - (i * step + step / 2));
-    var rm = (circle.rOut + circle.rIn) / 2;
-    ctx.fillStyle = '#FAF8F5';
-    ctx.font = (i === activeIdx ? '600 ' : '400 ') + (n > 8 ? '26px' : '22px') + ' Karla, sans-serif';
+    var n = labels.length, step = 360 / n;
+    for (var i = 0; i < n; i++) {
+        var a1 = rad(-90 - i * step), a2 = rad(-90 - (i + 1) * step);
+        ctx.beginPath();
+        ctx.arc(circle.cx, circle.cy, circle.rOut, a1, a2, true);
+        ctx.arc(circle.cx, circle.cy, circle.rIn, a2, a1, false);
+        ctx.closePath();
+        ctx.fillStyle = i === activeIdx ? 'rgba(198, 123, 92, 0.7)' : 'rgba(20, 18, 15, 0.38)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(250, 248, 245, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        var mid = rad(-90 - (i * step + step / 2));
+        var rm = (circle.rOut + circle.rIn) / 2;
+        ctx.fillStyle = '#FAF8F5';
+        ctx.font = (i === activeIdx ? '600 ' : '400 ') + (n > 8 ? '26px' : '19px') + ' Karla, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(labels[i], circle.cx + rm * Math.cos(mid), circle.cy + rm * Math.sin(mid));
+    }
+    ctx.fillStyle = 'rgba(250, 248, 245, 0.85)';
+    ctx.font = '400 18px Karla, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(labels[i], circle.cx + rm * Math.cos(mid), circle.cy + rm * Math.sin(mid));
-  }
-  ctx.fillStyle = 'rgba(250, 248, 245, 0.85)';
-  ctx.font = '400 20px Karla, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(title, circle.cx, circle.cy);
+    ctx.fillText(title, circle.cx, circle.cy);
+}
+
+function drawIdle() {
+    var g = geom();
+    ctx.clearRect(0, 0, g.w, g.h);
+    drawWheel(g.left, KEYS_CCW, KEYS_CCW.indexOf(selKey), 'KEY');
+    drawWheel(g.right, CHORDS_CCW, CHORDS_CCW.indexOf(selChord), 'CHORD');
 }
 
 function onResults(r) {
-  var g = geom();
-  ctx.clearRect(0, 0, g.w, g.h);
-  var leftIdx = -1, rightIdx = -1;
-  var tips = [];
-  var handCount = 0;
+    var g = geom();
+    ctx.clearRect(0, 0, g.w, g.h);
+    var leftIdx = -1, rightIdx = -1, tips = [], handCount = 0;
 
-  if (r.multiHandLandmarks) {
-    handCount = r.multiHandLandmarks.length;
-    r.multiHandLandmarks.forEach(function(lm) {
-      var tip = lm[8];
-      var x = (1 - tip.x) * g.w;
-      var y = tip.y * g.h;
-      tips.push({ x: x, y: y });
-      var li = segmentAt(g.left, KEYS_CCW.length, x, y);
-      if (li >= 0) { leftIdx = li; selKey = KEYS_CCW[li]; }
-      var ri = segmentAt(g.right, CHORDS_CCW.length, x, y);
-      if (ri >= 0) { rightIdx = ri; selChord = CHORDS_CCW[ri]; }
-    });
-  }
+    if (r.multiHandLandmarks) {
+        handCount = r.multiHandLandmarks.length;
+        for (var i = 0; i < handCount; i++) {
+            var tip = r.multiHandLandmarks[i][8];
+            var x = (1 - tip.x) * g.w;
+            var y = tip.y * g.h;
+            tips.push({ x: x, y: y });
+            var li = segmentAt(g.left, KEYS_CCW.length, x, y);
+            if (li >= 0) { leftIdx = li; selKey = KEYS_CCW[li]; }
+            var ri = segmentAt(g.right, CHORDS_CCW.length, x, y);
+            if (ri >= 0) { rightIdx = ri; selChord = CHORDS_CCW[ri]; }
+        }
+    }
 
-  if (leftIdx < 0) leftIdx = KEYS_CCW.indexOf(selKey);
-  if (rightIdx < 0) rightIdx = CHORDS_CCW.indexOf(selChord);
+    bothHands = handCount >= 2;
+    if (leftIdx < 0) leftIdx = KEYS_CCW.indexOf(selKey);
+    if (rightIdx < 0) rightIdx = CHORDS_CCW.indexOf(selChord);
 
-  drawWheel(g.left, KEYS_CCW, leftIdx, 'KEY');
-  drawWheel(g.right, CHORDS_CCW, rightIdx, 'CHORD');
+    drawWheel(g.left, KEYS_CCW, leftIdx, 'KEY');
+    drawWheel(g.right, CHORDS_CCW, rightIdx, 'CHORD');
 
-  tips.forEach(function(t) {
-    ctx.beginPath();
-    ctx.arc(t.x, t.y, 14, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(198, 123, 92, 0.5)';
-    ctx.fill();
-    ctx.strokeStyle = '#FAF8F5';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  });
+    for (var k = 0; k < tips.length; k++) {
+        ctx.beginPath();
+        ctx.arc(tips[k].x, tips[k].y, 14, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(198, 123, 92, 0.55)';
+        ctx.fill();
+        ctx.strokeStyle = '#FAF8F5';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
 
-  if (handCount >= 2 && audioOn) {
-    setChord(selKey, selChord);
-    document.getElementById('fsStatus').textContent = 'Playing';
-  } else {
-    stopSound();
-    document.getElementById('fsStatus').textContent = handCount === 1 ? 'Show your other hand to play' : 'Show both hands to play';
-  }
+    if (bothHands && audioOn) {
+        setChord(selKey, selChord);
+        document.getElementById('fsStatus').textContent = 'Playing — ' + currentInst;
+    } else {
+        stopSound();
+        document.getElementById('fsStatus').textContent = handCount === 1 ? 'Show your other hand to play' : 'Show both hands to play';
+    }
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
 })();
 </script>
-</section>
+        </section>
 
-<!-- Contact Section -->
+        <!-- Contact Section -->
 <section id="contact-section">
     <div class="section-header">
         <h1>Contact</h1>
@@ -968,8 +757,6 @@ if (document.readyState === 'loading') {
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = {
     'gallery': document.getElementById('gallery-section'),
-    'available': document.getElementById('available-section'),
-    'music': document.getElementById('music-section'),
     'fingerstrument': document.getElementById('fingerstrument-section'),
 
 'contact': document.getElementById('contact-section')
@@ -996,86 +783,6 @@ if (document.readyState === 'loading') {
         // Smooth scroll on page load
         window.scrollTo(0, 0);
 
-        // Music player
-        const MUSIC = [
-            { title: "Sentinel", src: "music/sentinel.wav" },
-        ];
-
-        const audio = document.getElementById("audioEl");
-        const trackList = document.getElementById("trackList");
-        const npTitle = document.getElementById("npTitle");
-        const progressBar = document.getElementById("progressBar");
-        const progressWrap = document.getElementById("progressWrap");
-        const currentTimeEl = document.getElementById("currentTime");
-        const durationEl = document.getElementById("duration");
-        let currentIdx = null;
-
-        function fmt(s) {
-            if (!isFinite(s)) return "0:00";
-            const m = Math.floor(s / 60), sec = Math.floor(s % 60);
-            return `${m}:${sec.toString().padStart(2, "0")}`;
-        }
-
-        function setPlaying(idx) {
-            document.querySelectorAll(".track-item").forEach((el, i) => {
-                el.classList.toggle("is-playing", i === idx && !audio.paused);
-                el.querySelector(".track-play-btn").textContent = (i === idx && !audio.paused) ? "▐▐" : "▶";
-            });
-        }
-
-        function loadTrack(idx) {
-            audio.src = MUSIC[idx].src;
-            npTitle.textContent = MUSIC[idx].title;
-            currentIdx = idx;
-            audio.play();
-            setPlaying(idx);
-        }
-
-        trackList.innerHTML = MUSIC.map((t, i) => `
-            <div class="track-item" data-idx="${i}">
-                <button class="track-play-btn">▶</button>
-                <div class="track-name">${t.title}</div>
-                <span class="track-dur" data-idx="${i}">—</span>
-            </div>
-        `).join("");
-
-        MUSIC.forEach((t, i) => {
-            const tmp = new Audio(t.src);
-            tmp.addEventListener("loadedmetadata", () => {
-                const el = trackList.querySelector(`.track-dur[data-idx="${i}"]`);
-                if (el) el.textContent = fmt(tmp.duration);
-            });
-        });
-
-        trackList.querySelectorAll(".track-item").forEach(el => {
-            el.addEventListener("click", () => {
-                const idx = +el.dataset.idx;
-                if (idx === currentIdx) {
-                    audio.paused ? audio.play() : audio.pause();
-                } else {
-                    loadTrack(idx);
-                }
-                setPlaying(idx);
-            });
-        });
-
-        audio.addEventListener("timeupdate", () => {
-            if (!audio.duration) return;
-            progressBar.style.width = (audio.currentTime / audio.duration * 100) + "%";
-            currentTimeEl.textContent = fmt(audio.currentTime);
-            durationEl.textContent = fmt(audio.duration);
-        });
-
-        audio.addEventListener("ended", () => {
-            const next = (currentIdx + 1) < MUSIC.length ? currentIdx + 1 : 0;
-            loadTrack(next);
-        });
-
-        progressWrap.addEventListener("click", e => {
-            if (!audio.duration) return;
-            const r = progressWrap.getBoundingClientRect();
-            audio.currentTime = ((e.clientX - r.left) / r.width) * audio.duration;
-        });
     });
 </script>
 </body>
