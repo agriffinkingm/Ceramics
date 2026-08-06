@@ -361,18 +361,35 @@
         <section id="fingerstrument-section">
 <style>
 .fs-wrap { max-width: 960px; margin: 0 auto; }
-.fs-controls { display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; }
+.fs-controls { display: flex; gap: 1rem; justify-content: center; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
 .fs-stage { position: relative; width: 100%; aspect-ratio: 16/9; background: #111; overflow: hidden; border: 1px solid rgba(139, 121, 104, 0.25); cursor: pointer; }
 .fs-stage video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .fs-stage canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 .fs-readout { display: flex; justify-content: center; align-items: baseline; margin-top: 1.2rem; }
 .fs-readout .fs-now { font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: var(--terracotta); min-height: 4rem; }
 .fs-status { text-align: center; font-size: 0.9rem; color: var(--clay-dark); margin-bottom: 1.8rem; }
-.fs-voice-label { text-align: center; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay-dark); margin-bottom: 0.9rem; }
-.fs-voices { display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
-.fs-voice { padding: 0.8rem 2rem; background: var(--clay-warm); color: var(--stone); border: 1px solid rgba(139, 121, 104, 0.2); font-family: 'Karla', sans-serif; font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; }
-.fs-voice:hover { background: var(--clay-dark); color: var(--ivory); }
-.fs-voice.active { background: var(--terracotta); border-color: var(--terracotta); color: var(--ivory); }
+.fs-voice-row { display: flex; align-items: center; gap: 0.6rem; }
+.fs-voice-row label { font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--clay-dark); }
+.fs-select { padding: 0.7rem 2.2rem 0.7rem 1rem; background: var(--clay-warm); color: var(--stone); border: 1px solid rgba(139, 121, 104, 0.25); font-family: 'Karla', sans-serif; font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234A4238'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.8rem center; }
+.fs-select:hover { background-color: var(--clay-dark); color: var(--ivory); }
+.fs-edit { max-width: 760px; margin: 2.2rem auto 0; }
+.fs-edit-row { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 0.9rem; }
+.fs-edit-label { flex: 0 0 60px; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--clay-dark); padding-top: 0.55rem; }
+.fs-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; flex: 1; }
+.fs-chip { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.65rem; background: var(--clay-warm); border: 1px solid rgba(139, 121, 104, 0.25); font-size: 0.82rem; color: var(--stone); cursor: grab; user-select: none; }
+.fs-chip:hover { background: #ded1c4; }
+.fs-chip.dragging { opacity: 0.4; }
+.fs-chip-x { font-size: 0.75rem; color: var(--clay-dark); cursor: pointer; padding: 0 0.1rem; line-height: 1; }
+.fs-chip-x:hover { color: var(--terracotta); }
+.fs-chip-add { padding: 0.4rem 0.8rem; background: transparent; border: 1px dashed rgba(139, 121, 104, 0.45); color: var(--clay-dark); font-size: 0.82rem; cursor: pointer; user-select: none; }
+.fs-chip-add:hover { border-color: var(--terracotta); color: var(--terracotta); }
+.fs-edit-hint { font-size: 0.78rem; color: var(--clay-dark); margin: 0.4rem 0 1rem 76px; }
+.fs-reset { background: none; border: none; color: var(--clay-dark); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; text-decoration: underline; margin-left: 76px; padding: 0; }
+.fs-reset:hover { color: var(--terracotta); }
+.fs-pop { position: absolute; z-index: 2000; background: var(--ivory); border: 1px solid rgba(139, 121, 104, 0.35); box-shadow: 0 8px 24px rgba(44, 40, 32, 0.18); padding: 0.5rem; display: grid; grid-template-columns: repeat(4, auto); gap: 0.3rem; }
+.fs-pop button { padding: 0.4rem 0.6rem; background: var(--clay-warm); border: 1px solid rgba(139, 121, 104, 0.2); font-size: 0.8rem; color: var(--stone); cursor: pointer; }
+.fs-pop button:hover { background: var(--terracotta); color: var(--ivory); }
+.fs-pop button.cur { background: var(--stone); color: var(--ivory); }
 </style>
 
             <div class="section-header">
@@ -384,6 +401,15 @@
     <div class="fs-controls">
         <button class="contact-btn" id="fsWebcamBtn">Start Camera</button>
         <button class="contact-btn" id="fsAudioBtn">Audio: On</button>
+        <div class="fs-voice-row">
+            <label for="fsVoice">Voice</label>
+            <select class="fs-select" id="fsVoice">
+                <option value="rhodes">Rhodes</option>
+                <option value="organ">Organ</option>
+                <option value="strings">Strings</option>
+                <option value="choir">Choir</option>
+            </select>
+        </div>
     </div>
     <div class="fs-stage" id="fsStage">
         <video id="fsVideo" autoplay playsinline muted></video>
@@ -391,20 +417,25 @@
     </div>
     <div class="fs-readout"><span class="fs-now" id="fsNow">&mdash;</span></div>
     <div class="fs-status" id="fsStatus">Camera is off</div>
-    <div class="fs-voice-label">Voicing</div>
-    <div class="fs-voices">
-        <button class="fs-voice active" data-v="rhodes">Rhodes</button>
-        <button class="fs-voice" data-v="organ">Organ</button>
-        <button class="fs-voice" data-v="strings">Strings</button>
-        <button class="fs-voice" data-v="choir">Choir</button>
+    <div class="fs-edit">
+        <div class="fs-edit-row">
+            <span class="fs-edit-label">Keys</span>
+            <div class="fs-chips" id="fsKeyChips"></div>
+        </div>
+        <div class="fs-edit-row">
+            <span class="fs-edit-label">Chords</span>
+            <div class="fs-chips" id="fsChordChips"></div>
+        </div>
+        <div class="fs-edit-hint">Drag chips to reorder the wheel. Click a chip to swap it for another. Press x to remove it. + adds one back.</div>
+        <button class="fs-reset" id="fsReset">Reset wheels</button>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script>
 (function() {
-var KEYS_CCW = ['A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C', 'B', 'Bb'];
-var CHORDS_CCW = ['Major', 'Major7', '6', 'minor', 'minor7', 'm7b5', 'diminished', 'augmented'];
+var ALL_KEYS = ['A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C', 'B', 'Bb'];
+var ALL_CHORDS = ['Major', 'Major7', '6', 'minor', 'minor7', 'm7b5', 'diminished', 'augmented'];
 var INTERVALS = {
     'Major':      [0, 4, 7, 12],
     'Major7':     [0, 4, 7, 11],
@@ -425,6 +456,9 @@ var INSTRUMENTS = {
     choir:   { partials: [0.85, 0.32, 0.1, 0.04], attack: 0.5, level: 0.14, filter: 1200, detune: 7, vibRate: 4.6, vibDepth: 7 }
 };
 
+var wheelKeys = ALL_KEYS.slice();
+var wheelChords = ALL_CHORDS.slice();
+
 var video, canvas, ctx;
 var audioCtx = null, master = null;
 var camOn = false, audioOn = true;
@@ -432,26 +466,189 @@ var selKey = 'C', selChord = 'Major', currentInst = 'rhodes';
 var voices = [], playingId = null;
 var hands = null, handsReady = false, sending = false;
 var bothHands = false, waveCache = {}, previewTimer = null;
+var dragInfo = null, pop = null;
+
+function moveItem(arr, from, to) {
+    if (from === to || from < 0 || to < 0 || from >= arr.length || to >= arr.length) return arr;
+    var item = arr.splice(from, 1)[0];
+    arr.splice(to, 0, item);
+    return arr;
+}
+
+function saveCfg() {
+    try {
+        localStorage.setItem('fsCfg', JSON.stringify({ k: wheelKeys, c: wheelChords, v: currentInst }));
+    } catch (e) {}
+}
+
+function loadCfg() {
+    try {
+        var raw = localStorage.getItem('fsCfg');
+        if (!raw) return;
+        var cfg = JSON.parse(raw);
+        function ok(list, all) {
+            if (!Array.isArray(list) || list.length < 2) return false;
+            for (var i = 0; i < list.length; i++) if (all.indexOf(list[i]) < 0) return false;
+            return true;
+        }
+        if (ok(cfg.k, ALL_KEYS)) wheelKeys = cfg.k;
+        if (ok(cfg.c, ALL_CHORDS)) wheelChords = cfg.c;
+        if (cfg.v && INSTRUMENTS[cfg.v]) currentInst = cfg.v;
+    } catch (e) {}
+}
+
+function ensureValidSelection() {
+    if (wheelKeys.indexOf(selKey) < 0) selKey = wheelKeys[0];
+    if (wheelChords.indexOf(selChord) < 0) selChord = wheelChords[0];
+}
+
+function closePop() {
+    if (pop) { pop.remove(); pop = null; document.removeEventListener('click', popOutside, true); }
+}
+function popOutside(e) { if (pop && !pop.contains(e.target)) closePop(); }
+
+function openPop(anchor, options, currentVal, cb) {
+    closePop();
+    pop = document.createElement('div');
+    pop.className = 'fs-pop';
+    for (var i = 0; i < options.length; i++) {
+        (function(opt) {
+            var b = document.createElement('button');
+            b.textContent = opt;
+            if (opt === currentVal) b.className = 'cur';
+            b.addEventListener('click', function(e) {
+                e.stopPropagation();
+                closePop();
+                cb(opt);
+            });
+            pop.appendChild(b);
+        })(options[i]);
+    }
+    document.body.appendChild(pop);
+    var r = anchor.getBoundingClientRect();
+    var left = r.left + window.scrollX;
+    var maxLeft = window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 12;
+    pop.style.left = Math.min(left, maxLeft) + 'px';
+    pop.style.top = (r.bottom + window.scrollY + 6) + 'px';
+    setTimeout(function() { document.addEventListener('click', popOutside, true); }, 0);
+}
+
+function afterWheelChange(kind) {
+    ensureValidSelection();
+    saveCfg();
+    renderChips(kind);
+    if (!camOn) drawIdle();
+}
+
+function renderChips(kind) {
+    var arr = kind === 'keys' ? wheelKeys : wheelChords;
+    var all = kind === 'keys' ? ALL_KEYS : ALL_CHORDS;
+    var box = document.getElementById(kind === 'keys' ? 'fsKeyChips' : 'fsChordChips');
+    box.innerHTML = '';
+
+    function makeChip(item, i) {
+        var chip = document.createElement('div');
+        chip.className = 'fs-chip';
+        chip.draggable = true;
+        var label = document.createElement('span');
+        label.textContent = item;
+        chip.appendChild(label);
+        var x = document.createElement('span');
+        x.className = 'fs-chip-x';
+        x.textContent = 'x';
+        x.title = 'Remove';
+        chip.appendChild(x);
+
+        x.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (arr.length <= 2) return;
+            arr.splice(i, 1);
+            afterWheelChange(kind);
+        });
+
+        chip.addEventListener('click', function(e) {
+            if (e.target === x) return;
+            openPop(chip, all, item, function(chosen) {
+                if (chosen === item) return;
+                var existing = arr.indexOf(chosen);
+                if (existing >= 0) {
+                    arr[existing] = item;
+                    arr[i] = chosen;
+                } else {
+                    arr[i] = chosen;
+                }
+                afterWheelChange(kind);
+            });
+        });
+
+        chip.addEventListener('dragstart', function(e) {
+            dragInfo = { kind: kind, i: i };
+            chip.classList.add('dragging');
+            try { e.dataTransfer.setData('text/plain', item); } catch (err) {}
+            e.dataTransfer.effectAllowed = 'move';
+        });
+        chip.addEventListener('dragend', function() {
+            chip.classList.remove('dragging');
+            dragInfo = null;
+        });
+        chip.addEventListener('dragover', function(e) { e.preventDefault(); });
+        chip.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (dragInfo && dragInfo.kind === kind && dragInfo.i !== i) {
+                moveItem(arr, dragInfo.i, i);
+                afterWheelChange(kind);
+            }
+            dragInfo = null;
+        });
+        return chip;
+    }
+
+    for (var i = 0; i < arr.length; i++) box.appendChild(makeChip(arr[i], i));
+
+    var missing = [];
+    for (var m = 0; m < all.length; m++) if (arr.indexOf(all[m]) < 0) missing.push(all[m]);
+    if (missing.length) {
+        var add = document.createElement('div');
+        add.className = 'fs-chip-add';
+        add.textContent = '+';
+        add.title = 'Add back';
+        add.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openPop(add, missing, null, function(chosen) {
+                arr.push(chosen);
+                afterWheelChange(kind);
+            });
+        });
+        box.appendChild(add);
+    }
+    box.addEventListener('dragover', function(e) { e.preventDefault(); });
+}
 
 function init() {
     video = document.getElementById('fsVideo');
     canvas = document.getElementById('fsCanvas');
     ctx = canvas.getContext('2d');
+    loadCfg();
+    ensureValidSelection();
     document.getElementById('fsWebcamBtn').addEventListener('click', toggleCam);
     document.getElementById('fsAudioBtn').addEventListener('click', toggleAudio);
     document.getElementById('fsStage').addEventListener('click', previewChord);
-    var vbtns = document.querySelectorAll('.fs-voice');
-    for (var i = 0; i < vbtns.length; i++) {
-        (function(b) {
-            b.addEventListener('click', function() {
-                currentInst = b.getAttribute('data-v');
-                for (var j = 0; j < vbtns.length; j++) vbtns[j].classList.remove('active');
-                b.classList.add('active');
-                if (bothHands) { playingId = null; setChord(selKey, selChord); }
-                else previewChord();
-            });
-        })(vbtns[i]);
-    }
+    var sel = document.getElementById('fsVoice');
+    sel.value = currentInst;
+    sel.addEventListener('change', function() {
+        currentInst = sel.value;
+        saveCfg();
+        if (bothHands) { playingId = null; setChord(selKey, selChord); }
+        else previewChord();
+    });
+    document.getElementById('fsReset').addEventListener('click', function() {
+        wheelKeys = ALL_KEYS.slice();
+        wheelChords = ALL_CHORDS.slice();
+        afterWheelChange('keys');
+        afterWheelChange('chords');
+    });
+    renderChips('keys');
+    renderChips('chords');
     drawIdle();
 }
 
@@ -636,8 +833,16 @@ function segmentAt(circle, n, x, y) {
     return Math.floor(ccw / (360 / n));
 }
 
+function wheelFont(labels, n) {
+    var maxLen = 0;
+    for (var i = 0; i < labels.length; i++) if (labels[i].length > maxLen) maxLen = labels[i].length;
+    var base = maxLen > 6 ? 170 : 250;
+    return Math.max(16, Math.min(30, Math.round(base / n)));
+}
+
 function drawWheel(circle, labels, activeIdx, title) {
     var n = labels.length, step = 360 / n;
+    var fpx = wheelFont(labels, n);
     for (var i = 0; i < n; i++) {
         var a1 = rad(-90 - i * step), a2 = rad(-90 - (i + 1) * step);
         ctx.beginPath();
@@ -652,7 +857,7 @@ function drawWheel(circle, labels, activeIdx, title) {
         var mid = rad(-90 - (i * step + step / 2));
         var rm = (circle.rOut + circle.rIn) / 2;
         ctx.fillStyle = '#FAF8F5';
-        ctx.font = (i === activeIdx ? '600 ' : '400 ') + (n > 8 ? '26px' : '19px') + ' Karla, sans-serif';
+        ctx.font = (i === activeIdx ? '600 ' : '400 ') + fpx + 'px Karla, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(labels[i], circle.cx + rm * Math.cos(mid), circle.cy + rm * Math.sin(mid));
@@ -667,8 +872,8 @@ function drawWheel(circle, labels, activeIdx, title) {
 function drawIdle() {
     var g = geom();
     ctx.clearRect(0, 0, g.w, g.h);
-    drawWheel(g.left, KEYS_CCW, KEYS_CCW.indexOf(selKey), 'KEY');
-    drawWheel(g.right, CHORDS_CCW, CHORDS_CCW.indexOf(selChord), 'CHORD');
+    drawWheel(g.left, wheelKeys, wheelKeys.indexOf(selKey), 'KEY');
+    drawWheel(g.right, wheelChords, wheelChords.indexOf(selChord), 'CHORD');
 }
 
 function onResults(r) {
@@ -683,19 +888,19 @@ function onResults(r) {
             var x = (1 - tip.x) * g.w;
             var y = tip.y * g.h;
             tips.push({ x: x, y: y });
-            var li = segmentAt(g.left, KEYS_CCW.length, x, y);
-            if (li >= 0) { leftIdx = li; selKey = KEYS_CCW[li]; }
-            var ri = segmentAt(g.right, CHORDS_CCW.length, x, y);
-            if (ri >= 0) { rightIdx = ri; selChord = CHORDS_CCW[ri]; }
+            var li = segmentAt(g.left, wheelKeys.length, x, y);
+            if (li >= 0) { leftIdx = li; selKey = wheelKeys[li]; }
+            var ri = segmentAt(g.right, wheelChords.length, x, y);
+            if (ri >= 0) { rightIdx = ri; selChord = wheelChords[ri]; }
         }
     }
 
     bothHands = handCount >= 2;
-    if (leftIdx < 0) leftIdx = KEYS_CCW.indexOf(selKey);
-    if (rightIdx < 0) rightIdx = CHORDS_CCW.indexOf(selChord);
+    if (leftIdx < 0) leftIdx = wheelKeys.indexOf(selKey);
+    if (rightIdx < 0) rightIdx = wheelChords.indexOf(selChord);
 
-    drawWheel(g.left, KEYS_CCW, leftIdx, 'KEY');
-    drawWheel(g.right, CHORDS_CCW, rightIdx, 'CHORD');
+    drawWheel(g.left, wheelKeys, leftIdx, 'KEY');
+    drawWheel(g.right, wheelChords, rightIdx, 'CHORD');
 
     for (var k = 0; k < tips.length; k++) {
         ctx.beginPath();
