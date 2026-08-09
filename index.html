@@ -439,7 +439,7 @@ body.fs-lock { overflow: hidden; }
             <span class="fs-edit-label">Chords</span>
             <div class="fs-chips" id="fsChordChips"></div>
         </div>
-        <div class="fs-edit-hint">Drag chips to reorder the wheel. Click a chip to swap it for another. Press x to remove it. + adds one back.</div>
+        <div class="fs-edit-hint">Drag chips to reorder the wheel. Click a chip to swap it for another. Press x to remove it. + adds another; duplicates are allowed.</div>
         <button class="fs-reset" id="fsReset">Reset wheels</button>
     </div>
 </div>
@@ -447,7 +447,7 @@ body.fs-lock { overflow: hidden; }
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script>
 (function() {
-var ALL_KEYS = ['A', 'Ab', 'G', 'Gb', 'F', 'E', 'Eb', 'D', 'Db', 'C', 'B', 'Bb'];
+var ALL_KEYS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
 var ALL_CHORDS = ['Major', 'Maj7', '7', '6', 'aug', 'dim', 'min7b5', 'min7', 'min', 'sus4', '7sus4', '9', '11', '7b9', 'Maj9', '6/9', '13', 'min6', 'min9', 'minMaj7', '7b5', '7#5'];
 var INTERVALS = {
     'Major':   [0, 4, 7, 12],
@@ -474,9 +474,10 @@ var INTERVALS = {
     '7#5':     [0, 4, 8, 10]
 };
 var FREQS = { 'A': 220.00, 'Bb': 233.08, 'B': 246.94, 'C': 261.63, 'Db': 277.18, 'D': 293.66,
-              'Eb': 311.13, 'E': 329.63, 'F': 349.23, 'Gb': 369.99, 'G': 392.00, 'Ab': 415.30 };
+              'Eb': 311.13, 'E': 329.63, 'F': 349.23, 'Gb': 369.99, 'G': 392.00, 'Ab': 415.30,
+              'C#': 277.18, 'D#': 311.13, 'F#': 369.99, 'G#': 415.30, 'A#': 466.16 };
 
-var KEY_SEMI = { 'C': 0, 'Db': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'Gb': 6, 'G': 7, 'Ab': 8, 'A': 9, 'Bb': 10, 'B': 11 };
+var KEY_SEMI = { 'C': 0, 'Db': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'Gb': 6, 'G': 7, 'Ab': 8, 'A': 9, 'Bb': 10, 'B': 11, 'C#': 1, 'D#': 3, 'F#': 6, 'G#': 8, 'A#': 10 };
 
 var INSTRUMENTS = {
     rhodes:  { partials: [1, 0.5, 0.14, 0.06, 0.02], attack: 0.05, level: 0.13, filter: 3000, detune: 4,  vibRate: 4.5, vibDepth: 2 },
@@ -604,13 +605,7 @@ function renderChips(kind) {
             if (e.target === x) return;
             openPop(chip, all, item, function(chosen) {
                 if (chosen === item) return;
-                var existing = arr.indexOf(chosen);
-                if (existing >= 0) {
-                    arr[existing] = item;
-                    arr[i] = chosen;
-                } else {
-                    arr[i] = chosen;
-                }
+                arr[i] = chosen;
                 afterWheelChange(kind);
             });
         });
@@ -639,8 +634,7 @@ function renderChips(kind) {
 
     for (var i = 0; i < arr.length; i++) box.appendChild(makeChip(arr[i], i));
 
-    var missing = [];
-    for (var m = 0; m < all.length; m++) if (arr.indexOf(all[m]) < 0) missing.push(all[m]);
+    var missing = all.slice();
     if (missing.length) {
         var add = document.createElement('div');
         add.className = 'fs-chip-add';
