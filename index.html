@@ -478,7 +478,7 @@ var chordStyle = 'lead';
 var voices = [], playingId = null;
 var hands = null, handsReady = false, sending = false;
 var bothHands = false, previewTimer = null;
-var globalFilt = null, gLfoOsc = null, gLfoGain = null;
+var globalFilt = null;
 var reverb = null, dryGain = null, wetGain = null;
 var dragInfo = null, pop = null;
 
@@ -728,17 +728,12 @@ function ensureAudio() {
         dryGain = audioCtx.createGain();
         dryGain.gain.value = 1.0;
         wetGain = audioCtx.createGain();
+        wetGain.gain.value = 0.3;
         globalFilt.connect(dryGain);
         dryGain.connect(comp);
         globalFilt.connect(reverb);
         reverb.connect(wetGain);
         wetGain.connect(comp);
-        updateSpace();
-        gLfoOsc = audioCtx.createOscillator();
-        gLfoGain = audioCtx.createGain();
-        gLfoOsc.connect(gLfoGain);
-        gLfoGain.connect(globalFilt.frequency);
-        gLfoOsc.start();
         updateGlobalFx();
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -749,14 +744,6 @@ function updateGlobalFx() {
     var g = timbre.global;
     var tc = audioCtx.currentTime;
     globalFilt.frequency.setTargetAtTime(g.filter, tc, 0.04);
-    gLfoOsc.frequency.setTargetAtTime(0.1 + (g.lfo / 100) * 7.9, tc, 0.04);
-    gLfoGain.gain.setTargetAtTime(g.filter * 0.45 * (g.lfo / 100), tc, 0.04);
-}
-
-function updateSpace() {
-    if (!wetGain) return;
-    var s = timbre.choir.space / 100;
-    wetGain.gain.setTargetAtTime(Math.pow(s, 1.2) * 0.9, audioCtx.currentTime, 0.06);
 }
 
 var VOWEL_TABLE = [
@@ -786,14 +773,9 @@ function getNoiseBuf() {
 }
 
 var TIMBRE_DEFS = {
-    choir:   [ { id: 'voices', label: 'Voices', min: 2, max: 12, step: 1, def: 8 },
-               { id: 'vowel', label: 'Vowel', min: 0, max: 100, step: 1, def: 55 },
-               { id: 'warmth', label: 'Warmth', min: 0, max: 100, step: 1, def: 70 },
-               { id: 'shimmer', label: 'Shimmer', min: 0, max: 100, step: 1, def: 35 },
-               { id: 'breath', label: 'Breath', min: 0, max: 100, step: 1, def: 20 },
-               { id: 'space', label: 'Space', min: 0, max: 100, step: 1, def: 40 } ],
-    global:  [ { id: 'filter', label: 'Filter', min: 60, max: 18000, log: true, def: 18000 },
-               { id: 'lfo', label: 'LFO', min: 0, max: 100, step: 1, def: 0 } ]
+    choir:   [ { id: 'shimmer', label: 'Shimmer', min: 0, max: 100, step: 1, def: 35 },
+               { id: 'breath', label: 'Breath', min: 0, max: 100, step: 1, def: 20 } ],
+    global:  [ { id: 'filter', label: 'Filter', min: 60, max: 18000, log: true, def: 18000 } ]
 };
 var timbre = {};
 (function() {
@@ -882,7 +864,6 @@ function renderTimbre() {
 }
 function applyTimbre(inst, param) {
     if (inst === 'global') { if (audioCtx) updateGlobalFx(); return; }
-    if (param === 'space') { if (audioCtx) updateSpace(); return; }
     if (inst !== currentInst) return;
     if (voices.length && playingId !== null) {
         playingId = null;
@@ -893,9 +874,9 @@ function applyTimbre(inst, param) {
 function makeVoice(freq, instName, t) {
     var inst = INSTRUMENTS.choir;
     var tb = timbre.choir;
-    var count = Math.max(2, tb.voices);
+    var count = 8;
     var level = inst.level * Math.sqrt(3 / count);
-    var warmth = tb.warmth / 100;
+    var warmth = 0.7;
     var vg = audioCtx.createGain();
     vg.gain.setValueAtTime(0.0001, t);
     vg.gain.linearRampToValueAtTime(level, t + inst.attack);
@@ -907,7 +888,7 @@ function makeVoice(freq, instName, t) {
     filt.connect(master);
     var oscBus = audioCtx.createGain();
     oscBus.gain.value = 1.0;
-    var fmts = vowelFormants(tb.vowel);
+    var fmts = vowelFormants(55);
     for (var f2 = 0; f2 < 3; f2++) {
         var bp = audioCtx.createBiquadFilter();
         bp.type = 'bandpass';
