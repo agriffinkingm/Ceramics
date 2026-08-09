@@ -358,7 +358,7 @@
 body.fs-lock { overflow: hidden; }
 .fs-readout { display: flex; justify-content: center; align-items: baseline; margin-top: 1.2rem; }
 .fs-readout .fs-now { font-family: 'Cormorant Garamond', serif; font-size: 3rem; color: var(--terracotta); min-height: 4rem; }
-.fs-status { text-align: center; font-size: 0.9rem; color: var(--clay-dark); margin-bottom: 1.8rem; }
+.fs-status { text-align: center; font-size: 0.9rem; color: var(--clay-dark); margin-bottom: 1.8rem; min-height: 1.3em; }
 .fs-voice-row { display: flex; align-items: center; gap: 0.6rem; }
 .fs-voice-row label { font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--clay-dark); }
 .fs-select { padding: 0.7rem 2.2rem 0.7rem 1rem; background: var(--clay-warm); color: var(--stone); border: 1px solid rgba(139, 121, 104, 0.25); font-family: 'Karla', sans-serif; font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234A4238'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.8rem center; }
@@ -404,7 +404,6 @@ body.fs-lock { overflow: hidden; }
             <label for="fsVoice">Voice</label>
             <select class="fs-select" id="fsVoice">
                 <option value="choir">Choir</option>
-                <option value="ghost">Ghost</option>
                 <option value="bling">Bling</option>
             </select>
         </div>
@@ -471,7 +470,6 @@ var KEY_SEMI = { 'C': 0, 'Db': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'Gb': 6, 'G':
 
 var INSTRUMENTS = {
     choir: { attack: 1.1, level: 0.27, detune: 5, vibRate: 0.35, vibDepth: 3 },
-    ghost: { level: 0.8, root: 130.81, url: 'images/ghost.mp3', loopStart: 2.0, loopEnd: 4.9 },
     bling: { level: 0.85, root: 261.63, url: 'images/bling.mp3' }
 };
 var sampleBufs = {}, sampleLoading = {};
@@ -508,7 +506,7 @@ var hands = null, handsReady = false, sending = false;
 var bothHands = false, previewTimer = null;
 var globalFilt = null;
 var reverb = null, dryGain = null, wetGain = null;
-var blingBus = null, blingDelay = null;
+var blingBus = null, blingDelay = null, blingWet = null;
 var dragInfo = null, pop = null;
 
 function moveItem(arr, from, to) {
@@ -818,17 +816,16 @@ function ensureAudio() {
         blingBus = audioCtx.createGain();
         blingBus.connect(master);
         blingDelay = audioCtx.createDelay(1.0);
-        blingDelay.delayTime.value = timbre.bling.delay / 1000;
+        blingDelay.delayTime.value = Math.max(80, timbre.bling.delay) / 1000;
         var blingFb = audioCtx.createGain();
         blingFb.gain.value = 0.42;
-        var blingWet = audioCtx.createGain();
-        blingWet.gain.value = 0.5;
+        blingWet = audioCtx.createGain();
+        blingWet.gain.value = timbre.bling.delay < 80 ? 0 : 0.5;
         blingBus.connect(blingDelay);
         blingDelay.connect(blingFb);
         blingFb.connect(blingDelay);
         blingDelay.connect(blingWet);
         blingWet.connect(master);
-        loadSample('ghost');
         loadSample('bling');
         updateGlobalFx();
     }
@@ -856,9 +853,8 @@ function getNoiseBuf() {
 var TIMBRE_DEFS = {
     choir:   [ { id: 'shimmer', label: 'Shimmer', min: 0, max: 100, step: 1, def: 35 },
                { id: 'breath', label: 'Breath', min: 0, max: 100, step: 1, def: 20 } ],
-    ghost:   [],
-    bling:   [ { id: 'rate', label: 'Rate', min: 2, max: 12, step: 0.5, def: 5 },
-               { id: 'delay', label: 'Delay', min: 80, max: 750, step: 5, def: 320 } ],
+    bling:   [ { id: 'rate', label: 'Rate', min: 0, max: 4, step: 1, def: 2 },
+               { id: 'delay', label: 'Delay', min: 0, max: 750, step: 5, def: 320 } ],
     global:  [ { id: 'filter', label: 'Filter', min: 60, max: 18000, log: true, def: 18000 } ]
 };
 var timbre = {};
@@ -877,8 +873,12 @@ var timbre = {};
 })();
 function saveTimbre() { try { localStorage.setItem('fsTimbre', JSON.stringify(timbre)); } catch (e) {} }
 
+var ARP_DIVS = [2, 3, 4, 6, 8];
+var ARP_LABELS = ['1/2', '1/3', '1/4', '1/6', '1/8'];
 function fmtParam(def, v) {
     if (def.id === 'filter') return v >= 1000 ? (v / 1000).toFixed(1) + ' kHz' : Math.round(v) + ' Hz';
+    if (def.id === 'rate') return ARP_LABELS[Math.max(0, Math.min(4, Math.round(v)))];
+    if (def.id === 'delay') return v < 80 ? 'Off' : Math.round(v) + ' ms';
     return String(Math.round(v));
 }
 function paramToNorm(def, v) {
@@ -949,7 +949,12 @@ function renderTimbre() {
 function applyTimbre(inst, param) {
     if (inst === 'global') { if (audioCtx) updateGlobalFx(); return; }
     if (inst === 'bling') {
-        if (param === 'delay' && blingDelay) blingDelay.delayTime.setTargetAtTime(timbre.bling.delay / 1000, audioCtx.currentTime, 0.05);
+        if (param === 'delay' && blingDelay) {
+            var dv = timbre.bling.delay;
+            var tc2 = audioCtx.currentTime;
+            blingWet.gain.setTargetAtTime(dv < 80 ? 0 : 0.5, tc2, 0.05);
+            if (dv >= 80) blingDelay.delayTime.setTargetAtTime(dv / 1000, tc2, 0.05);
+        }
         return;
     }
     if (inst !== currentInst) return;
@@ -957,23 +962,6 @@ function applyTimbre(inst, param) {
         playingId = null;
         setChord(selKey, selChord);
     }
-}
-
-function makeSampleVoice(freq, instName, t) {
-    var inst = INSTRUMENTS[instName];
-    var vg = audioCtx.createGain();
-    vg.connect(master);
-    var buf = sampleBufs[instName];
-    if (!buf) { loadSample(instName); return { nodes: [], g: vg, filt: null }; }
-    var s = audioCtx.createBufferSource();
-    s.buffer = buf;
-    s.playbackRate.value = freq / inst.root;
-    if (inst.loopEnd) { s.loop = true; s.loopStart = inst.loopStart; s.loopEnd = inst.loopEnd; }
-    vg.gain.setValueAtTime(0.0001, t);
-    vg.gain.linearRampToValueAtTime(inst.level, t + 0.05);
-    s.connect(vg);
-    s.start(t);
-    return { nodes: [s], g: vg, filt: null };
 }
 
 var arpTimer = null, arpNext = 0, arpStep = 0, arpFreqs = [];
@@ -991,7 +979,7 @@ function stopArp() {
 function arpTick() {
     if (!audioCtx || !arpFreqs.length) return;
     var now = audioCtx.currentTime;
-    var dur = 1 / Math.max(1, timbre.bling.rate);
+    var dur = 1 / ARP_DIVS[Math.max(0, Math.min(4, Math.round(timbre.bling.rate)))];
     if (arpNext < now - 0.3) arpNext = now + 0.02;
     while (arpNext < now + 0.16) {
         triggerBling(arpFreqs[arpStep % arpFreqs.length], arpNext);
@@ -1015,7 +1003,6 @@ function triggerBling(freq, t) {
 }
 
 function makeVoice(freq, instName, t) {
-    if (instName === 'ghost') return makeSampleVoice(freq, instName, t);
     var inst = INSTRUMENTS.choir;
     var tb = timbre.choir;
     var level = inst.level;
