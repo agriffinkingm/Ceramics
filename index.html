@@ -483,7 +483,7 @@ var INSTRUMENTS = {
     rhodes:  { partials: [1, 0.5, 0.14, 0.06, 0.02], attack: 0.05, level: 0.13, filter: 3000, detune: 4,  vibRate: 4.5, vibDepth: 2 },
     organ:   { partials: [0.9, 0.7, 0.45, 0.3, 0.2, 0.12], attack: 0.03, level: 0.10, filter: 6500, detune: 0,  vibRate: 6.2, vibDepth: 2 },
     strings: { saw: true, attack: 0.6, level: 0.075, filter: 1600, detune: 9, vibRate: 5.0, vibDepth: 6 },
-    choir:   { partials: [0.85, 0.32, 0.1, 0.04], attack: 0.5, level: 0.14, filter: 1200, detune: 7, vibRate: 4.6, vibDepth: 7 }
+    choir:   { saw: true, attack: 0.6, level: 0.30, filter: 7500, detune: 11, vibRate: 4.8, vibDepth: 9 }
 };
 
 var DEFAULT_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
@@ -918,6 +918,23 @@ function makeVoice(freq, instName, t) {
     filt.Q.value = 0.5;
     vg.connect(filt);
     filt.connect(master);
+    var oscTarget = vg;
+    if (instName === 'choir') {
+        var fmts = [[700, 8, 1.2], [1080, 10, 0.7], [2500, 12, 0.4]];
+        oscTarget = audioCtx.createGain();
+        oscTarget.gain.value = 0.9;
+        for (var f2 = 0; f2 < fmts.length; f2++) {
+            var bp = audioCtx.createBiquadFilter();
+            bp.type = 'bandpass';
+            bp.frequency.value = fmts[f2][0] * (0.97 + Math.random() * 0.06);
+            bp.Q.value = fmts[f2][1];
+            var bg = audioCtx.createGain();
+            bg.gain.value = fmts[f2][2];
+            oscTarget.connect(bp);
+            bp.connect(bg);
+            bg.connect(vg);
+        }
+    }
     var nodes = [];
     var detunes = [];
     if (count === 1) detunes = [0];
@@ -935,7 +952,7 @@ function makeVoice(freq, instName, t) {
         lfo.connect(lg);
         lg.connect(o.detune);
         lfo.start(t);
-        o.connect(vg);
+        o.connect(oscTarget);
         o.start(t);
         nodes.push(o); nodes.push(lfo);
     }
