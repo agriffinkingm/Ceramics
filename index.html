@@ -351,7 +351,7 @@
 .fs-controls { display: flex; gap: 1rem; justify-content: center; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; }
 .fs-stage { position: relative; width: 100%; aspect-ratio: 16/9; background: #111; overflow: hidden; border: 1px solid rgba(139, 121, 104, 0.25); cursor: pointer; }
 .fs-stage video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-.fs-stage canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.fs-stage canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 .fs-fullbtn { position: absolute; top: 0.6rem; right: 0.6rem; z-index: 20; width: 2.6rem; height: 2.6rem; background: rgba(20, 18, 15, 0.45); color: #FAF8F5; border: 1px solid rgba(250, 248, 245, 0.4); border-radius: 4px; font-size: 1.2rem; line-height: 1; cursor: pointer; }
 .fs-fullbtn:hover { background: rgba(198, 123, 92, 0.7); }
 .fs-stage.fs-full { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: 5000; aspect-ratio: auto !important; border: none; }
@@ -630,11 +630,26 @@ function renderChips(kind) {
     box.addEventListener('dragover', function(e) { e.preventDefault(); });
 }
 
+var fsDpr = 1;
+function resizeCanvas() {
+    var st = document.getElementById('fsStage');
+    if (!st || !canvas) return;
+    fsDpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = st.clientWidth, h = st.clientHeight;
+    if (!w || !h) return;
+    canvas.width = Math.round(w * fsDpr);
+    canvas.height = Math.round(h * fsDpr);
+    if (!camOn) drawIdle();
+}
+
 function init() {
     video = document.getElementById('fsVideo');
     canvas = document.getElementById('fsCanvas');
     ctx = canvas.getContext('2d');
-    if (window.innerWidth < 768) { canvas.width = 720; canvas.height = 960; document.getElementById('fsStage').style.aspectRatio = '3 / 4'; }
+    if (window.innerWidth < 768) { document.getElementById('fsStage').style.aspectRatio = '3 / 4'; }
+    resizeCanvas();
+    window.addEventListener('resize', function() { setTimeout(resizeCanvas, 60); });
+    window.addEventListener('orientationchange', function() { setTimeout(resizeCanvas, 250); });
     loadCfg();
     ensureValidSelection();
     document.getElementById('fsWebcamBtn').addEventListener('click', toggleCam);
@@ -651,6 +666,8 @@ function init() {
         fb.title = on ? 'Exit fullscreen' : 'Fullscreen';
         if (on && st.requestFullscreen) { st.requestFullscreen().catch(function() {}); }
         else if (!on && document.fullscreenElement && document.exitFullscreen) { document.exitFullscreen().catch(function() {}); }
+        setTimeout(resizeCanvas, 120);
+        setTimeout(resizeCanvas, 450);
     });
     document.addEventListener('fullscreenchange', function() {
         if (!document.fullscreenElement) {
@@ -659,6 +676,7 @@ function init() {
             document.body.classList.remove('fs-lock');
             fb.innerHTML = '&#x26F6;';
         }
+        setTimeout(resizeCanvas, 120);
     });
     renderTimbre();
     document.getElementById('fsReset').addEventListener('click', function() {
@@ -1061,14 +1079,16 @@ function toggleAudio() {
 function toggleCam() {
     if (!camOn) {
         ensureAudio();
-        navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' } })
+        var isMobile = navigator.maxTouchPoints > 0 || window.innerWidth < 768;
+        var vidC = isMobile ? { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user', frameRate: { ideal: 30 } }
+                            : { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' };
+        navigator.mediaDevices.getUserMedia({ video: vidC })
         .then(function(stream) { video.srcObject = stream; return video.play(); })
         .then(function() {
-            if (video.videoWidth) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
+            if (video.videoWidth && window.innerWidth >= 768) {
                 document.getElementById('fsStage').style.aspectRatio = video.videoWidth + ' / ' + video.videoHeight;
             }
+            setTimeout(resizeCanvas, 80);
             camOn = true;
             document.getElementById('fsWebcamBtn').textContent = 'Stop Camera';
             document.getElementById('fsStatus').textContent = 'Loading hand tracker...';
@@ -1101,7 +1121,7 @@ function startTracking() {
     if (!hands) {
         hands = new Hands({ locateFile: function(f) { return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/' + f; } });
         var mc = (navigator.maxTouchPoints > 0 || window.innerWidth < 768) ? 0 : 1;
-        hands.setOptions({ maxNumHands: 2, modelComplexity: mc, minDetectionConfidence: 0.6, minTrackingConfidence: 0.5 });
+        hands.setOptions({ maxNumHands: 2, modelComplexity: mc, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
         hands.onResults(onResults);
     }
     handsReady = true;
@@ -1123,7 +1143,9 @@ function geom() {
     var w = canvas.width, h = canvas.height;
     var gap = w * 0.045;
     var cy = h * 0.93;
-    var r = Math.min(w * 0.5 - gap, h * 0.86);
+    var r;
+    if (w > h * 1.25) r = Math.min(w * 0.5 - gap, h * 1.3);
+    else r = Math.min(w * 0.5 - gap, h * 0.86);
     var rIn = r * 0.25;
     return { w: w, h: h,
         left:  { cx: w * 0.5 - gap, cy: cy, rOut: r, rIn: rIn, a0: 180, span: 90 },
@@ -1151,7 +1173,7 @@ function wheelFont(labels, n, circle) {
     var arc = (spanRad * rm) / n;
     var byArc = (arc * 0.82) / (maxLen * 0.58);
     var byBand = (circle ? (circle.rOut - circle.rIn) : 100) * 0.42;
-    return Math.max(11, Math.min(30, Math.round(Math.min(byArc, byBand))));
+    return Math.max(11 * fsDpr, Math.min(30 * fsDpr, Math.round(Math.min(byArc, byBand))));
 }
 
 function drawWheel(circle, labels, activeIdx, title) {
@@ -1177,7 +1199,7 @@ function drawWheel(circle, labels, activeIdx, title) {
         ctx.fillText(labels[i], circle.cx + rm * Math.cos(mid), circle.cy + rm * Math.sin(mid));
     }
     ctx.fillStyle = 'rgba(250, 248, 245, 0.8)';
-    ctx.font = '400 ' + Math.max(10, Math.min(18, Math.round(circle.rIn * 0.3))) + 'px Karla, sans-serif';
+    ctx.font = '400 ' + Math.max(10 * fsDpr, Math.min(18 * fsDpr, Math.round(circle.rIn * 0.3))) + 'px Karla, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     var tmid = rad(circle.a0 + circle.span / 2);
@@ -1192,6 +1214,15 @@ function drawIdle() {
     drawWheel(g.right, wheelChords, wheelChords.indexOf(selChord), 'CHORD');
 }
 
+function mapTip(tip, g) {
+    var vw = video.videoWidth, vh = video.videoHeight;
+    if (!vw || !vh) return { x: (1 - tip.x) * g.w, y: tip.y * g.h };
+    var scale = Math.max(g.w / vw, g.h / vh);
+    var ox = (vw * scale - g.w) / 2;
+    var oy = (vh * scale - g.h) / 2;
+    return { x: g.w - (tip.x * vw * scale - ox), y: tip.y * vh * scale - oy };
+}
+
 function onResults(r) {
     var g = geom();
     ctx.clearRect(0, 0, g.w, g.h);
@@ -1201,8 +1232,9 @@ function onResults(r) {
         handCount = r.multiHandLandmarks.length;
         for (var i = 0; i < handCount; i++) {
             var tip = r.multiHandLandmarks[i][8];
-            var x = (1 - tip.x) * g.w;
-            var y = tip.y * g.h;
+            var p = mapTip(tip, g);
+            var x = p.x;
+            var y = p.y;
             tips.push({ x: x, y: y });
             var li = segmentAt(g.left, wheelKeys.length, x, y);
             if (li >= 0) { leftIdx = li; selKey = wheelKeys[li]; }
