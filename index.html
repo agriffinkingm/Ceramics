@@ -404,7 +404,9 @@ body.fs-lock { overflow: hidden; }
             <label for="fsVoice">Voice</label>
             <select class="fs-select" id="fsVoice">
                 <option value="choir">Choir</option>
-                <option value="bling">Bling</option>
+                <option value="bell">Bell</option>
+                <option value="pluck">Pluck</option>
+                <option value="keys">Keys</option>
             </select>
         </div>
     </div>
@@ -470,26 +472,10 @@ var KEY_SEMI = { 'C': 0, 'Db': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'Gb': 6, 'G':
 
 var INSTRUMENTS = {
     choir: { attack: 1.1, level: 0.27, detune: 5, vibRate: 0.35, vibDepth: 3 },
-    bling: { level: 0.85, root: 261.63, url: 'images/bling.mp3' }
+    bell: {},
+    pluck: {},
+    keys: {}
 };
-var sampleBufs = {}, sampleLoading = {};
-function loadSample(name) {
-    var inst = INSTRUMENTS[name];
-    if (!audioCtx || !inst || !inst.url || sampleBufs[name] || sampleLoading[name]) return;
-    sampleLoading[name] = true;
-    fetch(inst.url)
-        .then(function(r) { return r.arrayBuffer(); })
-        .then(function(ab) { return audioCtx.decodeAudioData(ab); })
-        .then(function(buf) {
-            sampleBufs[name] = buf;
-            sampleLoading[name] = false;
-            if (playingId !== null && currentInst === name) { playingId = null; setChord(selKey, selChord); }
-        })
-        .catch(function() {
-            sampleLoading[name] = false;
-            document.getElementById('fsStatus').textContent = 'Sample failed to load';
-        });
-}
 
 var DEFAULT_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 var DEFAULT_CHORDS = ['Major', 'Maj7', '7', '6', 'aug', 'dim', 'min7b5', 'min7', 'min'];
@@ -506,7 +492,7 @@ var hands = null, handsReady = false, sending = false;
 var bothHands = false, previewTimer = null;
 var globalFilt = null;
 var reverb = null, dryGain = null, wetGain = null;
-var blingBus = null, blingDelay = null, blingWet = null;
+var echoDelay = null, echoWet = null;
 var dragInfo = null, pop = null;
 
 function moveItem(arr, from, to) {
@@ -712,7 +698,6 @@ function init() {
         currentInst = sel.value;
         saveCfg();
         renderTimbre();
-        if (audioCtx) loadSample(currentInst);
         if (bothHands) { playingId = null; setChord(selKey, selChord); }
         else previewChord();
     });
@@ -813,23 +798,27 @@ function ensureAudio() {
         preDelay.connect(reverb);
         reverb.connect(wetGain);
         wetGain.connect(comp);
-        blingBus = audioCtx.createGain();
-        blingBus.connect(master);
-        blingDelay = audioCtx.createDelay(1.0);
-        blingDelay.delayTime.value = Math.max(80, timbre.bling.delay) / 1000;
-        var blingFb = audioCtx.createGain();
-        blingFb.gain.value = 0.42;
-        blingWet = audioCtx.createGain();
-        blingWet.gain.value = timbre.bling.delay < 80 ? 0 : 0.5;
-        blingBus.connect(blingDelay);
-        blingDelay.connect(blingFb);
-        blingFb.connect(blingDelay);
-        blingDelay.connect(blingWet);
-        blingWet.connect(master);
-        loadSample('bling');
+        echoDelay = audioCtx.createDelay(1.0);
+        var echoFb = audioCtx.createGain();
+        echoFb.gain.value = 0.42;
+        echoWet = audioCtx.createGain();
+        master.connect(echoDelay);
+        echoDelay.connect(echoFb);
+        echoFb.connect(echoDelay);
+        echoDelay.connect(echoWet);
+        echoWet.connect(shaper);
+        updateEcho();
         updateGlobalFx();
     }
     if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function updateEcho() {
+    if (!echoWet) return;
+    var idx = fxIdx(timbre.global.echo);
+    var tc = audioCtx.currentTime;
+    echoWet.gain.setTargetAtTime(idx ? 0.45 : 0, tc, 0.05);
+    if (idx) echoDelay.delayTime.setTargetAtTime(ECHO_TIMES[idx], tc, 0.05);
 }
 
 function updateGlobalFx() {
@@ -853,9 +842,15 @@ function getNoiseBuf() {
 var TIMBRE_DEFS = {
     choir:   [ { id: 'shimmer', label: 'Shimmer', min: 0, max: 100, step: 1, def: 35 },
                { id: 'breath', label: 'Breath', min: 0, max: 100, step: 1, def: 20 } ],
-    bling:   [ { id: 'rate', label: 'Rate', min: 0, max: 4, step: 1, def: 2 },
-               { id: 'delay', label: 'Delay', min: 0, max: 750, step: 5, def: 320 } ],
-    global:  [ { id: 'filter', label: 'Filter', min: 60, max: 18000, log: true, def: 18000 } ]
+    bell:    [ { id: 'tone', label: 'Tone', min: 0, max: 100, step: 1, def: 45 },
+               { id: 'decay', label: 'Decay', min: 0, max: 100, step: 1, def: 55 } ],
+    pluck:   [ { id: 'damp', label: 'Damp', min: 0, max: 100, step: 1, def: 60 },
+               { id: 'decay', label: 'Decay', min: 0, max: 100, step: 1, def: 65 } ],
+    keys:    [ { id: 'tine', label: 'Tine', min: 0, max: 100, step: 1, def: 40 },
+               { id: 'bright', label: 'Bright', min: 0, max: 100, step: 1, def: 60 } ],
+    global:  [ { id: 'arp', label: 'Arp', min: 0, max: 5, step: 1, def: 0 },
+               { id: 'echo', label: 'Echo', min: 0, max: 5, step: 1, def: 0 },
+               { id: 'filter', label: 'Filter', min: 60, max: 18000, log: true, def: 18000 } ]
 };
 var timbre = {};
 (function() {
@@ -873,12 +868,13 @@ var timbre = {};
 })();
 function saveTimbre() { try { localStorage.setItem('fsTimbre', JSON.stringify(timbre)); } catch (e) {} }
 
-var ARP_DIVS = [2, 3, 4, 6, 8];
-var ARP_LABELS = ['1/2', '1/3', '1/4', '1/6', '1/8'];
+var ARP_DIVS = [0, 2, 3, 4, 6, 8];
+var FX_LABELS = ['Off', '1/2', '1/3', '1/4', '1/6', '1/8'];
+var ECHO_TIMES = [0, 0.5, 0.3333, 0.25, 0.1667, 0.125];
+function fxIdx(v) { return Math.max(0, Math.min(5, Math.round(v))); }
 function fmtParam(def, v) {
     if (def.id === 'filter') return v >= 1000 ? (v / 1000).toFixed(1) + ' kHz' : Math.round(v) + ' Hz';
-    if (def.id === 'rate') return ARP_LABELS[Math.max(0, Math.min(4, Math.round(v)))];
-    if (def.id === 'delay') return v < 80 ? 'Off' : Math.round(v) + ' ms';
+    if (def.id === 'arp' || def.id === 'echo') return FX_LABELS[fxIdx(v)];
     return String(Math.round(v));
 }
 function paramToNorm(def, v) {
@@ -947,14 +943,14 @@ function renderTimbre() {
     for (var j = 0; j < TIMBRE_DEFS.global.length; j++) box.appendChild(makeKnob(TIMBRE_DEFS.global[j], 'global'));
 }
 function applyTimbre(inst, param) {
-    if (inst === 'global') { if (audioCtx) updateGlobalFx(); return; }
-    if (inst === 'bling') {
-        if (param === 'delay' && blingDelay) {
-            var dv = timbre.bling.delay;
-            var tc2 = audioCtx.currentTime;
-            blingWet.gain.setTargetAtTime(dv < 80 ? 0 : 0.5, tc2, 0.05);
-            if (dv >= 80) blingDelay.delayTime.setTargetAtTime(dv / 1000, tc2, 0.05);
+    if (inst === 'global') {
+        if (!audioCtx) return;
+        if (param === 'echo') { updateEcho(); return; }
+        if (param === 'arp') {
+            if (playingId !== null) { playingId = null; setChord(selKey, selChord); }
+            return;
         }
+        updateGlobalFx();
         return;
     }
     if (inst !== currentInst) return;
@@ -978,38 +974,31 @@ function stopArp() {
 }
 function arpTick() {
     if (!audioCtx || !arpFreqs.length) return;
+    var idx = fxIdx(timbre.global.arp);
+    if (!idx) return;
     var now = audioCtx.currentTime;
-    var dur = 1 / ARP_DIVS[Math.max(0, Math.min(4, Math.round(timbre.bling.rate)))];
+    var dur = 1 / ARP_DIVS[idx];
     if (arpNext < now - 0.3) arpNext = now + 0.02;
     while (arpNext < now + 0.16) {
-        triggerBling(arpFreqs[arpStep % arpFreqs.length], arpNext);
+        VOICE_FACTORIES[currentInst](arpFreqs[arpStep % arpFreqs.length], arpNext, true);
         arpStep++;
         arpNext += dur;
     }
 }
-function triggerBling(freq, t) {
-    var buf = sampleBufs.bling;
-    if (!buf) { loadSample('bling'); return; }
-    var s = audioCtx.createBufferSource();
-    s.buffer = buf;
-    s.playbackRate.value = freq / INSTRUMENTS.bling.root;
-    var g = audioCtx.createGain();
-    g.gain.setValueAtTime(INSTRUMENTS.bling.level, t);
-    g.gain.setTargetAtTime(0.0001, t + 0.4, 0.35);
-    s.connect(g);
-    g.connect(blingBus);
-    s.start(t);
-    s.stop(t + 2.2);
-}
 
-function makeVoice(freq, instName, t) {
+function makeChoirVoice(freq, t, oneShot) {
     var inst = INSTRUMENTS.choir;
     var tb = timbre.choir;
     var level = inst.level;
     var vg = audioCtx.createGain();
     vg.gain.setValueAtTime(0.0001, t);
-    vg.gain.linearRampToValueAtTime(level, t + inst.attack);
-    vg.gain.setTargetAtTime(level * 0.53, t + inst.attack, 2.2);
+    if (oneShot) {
+        vg.gain.linearRampToValueAtTime(level, t + 0.04);
+        vg.gain.setTargetAtTime(0.0001, t + 0.06, 0.28);
+    } else {
+        vg.gain.linearRampToValueAtTime(level, t + inst.attack);
+        vg.gain.setTargetAtTime(level * 0.53, t + inst.attack, 2.2);
+    }
     var cutoff = 500 * Math.pow(freq / 130.81, 0.43);
     cutoff = Math.max(180, Math.min(4200, cutoff));
     var filt = audioCtx.createBiquadFilter();
@@ -1018,14 +1007,17 @@ function makeVoice(freq, instName, t) {
     filt.Q.value = 1.4;
     vg.connect(filt);
     filt.connect(master);
-    var flfo = audioCtx.createOscillator();
-    var flg = audioCtx.createGain();
-    flfo.frequency.value = 0.4 * (0.85 + 0.3 * Math.random());
-    flg.gain.value = cutoff * 0.22;
-    flfo.connect(flg);
-    flg.connect(filt.frequency);
-    flfo.start(t);
-    var nodes = [flfo];
+    var nodes = [];
+    if (!oneShot) {
+        var flfo = audioCtx.createOscillator();
+        var flg = audioCtx.createGain();
+        flfo.frequency.value = 0.4 * (0.85 + 0.3 * Math.random());
+        flg.gain.value = cutoff * 0.22;
+        flfo.connect(flg);
+        flg.connect(filt.frequency);
+        flfo.start(t);
+        nodes.push(flfo);
+    }
     function addOsc(type, f, det, gain) {
         var o = audioCtx.createOscillator();
         o.type = type;
@@ -1054,7 +1046,7 @@ function makeVoice(freq, instName, t) {
         addOsc('sawtooth', freq * 2, 6, shim * 0.32);
     }
     var br = tb.breath / 100;
-    if (br > 0.01) {
+    if (!oneShot && br > 0.01) {
         var ns = audioCtx.createBufferSource();
         ns.buffer = getNoiseBuf();
         ns.loop = true;
@@ -1065,7 +1057,116 @@ function makeVoice(freq, instName, t) {
         ns.start(t);
         nodes.push(ns);
     }
-    return { nodes: nodes, g: vg, filt: filt };
+    if (oneShot) { for (var q = 0; q < nodes.length; q++) { try { nodes[q].stop(t + 2.0); } catch (e) {} } }
+    return { nodes: nodes, g: vg };
+}
+
+function makeBellVoice(freq, t, oneShot) {
+    var tb = timbre.bell;
+    var ratio = 1.4 + (tb.tone / 100) * 4.1;
+    var decay = 0.4 + (tb.decay / 100) * 4.1;
+    if (oneShot) decay = Math.min(decay, 1.4);
+    var level = 0.3;
+    var vg = audioCtx.createGain();
+    vg.gain.setValueAtTime(0.0001, t);
+    vg.gain.linearRampToValueAtTime(level, t + 0.008);
+    vg.gain.setTargetAtTime(0.0001, t + 0.012, decay / 3.2);
+    vg.connect(master);
+    var car = audioCtx.createOscillator();
+    car.type = 'sine';
+    car.frequency.value = freq;
+    var mod = audioCtx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.value = freq * ratio;
+    var mg = audioCtx.createGain();
+    mg.gain.setValueAtTime(freq * 2.8, t);
+    mg.gain.setTargetAtTime(0, t + 0.01, decay / 5);
+    mod.connect(mg);
+    mg.connect(car.frequency);
+    car.connect(vg);
+    car.start(t); mod.start(t);
+    var stopAt = t + Math.min(decay * 3.5 + 0.3, 9);
+    try { car.stop(stopAt); mod.stop(stopAt); } catch (e) {}
+    return { nodes: [car, mod], g: vg };
+}
+
+function makePluckVoice(freq, t, oneShot) {
+    var tb = timbre.pluck;
+    var T = 0.4 + (tb.decay / 100) * 2.6;
+    if (oneShot) T = Math.min(T, 1.1);
+    var perSec = Math.pow(0.05, 1 / T);
+    var fbAmt = Math.min(0.996, Math.pow(perSec, 1 / freq));
+    var vg = audioCtx.createGain();
+    vg.gain.value = 0.85;
+    vg.connect(master);
+    var dl = audioCtx.createDelay(0.05);
+    dl.delayTime.value = 1 / freq;
+    var lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 700 + (tb.damp / 100) * 7300;
+    lp.Q.value = 0.2;
+    var fb = audioCtx.createGain();
+    fb.gain.value = fbAmt;
+    dl.connect(lp);
+    lp.connect(fb);
+    fb.connect(dl);
+    dl.connect(vg);
+    var src = audioCtx.createBufferSource();
+    src.buffer = getNoiseBuf();
+    var bg = audioCtx.createGain();
+    bg.gain.value = 0.9;
+    src.connect(bg);
+    bg.connect(dl);
+    src.start(t);
+    try { src.stop(t + Math.max(0.003, 1.4 / freq)); } catch (e) {}
+    var killAt = t + T + 1.2;
+    fb.gain.setTargetAtTime(0.0001, killAt, 0.12);
+    return { nodes: [src], g: vg, kill: function(kt) { fb.gain.cancelScheduledValues(kt); fb.gain.setTargetAtTime(0.0001, kt, 0.12); } };
+}
+
+function makeKeysVoice(freq, t, oneShot) {
+    var tb = timbre.keys;
+    var level = 0.34;
+    var vg = audioCtx.createGain();
+    vg.gain.setValueAtTime(0.0001, t);
+    vg.gain.linearRampToValueAtTime(level, t + 0.005);
+    if (oneShot) vg.gain.setTargetAtTime(0.0001, t + 0.05, 0.3);
+    else vg.gain.setTargetAtTime(level * 0.35, t + 0.02, 0.7);
+    var lp = audioCtx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 900 + (tb.bright / 100) * 7100;
+    lp.Q.value = 0.3;
+    vg.connect(lp);
+    lp.connect(master);
+    var car = audioCtx.createOscillator();
+    car.type = 'sine';
+    car.frequency.value = freq;
+    var mod = audioCtx.createOscillator();
+    mod.type = 'sine';
+    mod.frequency.value = freq;
+    var mg = audioCtx.createGain();
+    mg.gain.setValueAtTime(freq * 1.6, t);
+    mg.gain.setTargetAtTime(freq * 0.15, t + 0.01, 0.5);
+    mod.connect(mg);
+    mg.connect(car.frequency);
+    var tine = audioCtx.createOscillator();
+    tine.type = 'sine';
+    tine.frequency.value = freq * 6.93;
+    var tg = audioCtx.createGain();
+    tg.gain.setValueAtTime(freq * 4 * (tb.tine / 100), t);
+    tg.gain.setTargetAtTime(0, t + 0.005, 0.05);
+    tine.connect(tg);
+    tg.connect(car.frequency);
+    car.connect(vg);
+    car.start(t); mod.start(t); tine.start(t);
+    if (oneShot) { try { car.stop(t + 2); mod.stop(t + 2); tine.stop(t + 2); } catch (e) {} }
+    return { nodes: [car, mod, tine], g: vg };
+}
+
+var VOICE_FACTORIES = { choir: makeChoirVoice, bell: makeBellVoice, pluck: makePluckVoice, keys: makeKeysVoice };
+
+function makeVoice(freq, instName, t) {
+    return VOICE_FACTORIES[instName](freq, t, false);
 }
 
 function fadeOutVoices() {
@@ -1077,6 +1178,7 @@ function fadeOutVoices() {
             v.g.gain.cancelScheduledValues(t);
             v.g.gain.setValueAtTime(Math.max(v.g.gain.value, 0.0001), t);
             v.g.gain.setTargetAtTime(0.0001, t, 0.55);
+            if (v.kill) v.kill(t);
             for (var n = 0; n < v.nodes.length; n++) v.nodes[n].stop(t + 2.6);
         } catch (e) {}
     }
@@ -1156,7 +1258,7 @@ function setChord(key, chord) {
     for (var i = 0; i < ivs.length; i++) {
         freqs.push(base * Math.pow(2, ivs[i] / 12));
     }
-    if (currentInst === 'bling') {
+    if (fxIdx(timbre.global.arp) > 0) {
         startArp(freqs);
     } else {
         stopArp();
