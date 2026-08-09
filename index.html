@@ -462,7 +462,7 @@ var FREQS = { 'A': 220.00, 'Bb': 233.08, 'B': 246.94, 'C': 261.63, 'Db': 277.18,
 var KEY_SEMI = { 'C': 0, 'Db': 1, 'D': 2, 'Eb': 3, 'E': 4, 'F': 5, 'Gb': 6, 'G': 7, 'Ab': 8, 'A': 9, 'Bb': 10, 'B': 11, 'C#': 1, 'D#': 3, 'F#': 6, 'G#': 8, 'A#': 10 };
 
 var INSTRUMENTS = {
-    choir: { attack: 0.5, level: 0.32, detune: 12, vibRate: 4.6, vibDepth: 8 }
+    choir: { attack: 1.1, level: 0.27, detune: 5, vibRate: 0.35, vibDepth: 3 }
 };
 
 var DEFAULT_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
@@ -703,7 +703,7 @@ function ensureAudio() {
         master.gain.value = 1.0;
         var shaper = audioCtx.createWaveShaper();
         var curve = new Float32Array(1024);
-        var kSat = 1.6, satNorm = Math.tanh(kSat);
+        var kSat = 1.25, satNorm = Math.tanh(kSat);
         for (var ci = 0; ci < 1024; ci++) {
             var x = (ci / 1023) * 2 - 1;
             curve[ci] = Math.tanh(kSat * x) / satNorm;
@@ -714,13 +714,33 @@ function ensureAudio() {
         globalFilt.type = 'lowpass';
         globalFilt.Q.value = 0.6;
         master.connect(shaper);
-        shaper.connect(globalFilt);
-        var irLen = Math.floor(audioCtx.sampleRate * 2.6);
+        var chorusIn = audioCtx.createGain();
+        shaper.connect(chorusIn);
+        chorusIn.connect(globalFilt);
+        for (var cv = 0; cv < 2; cv++) {
+            var dl = audioCtx.createDelay(0.06);
+            dl.delayTime.value = cv ? 0.021 : 0.014;
+            var clfo = audioCtx.createOscillator();
+            var clg = audioCtx.createGain();
+            clfo.frequency.value = cv ? 0.27 : 0.35;
+            clg.gain.value = cv ? 0.0023 : 0.0018;
+            clfo.connect(clg);
+            clg.connect(dl.delayTime);
+            clfo.start();
+            var cg = audioCtx.createGain();
+            cg.gain.value = 0.34;
+            chorusIn.connect(dl);
+            dl.connect(cg);
+            cg.connect(globalFilt);
+        }
+        var irLen = Math.floor(audioCtx.sampleRate * 4.2);
         var ir = audioCtx.createBuffer(2, irLen, audioCtx.sampleRate);
         for (var ch = 0; ch < 2; ch++) {
             var chd = ir.getChannelData(ch);
+            var lpState = 0;
             for (var si = 0; si < irLen; si++) {
-                chd[si] = (Math.random() * 2 - 1) * Math.pow(1 - si / irLen, 2.4);
+                lpState += 0.22 * ((Math.random() * 2 - 1) - lpState);
+                chd[si] = lpState * Math.pow(1 - si / irLen, 2.6) * 2.2;
             }
         }
         reverb = audioCtx.createConvolver();
@@ -728,10 +748,13 @@ function ensureAudio() {
         dryGain = audioCtx.createGain();
         dryGain.gain.value = 1.0;
         wetGain = audioCtx.createGain();
-        wetGain.gain.value = 0.3;
+        wetGain.gain.value = 0.5;
+        var preDelay = audioCtx.createDelay(0.2);
+        preDelay.delayTime.value = 0.066;
         globalFilt.connect(dryGain);
         dryGain.connect(comp);
-        globalFilt.connect(reverb);
+        globalFilt.connect(preDelay);
+        preDelay.connect(reverb);
         reverb.connect(wetGain);
         wetGain.connect(comp);
         updateGlobalFx();
@@ -746,21 +769,6 @@ function updateGlobalFx() {
     globalFilt.frequency.setTargetAtTime(g.filter, tc, 0.04);
 }
 
-var VOWEL_TABLE = [
-    [310, 720, 2450],
-    [500, 1000, 2550],
-    [710, 1240, 2650]
-];
-var FORMANT_GAIN = [1.0, 0.55, 0.3];
-var FORMANT_Q = [8, 10, 12];
-function vowelFormants(v) {
-    var pos = (v / 100) * (VOWEL_TABLE.length - 1);
-    var lo = Math.min(VOWEL_TABLE.length - 2, Math.floor(pos));
-    var mix = pos - lo;
-    var out = [];
-    for (var i = 0; i < 3; i++) out.push(VOWEL_TABLE[lo][i] + (VOWEL_TABLE[lo + 1][i] - VOWEL_TABLE[lo][i]) * mix);
-    return out;
-}
 var noiseBuf = null;
 function getNoiseBuf() {
     if (!noiseBuf) {
@@ -874,53 +882,35 @@ function applyTimbre(inst, param) {
 function makeVoice(freq, instName, t) {
     var inst = INSTRUMENTS.choir;
     var tb = timbre.choir;
-    var count = 8;
-    var level = inst.level * Math.sqrt(3 / count);
-    var warmth = 0.7;
+    var level = inst.level;
     var vg = audioCtx.createGain();
     vg.gain.setValueAtTime(0.0001, t);
     vg.gain.linearRampToValueAtTime(level, t + inst.attack);
+    vg.gain.setTargetAtTime(level * 0.53, t + inst.attack, 2.2);
+    var cutoff = 500 * Math.pow(freq / 130.81, 0.43);
+    cutoff = Math.max(180, Math.min(4200, cutoff));
     var filt = audioCtx.createBiquadFilter();
     filt.type = 'lowpass';
-    filt.frequency.value = 8500 - warmth * 4800;
-    filt.Q.value = 0.5;
+    filt.frequency.value = cutoff;
+    filt.Q.value = 1.4;
     vg.connect(filt);
     filt.connect(master);
-    var oscBus = audioCtx.createGain();
-    oscBus.gain.value = 1.0;
-    var fmts = vowelFormants(55);
-    for (var f2 = 0; f2 < 3; f2++) {
-        var bp = audioCtx.createBiquadFilter();
-        bp.type = 'bandpass';
-        bp.frequency.value = fmts[f2] * (0.97 + Math.random() * 0.06);
-        bp.Q.value = FORMANT_Q[f2];
-        var bg = audioCtx.createGain();
-        bg.gain.value = FORMANT_GAIN[f2] * (0.75 + 0.25 * (1 - warmth));
-        oscBus.connect(bp);
-        bp.connect(bg);
-        bg.connect(vg);
-    }
-    var body = audioCtx.createBiquadFilter();
-    body.type = 'lowpass';
-    body.frequency.value = 620;
-    body.Q.value = 0.4;
-    var bodyGain = audioCtx.createGain();
-    bodyGain.gain.value = 0.25 + warmth * 1.15;
-    oscBus.connect(body);
-    body.connect(bodyGain);
-    bodyGain.connect(vg);
-    var nodes = [];
-    var spread = inst.detune;
-    var detunes = [];
-    for (var d = 0; d < count; d++) detunes.push(-spread + (2 * spread) * (d / (count - 1)));
-    function addOsc(f, det, gain) {
+    var flfo = audioCtx.createOscillator();
+    var flg = audioCtx.createGain();
+    flfo.frequency.value = 0.4 * (0.85 + 0.3 * Math.random());
+    flg.gain.value = cutoff * 0.22;
+    flfo.connect(flg);
+    flg.connect(filt.frequency);
+    flfo.start(t);
+    var nodes = [flfo];
+    function addOsc(type, f, det, gain) {
         var o = audioCtx.createOscillator();
-        o.type = 'sawtooth';
+        o.type = type;
         o.frequency.value = f;
         o.detune.value = det;
         var lfo = audioCtx.createOscillator();
         var lg = audioCtx.createGain();
-        lfo.frequency.value = inst.vibRate * (0.85 + 0.3 * Math.random());
+        lfo.frequency.value = inst.vibRate * (0.7 + 0.6 * Math.random());
         lg.gain.value = inst.vibDepth;
         lfo.connect(lg);
         lg.connect(o.detune);
@@ -928,29 +918,26 @@ function makeVoice(freq, instName, t) {
         var og = audioCtx.createGain();
         og.gain.value = gain;
         o.connect(og);
-        og.connect(oscBus);
+        og.connect(vg);
         o.start(t);
         nodes.push(o); nodes.push(lfo);
     }
-    for (var i = 0; i < detunes.length; i++) addOsc(freq, detunes[i], 1.0);
+    addOsc('square', freq, -inst.detune, 0.3);
+    addOsc('square', freq, inst.detune, 0.3);
+    addOsc('sawtooth', freq / 2, 2, 0.4);
     var shim = tb.shimmer / 100;
     if (shim > 0.01) {
-        addOsc(freq * 2, -7, shim * 0.4);
-        addOsc(freq * 2, 7, shim * 0.4);
+        addOsc('sawtooth', freq * 2, -6, shim * 0.32);
+        addOsc('sawtooth', freq * 2, 6, shim * 0.32);
     }
     var br = tb.breath / 100;
     if (br > 0.01) {
         var ns = audioCtx.createBufferSource();
         ns.buffer = getNoiseBuf();
         ns.loop = true;
-        var nf = audioCtx.createBiquadFilter();
-        nf.type = 'bandpass';
-        nf.frequency.value = fmts[2];
-        nf.Q.value = 0.8;
         var ng = audioCtx.createGain();
-        ng.gain.value = br * 0.35;
-        ns.connect(nf);
-        nf.connect(ng);
+        ng.gain.value = br * 1.3;
+        ns.connect(ng);
         ng.connect(vg);
         ns.start(t);
         nodes.push(ns);
@@ -966,8 +953,8 @@ function fadeOutVoices() {
         try {
             v.g.gain.cancelScheduledValues(t);
             v.g.gain.setValueAtTime(Math.max(v.g.gain.value, 0.0001), t);
-            v.g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
-            for (var n = 0; n < v.nodes.length; n++) v.nodes[n].stop(t + 0.32);
+            v.g.gain.setTargetAtTime(0.0001, t, 0.55);
+            for (var n = 0; n < v.nodes.length; n++) v.nodes[n].stop(t + 2.6);
         } catch (e) {}
     }
     voices = [];
@@ -1062,7 +1049,7 @@ function previewChord() {
     playingId = null;
     setChord(selKey, selChord);
     if (previewTimer) clearTimeout(previewTimer);
-    previewTimer = setTimeout(function() { if (!bothHands) stopSound(); }, 1600);
+    previewTimer = setTimeout(function() { if (!bothHands) stopSound(); }, 3200);
 }
 
 function toggleAudio() {
