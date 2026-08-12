@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>graff — the wall</title>
 <style>
   :root {
@@ -26,6 +26,7 @@
     color: var(--panel-text);
     -webkit-user-select: none;
     user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* ---------- the wall ---------- */
@@ -86,7 +87,7 @@
 
   .tool-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 2px;
     padding: 6px;
     background: var(--panel-dark);
@@ -116,6 +117,14 @@
     margin-bottom: 6px;
   }
   #tool-name { color: var(--panel-text); font-size: 11px; font-weight: 600; text-transform: none; letter-spacing: 0; }
+
+  #undo {
+    width: 100%; padding: 8px;
+    background: var(--panel-light); border: 1px solid var(--panel-border);
+    color: var(--panel-text); cursor: pointer; font: inherit; border-radius: 2px;
+  }
+  #undo:disabled { opacity: .35; cursor: default; }
+  #undo:hover:not(:disabled) { background: #565656; }
 
   /* FG/BG swatches, GIMP style */
   #swatches { position: relative; width: 44px; height: 44px; margin: 2px 0 8px; }
@@ -149,7 +158,7 @@
   .slider-row .sr-val { color: var(--panel-text); font-variant-numeric: tabular-nums; }
   input[type=range] {
     -webkit-appearance: none; appearance: none;
-    width: 100%; height: 14px; background: transparent; cursor: pointer;
+    width: 100%; height: 22px; background: transparent; cursor: pointer;
   }
   input[type=range]::-webkit-slider-runnable-track {
     height: 4px; background: var(--panel-dark);
@@ -157,7 +166,7 @@
   }
   input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none; appearance: none;
-    width: 10px; height: 14px; margin-top: -6px;
+    width: 14px; height: 20px; margin-top: -9px;
     background: #cfcfcf; border: 1px solid #1a1a1a; border-radius: 2px;
   }
   input[type=range]::-moz-range-track {
@@ -165,7 +174,7 @@
     border: 1px solid var(--panel-border); border-radius: 2px;
   }
   input[type=range]::-moz-range-thumb {
-    width: 10px; height: 14px;
+    width: 14px; height: 20px;
     background: #cfcfcf; border: 1px solid #1a1a1a; border-radius: 2px;
   }
 
@@ -182,6 +191,25 @@
   #toolbox.collapsed .tb-section,
   #toolbox.collapsed #tb-foot { display: none; }
 
+  /* ---------- image placement bar ---------- */
+  #place-bar {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    top: calc(14px + env(safe-area-inset-top));
+    background: var(--panel); border: 1px solid var(--panel-border);
+    box-shadow: 0 6px 22px rgba(0,0,0,.55);
+    padding: 8px 10px;
+    display: none; gap: 12px; align-items: center; flex-wrap: wrap;
+    max-width: 94vw; z-index: 26;
+  }
+  #place-bar label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--panel-dim); }
+  #place-bar input[type=range] { width: 110px; }
+  #pb-place, #pb-cancel {
+    border: 1px solid #2b6cb0; color: #fff; padding: 7px 16px;
+    cursor: pointer; font: inherit; border-radius: 2px; background: var(--hilite);
+  }
+  #pb-cancel { background: var(--panel-light); border-color: var(--panel-border); }
+  #pb-hint { flex-basis: 100%; font-size: 10px; color: var(--panel-dim); }
+
   #banner {
     position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
     background: rgba(30,30,30,.92); border: 1px solid var(--panel-border);
@@ -190,9 +218,24 @@
     display: none;
   }
 
+  /* ---------- iPhone / small screens: dock the toolbox at the bottom ---------- */
   @media (max-width: 640px) {
-    #toolbox { top: 8px; left: 8px; width: 158px; }
-    body { font-size: 11px; }
+    #toolbox {
+      top: auto; left: 8px; right: 8px;
+      bottom: calc(8px + env(safe-area-inset-bottom));
+      width: auto;
+    }
+    #tb-title { cursor: default; }
+    .tool { aspect-ratio: auto; height: 48px; }
+    .tool svg { width: 26px; height: 26px; }
+    #opts-section { display: flex; gap: 12px; }
+    #opts-section .slider-row { flex: 1; margin-bottom: 2px; }
+    #opts-section .tb-label { display: none; }
+    .tb-section { padding: 6px 8px; }
+    #swatches { width: 38px; height: 38px; margin: 0 0 2px; }
+    .swatch { width: 24px; height: 24px; }
+    #undo { padding: 11px; }
+    #banner { bottom: auto; top: calc(60px + env(safe-area-inset-top)); }
   }
   @media (prefers-reduced-motion: reduce) {
     #wall::after { transition: none; }
@@ -213,31 +256,22 @@
   </div>
 
   <div class="tool-grid">
-    <div class="tool active" data-tool="pencil" title="Pencil (N) — hard edge">
-      <svg viewBox="0 0 24 24"><path d="M4 20l1-5L16 4l4 4L9 19l-5 1z"/><path d="M14 6l4 4"/></svg>
-    </div>
-    <div class="tool" data-tool="brush" title="Paintbrush (P) — soft edge">
+    <div class="tool active" data-tool="brush" title="Paintbrush (P) — soft edge">
       <svg viewBox="0 0 24 24"><path d="M20 4c-4 1-8 5-10 9l2 2c4-2 8-6 9-10l-1-1z"/><path d="M9 14c-3 0-4 2-4 5 3 0 5-1 5-4"/></svg>
     </div>
     <div class="tool" data-tool="air" title="Airbrush (A) — spray can">
       <svg viewBox="0 0 24 24"><rect x="8" y="8" width="7" height="13" rx="1"/><path d="M10 8V6h3v2"/><path d="M11 4h1"/><path d="M18 5l2-1M18 8h3M18 11l2 1"/></svg>
     </div>
-    <div class="tool" data-tool="eraser" title="Eraser (E)">
-      <svg viewBox="0 0 24 24"><path d="M7 20l-4-4 9-9 6 6-7 7H7z"/><path d="M12 7l6 6"/><path d="M11 20h9"/></svg>
-    </div>
-    <div class="tool" data-tool="fill" title="Bucket Fill (B)">
-      <svg viewBox="0 0 24 24"><path d="M9 3l9 9-7 7-7-7 5-9z"/><path d="M4 12h12"/><path d="M20 15c1 1.7 1 3 0 4-1-1-1-2.3 0-4z"/></svg>
-    </div>
-    <div class="tool" data-tool="picker" title="Color Picker (O)">
-      <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
-    </div>
     <div class="tool" data-tool="text" title="Text (T)">
       <svg viewBox="0 0 24 24"><path d="M5 5h14"/><path d="M12 5v14"/><path d="M9 19h6"/></svg>
     </div>
+    <div class="tool" data-tool="image" title="Upload Image (I)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>
+    </div>
   </div>
 
-  <div class="tb-section">
-    <div class="tb-label" id="tool-name">Pencil</div>
+  <div class="tb-section" id="opts-section">
+    <div class="tb-label" id="tool-name">Paintbrush</div>
     <div class="slider-row">
       <div class="sr-head"><span>Size</span><span class="sr-val" id="size-val">12</span></div>
       <input type="range" id="size" min="1" max="120" value="12">
@@ -262,21 +296,31 @@
     </div>
   </div>
 
+  <div class="tb-section">
+    <button id="undo" disabled title="Undo your last mark (Z)">↩ Undo</button>
+  </div>
+
   <div id="tb-foot">
     <span id="op-count">—</span>
     <a href="index.html">← studio</a>
   </div>
 </div>
 
+<input type="file" id="img-file" accept="image/*" style="display:none">
+
+<div id="place-bar">
+  <label>Scale <input type="range" id="pb-scale" min="5" max="300" value="100"></label>
+  <label>Rotate <input type="range" id="pb-rot" min="-180" max="180" value="0"></label>
+  <button id="pb-place">Place</button>
+  <button id="pb-cancel">✕</button>
+  <span id="pb-hint">Drag the image to position it. Once placed it becomes part of the wall.</span>
+</div>
+
 <div id="banner"></div>
 
 <script type="module">
 /* ============================================================
-   FIREBASE SETUP — paste your config here.
-   1. console.firebase.google.com → Add project (e.g. "graff-wall")
-   2. Build → Realtime Database → Create database → start in TEST MODE
-      (or set rules: { "rules": { "walls": { ".read": true, ".write": true } } })
-   3. Project settings → General → Your apps → Web app (</>) → copy config
+   FIREBASE — griffgraff-baa46
    ============================================================ */
 const firebaseConfig = {
   apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I",
@@ -296,7 +340,7 @@ const PALETTE = ["#f5f0e6","#1a1a1a","#d7263d","#f46036","#f9c22e","#2e933c",
                  "#1b98e0","#2a4494","#7b2cbf","#ff5d8f","#7f5539","#8d99ae"];
 
 /* ---------- state ---------- */
-let tool = "pencil", fg = DEFAULT_FG, bg = DEFAULT_BG;
+let tool = "brush", fg = DEFAULT_FG, bg = DEFAULT_BG;
 let size = 12, opacity = 1;
 let drawing = false, curPts = [], curSeed = 0;
 let opCount = 0;
@@ -333,15 +377,15 @@ function render() {
   dctx.setTransform(display.width / W, 0, 0, display.height / H, 0, 0);
   dctx.clearRect(0, 0, W, H);
   dctx.drawImage(wallCv, 0, 0);
-  if (drawing && tool !== "air") {
-    dctx.globalAlpha = tool === "eraser" ? 1 : opacity;
-    if (tool === "eraser") dctx.globalCompositeOperation = "destination-out";
+  if (drawing && tool === "brush") {
+    dctx.globalAlpha = opacity;
     dctx.drawImage(strokeCv, 0, 0);
     dctx.globalAlpha = 1;
-    dctx.globalCompositeOperation = "source-over";
   }
+  if (placing) drawPlacing(dctx);
 }
 window.addEventListener("resize", layout);
+if (window.visualViewport) window.visualViewport.addEventListener("resize", layout);
 
 /* ---------- deterministic RNG for airbrush replay ---------- */
 function mulberry32(a) {
@@ -353,7 +397,7 @@ function mulberry32(a) {
   };
 }
 
-/* ---------- stroke rendering (used for live draw AND replay) ---------- */
+/* ---------- stroke rendering (live draw AND replay; pencil/eraser/fill kept for legacy ops) ---------- */
 function stampBrush(ctx, x, y, r, color) {
   const g = ctx.createRadialGradient(x, y, 0, x, y, r);
   g.addColorStop(0, color);
@@ -430,8 +474,25 @@ function floodFill(ctx, x, y, hex) {
   ctx.putImageData(img, 0, 0);
 }
 
+/* ---------- image cache + loader ---------- */
+const imgCache = new Map();
+function loadImg(src) {
+  return new Promise((res, rej) => {
+    if (imgCache.has(src)) return res(imgCache.get(src));
+    const im = new Image();
+    im.onload = () => { imgCache.set(src, im); res(im); };
+    im.onerror = () => rej(new Error("image load failed"));
+    im.src = src;
+  });
+}
+
+/* ---------- ordered async apply queue (images decode async; order must hold) ---------- */
+let chain = Promise.resolve();
+function q(fn) { chain = chain.then(fn).catch(err => console.error("graff apply:", err)); return chain; }
+function enqueue(op) { return q(() => applyOp(op)); }
+
 /* apply a committed op onto the wall raster */
-function applyOp(o) {
+async function applyOp(o) {
   if (o.t === "f") { floodFill(wctx, o.x, o.y, o.c); }
   else if (o.t === "t") {
     wctx.font = "bold " + o.sz + "px 'Arial Black', Arial, sans-serif";
@@ -440,6 +501,14 @@ function applyOp(o) {
     wctx.globalAlpha = o.op;
     wctx.fillText(o.txt, o.x, o.y);
     wctx.globalAlpha = 1;
+  }
+  else if (o.t === "i") {
+    const img = await loadImg(o.src);
+    wctx.save();
+    wctx.translate(o.x, o.y);
+    wctx.rotate(o.rot || 0);
+    wctx.drawImage(img, -o.w / 2, -o.h / 2, o.w, o.h);
+    wctx.restore();
   }
   else if (o.t === "s") {
     const pts = o.pts;
@@ -458,7 +527,8 @@ function applyOp(o) {
   }
   opCount++;
   document.getElementById("op-count").textContent = opCount + (opCount === 1 ? " mark" : " marks");
-  if (opCount > 0) wallEl.classList.add("painted");
+  wallEl.classList.add("painted");
+  render();
 }
 
 /* ---------- input ---------- */
@@ -469,17 +539,14 @@ function toWall(e) {
     Math.max(0, Math.min(H, Math.round((e.clientY - r.top) / fit.s)))
   ];
 }
+let dragging = false, dragOff = [0, 0];
 display.addEventListener("pointerdown", (e) => {
   e.preventDefault();
-  display.setPointerCapture(e.pointerId);
+  try { display.setPointerCapture(e.pointerId); } catch (_) {}
   const [x, y] = toWall(e);
-  if (tool === "picker") { pickColor(x, y); return; }
+  if (placing) { dragging = true; dragOff = [placing.x - x, placing.y - y]; return; }
   if (tool === "text") { beginText(e.clientX, e.clientY, x, y); return; }
-  if (tool === "fill") {
-    const op = { t: "f", x, y, c: fg };
-    applyOp(op); render(); publish(op);
-    return;
-  }
+  if (tool === "image") { fileInput.click(); return; }
   drawing = true;
   curPts = [x, y];
   curSeed = (Math.random() * 0xffffffff) >>> 0;
@@ -491,6 +558,12 @@ display.addEventListener("pointerdown", (e) => {
   render();
 });
 display.addEventListener("pointermove", (e) => {
+  if (placing && dragging) {
+    const [x, y] = toWall(e);
+    placing.x = x + dragOff[0]; placing.y = y + dragOff[1];
+    render();
+    return;
+  }
   if (!drawing) return;
   let evs = e.getCoalescedEvents ? e.getCoalescedEvents() : []; if (!evs.length) evs = [e];
   for (const ev of evs) {
@@ -504,6 +577,7 @@ display.addEventListener("pointermove", (e) => {
   render();
 });
 function endStroke() {
+  dragging = false;
   if (!drawing) return;
   drawing = false;
   const op = { t: "s", tool, c: fg, sz: size, op: round2(opacity), pts: curPts };
@@ -512,7 +586,7 @@ function endStroke() {
     /* already drawn live to wall; just count + publish */
     opCount++; document.getElementById("op-count").textContent = opCount + " marks";
   } else {
-    applyOp(op);
+    enqueue(op);
   }
   render();
   publish(op);
@@ -523,8 +597,7 @@ display.addEventListener("pointercancel", endStroke);
 
 function drawCurrent() {
   sctx.clearRect(0, 0, W, H);
-  if (tool === "brush") pathBrush(sctx, curPts, size, fg);
-  else pathPencil(sctx, curPts, size, tool === "eraser" ? "#000" : fg);
+  pathBrush(sctx, curPts, size, fg);
 }
 /* airbrush paints straight onto the wall as you hold (builds up like GIMP) */
 function airTick(x, y) {
@@ -538,6 +611,8 @@ function airTick(x, y) {
   }
   wctx.globalAlpha = 1;
 }
+function round2(v) { return Math.round(v * 100) / 100; }
+
 /* text tool: inline input at the click point — Enter stamps it onto the wall, Esc cancels */
 let textBox = null;
 function beginText(cx, cy, wx, wy) {
@@ -552,34 +627,109 @@ function beginText(cx, cy, wx, wy) {
     "font:bold " + (fontPx * fit.s) + "px 'Arial Black', Arial, sans-serif;color:" + fg + ";" +
     "min-width:60px;max-width:60vw;z-index:25;";
   document.body.appendChild(inp);
+  inp.focus();
   setTimeout(() => inp.focus(), 0);
   inp.addEventListener("keydown", (e) => {
     e.stopPropagation();
     if (e.key === "Enter" && inp.value.trim()) {
       const op = { t: "t", x: wx, y: wy, c: fg, sz: fontPx, op: round2(opacity), txt: inp.value.slice(0, 120) };
-      applyOp(op); render(); publish(op);
+      enqueue(op); publish(op);
       inp.remove(); textBox = null;
     } else if (e.key === "Escape") { inp.remove(); textBox = null; }
   });
   inp.addEventListener("blur", () => { if (textBox === inp) { inp.remove(); textBox = null; } });
 }
-function round2(v) { return Math.round(v * 100) / 100; }
 
-function pickColor(x, y) {
-  const d = wctx.getImageData(x, y, 1, 1).data;
-  if (d[3] === 0) return; /* bare wall — nothing to pick */
-  setFg("#" + [d[0], d[1], d[2]].map(v => v.toString(16).padStart(2, "0")).join(""));
+/* ---------- image upload + placement ---------- */
+const fileInput = document.getElementById("img-file");
+const placeBar = document.getElementById("place-bar");
+const pbScale = document.getElementById("pb-scale");
+const pbRot = document.getElementById("pb-rot");
+let placing = null;
+
+fileInput.addEventListener("change", async () => {
+  const f = fileInput.files[0];
+  fileInput.value = "";
+  if (!f) return;
+  try {
+    const src = await downscale(f);
+    const img = await loadImg(src);
+    const s0 = Math.min(1, (W * 0.5) / img.width, (H * 0.5) / img.height);
+    placing = { src, img, x: W / 2, y: H / 2, scale: s0, rot: 0 };
+    pbScale.value = Math.round(s0 * 100);
+    pbRot.value = 0;
+    placeBar.style.display = "flex";
+    render();
+  } catch (err) {
+    showBanner("Couldn't read that image (" + err.message + ")");
+  }
+});
+async function downscale(f) {
+  const url = URL.createObjectURL(f);
+  const im = await loadImg(url);
+  URL.revokeObjectURL(url);
+  imgCache.delete(url);
+  const maxSide = 1024;
+  const s = Math.min(1, maxSide / Math.max(im.width, im.height));
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(im.width * s));
+  c.height = Math.max(1, Math.round(im.height * s));
+  c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+  let out = (f.type === "image/png") ? c.toDataURL("image/png") : c.toDataURL("image/jpeg", 0.82);
+  if (out.length > 1500000) out = c.toDataURL("image/jpeg", 0.7);
+  return out;
 }
+function drawPlacing(ctx) {
+  const p = placing;
+  const w = p.img.width * p.scale, h = p.img.height * p.scale;
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.rot);
+  ctx.globalAlpha = 0.92;
+  ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = "#4a90d9";
+  ctx.setLineDash([8, 6]);
+  ctx.lineWidth = 3;
+  ctx.strokeRect(-w / 2, -h / 2, w, h);
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+pbScale.addEventListener("input", () => { if (placing) { placing.scale = +pbScale.value / 100; render(); } });
+pbRot.addEventListener("input", () => { if (placing) { placing.rot = +pbRot.value * Math.PI / 180; render(); } });
+document.getElementById("pb-place").addEventListener("click", () => {
+  if (!placing) return;
+  const p = placing;
+  const op = {
+    t: "i",
+    x: Math.round(p.x), y: Math.round(p.y),
+    w: Math.max(1, Math.round(p.img.width * p.scale)),
+    h: Math.max(1, Math.round(p.img.height * p.scale)),
+    rot: Math.round(p.rot * 1000) / 1000,
+    src: p.src
+  };
+  placing = null;
+  placeBar.style.display = "none";
+  enqueue(op); publish(op);
+});
+document.getElementById("pb-cancel").addEventListener("click", () => {
+  placing = null;
+  placeBar.style.display = "none";
+  render();
+});
 
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { pencil: "Pencil", brush: "Paintbrush", air: "Airbrush", eraser: "Eraser", fill: "Bucket Fill", picker: "Color Picker", text: "Text" };
+const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", text: "Text", image: "Image" };
 const toolEls = document.querySelectorAll(".tool");
 function setTool(t) {
   tool = t;
   toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === t));
   document.getElementById("tool-name").textContent = TOOL_NAMES[t];
 }
-toolEls.forEach(el => el.addEventListener("click", () => setTool(el.dataset.tool)));
+toolEls.forEach(el => el.addEventListener("click", () => {
+  setTool(el.dataset.tool);
+  if (el.dataset.tool === "image" && !placing) fileInput.click();
+}));
 
 const fgEl = document.getElementById("fg"), bgEl = document.getElementById("bg");
 const fgInput = document.getElementById("fg-input");
@@ -610,12 +760,13 @@ document.getElementById("tb-collapse").addEventListener("click", (e) => {
   e.target.textContent = tb.classList.contains("collapsed") ? "▸" : "▾";
 });
 
-/* drag the toolbox by its title bar */
+/* drag the toolbox by its title bar (desktop) */
 (() => {
   const tb = document.getElementById("toolbox"), bar = document.getElementById("tb-title");
   let sx, sy, ox, oy, moving = false;
   bar.addEventListener("pointerdown", (e) => {
     if (e.target.id === "tb-collapse") return;
+    if (window.innerWidth <= 640) return; /* docked on mobile */
     moving = true; bar.setPointerCapture(e.pointerId);
     sx = e.clientX; sy = e.clientY;
     const r = tb.getBoundingClientRect(); ox = r.left; oy = r.top;
@@ -628,17 +779,42 @@ document.getElementById("tb-collapse").addEventListener("click", (e) => {
   bar.addEventListener("pointerup", () => moving = false);
 })();
 
+/* ---------- undo (removes your own last mark from the shared log) ---------- */
+const undoBtn = document.getElementById("undo");
+const ownKeys = [];
+function refreshUndo() { undoBtn.disabled = ownKeys.length === 0 || !fbRemove; }
+async function undo() {
+  if (!ownKeys.length || !fbRemove) return;
+  const k = ownKeys.pop();
+  refreshUndo();
+  try { await fbRemove(k); } catch (err) { showBanner("Undo failed (" + err.message + ")"); }
+  /* wall rebuilds via onChildRemoved */
+}
+undoBtn.addEventListener("click", undo);
+
+function rebuild() {
+  q(async () => {
+    wctx.clearRect(0, 0, W, H);
+    opCount = 0;
+    for (const op of opsByKey.values()) await applyOp(op);
+    if (!opsByKey.size) {
+      document.getElementById("op-count").textContent = "—";
+      wallEl.classList.remove("painted");
+      render();
+    }
+  });
+}
+
 /* GIMP-ish shortcuts */
 window.addEventListener("keydown", (e) => {
-  if (e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key.toLowerCase();
-  if (k === "n") setTool("pencil");
-  else if (k === "p") setTool("brush");
+  if ((e.ctrlKey || e.metaKey) && k === "z") { e.preventDefault(); undo(); return; }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (k === "p") setTool("brush");
   else if (k === "a") setTool("air");
-  else if (k === "e") setTool("eraser");
-  else if (k === "b") setTool("fill");
-  else if (k === "o") setTool("picker");
   else if (k === "t") setTool("text");
+  else if (k === "i") setTool("image");
+  else if (k === "z") undo();
   else if (k === "x") { const t = fg; setFg(bg); setBg(t); }
   else if (k === "d") { setFg(DEFAULT_FG); setBg(DEFAULT_BG); }
   else if (k === "[") { sizeEl.value = Math.max(1, size - 2); sizeEl.dispatchEvent(new Event("input")); }
@@ -649,7 +825,16 @@ window.addEventListener("keydown", (e) => {
 const banner = document.getElementById("banner");
 const connDot = document.getElementById("conn-dot");
 let publish = () => {};
+let fbRemove = null;
 const appliedKeys = new Set();
+const opsByKey = new Map();
+let bannerTimer = null;
+function showBanner(msg) {
+  banner.textContent = msg;
+  banner.style.display = "block";
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => { banner.style.display = "none"; }, 5000);
+}
 
 async function initFirebase() {
   if (firebaseConfig.apiKey === "PASTE_API_KEY") {
@@ -659,7 +844,7 @@ async function initFirebase() {
   }
   try {
     const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const { getDatabase, ref, push, set, onChildAdded, onValue } =
+    const { getDatabase, ref, child, push, set, remove, onChildAdded, onChildRemoved, onValue } =
       await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -668,14 +853,26 @@ async function initFirebase() {
     publish = (op) => {
       const r = push(opsRef);       /* reserve key first — child_added fires synchronously on local set */
       appliedKeys.add(r.key);
+      opsByKey.set(r.key, op);
+      ownKeys.push(r.key);
+      refreshUndo();
       set(r, op);
     };
+    fbRemove = (k) => remove(child(opsRef, k));
+    refreshUndo();
 
     onChildAdded(opsRef, (snap) => {
+      opsByKey.set(snap.key, snap.val());
       if (appliedKeys.has(snap.key)) return;
       appliedKeys.add(snap.key);
-      applyOp(snap.val());
-      render();
+      enqueue(snap.val());
+    });
+
+    onChildRemoved(opsRef, (snap) => {
+      if (!opsByKey.has(snap.key)) return;
+      opsByKey.delete(snap.key);
+      appliedKeys.delete(snap.key);
+      rebuild();
     });
 
     onValue(ref(db, ".info/connected"), (snap) => {
