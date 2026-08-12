@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>graff — the wall</title>
+<style>
+  :root {
+    --panel: #3c3c3c;
+    --panel-dark: #2a2a2a;
+    --panel-light: #4a4a4a;
+    --panel-border: #1e1e1e;
+    --panel-text: #d6d6d6;
+    --panel-dim: #9a9a9a;
+    --hilite: #4a90d9;          /* GNOME/GIMP selection blue */
+    --wall-a: #b7b2a8;          /* concrete */
+    --wall-b: #a8a399;
+    --void: #141414;            /* letterbox around the wall */
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--void);
+    font-family: "Segoe UI", "Cantarell", "DejaVu Sans", system-ui, sans-serif;
+    font-size: 12px;
+    color: var(--panel-text);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* ---------- the wall ---------- */
+  #wall {
+    position: absolute;
+    background-color: var(--wall-a);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.28 0 0 0 0 0.27 0 0 0 0 0.25 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E"),
+      linear-gradient(160deg, var(--wall-a) 0%, var(--wall-b) 60%, #9c978d 100%);
+    box-shadow: 0 0 60px rgba(0,0,0,.55) inset, 0 0 24px rgba(0,0,0,.6);
+  }
+  #wall::after { /* faint stencil hint until first paint */
+    content: "GRAFF";
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Arial Black", "Arial Bold", sans-serif;
+    font-size: clamp(48px, 14vw, 180px);
+    letter-spacing: .12em;
+    color: rgba(60,55,48,.10);
+    pointer-events: none;
+    transition: opacity .8s;
+  }
+  #wall.painted::after { opacity: 0; }
+
+  #display {
+    position: absolute;
+    touch-action: none;
+    cursor: crosshair;
+  }
+
+  /* ---------- GIMP toolbox ---------- */
+  #toolbox {
+    position: fixed;
+    top: 16px; left: 16px;
+    width: 176px;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    box-shadow: 0 6px 22px rgba(0,0,0,.55);
+    z-index: 20;
+  }
+  #tb-title {
+    display: flex; align-items: center; gap: 6px;
+    background: linear-gradient(#4d4d4d, #383838);
+    border-bottom: 1px solid var(--panel-border);
+    padding: 5px 8px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    cursor: move;
+  }
+  #tb-title .dot { width: 8px; height: 8px; border-radius: 50%; background: #777; }
+  #tb-title .dot.live { background: #6fbf4f; box-shadow: 0 0 5px #6fbf4f; }
+  #tb-title span { flex: 1; }
+  #tb-collapse {
+    background: none; border: none; color: var(--panel-dim);
+    font-size: 12px; cursor: pointer; padding: 0 2px; line-height: 1;
+  }
+  #tb-collapse:hover { color: #fff; }
+
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 6px;
+    background: var(--panel-dark);
+  }
+  .tool {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .tool:hover { background: var(--panel-light); }
+  .tool.active { background: var(--hilite); border-color: #2b6cb0; }
+  .tool svg { width: 22px; height: 22px; fill: none; stroke: var(--panel-text); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .tool.active svg { stroke: #fff; }
+
+  .tb-section {
+    border-top: 1px solid var(--panel-border);
+    padding: 8px;
+  }
+  .tb-label {
+    color: var(--panel-dim);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 6px;
+  }
+  #tool-name { color: var(--panel-text); font-size: 11px; font-weight: 600; text-transform: none; letter-spacing: 0; }
+
+  /* FG/BG swatches, GIMP style */
+  #swatches { position: relative; width: 44px; height: 44px; margin: 2px 0 8px; }
+  .swatch {
+    position: absolute; width: 28px; height: 28px;
+    border: 2px solid #111; box-shadow: 0 0 0 1px #666;
+    cursor: pointer;
+  }
+  #fg { top: 0; left: 0; z-index: 2; }
+  #bg { bottom: 0; right: 0; z-index: 1; }
+  #swap { position: absolute; top: -2px; right: 2px; z-index: 3; }
+  #reset { position: absolute; bottom: 0; left: 0; z-index: 3; }
+  #swap, #reset {
+    background: none; border: none; color: var(--panel-dim);
+    font-size: 10px; cursor: pointer; padding: 0;
+  }
+  #swap:hover, #reset:hover { color: #fff; }
+  #fg-input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+  .palette {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 3px;
+  }
+  .chip {
+    aspect-ratio: 1; border: 1px solid #111; cursor: pointer;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .chip:hover { transform: scale(1.12); }
+
+  .slider-row { margin-bottom: 8px; }
+  .slider-row .sr-head { display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .slider-row .sr-val { color: var(--panel-text); font-variant-numeric: tabular-nums; }
+  input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 14px; background: transparent; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 4px; background: var(--panel-dark);
+    border: 1px solid var(--panel-border); border-radius: 2px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 10px; height: 14px; margin-top: -6px;
+    background: #cfcfcf; border: 1px solid #1a1a1a; border-radius: 2px;
+  }
+  input[type=range]::-moz-range-track {
+    height: 4px; background: var(--panel-dark);
+    border: 1px solid var(--panel-border); border-radius: 2px;
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 10px; height: 14px;
+    background: #cfcfcf; border: 1px solid #1a1a1a; border-radius: 2px;
+  }
+
+  #tb-foot {
+    border-top: 1px solid var(--panel-border);
+    padding: 6px 8px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--panel-dim); font-size: 10px;
+  }
+  #tb-foot a { color: var(--panel-dim); text-decoration: none; letter-spacing: .08em; text-transform: uppercase; }
+  #tb-foot a:hover { color: #fff; }
+
+  #toolbox.collapsed .tool-grid,
+  #toolbox.collapsed .tb-section,
+  #toolbox.collapsed #tb-foot { display: none; }
+
+  #banner {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+    background: rgba(30,30,30,.92); border: 1px solid var(--panel-border);
+    color: #e8c86a; padding: 7px 14px; font-size: 11px; z-index: 30;
+    max-width: 90vw; text-align: center;
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    #toolbox { top: 8px; left: 8px; width: 158px; }
+    body { font-size: 11px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #wall::after { transition: none; }
+    .chip:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="wall"></div>
+<canvas id="display"></canvas>
+
+<div id="toolbox">
+  <div id="tb-title">
+    <div class="dot" id="conn-dot" title="connection"></div>
+    <span>Toolbox</span>
+    <button id="tb-collapse" title="collapse">▾</button>
+  </div>
+
+  <div class="tool-grid">
+    <div class="tool active" data-tool="pencil" title="Pencil (N) — hard edge">
+      <svg viewBox="0 0 24 24"><path d="M4 20l1-5L16 4l4 4L9 19l-5 1z"/><path d="M14 6l4 4"/></svg>
+    </div>
+    <div class="tool" data-tool="brush" title="Paintbrush (P) — soft edge">
+      <svg viewBox="0 0 24 24"><path d="M20 4c-4 1-8 5-10 9l2 2c4-2 8-6 9-10l-1-1z"/><path d="M9 14c-3 0-4 2-4 5 3 0 5-1 5-4"/></svg>
+    </div>
+    <div class="tool" data-tool="air" title="Airbrush (A) — spray can">
+      <svg viewBox="0 0 24 24"><rect x="8" y="8" width="7" height="13" rx="1"/><path d="M10 8V6h3v2"/><path d="M11 4h1"/><path d="M18 5l2-1M18 8h3M18 11l2 1"/></svg>
+    </div>
+    <div class="tool" data-tool="eraser" title="Eraser (E)">
+      <svg viewBox="0 0 24 24"><path d="M7 20l-4-4 9-9 6 6-7 7H7z"/><path d="M12 7l6 6"/><path d="M11 20h9"/></svg>
+    </div>
+    <div class="tool" data-tool="fill" title="Bucket Fill (B)">
+      <svg viewBox="0 0 24 24"><path d="M9 3l9 9-7 7-7-7 5-9z"/><path d="M4 12h12"/><path d="M20 15c1 1.7 1 3 0 4-1-1-1-2.3 0-4z"/></svg>
+    </div>
+    <div class="tool" data-tool="picker" title="Color Picker (O)">
+      <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
+    </div>
+  </div>
+
+  <div class="tb-section">
+    <div class="tb-label" id="tool-name">Pencil</div>
+    <div class="slider-row">
+      <div class="sr-head"><span>Size</span><span class="sr-val" id="size-val">12</span></div>
+      <input type="range" id="size" min="1" max="120" value="12">
+    </div>
+    <div class="slider-row">
+      <div class="sr-head"><span>Opacity</span><span class="sr-val" id="op-val">100</span></div>
+      <input type="range" id="opacity" min="5" max="100" value="100">
+    </div>
+  </div>
+
+  <div class="tb-section">
+    <div class="tb-label">Color</div>
+    <div style="display:flex; gap:10px; align-items:flex-start;">
+      <div id="swatches">
+        <div class="swatch" id="fg" title="Foreground — click to choose"></div>
+        <div class="swatch" id="bg" title="Background"></div>
+        <button id="swap" title="Swap colors (X)">⇄</button>
+        <button id="reset" title="Default colors (D)">▪▫</button>
+        <input type="color" id="fg-input">
+      </div>
+      <div class="palette" id="palette" style="flex:1;"></div>
+    </div>
+  </div>
+
+  <div id="tb-foot">
+    <span id="op-count">—</span>
+    <a href="index.html">← studio</a>
+  </div>
+</div>
+
+<div id="banner"></div>
+
+<script type="module">
+/* ============================================================
+   FIREBASE SETUP — paste your config here.
+   1. console.firebase.google.com → Add project (e.g. "graff-wall")
+   2. Build → Realtime Database → Create database → start in TEST MODE
+      (or set rules: { "rules": { "walls": { ".read": true, ".write": true } } })
+   3. Project settings → General → Your apps → Web app (</>) → copy config
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I",
+  authDomain: "griffgraff-baa46.firebaseapp.com",
+  databaseURL: "https://griffgraff-baa46-default-rtdb.firebaseio.com",
+  projectId: "griffgraff-baa46",
+  storageBucket: "griffgraff-baa46.firebasestorage.app",
+  messagingSenderId: "354313176929",
+  appId: "1:354313176929:web:65aa8467f9aad220026720",
+  measurementId: "G-7KC0BJ1LYG"
+};
+
+/* ---------- constants ---------- */
+const W = 1920, H = 1080;          // shared wall raster — identical on every device
+const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
+const PALETTE = ["#f5f0e6","#1a1a1a","#d7263d","#f46036","#f9c22e","#2e933c",
+                 "#1b98e0","#2a4494","#7b2cbf","#ff5d8f","#7f5539","#8d99ae"];
+
+/* ---------- state ---------- */
+let tool = "pencil", fg = DEFAULT_FG, bg = DEFAULT_BG;
+let size = 12, opacity = 1;
+let drawing = false, curPts = [], curSeed = 0;
+let opCount = 0;
+
+/* ---------- canvases ---------- */
+const wallCv = document.createElement("canvas");   // committed shared state
+wallCv.width = W; wallCv.height = H;
+const wctx = wallCv.getContext("2d", { willReadFrequently: true });
+
+const strokeCv = document.createElement("canvas"); // in-progress stroke layer
+strokeCv.width = W; strokeCv.height = H;
+const sctx = strokeCv.getContext("2d");
+
+const display = document.getElementById("display");
+const dctx = display.getContext("2d");
+const wallEl = document.getElementById("wall");
+
+/* contain-fit: whole wall always visible & reachable */
+let fit = { x: 0, y: 0, s: 1 };
+function layout() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  fit.s = Math.min(vw / W, vh / H);
+  const w = W * fit.s, h = H * fit.s;
+  fit.x = (vw - w) / 2; fit.y = (vh - h) / 2;
+  for (const el of [display, wallEl]) {
+    el.style.left = fit.x + "px"; el.style.top = fit.y + "px";
+    el.style.width = w + "px"; el.style.height = h + "px";
+  }
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  display.width = Math.round(w * dpr); display.height = Math.round(h * dpr);
+  render();
+}
+function render() {
+  dctx.setTransform(display.width / W, 0, 0, display.height / H, 0, 0);
+  dctx.clearRect(0, 0, W, H);
+  dctx.drawImage(wallCv, 0, 0);
+  if (drawing && tool !== "air") {
+    dctx.globalAlpha = tool === "eraser" ? 1 : opacity;
+    if (tool === "eraser") dctx.globalCompositeOperation = "destination-out";
+    dctx.drawImage(strokeCv, 0, 0);
+    dctx.globalAlpha = 1;
+    dctx.globalCompositeOperation = "source-over";
+  }
+}
+window.addEventListener("resize", layout);
+
+/* ---------- deterministic RNG for airbrush replay ---------- */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* ---------- stroke rendering (used for live draw AND replay) ---------- */
+function stampBrush(ctx, x, y, r, color) {
+  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  g.addColorStop(0, color);
+  g.addColorStop(0.55, color);
+  g.addColorStop(1, color + "00");
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+}
+function pathPencil(ctx, pts, sz, color) {
+  ctx.strokeStyle = color; ctx.lineWidth = sz;
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.beginPath();
+  ctx.moveTo(pts[0], pts[1]);
+  if (pts.length === 2) ctx.lineTo(pts[0] + 0.01, pts[1]);
+  for (let i = 2; i < pts.length; i += 2) ctx.lineTo(pts[i], pts[i + 1]);
+  ctx.stroke();
+}
+function pathBrush(ctx, pts, sz, color) {
+  const r = Math.max(sz / 2, 1), step = Math.max(r / 2.5, 1);
+  let px = pts[0], py = pts[1];
+  stampBrush(ctx, px, py, r, color);
+  for (let i = 2; i < pts.length; i += 2) {
+    const x = pts[i], y = pts[i + 1];
+    const d = Math.hypot(x - px, y - py), n = Math.ceil(d / step);
+    for (let j = 1; j <= n; j++)
+      stampBrush(ctx, px + (x - px) * j / n, py + (y - py) * j / n, r, color);
+    px = x; py = y;
+  }
+}
+function sprayAir(ctx, pts, sz, color, op, seed) {
+  const R = Math.max(sz, 4), dots = Math.max(4, Math.round(R / 2));
+  ctx.fillStyle = color;
+  ctx.globalAlpha = 0.16 * op;
+  for (let i = 0; i < pts.length; i += 2) {
+    const rng = mulberry32((seed + i / 2) >>> 0); /* per-point sub-seed — matches live airTick */
+    for (let d = 0; d < dots; d++) {
+      const a = rng() * 6.2832, rr = Math.sqrt(rng()) * R;
+      const dr = 0.6 + rng() * 1.5;
+      ctx.beginPath();
+      ctx.arc(pts[i] + Math.cos(a) * rr, pts[i + 1] + Math.sin(a) * rr, dr, 0, 6.2832);
+      ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+function floodFill(ctx, x, y, hex) {
+  x = Math.round(x); y = Math.round(y);
+  if (x < 0 || y < 0 || x >= W || y >= H) return;
+  const img = ctx.getImageData(0, 0, W, H), d = img.data;
+  const idx = (y * W + x) * 4;
+  const tr = d[idx], tg = d[idx + 1], tb = d[idx + 2], ta = d[idx + 3];
+  const fr = parseInt(hex.slice(1, 3), 16), fgn = parseInt(hex.slice(3, 5), 16), fb = parseInt(hex.slice(5, 7), 16);
+  const TOL = 40;
+  if (Math.abs(tr - fr) <= TOL && Math.abs(tg - fgn) <= TOL &&
+      Math.abs(tb - fb) <= TOL && Math.abs(ta - 255) <= TOL) return; /* would re-match itself */
+  const match = (i) =>
+    Math.abs(d[i] - tr) <= TOL && Math.abs(d[i + 1] - tg) <= TOL &&
+    Math.abs(d[i + 2] - tb) <= TOL && Math.abs(d[i + 3] - ta) <= TOL;
+  const stack = [[x, y]];
+  while (stack.length) {
+    const [sx, sy] = stack.pop();
+    let lx = sx;
+    while (lx >= 0 && match((sy * W + lx) * 4)) lx--;
+    lx++;
+    let up = false, down = false;
+    for (let cx = lx; cx < W; cx++) {
+      const i = (sy * W + cx) * 4;
+      if (!match(i)) break;
+      d[i] = fr; d[i + 1] = fgn; d[i + 2] = fb; d[i + 3] = 255;
+      if (sy > 0)   { const m = match(((sy - 1) * W + cx) * 4); if (m && !up)  { stack.push([cx, sy - 1]); up = true; }  if (!m) up = false; }
+      if (sy < H-1) { const m = match(((sy + 1) * W + cx) * 4); if (m && !down){ stack.push([cx, sy + 1]); down = true;} if (!m) down = false; }
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+/* apply a committed op onto the wall raster */
+function applyOp(o) {
+  if (o.t === "f") { floodFill(wctx, o.x, o.y, o.c); }
+  else if (o.t === "s") {
+    const pts = o.pts;
+    if (!pts || pts.length < 2) return;
+    if (o.tool === "air") { sprayAir(wctx, pts, o.sz, o.c, o.op, o.seed); }
+    else {
+      sctx.clearRect(0, 0, W, H);
+      if (o.tool === "brush") pathBrush(sctx, pts, o.sz, o.c);
+      else pathPencil(sctx, pts, o.sz, o.tool === "eraser" ? "#000" : o.c);
+      wctx.globalAlpha = o.tool === "eraser" ? 1 : o.op;
+      if (o.tool === "eraser") wctx.globalCompositeOperation = "destination-out";
+      wctx.drawImage(strokeCv, 0, 0);
+      wctx.globalAlpha = 1;
+      wctx.globalCompositeOperation = "source-over";
+    }
+  }
+  opCount++;
+  document.getElementById("op-count").textContent = opCount + (opCount === 1 ? " mark" : " marks");
+  if (opCount > 0) wallEl.classList.add("painted");
+}
+
+/* ---------- input ---------- */
+function toWall(e) {
+  const r = display.getBoundingClientRect();
+  return [
+    Math.max(0, Math.min(W, Math.round((e.clientX - r.left) / fit.s))),
+    Math.max(0, Math.min(H, Math.round((e.clientY - r.top) / fit.s)))
+  ];
+}
+display.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  display.setPointerCapture(e.pointerId);
+  const [x, y] = toWall(e);
+  if (tool === "picker") { pickColor(x, y); return; }
+  if (tool === "fill") {
+    const op = { t: "f", x, y, c: fg };
+    applyOp(op); render(); publish(op);
+    return;
+  }
+  drawing = true;
+  curPts = [x, y];
+  curSeed = (Math.random() * 0xffffffff) >>> 0;
+  if (tool === "air") { airTick(x, y); }
+  else {
+    sctx.clearRect(0, 0, W, H);
+    drawCurrent();
+  }
+  render();
+});
+display.addEventListener("pointermove", (e) => {
+  if (!drawing) return;
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+  for (const ev of evs) {
+    const [x, y] = toWall(ev);
+    const n = curPts.length;
+    if (Math.hypot(x - curPts[n - 2], y - curPts[n - 1]) < 2) continue;
+    curPts.push(x, y);
+    if (tool === "air") airTick(x, y);
+  }
+  if (tool !== "air") drawCurrent();
+  render();
+});
+function endStroke() {
+  if (!drawing) return;
+  drawing = false;
+  const op = { t: "s", tool, c: fg, sz: size, op: round2(opacity), pts: curPts };
+  if (tool === "air") {
+    op.seed = curSeed;
+    /* already drawn live to wall; just count + publish */
+    opCount++; document.getElementById("op-count").textContent = opCount + " marks";
+  } else {
+    applyOp(op);
+  }
+  render();
+  publish(op);
+  curPts = [];
+}
+display.addEventListener("pointerup", endStroke);
+display.addEventListener("pointercancel", endStroke);
+
+function drawCurrent() {
+  sctx.clearRect(0, 0, W, H);
+  if (tool === "brush") pathBrush(sctx, curPts, size, fg);
+  else pathPencil(sctx, curPts, size, tool === "eraser" ? "#000" : fg);
+}
+/* airbrush paints straight onto the wall as you hold (builds up like GIMP) */
+function airTick(x, y) {
+  const ptIdx = curPts.length / 2 - 1; /* index of the point just pushed */
+  const rng = mulberry32((curSeed + ptIdx) >>> 0);
+  const R = Math.max(size, 4), dots = Math.max(4, Math.round(R / 2));
+  wctx.fillStyle = fg; wctx.globalAlpha = 0.16 * opacity;
+  for (let d = 0; d < dots; d++) {
+    const a = rng() * 6.2832, rr = Math.sqrt(rng()) * R, dr = 0.6 + rng() * 1.5;
+    wctx.beginPath(); wctx.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, dr, 0, 6.2832); wctx.fill();
+  }
+  wctx.globalAlpha = 1;
+}
+function round2(v) { return Math.round(v * 100) / 100; }
+
+function pickColor(x, y) {
+  const d = wctx.getImageData(x, y, 1, 1).data;
+  if (d[3] === 0) return; /* bare wall — nothing to pick */
+  setFg("#" + [d[0], d[1], d[2]].map(v => v.toString(16).padStart(2, "0")).join(""));
+}
+
+/* ---------- toolbox wiring ---------- */
+const TOOL_NAMES = { pencil: "Pencil", brush: "Paintbrush", air: "Airbrush", eraser: "Eraser", fill: "Bucket Fill", picker: "Color Picker" };
+const toolEls = document.querySelectorAll(".tool");
+function setTool(t) {
+  tool = t;
+  toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === t));
+  document.getElementById("tool-name").textContent = TOOL_NAMES[t];
+}
+toolEls.forEach(el => el.addEventListener("click", () => setTool(el.dataset.tool)));
+
+const fgEl = document.getElementById("fg"), bgEl = document.getElementById("bg");
+const fgInput = document.getElementById("fg-input");
+function setFg(c) { fg = c; fgEl.style.background = c; }
+function setBg(c) { bg = c; bgEl.style.background = c; }
+setFg(DEFAULT_FG); setBg(DEFAULT_BG);
+fgEl.addEventListener("click", () => fgInput.click());
+fgInput.addEventListener("input", () => setFg(fgInput.value));
+bgEl.addEventListener("click", () => { const t = fg; setFg(bg); setBg(t); });
+document.getElementById("swap").addEventListener("click", () => { const t = fg; setFg(bg); setBg(t); });
+document.getElementById("reset").addEventListener("click", () => { setFg(DEFAULT_FG); setBg(DEFAULT_BG); });
+
+const pal = document.getElementById("palette");
+PALETTE.forEach(c => {
+  const chip = document.createElement("div");
+  chip.className = "chip"; chip.style.background = c; chip.title = c;
+  chip.addEventListener("click", () => setFg(c));
+  pal.appendChild(chip);
+});
+
+const sizeEl = document.getElementById("size"), opEl = document.getElementById("opacity");
+sizeEl.addEventListener("input", () => { size = +sizeEl.value; document.getElementById("size-val").textContent = size; });
+opEl.addEventListener("input", () => { opacity = +opEl.value / 100; document.getElementById("op-val").textContent = opEl.value; });
+
+document.getElementById("tb-collapse").addEventListener("click", (e) => {
+  const tb = document.getElementById("toolbox");
+  tb.classList.toggle("collapsed");
+  e.target.textContent = tb.classList.contains("collapsed") ? "▸" : "▾";
+});
+
+/* drag the toolbox by its title bar */
+(() => {
+  const tb = document.getElementById("toolbox"), bar = document.getElementById("tb-title");
+  let sx, sy, ox, oy, moving = false;
+  bar.addEventListener("pointerdown", (e) => {
+    if (e.target.id === "tb-collapse") return;
+    moving = true; bar.setPointerCapture(e.pointerId);
+    sx = e.clientX; sy = e.clientY;
+    const r = tb.getBoundingClientRect(); ox = r.left; oy = r.top;
+  });
+  bar.addEventListener("pointermove", (e) => {
+    if (!moving) return;
+    tb.style.left = Math.max(0, ox + e.clientX - sx) + "px";
+    tb.style.top = Math.max(0, oy + e.clientY - sy) + "px";
+  });
+  bar.addEventListener("pointerup", () => moving = false);
+})();
+
+/* GIMP-ish shortcuts */
+window.addEventListener("keydown", (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === "n") setTool("pencil");
+  else if (k === "p") setTool("brush");
+  else if (k === "a") setTool("air");
+  else if (k === "e") setTool("eraser");
+  else if (k === "b") setTool("fill");
+  else if (k === "o") setTool("picker");
+  else if (k === "x") { const t = fg; setFg(bg); setBg(t); }
+  else if (k === "d") { setFg(DEFAULT_FG); setBg(DEFAULT_BG); }
+  else if (k === "[") { sizeEl.value = Math.max(1, size - 2); sizeEl.dispatchEvent(new Event("input")); }
+  else if (k === "]") { sizeEl.value = Math.min(120, size + 2); sizeEl.dispatchEvent(new Event("input")); }
+});
+
+/* ---------- persistence ---------- */
+const banner = document.getElementById("banner");
+const connDot = document.getElementById("conn-dot");
+let publish = () => {};
+const appliedKeys = new Set();
+
+async function initFirebase() {
+  if (firebaseConfig.apiKey === "PASTE_API_KEY") {
+    banner.style.display = "block";
+    banner.textContent = "Offline sketch mode — Firebase config not set, so marks won't be saved or shared.";
+    return;
+  }
+  try {
+    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const { getDatabase, ref, push, onChildAdded, onValue } =
+      await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const opsRef = ref(db, "walls/main/ops");
+
+    publish = (op) => {
+      const r = push(opsRef, op);
+      appliedKeys.add(r.key);
+    };
+
+    onChildAdded(opsRef, (snap) => {
+      if (appliedKeys.has(snap.key)) return;
+      appliedKeys.add(snap.key);
+      applyOp(snap.val());
+      render();
+    });
+
+    onValue(ref(db, ".info/connected"), (snap) => {
+      connDot.classList.toggle("live", !!snap.val());
+      connDot.title = snap.val() ? "live — shared wall" : "reconnecting…";
+    });
+  } catch (err) {
+    banner.style.display = "block";
+    banner.textContent = "Couldn't reach Firebase — sketching locally. (" + err.message + ")";
+  }
+}
+
+layout();
+initFirebase();
+</script>
+</body>
+</html>
