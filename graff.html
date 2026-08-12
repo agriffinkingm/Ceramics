@@ -492,7 +492,7 @@ display.addEventListener("pointerdown", (e) => {
 });
 display.addEventListener("pointermove", (e) => {
   if (!drawing) return;
-  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+  let evs = e.getCoalescedEvents ? e.getCoalescedEvents() : []; if (!evs.length) evs = [e];
   for (const ev of evs) {
     const [x, y] = toWall(ev);
     const n = curPts.length;
@@ -659,15 +659,16 @@ async function initFirebase() {
   }
   try {
     const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const { getDatabase, ref, push, onChildAdded, onValue } =
+    const { getDatabase, ref, push, set, onChildAdded, onValue } =
       await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const opsRef = ref(db, "walls/main/ops");
 
     publish = (op) => {
-      const r = push(opsRef, op);
+      const r = push(opsRef);       /* reserve key first — child_added fires synchronously on local set */
       appliedKeys.add(r.key);
+      set(r, op);
     };
 
     onChildAdded(opsRef, (snap) => {
