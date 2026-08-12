@@ -231,6 +231,9 @@
     <div class="tool" data-tool="picker" title="Color Picker (O)">
       <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
     </div>
+    <div class="tool" data-tool="text" title="Text (T)">
+      <svg viewBox="0 0 24 24"><path d="M5 5h14"/><path d="M12 5v14"/><path d="M9 19h6"/></svg>
+    </div>
   </div>
 
   <div class="tb-section">
@@ -430,6 +433,14 @@ function floodFill(ctx, x, y, hex) {
 /* apply a committed op onto the wall raster */
 function applyOp(o) {
   if (o.t === "f") { floodFill(wctx, o.x, o.y, o.c); }
+  else if (o.t === "t") {
+    wctx.font = "bold " + o.sz + "px 'Arial Black', Arial, sans-serif";
+    wctx.textBaseline = "middle";
+    wctx.fillStyle = o.c;
+    wctx.globalAlpha = o.op;
+    wctx.fillText(o.txt, o.x, o.y);
+    wctx.globalAlpha = 1;
+  }
   else if (o.t === "s") {
     const pts = o.pts;
     if (!pts || pts.length < 2) return;
@@ -463,6 +474,7 @@ display.addEventListener("pointerdown", (e) => {
   display.setPointerCapture(e.pointerId);
   const [x, y] = toWall(e);
   if (tool === "picker") { pickColor(x, y); return; }
+  if (tool === "text") { beginText(e.clientX, e.clientY, x, y); return; }
   if (tool === "fill") {
     const op = { t: "f", x, y, c: fg };
     applyOp(op); render(); publish(op);
@@ -526,6 +538,31 @@ function airTick(x, y) {
   }
   wctx.globalAlpha = 1;
 }
+/* text tool: inline input at the click point — Enter stamps it onto the wall, Esc cancels */
+let textBox = null;
+function beginText(cx, cy, wx, wy) {
+  if (textBox) textBox.remove();
+  const fontPx = Math.max(size * 2, 14);
+  const inp = document.createElement("input");
+  textBox = inp;
+  inp.type = "text";
+  inp.placeholder = "type, then Enter";
+  inp.style.cssText = "position:fixed;left:" + cx + "px;top:" + (cy - fontPx * fit.s / 2) + "px;" +
+    "background:transparent;border:1px dashed rgba(0,0,0,.4);outline:none;padding:0 2px;" +
+    "font:bold " + (fontPx * fit.s) + "px 'Arial Black', Arial, sans-serif;color:" + fg + ";" +
+    "min-width:60px;max-width:60vw;z-index:25;";
+  document.body.appendChild(inp);
+  setTimeout(() => inp.focus(), 0);
+  inp.addEventListener("keydown", (e) => {
+    e.stopPropagation();
+    if (e.key === "Enter" && inp.value.trim()) {
+      const op = { t: "t", x: wx, y: wy, c: fg, sz: fontPx, op: round2(opacity), txt: inp.value.slice(0, 120) };
+      applyOp(op); render(); publish(op);
+      inp.remove(); textBox = null;
+    } else if (e.key === "Escape") { inp.remove(); textBox = null; }
+  });
+  inp.addEventListener("blur", () => { if (textBox === inp) { inp.remove(); textBox = null; } });
+}
 function round2(v) { return Math.round(v * 100) / 100; }
 
 function pickColor(x, y) {
@@ -535,7 +572,7 @@ function pickColor(x, y) {
 }
 
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { pencil: "Pencil", brush: "Paintbrush", air: "Airbrush", eraser: "Eraser", fill: "Bucket Fill", picker: "Color Picker" };
+const TOOL_NAMES = { pencil: "Pencil", brush: "Paintbrush", air: "Airbrush", eraser: "Eraser", fill: "Bucket Fill", picker: "Color Picker", text: "Text" };
 const toolEls = document.querySelectorAll(".tool");
 function setTool(t) {
   tool = t;
@@ -601,6 +638,7 @@ window.addEventListener("keydown", (e) => {
   else if (k === "e") setTool("eraser");
   else if (k === "b") setTool("fill");
   else if (k === "o") setTool("picker");
+  else if (k === "t") setTool("text");
   else if (k === "x") { const t = fg; setFg(bg); setBg(t); }
   else if (k === "d") { setFg(DEFAULT_FG); setBg(DEFAULT_BG); }
   else if (k === "[") { sizeEl.value = Math.max(1, size - 2); sizeEl.dispatchEvent(new Event("input")); }
