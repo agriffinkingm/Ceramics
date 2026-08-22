@@ -15,12 +15,11 @@
     --hilite: #4a90d9;          /* GNOME/GIMP selection blue */
     --wall-a: #b7b2a8;          /* concrete */
     --wall-b: #a8a399;
-    --void: #141414;            /* letterbox around the wall */
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; overflow: hidden; }
   body {
-    background: var(--void);
+    background: var(--wall-a);
     font-family: "Segoe UI", "Cantarell", "DejaVu Sans", system-ui, sans-serif;
     font-size: 12px;
     color: var(--panel-text);
@@ -29,39 +28,29 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* ---------- the wall ---------- */
+  /* ---------- the wall: always fills the whole screen (cover + pan) ---------- */
   #wall {
-    position: absolute;
+    position: fixed; inset: 0;
     background-color: var(--wall-a);
     background-image:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.28 0 0 0 0 0.27 0 0 0 0 0.25 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E"),
-      linear-gradient(160deg, var(--wall-a) 0%, var(--wall-b) 60%, #9c978d 100%);
-    box-shadow: 0 0 60px rgba(0,0,0,.55) inset, 0 0 24px rgba(0,0,0,.6);
+      linear-gradient(160deg, var(--wall-a) 0%, var(--wall-b) 70%, #9c978d 100%);
+    box-shadow: 0 0 60px rgba(0,0,0,.35) inset;
   }
-  #wall::after { /* faint stencil hint until first paint */
-    content: "GRAFF";
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-family: "Arial Black", "Arial Bold", sans-serif;
-    font-size: clamp(48px, 14vw, 180px);
-    letter-spacing: .12em;
-    color: rgba(60,55,48,.10);
-    pointer-events: none;
-    transition: opacity .8s;
-  }
-  #wall.painted::after { opacity: 0; }
-
   #display {
-    position: absolute;
+    position: fixed; inset: 0;
+    width: 100vw; height: 100vh;
     touch-action: none;
     cursor: crosshair;
   }
+  #display.hand { cursor: grab; }
+  #display.hand.panning { cursor: grabbing; }
 
   /* ---------- GIMP toolbox ---------- */
   #toolbox {
     position: fixed;
     top: 16px; left: 16px;
-    width: 176px;
+    width: 200px;
     background: var(--panel);
     border: 1px solid var(--panel-border);
     box-shadow: 0 6px 22px rgba(0,0,0,.55);
@@ -202,7 +191,7 @@
     max-width: 94vw; z-index: 26;
   }
   #place-bar label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--panel-dim); }
-  #place-bar input[type=range] { width: 110px; }
+  #place-bar input[type=range] { width: 92px; }
   #pb-place, #pb-cancel {
     border: 1px solid #2b6cb0; color: #fff; padding: 7px 16px;
     cursor: pointer; font: inherit; border-radius: 2px; background: var(--hilite);
@@ -226,8 +215,9 @@
       width: auto;
     }
     #tb-title { cursor: default; }
-    .tool { aspect-ratio: auto; height: 48px; }
-    .tool svg { width: 26px; height: 26px; }
+    .tool-grid { grid-template-columns: repeat(7, 1fr); }
+    .tool { aspect-ratio: auto; height: 46px; }
+    .tool svg { width: 24px; height: 24px; }
     #opts-section { display: flex; gap: 12px; }
     #opts-section .slider-row { flex: 1; margin-bottom: 2px; }
     #opts-section .tb-label { display: none; }
@@ -238,7 +228,6 @@
     #banner { bottom: auto; top: calc(60px + env(safe-area-inset-top)); }
   }
   @media (prefers-reduced-motion: reduce) {
-    #wall::after { transition: none; }
     .chip:hover { transform: none; }
   }
 </style>
@@ -262,11 +251,20 @@
     <div class="tool" data-tool="air" title="Airbrush (A) — spray can">
       <svg viewBox="0 0 24 24"><rect x="8" y="8" width="7" height="13" rx="1"/><path d="M10 8V6h3v2"/><path d="M11 4h1"/><path d="M18 5l2-1M18 8h3M18 11l2 1"/></svg>
     </div>
+    <div class="tool" data-tool="smudge" title="Smudge (S) — drag wet paint">
+      <svg viewBox="0 0 24 24"><path d="M14 3c0 3-5 7-5 11a5 5 0 0 0 10 0c0-4-5-8-5-11z"/><path d="M7 20c-2 0-3 1-3 1"/></svg>
+    </div>
     <div class="tool" data-tool="text" title="Text (T)">
       <svg viewBox="0 0 24 24"><path d="M5 5h14"/><path d="M12 5v14"/><path d="M9 19h6"/></svg>
     </div>
     <div class="tool" data-tool="image" title="Upload Image (I)">
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>
+    </div>
+    <div class="tool" data-tool="picker" title="Color Picker (O)">
+      <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
+    </div>
+    <div class="tool" data-tool="hand" title="Pan (H) — or drag with two fingers / hold Space">
+      <svg viewBox="0 0 24 24"><path d="M8 12V6a1.5 1.5 0 0 1 3 0v5"/><path d="M11 11V4.5a1.5 1.5 0 0 1 3 0V11"/><path d="M14 11V6a1.5 1.5 0 0 1 3 0v7c0 4-2 7-6 7s-6-3-7-6l-1-3a1.4 1.4 0 0 1 2.6-1L7 13"/></svg>
     </div>
   </div>
 
@@ -311,6 +309,7 @@
 <div id="place-bar">
   <label>Scale <input type="range" id="pb-scale" min="5" max="300" value="100"></label>
   <label>Rotate <input type="range" id="pb-rot" min="-180" max="180" value="0"></label>
+  <label>Opacity <input type="range" id="pb-op" min="5" max="100" value="100"></label>
   <button id="pb-place">Place</button>
   <button id="pb-cancel">✕</button>
   <span id="pb-hint">Drag the image to position it. Once placed it becomes part of the wall.</span>
@@ -334,15 +333,19 @@ const firebaseConfig = {
 };
 
 /* ---------- constants ---------- */
-const W = 1920, H = 1080;          // shared wall raster — identical on every device
+/* Wall grew ~3.2x in area (1920x1080 -> 3456x1944). Kept under iOS Safari's
+   canvas pixel budget so iPhones can still allocate it. Old art keeps its
+   coordinates in the top-left region. */
+const W = 3456, H = 1944;
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
+const WALL_COLOR = "#b7b2a8";
 const PALETTE = ["#f5f0e6","#1a1a1a","#d7263d","#f46036","#f9c22e","#2e933c",
                  "#1b98e0","#2a4494","#7b2cbf","#ff5d8f","#7f5539","#8d99ae"];
 
 /* ---------- state ---------- */
 let tool = "brush", fg = DEFAULT_FG, bg = DEFAULT_BG;
 let size = 12, opacity = 1;
-let drawing = false, curPts = [], curSeed = 0;
+let drawing = false, curPts = [], curSeed = 0, curSm = null;
 let opCount = 0;
 
 /* ---------- canvases ---------- */
@@ -358,24 +361,38 @@ const display = document.getElementById("display");
 const dctx = display.getContext("2d");
 const wallEl = document.getElementById("wall");
 
-/* contain-fit: whole wall always visible & reachable */
-let fit = { x: 0, y: 0, s: 1 };
+/* ---------- camera: cover-fit + pan/zoom, so the wall ALWAYS fills the screen ---------- */
+const cam = { x: 0, y: 0, s: 1 };
+let camInit = false;
+function minScale() { return Math.max(window.innerWidth / W, window.innerHeight / H); }
+function clampCam() {
+  cam.s = Math.min(4, Math.max(minScale(), cam.s));
+  cam.x = Math.min(W - window.innerWidth / cam.s, Math.max(0, cam.x));
+  cam.y = Math.min(H - window.innerHeight / cam.s, Math.max(0, cam.y));
+}
+function centerOn(wx, wy) {
+  cam.x = wx - window.innerWidth / cam.s / 2;
+  cam.y = wy - window.innerHeight / cam.s / 2;
+  clampCam();
+}
 function layout() {
-  const vw = window.innerWidth, vh = window.innerHeight;
-  fit.s = Math.min(vw / W, vh / H);
-  const w = W * fit.s, h = H * fit.s;
-  fit.x = (vw - w) / 2; fit.y = (vh - h) / 2;
-  for (const el of [display, wallEl]) {
-    el.style.left = fit.x + "px"; el.style.top = fit.y + "px";
-    el.style.width = w + "px"; el.style.height = h + "px";
-  }
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  display.width = Math.round(w * dpr); display.height = Math.round(h * dpr);
+  display.width = Math.round(window.innerWidth * dpr);
+  display.height = Math.round(window.innerHeight * dpr);
+  if (!camInit) {
+    camInit = true;
+    /* open on the original wall region where the first art lives */
+    cam.s = Math.max(minScale(), Math.min(window.innerWidth / 1920, window.innerHeight / 1080));
+    centerOn(960, 540);
+  }
+  clampCam();
   render();
 }
 function render() {
-  dctx.setTransform(display.width / W, 0, 0, display.height / H, 0, 0);
-  dctx.clearRect(0, 0, W, H);
+  const dpr = display.width / window.innerWidth;
+  dctx.setTransform(1, 0, 0, 1, 0, 0);
+  dctx.clearRect(0, 0, display.width, display.height);
+  dctx.setTransform(cam.s * dpr, 0, 0, cam.s * dpr, -cam.x * cam.s * dpr, -cam.y * cam.s * dpr);
   dctx.drawImage(wallCv, 0, 0);
   if (drawing && tool === "brush") {
     dctx.globalAlpha = opacity;
@@ -383,6 +400,8 @@ function render() {
     dctx.globalAlpha = 1;
   }
   if (placing) drawPlacing(dctx);
+  /* pan the concrete texture with the wall */
+  wallEl.style.backgroundPosition = (-cam.x * cam.s) + "px " + (-cam.y * cam.s) + "px, 0 0";
 }
 window.addEventListener("resize", layout);
 if (window.visualViewport) window.visualViewport.addEventListener("resize", layout);
@@ -474,6 +493,35 @@ function floodFill(ctx, x, y, hex) {
   ctx.putImageData(img, 0, 0);
 }
 
+/* ---------- smudge: drags paint along the stroke; deterministic so it replays identically ---------- */
+const smTmp = document.createElement("canvas");
+function makeSmudger(ctx, sz, strength) {
+  const r = Math.max(sz / 2, 3), d = Math.ceil(r * 2);
+  smTmp.width = d; smTmp.height = d;
+  const tctx = smTmp.getContext("2d");
+  const step = Math.max(r / 3, 2);
+  let lx = null, ly = null;
+  return (x, y) => {
+    if (lx === null) { lx = x; ly = y; return; }
+    const dist = Math.hypot(x - lx, y - ly);
+    if (dist < 0.5) return;
+    const n = Math.max(1, Math.ceil(dist / step));
+    const sx = lx, sy = ly;
+    for (let j = 1; j <= n; j++) {
+      const nx = sx + (x - sx) * j / n, ny = sy + (y - sy) * j / n;
+      tctx.clearRect(0, 0, d, d);
+      tctx.save();
+      tctx.beginPath(); tctx.arc(r, r, r, 0, 6.2832); tctx.clip();
+      tctx.drawImage(ctx.canvas, lx - r, ly - r, d, d, 0, 0, d, d);
+      tctx.restore();
+      ctx.globalAlpha = strength;
+      ctx.drawImage(smTmp, nx - r, ny - r);
+      ctx.globalAlpha = 1;
+      lx = nx; ly = ny;
+    }
+  };
+}
+
 /* ---------- image cache + loader ---------- */
 const imgCache = new Map();
 function loadImg(src) {
@@ -507,13 +555,19 @@ async function applyOp(o) {
     wctx.save();
     wctx.translate(o.x, o.y);
     wctx.rotate(o.rot || 0);
+    wctx.globalAlpha = (o.op == null ? 1 : o.op);
     wctx.drawImage(img, -o.w / 2, -o.h / 2, o.w, o.h);
+    wctx.globalAlpha = 1;
     wctx.restore();
   }
   else if (o.t === "s") {
     const pts = o.pts;
     if (!pts || pts.length < 2) return;
     if (o.tool === "air") { sprayAir(wctx, pts, o.sz, o.c, o.op, o.seed); }
+    else if (o.tool === "smudge") {
+      const sm = makeSmudger(wctx, o.sz, o.op);
+      for (let i = 0; i < pts.length; i += 2) sm(pts[i], pts[i + 1]);
+    }
     else {
       sctx.clearRect(0, 0, W, H);
       if (o.tool === "brush") pathBrush(sctx, pts, o.sz, o.c);
@@ -527,30 +581,70 @@ async function applyOp(o) {
   }
   opCount++;
   document.getElementById("op-count").textContent = opCount + (opCount === 1 ? " mark" : " marks");
-  wallEl.classList.add("painted");
   render();
 }
 
-/* ---------- input ---------- */
+/* ---------- input: draw, pan (hand tool / space / two fingers), pinch zoom ---------- */
 function toWall(e) {
-  const r = display.getBoundingClientRect();
   return [
-    Math.max(0, Math.min(W, Math.round((e.clientX - r.left) / fit.s))),
-    Math.max(0, Math.min(H, Math.round((e.clientY - r.top) / fit.s)))
+    Math.max(0, Math.min(W, Math.round(cam.x + e.clientX / cam.s))),
+    Math.max(0, Math.min(H, Math.round(cam.y + e.clientY / cam.s)))
   ];
 }
+const activePts = new Map();
+let pinch = null;
+let pan = null;
+let spaceHeld = false;
 let dragging = false, dragOff = [0, 0];
+
+function startPinch() {
+  const [p1, p2] = [...activePts.values()];
+  pinch = {
+    d0: Math.max(12, Math.hypot(p2.x - p1.x, p2.y - p1.y)),
+    mx0: (p1.x + p2.x) / 2, my0: (p1.y + p2.y) / 2,
+    cam0: { x: cam.x, y: cam.y, s: cam.s }
+  };
+}
+function movePinch() {
+  const [p1, p2] = [...activePts.values()];
+  const d = Math.max(12, Math.hypot(p2.x - p1.x, p2.y - p1.y));
+  const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+  const s = Math.min(4, Math.max(minScale(), pinch.cam0.s * d / pinch.d0));
+  const wx = pinch.cam0.x + pinch.mx0 / pinch.cam0.s;
+  const wy = pinch.cam0.y + pinch.my0 / pinch.cam0.s;
+  cam.s = s;
+  cam.x = wx - mx / s;
+  cam.y = wy - my / s;
+  clampCam();
+  render();
+}
+
 display.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   try { display.setPointerCapture(e.pointerId); } catch (_) {}
+  activePts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (activePts.size === 2) {
+    if (drawing) endStroke();
+    dragging = false;
+    startPinch();
+    return;
+  }
+  if (activePts.size > 2) return;
   const [x, y] = toWall(e);
   if (placing) { dragging = true; dragOff = [placing.x - x, placing.y - y]; return; }
+  if (tool === "hand" || spaceHeld) {
+    pan = { sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y };
+    display.classList.add("panning");
+    return;
+  }
   if (tool === "text") { beginText(e.clientX, e.clientY, x, y); return; }
   if (tool === "image") { fileInput.click(); return; }
+  if (tool === "picker") { pickColor(x, y); return; }
   drawing = true;
   curPts = [x, y];
   curSeed = (Math.random() * 0xffffffff) >>> 0;
   if (tool === "air") { airTick(x, y); }
+  else if (tool === "smudge") { curSm = makeSmudger(wctx, size, opacity); curSm(x, y); }
   else {
     sctx.clearRect(0, 0, W, H);
     drawCurrent();
@@ -558,6 +652,15 @@ display.addEventListener("pointerdown", (e) => {
   render();
 });
 display.addEventListener("pointermove", (e) => {
+  if (activePts.has(e.pointerId)) activePts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && activePts.size >= 2) { movePinch(); return; }
+  if (pan) {
+    cam.x = pan.cx - (e.clientX - pan.sx) / cam.s;
+    cam.y = pan.cy - (e.clientY - pan.sy) / cam.s;
+    clampCam();
+    render();
+    return;
+  }
   if (placing && dragging) {
     const [x, y] = toWall(e);
     placing.x = x + dragOff[0]; placing.y = y + dragOff[1];
@@ -572,28 +675,50 @@ display.addEventListener("pointermove", (e) => {
     if (Math.hypot(x - curPts[n - 2], y - curPts[n - 1]) < 2) continue;
     curPts.push(x, y);
     if (tool === "air") airTick(x, y);
+    else if (tool === "smudge" && curSm) curSm(x, y);
   }
-  if (tool !== "air") drawCurrent();
+  if (tool === "brush") drawCurrent();
   render();
 });
 function endStroke() {
-  dragging = false;
-  if (!drawing) return;
+  if (!drawing) { curPts = []; return; }
   drawing = false;
   const op = { t: "s", tool, c: fg, sz: size, op: round2(opacity), pts: curPts };
-  if (tool === "air") {
-    op.seed = curSeed;
-    /* already drawn live to wall; just count + publish */
+  if (tool === "air" || tool === "smudge") {
+    if (tool === "air") op.seed = curSeed;
+    /* already applied live to the wall; just count + publish */
     opCount++; document.getElementById("op-count").textContent = opCount + " marks";
   } else {
     enqueue(op);
   }
+  curSm = null;
   render();
   publish(op);
   curPts = [];
 }
-display.addEventListener("pointerup", endStroke);
-display.addEventListener("pointercancel", endStroke);
+function pointerEnd(e) {
+  activePts.delete(e.pointerId);
+  if (pinch && activePts.size < 2) pinch = null;
+  if (pan && activePts.size === 0) { pan = null; display.classList.remove("panning"); }
+  if (activePts.size === 0) {
+    dragging = false;
+    if (drawing) endStroke();
+  }
+}
+display.addEventListener("pointerup", pointerEnd);
+display.addEventListener("pointercancel", pointerEnd);
+
+/* mouse wheel: zoom around the cursor */
+display.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const s2 = Math.min(4, Math.max(minScale(), cam.s * Math.exp(-e.deltaY * 0.0012)));
+  const wx = cam.x + e.clientX / cam.s, wy = cam.y + e.clientY / cam.s;
+  cam.s = s2;
+  cam.x = wx - e.clientX / s2;
+  cam.y = wy - e.clientY / s2;
+  clampCam();
+  render();
+}, { passive: false });
 
 function drawCurrent() {
   sctx.clearRect(0, 0, W, H);
@@ -613,6 +738,16 @@ function airTick(x, y) {
 }
 function round2(v) { return Math.round(v * 100) / 100; }
 
+/* eyedropper */
+function pickColor(x, y) {
+  const d = wctx.getImageData(Math.round(Math.min(x, W - 1)), Math.round(Math.min(y, H - 1)), 1, 1).data;
+  if (d[3] > 10) {
+    setFg("#" + [d[0], d[1], d[2]].map(v => v.toString(16).padStart(2, "0")).join(""));
+  } else {
+    setFg(WALL_COLOR); /* bare concrete */
+  }
+}
+
 /* text tool: inline input at the click point — Enter stamps it onto the wall, Esc cancels */
 let textBox = null;
 function beginText(cx, cy, wx, wy) {
@@ -622,9 +757,9 @@ function beginText(cx, cy, wx, wy) {
   textBox = inp;
   inp.type = "text";
   inp.placeholder = "type, then Enter";
-  inp.style.cssText = "position:fixed;left:" + cx + "px;top:" + (cy - fontPx * fit.s / 2) + "px;" +
+  inp.style.cssText = "position:fixed;left:" + cx + "px;top:" + (cy - fontPx * cam.s / 2) + "px;" +
     "background:transparent;border:1px dashed rgba(0,0,0,.4);outline:none;padding:0 2px;" +
-    "font:bold " + (fontPx * fit.s) + "px 'Arial Black', Arial, sans-serif;color:" + fg + ";" +
+    "font:bold " + (fontPx * cam.s) + "px 'Arial Black', Arial, sans-serif;color:" + fg + ";" +
     "min-width:60px;max-width:60vw;z-index:25;";
   document.body.appendChild(inp);
   inp.focus();
@@ -645,6 +780,7 @@ const fileInput = document.getElementById("img-file");
 const placeBar = document.getElementById("place-bar");
 const pbScale = document.getElementById("pb-scale");
 const pbRot = document.getElementById("pb-rot");
+const pbOp = document.getElementById("pb-op");
 let placing = null;
 
 fileInput.addEventListener("change", async () => {
@@ -654,10 +790,14 @@ fileInput.addEventListener("change", async () => {
   try {
     const src = await downscale(f);
     const img = await loadImg(src);
-    const s0 = Math.min(1, (W * 0.5) / img.width, (H * 0.5) / img.height);
-    placing = { src, img, x: W / 2, y: H / 2, scale: s0, rot: 0 };
+    const s0 = Math.min(1, (W * 0.3) / img.width, (H * 0.3) / img.height);
+    /* drop it in the middle of the current view, not the middle of the wall */
+    const vx = cam.x + window.innerWidth / cam.s / 2;
+    const vy = cam.y + window.innerHeight / cam.s / 2;
+    placing = { src, img, x: vx, y: vy, scale: s0, rot: 0, op: 1 };
     pbScale.value = Math.round(s0 * 100);
     pbRot.value = 0;
+    pbOp.value = 100;
     placeBar.style.display = "flex";
     render();
   } catch (err) {
@@ -685,18 +825,19 @@ function drawPlacing(ctx) {
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.rotate(p.rot);
-  ctx.globalAlpha = 0.92;
+  ctx.globalAlpha = p.op;
   ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
   ctx.globalAlpha = 1;
   ctx.strokeStyle = "#4a90d9";
   ctx.setLineDash([8, 6]);
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 3 / cam.s;
   ctx.strokeRect(-w / 2, -h / 2, w, h);
   ctx.setLineDash([]);
   ctx.restore();
 }
 pbScale.addEventListener("input", () => { if (placing) { placing.scale = +pbScale.value / 100; render(); } });
 pbRot.addEventListener("input", () => { if (placing) { placing.rot = +pbRot.value * Math.PI / 180; render(); } });
+pbOp.addEventListener("input", () => { if (placing) { placing.op = +pbOp.value / 100; render(); } });
 document.getElementById("pb-place").addEventListener("click", () => {
   if (!placing) return;
   const p = placing;
@@ -706,6 +847,7 @@ document.getElementById("pb-place").addEventListener("click", () => {
     w: Math.max(1, Math.round(p.img.width * p.scale)),
     h: Math.max(1, Math.round(p.img.height * p.scale)),
     rot: Math.round(p.rot * 1000) / 1000,
+    op: round2(p.op),
     src: p.src
   };
   placing = null;
@@ -719,12 +861,13 @@ document.getElementById("pb-cancel").addEventListener("click", () => {
 });
 
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", text: "Text", image: "Image" };
+const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", picker: "Color Picker", hand: "Pan" };
 const toolEls = document.querySelectorAll(".tool");
 function setTool(t) {
   tool = t;
   toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === t));
   document.getElementById("tool-name").textContent = TOOL_NAMES[t];
+  display.classList.toggle("hand", t === "hand");
 }
 toolEls.forEach(el => el.addEventListener("click", () => {
   setTool(el.dataset.tool);
@@ -799,7 +942,6 @@ function rebuild() {
     for (const op of opsByKey.values()) await applyOp(op);
     if (!opsByKey.size) {
       document.getElementById("op-count").textContent = "—";
-      wallEl.classList.remove("painted");
       render();
     }
   });
@@ -808,17 +950,24 @@ function rebuild() {
 /* GIMP-ish shortcuts */
 window.addEventListener("keydown", (e) => {
   const k = e.key.toLowerCase();
+  if (e.key === " ") { spaceHeld = true; display.classList.add("hand"); return; }
   if ((e.ctrlKey || e.metaKey) && k === "z") { e.preventDefault(); undo(); return; }
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (k === "p") setTool("brush");
   else if (k === "a") setTool("air");
+  else if (k === "s") setTool("smudge");
   else if (k === "t") setTool("text");
   else if (k === "i") setTool("image");
+  else if (k === "o") setTool("picker");
+  else if (k === "h") setTool("hand");
   else if (k === "z") undo();
   else if (k === "x") { const t = fg; setFg(bg); setBg(t); }
   else if (k === "d") { setFg(DEFAULT_FG); setBg(DEFAULT_BG); }
   else if (k === "[") { sizeEl.value = Math.max(1, size - 2); sizeEl.dispatchEvent(new Event("input")); }
   else if (k === "]") { sizeEl.value = Math.min(120, size + 2); sizeEl.dispatchEvent(new Event("input")); }
+});
+window.addEventListener("keyup", (e) => {
+  if (e.key === " ") { spaceHeld = false; if (tool !== "hand") display.classList.remove("hand"); }
 });
 
 /* ---------- persistence ---------- */
@@ -837,11 +986,6 @@ function showBanner(msg) {
 }
 
 async function initFirebase() {
-  if (firebaseConfig.apiKey === "PASTE_API_KEY") {
-    banner.style.display = "block";
-    banner.textContent = "Offline sketch mode — Firebase config not set, so marks won't be saved or shared.";
-    return;
-  }
   try {
     const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
     const { getDatabase, ref, child, push, set, remove, onChildAdded, onChildRemoved, onValue } =
