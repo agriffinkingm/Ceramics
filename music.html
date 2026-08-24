@@ -135,9 +135,41 @@
     -webkit-backdrop-filter:blur(12px);
     border:1px solid rgba(250,248,245,0.12);
   }
+  #knobrow {
+    display:flex; gap:1.8rem;
+    padding:0.9rem 1.1rem 0.6rem;
+    border-bottom:1px solid rgba(250,248,245,0.1);
+  }
+  .knobwrap {
+    display:flex; flex-direction:column; align-items:center; gap:0.3rem;
+    width:66px; user-select:none;
+  }
+  .knob {
+    width:46px; height:46px; border-radius:50%;
+    background:rgba(250,248,245,0.07);
+    border:1px solid rgba(250,248,245,0.35);
+    position:relative; cursor:ns-resize; touch-action:none;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,0.35);
+    transition:border-color .2s;
+  }
+  .knob:hover { border-color:#C67B5C; }
+  .knob .ind {
+    position:absolute; left:50%; top:4px;
+    width:2px; height:13px; background:#C67B5C;
+    transform-origin:50% 19px; border-radius:1px;
+    transform:translateX(-50%);
+  }
+  .knob-label {
+    font-size:0.58rem; letter-spacing:0.2em; text-transform:uppercase;
+    color:rgba(250,248,245,0.6);
+  }
+  .knob-val {
+    font-size:0.66rem; color:rgba(250,248,245,0.85);
+    min-height:1em; font-variant-numeric:tabular-nums;
+  }
   #controls {
     display:flex; align-items:center; gap:1rem;
-    padding:0.9rem 1.1rem 0.5rem;
+    padding:0.7rem 1.1rem 0.5rem;
   }
   .ctl {
     background:none; border:none; color:#FAF8F5; cursor:pointer;
@@ -257,6 +289,7 @@
 </div>
 
 <div id="panel">
+  <div id="knobrow"></div>
   <div id="controls">
     <button class="ctl" id="prevbtn" title="previous">
       <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
@@ -289,20 +322,26 @@
            words than the title (e.g. add "ocean" or "painting")
    ============================================================ */
 const SONGS = [
-  { title: "airdrop",         file: "music/airdrop.mp3" },
-  { title: "antielectron",    file: "music/antielectron.mp3" },
-  { title: "artemis",         file: "music/artemis.mp3" },
-  { title: "a touch a kiss",  file: "music/atouchakiss.mp3" },
-  { title: "baby please",     file: "music/babyplease.mp3" },
-  { title: "butterfly",       file: "music/butterfly.mp3" },
-  { title: "celadon",         file: "music/celadon.mp3" },
-  { title: "dead puppy love", file: "music/deadpuppylove.mp3" },
-  { title: "eclipse",         file: "music/eclipse.mp3" },
-  { title: "oxalis",          file: "music/oxalis.mp3" },
-  { title: "sentinel",        file: "music/sentinel.wav" },
-  { title: "seolleongtang",   file: "music/seolleongtang.mp3" },
-  { title: "swan song",       file: "music/swansong.mp3" },
-  { title: "zora",            file: "music/zora.mp3" },
+  { title: "airdrop",              file: "music/airdrop.mp3" },
+  { title: "antielectron",         file: "music/antielectron.mp3", query: "positron antimatter" },
+  { title: "artemis",              file: "music/artemis.mp3" },
+  { title: "atouchakiss",          file: "music/atouchakiss.mp3", query: "a touch a kiss" },
+  { title: "babyplease",           file: "music/babyplease.mp3", query: "baby please" },
+  { title: "butterfly",            file: "music/butterfly.mp3" },
+  { title: "celadon",              file: "music/celadon.mp3" },
+  { title: "deadpuppylove",        file: "music/deadpuppylove.mp3", query: "dead puppy love" },
+  { title: "eclipse",              file: "music/eclipse.mp3" },
+  { title: "elastic",              file: "music/elastic.mp3" },
+  { title: "euclid",               file: "music/euclid.mp3" },
+  { title: "george",               file: "music/george.mp3" },
+  { title: "kguy",                 file: "music/kguy.mp3", query: "k guy" },
+  { title: "oxalis",               file: "music/oxalis.mp3" },
+  { title: "prismatic",            file: "music/prismatic.mp3" },
+  { title: "sapphicsapporoporous", file: "music/sapphicsapporoporous.mp3", query: "sapphic sapporo porous" },
+  { title: "sentinel",             file: "music/sentinel.wav" },
+  { title: "seolleongtang",        file: "music/seolleongtang.mp3" },
+  { title: "swansong",             file: "music/swansong.mp3", query: "swan song" },
+  { title: "zora",                 file: "music/zora.mp3" },
 ];
 
 /* ============================================================
@@ -431,6 +470,101 @@ async function loadVisuals(song){
   startSlideshow();
 }
 
+/* ---------- fx: filter + lfo knobs ---------- */
+const KNOBS = {
+  filter: { label:'filter', min:60, max:18000, log:true, def:18000, value:18000,
+            fmt: v => v >= 1000 ? (v/1000).toFixed(1)+'k' : Math.round(v)+'hz' },
+  lfo:    { label:'lfo', min:0, max:12, log:false, def:0, value:0,
+            fmt: v => v < 0.05 ? 'off' : v.toFixed(1)+'hz' }
+};
+let fx = null;
+
+function ensureFx(){
+  if(fx) return;
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if(!Ctx) return;
+  try {
+    const ctx = new Ctx();
+    const src = ctx.createMediaElementSource(audio);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = KNOBS.filter.value;
+    filter.Q.value = 1.2;
+    const lfoOsc = ctx.createOscillator();
+    lfoOsc.type = 'sine';
+    lfoOsc.frequency.value = 0.01;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0;
+    lfoOsc.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+    lfoOsc.start();
+    src.connect(filter);
+    filter.connect(ctx.destination);
+    fx = { ctx, filter, lfoOsc, lfoGain };
+    applyFx();
+  } catch(e){ fx = null; }
+}
+
+function applyFx(){
+  if(!fx) return;
+  const t = fx.ctx.currentTime;
+  const cutoff = KNOBS.filter.value;
+  const rate = KNOBS.lfo.value;
+  fx.filter.frequency.setTargetAtTime(cutoff, t, 0.03);
+  fx.lfoOsc.frequency.setTargetAtTime(Math.max(rate, 0.01), t, 0.03);
+  // lfo sweeps the filter around its cutoff — deeper when the filter is more open
+  fx.lfoGain.gain.setTargetAtTime(rate > 0.05 ? cutoff * 0.55 : 0, t, 0.03);
+}
+
+function knobNorm(k){
+  const d = KNOBS[k];
+  if(d.log) return (Math.log(d.value) - Math.log(d.min)) / (Math.log(d.max) - Math.log(d.min));
+  return (d.value - d.min) / (d.max - d.min);
+}
+function knobSet(k, n){
+  const d = KNOBS[k];
+  n = Math.max(0, Math.min(1, n));
+  d.value = d.log ? Math.exp(Math.log(d.min) + n * (Math.log(d.max) - Math.log(d.min)))
+                  : d.min + n * (d.max - d.min);
+}
+
+function buildKnobs(){
+  const row = document.getElementById('knobrow');
+  Object.keys(KNOBS).forEach(k => {
+    const d = KNOBS[k];
+    const wrap = document.createElement('div'); wrap.className = 'knobwrap';
+    const knob = document.createElement('div'); knob.className = 'knob';
+    const ind = document.createElement('div'); ind.className = 'ind';
+    knob.appendChild(ind);
+    const label = document.createElement('div'); label.className = 'knob-label'; label.textContent = d.label;
+    const val = document.createElement('div'); val.className = 'knob-val';
+    wrap.appendChild(knob); wrap.appendChild(label); wrap.appendChild(val);
+    row.appendChild(wrap);
+    function paint(){
+      ind.style.transform = 'translateX(-50%) rotate(' + (-135 + knobNorm(k) * 270) + 'deg)';
+      val.textContent = d.fmt(d.value);
+    }
+    paint();
+    let dragging = false, startY = 0, startN = 0;
+    knob.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      dragging = true; startY = e.clientY; startN = knobNorm(k);
+      knob.setPointerCapture(e.pointerId);
+      ensureFx();
+    });
+    knob.addEventListener('pointermove', e => {
+      if(!dragging) return;
+      knobSet(k, startN + (startY - e.clientY) / 150);
+      paint(); applyFx();
+    });
+    const stop = () => { dragging = false; };
+    knob.addEventListener('pointerup', stop);
+    knob.addEventListener('pointercancel', stop);
+    knob.addEventListener('dblclick', () => { d.value = d.def; paint(); applyFx(); });
+  });
+}
+buildKnobs();
+
 /* ---------- player ---------- */
 function fmt(t){
   if(!isFinite(t)) return '0:00';
@@ -465,6 +599,8 @@ document.getElementById('prevbtn').addEventListener('click', () => {
 });
 
 audio.addEventListener('play',  () => {
+  ensureFx();
+  if(fx && fx.ctx.state === 'suspended') fx.ctx.resume();
   iconPlay.style.display = 'none'; iconPause.style.display = '';
   document.body.classList.remove('paused');
   document.getElementById('startoverlay').classList.add('hidden');
