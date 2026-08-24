@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>music — alexander griffin king miller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Karla:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; }
+  body {
+    font-family:'Karla', sans-serif;
+    background:#2C2820;
+    color:#FAF8F5;
+    overflow:hidden;
+  }
+
+  /* ---------- full-canvas image stream ---------- */
+  #canvas {
+    position:fixed; inset:0; background:#2C2820; overflow:hidden;
+  }
+  .slide {
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    opacity:0;
+    transition:opacity 2.4s ease;
+    transform-origin:center;
+  }
+  .slide.showing {
+    opacity:1;
+    animation:drift 14s ease-in-out forwards;
+  }
+  @keyframes drift {
+    from { transform:scale(1.0); }
+    to   { transform:scale(1.09); }
+  }
+  #canvas::after {
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(to top, rgba(28,24,18,0.85) 0%, rgba(28,24,18,0.25) 35%, rgba(28,24,18,0.15) 60%, rgba(28,24,18,0.55) 100%);
+    pointer-events:none;
+  }
+
+  /* ---------- nav ---------- */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:20;
+    padding:1.4rem 2.5rem;
+  }
+  .nav-content {
+    display:flex; justify-content:space-between; align-items:center;
+    max-width:1200px; margin:0 auto;
+  }
+  .logo {
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.15rem; font-weight:400; letter-spacing:0.06em;
+    color:#FAF8F5; text-shadow:0 1px 8px rgba(0,0,0,0.5);
+  }
+  .nav-links {
+    display:flex; gap:2rem; list-style:none;
+  }
+  .nav-links a {
+    color:rgba(250,248,245,0.85);
+    text-decoration:none;
+    font-size:0.78rem; letter-spacing:0.18em; text-transform:uppercase;
+    padding-bottom:3px;
+    border-bottom:1px solid transparent;
+    transition:color .25s, border-color .25s;
+    text-shadow:0 1px 6px rgba(0,0,0,0.5);
+  }
+  .nav-links a:hover { color:#FAF8F5; border-color:#C67B5C; }
+  .nav-links a.active { color:#FAF8F5; border-color:#C67B5C; }
+
+  /* ---------- now playing ---------- */
+  #nowplaying {
+    position:fixed; left:2.5rem; bottom:8.2rem; z-index:15;
+    max-width:70vw;
+    pointer-events:none;
+  }
+  #np-label {
+    font-size:0.68rem; letter-spacing:0.28em; text-transform:uppercase;
+    color:#C67B5C; margin-bottom:0.5rem;
+    opacity:0; transition:opacity .8s;
+  }
+  #np-title {
+    font-family:'Cormorant Garamond', serif;
+    font-weight:300;
+    font-size:clamp(2.2rem, 6vw, 4.6rem);
+    line-height:1.05;
+    text-shadow:0 2px 18px rgba(0,0,0,0.55);
+    opacity:0; transform:translateY(12px);
+    transition:opacity .8s, transform .8s;
+  }
+  #nowplaying.visible #np-label { opacity:1; }
+  #nowplaying.visible #np-title { opacity:1; transform:translateY(0); }
+
+  /* ---------- player bar ---------- */
+  #player {
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    padding:1.1rem 2.5rem 1.5rem;
+    background:linear-gradient(to top, rgba(20,17,12,0.72), rgba(20,17,12,0));
+  }
+  #progresswrap {
+    height:16px; display:flex; align-items:center; cursor:pointer;
+    margin-bottom:0.7rem;
+  }
+  #progressbg {
+    width:100%; height:2px; background:rgba(250,248,245,0.25);
+    position:relative; transition:height .15s;
+  }
+  #progresswrap:hover #progressbg { height:4px; }
+  #progressfill {
+    position:absolute; left:0; top:0; bottom:0; width:0%;
+    background:#C67B5C;
+  }
+  #controls {
+    display:flex; align-items:center; gap:1.4rem;
+  }
+  .ctl {
+    background:none; border:none; color:#FAF8F5; cursor:pointer;
+    padding:0.2rem; display:flex; align-items:center;
+    opacity:0.85; transition:opacity .2s, transform .2s;
+  }
+  .ctl:hover { opacity:1; transform:scale(1.08); }
+  .ctl svg { width:20px; height:20px; fill:currentColor; }
+  #playbtn svg { width:30px; height:30px; }
+  #time {
+    font-size:0.72rem; letter-spacing:0.12em; color:rgba(250,248,245,0.75);
+    font-variant-numeric:tabular-nums;
+  }
+  #spacer { flex:1; }
+  #listbtn {
+    font-family:'Karla', sans-serif;
+    font-size:0.72rem; letter-spacing:0.22em; text-transform:uppercase;
+  }
+
+  /* ---------- playlist panel ---------- */
+  #playlist {
+    position:fixed; top:0; right:0; bottom:0; z-index:25;
+    width:min(340px, 85vw);
+    background:rgba(24,21,16,0.92);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    transform:translateX(100%);
+    transition:transform .45s cubic-bezier(.25,.8,.25,1);
+    padding:5.5rem 0 2rem;
+    overflow-y:auto;
+  }
+  #playlist.open { transform:translateX(0); }
+  #playlist h2 {
+    font-family:'Cormorant Garamond', serif; font-weight:400;
+    font-size:1.4rem; padding:0 2rem 1rem;
+    border-bottom:1px solid rgba(250,248,245,0.12);
+  }
+  .track {
+    padding:0.95rem 2rem; cursor:pointer;
+    display:flex; align-items:baseline; gap:0.9rem;
+    transition:background .2s;
+  }
+  .track:hover { background:rgba(250,248,245,0.06); }
+  .track.current { color:#C67B5C; }
+  .track .num {
+    font-size:0.68rem; color:rgba(250,248,245,0.4);
+    font-variant-numeric:tabular-nums; min-width:1.2em;
+  }
+  .track.current .num { color:#C67B5C; }
+  .track .name { font-size:0.92rem; letter-spacing:0.04em; }
+  #closelist {
+    position:absolute; top:1.5rem; right:1.6rem;
+    background:none; border:none; color:rgba(250,248,245,0.7);
+    font-size:1.4rem; cursor:pointer; line-height:1;
+  }
+  #closelist:hover { color:#FAF8F5; }
+
+  /* ---------- empty state ---------- */
+  #empty {
+    position:fixed; inset:0; z-index:10;
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:2rem; gap:1rem;
+  }
+  #empty.visible { display:flex; }
+  #empty h1 {
+    font-family:'Cormorant Garamond', serif; font-weight:300;
+    font-size:clamp(2rem, 5vw, 3.2rem);
+  }
+  #empty p { color:rgba(250,248,245,0.6); font-size:0.9rem; letter-spacing:0.05em; max-width:34em; line-height:1.7; }
+
+  #credit {
+    position:fixed; right:2.5rem; bottom:0.4rem; z-index:15;
+    font-size:0.6rem; letter-spacing:0.08em; color:rgba(250,248,245,0.35);
+    text-decoration:none; pointer-events:auto;
+  }
+  #credit a { color:rgba(250,248,245,0.45); text-decoration:none; }
+
+  @media (max-width:768px){
+    nav { padding:1.1rem 1.3rem; }
+    .nav-links { gap:1.1rem; }
+    .nav-links a { font-size:0.68rem; letter-spacing:0.12em; }
+    .logo { display:none; }
+    #nowplaying { left:1.3rem; bottom:8.6rem; max-width:85vw; }
+    #player { padding:0.9rem 1.3rem 1.2rem; }
+    #controls { gap:1rem; }
+    #credit { right:1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="canvas">
+  <img class="slide" id="slideA" alt="" referrerpolicy="no-referrer">
+  <img class="slide" id="slideB" alt="" referrerpolicy="no-referrer">
+</div>
+
+<nav>
+  <div class="nav-content">
+    <div class="logo">alexander griffin king miller</div>
+    <ul class="nav-links">
+      <li><a href="index.html#gallery">gallery</a></li>
+      <li><a href="index.html#fingerstrument">fingerstrument</a></li>
+      <li><a href="graff.html">graff</a></li>
+      <li><a href="music.html" class="active">music</a></li>
+      <li><a href="index.html#contact">contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div id="empty">
+  <h1>no songs yet</h1>
+  <p>add tracks to the SONGS list at the top of the script in this file — each one needs a title and the path to its audio file in the repo.</p>
+</div>
+
+<div id="nowplaying">
+  <div id="np-label">now playing</div>
+  <div id="np-title"></div>
+</div>
+
+<div id="player">
+  <div id="progresswrap">
+    <div id="progressbg"><div id="progressfill"></div></div>
+  </div>
+  <div id="controls">
+    <button class="ctl" id="prevbtn" title="previous">
+      <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+    </button>
+    <button class="ctl" id="playbtn" title="play / pause">
+      <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>
+    </button>
+    <button class="ctl" id="nextbtn" title="next">
+      <svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
+    </button>
+    <span id="time">0:00 / 0:00</span>
+    <span id="spacer"></span>
+    <button class="ctl" id="listbtn">tracks</button>
+  </div>
+</div>
+
+<div id="playlist">
+  <button id="closelist" title="close">&times;</button>
+  <h2>tracks</h2>
+  <div id="tracklist"></div>
+</div>
+
+<div id="credit"><span id="creditsrc"></span></div>
+
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+/* ============================================================
+   SONGS — add your tracks here.
+   title : shown on screen AND used as the image search query
+   file  : path to the audio file in this repo (e.g. music/song.mp3)
+   query : OPTIONAL — set this to search images with different
+           words than the title (e.g. add "ocean" or "painting")
+   ============================================================ */
+const SONGS = [
+  { title: "airdrop",         file: "music/airdrop.mp3" },
+  { title: "antielectron",    file: "music/antielectron.mp3" },
+  { title: "artemis",         file: "music/artemis.mp3" },
+  { title: "a touch a kiss",  file: "music/atouchakiss.mp3" },
+  { title: "baby please",     file: "music/babyplease.mp3" },
+  { title: "butterfly",       file: "music/butterfly.mp3" },
+  { title: "celadon",         file: "music/celadon.mp3" },
+  { title: "dead puppy love", file: "music/deadpuppylove.mp3" },
+  { title: "eclipse",         file: "music/eclipse.mp3" },
+  { title: "oxalis",          file: "music/oxalis.mp3" },
+  { title: "sentinel",        file: "music/sentinel.wav" },
+  { title: "seolleongtang",   file: "music/seolleongtang.mp3" },
+  { title: "swan song",       file: "music/swansong.mp3" },
+  { title: "zora",            file: "music/zora.mp3" },
+];
+
+/* ============================================================
+   GOOGLE IMAGES (optional).
+   Leave both blank and the page uses the free Openverse photo
+   API automatically. To use real Google Images results, paste
+   your Google API key and Programmable Search Engine ID here:
+   ============================================================ */
+const GOOGLE_API_KEY = "";
+const GOOGLE_CSE_ID  = "";
+
+/* how often the background photo changes (milliseconds) */
+const SLIDE_INTERVAL = 10000;
+
+/* ------------------------------------------------------------ */
+const audio     = document.getElementById('audio');
+const playbtn   = document.getElementById('playbtn');
+const iconPlay  = document.getElementById('icon-play');
+const iconPause = document.getElementById('icon-pause');
+const npWrap    = document.getElementById('nowplaying');
+const npTitle   = document.getElementById('np-title');
+const timeEl    = document.getElementById('time');
+const fill      = document.getElementById('progressfill');
+const slides    = [document.getElementById('slideA'), document.getElementById('slideB')];
+const creditsrc = document.getElementById('creditsrc');
+
+let current = -1;
+let images = [];
+let imgIndex = 0;
+let frontSlide = 0;
+let slideTimer = null;
+let searchToken = 0;
+const imageCache = new Map();
+
+/* ---------- image search ---------- */
+async function searchGoogle(q){
+  const url = 'https://www.googleapis.com/customsearch/v1'
+    + '?key=' + encodeURIComponent(GOOGLE_API_KEY)
+    + '&cx='  + encodeURIComponent(GOOGLE_CSE_ID)
+    + '&searchType=image&num=10&safe=active&imgSize=large'
+    + '&q=' + encodeURIComponent(q);
+  const r = await fetch(url);
+  if(!r.ok) throw new Error('google ' + r.status);
+  const d = await r.json();
+  const urls = (d.items || []).map(i => i.link).filter(Boolean);
+  if(!urls.length) throw new Error('google empty');
+  return { urls, source: 'google images' };
+}
+
+async function searchOpenverse(q){
+  const url = 'https://api.openverse.org/v1/images/'
+    + '?q=' + encodeURIComponent(q)
+    + '&page_size=20&mature=false';
+  const r = await fetch(url);
+  if(!r.ok) throw new Error('openverse ' + r.status);
+  const d = await r.json();
+  const urls = (d.results || []).map(i => i.url).filter(Boolean);
+  return { urls, source: 'openverse' };
+}
+
+async function fetchImages(q){
+  if(imageCache.has(q)) return imageCache.get(q);
+  let result = { urls: [], source: '' };
+  if(GOOGLE_API_KEY && GOOGLE_CSE_ID){
+    try { result = await searchGoogle(q); }
+    catch(e){ /* quota exhausted or misconfigured — fall through */ }
+  }
+  if(!result.urls.length){
+    try { result = await searchOpenverse(q); }
+    catch(e){ /* offline — canvas stays dark, player still works */ }
+  }
+  // shuffle
+  for(let i = result.urls.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [result.urls[i], result.urls[j]] = [result.urls[j], result.urls[i]];
+  }
+  if(result.urls.length) imageCache.set(q, result);
+  return result;
+}
+
+/* ---------- slideshow ---------- */
+function showNextImage(token){
+  if(token !== searchToken || !images.length) return;
+  const url = images[imgIndex % images.length];
+  imgIndex++;
+  const back = 1 - frontSlide;
+  const el = slides[back];
+  const loader = new Image();
+  loader.referrerPolicy = 'no-referrer';
+  loader.onload = () => {
+    if(token !== searchToken) return;
+    el.src = url;
+    // restart the drift animation
+    el.classList.remove('showing');
+    void el.offsetWidth;
+    slides[frontSlide].classList.remove('showing');
+    el.classList.add('showing');
+    frontSlide = back;
+  };
+  loader.onerror = () => {
+    // dead link (hotlink-blocked etc.) — drop it and try the next one
+    if(token !== searchToken) return;
+    images = images.filter(u => u !== url);
+    if(images.length) showNextImage(token);
+  };
+  loader.src = url;
+}
+
+function startSlideshow(){
+  if(slideTimer) clearInterval(slideTimer);
+  const token = searchToken;
+  showNextImage(token);
+  slideTimer = setInterval(() => showNextImage(token), SLIDE_INTERVAL);
+}
+
+async function loadVisuals(song){
+  searchToken++;
+  const token = searchToken;
+  const q = song.query || song.title;
+  const result = await fetchImages(q);
+  if(token !== searchToken) return;
+  images = result.urls.slice();
+  imgIndex = 0;
+  creditsrc.textContent = result.urls.length ? 'photos · ' + result.source : '';
+  startSlideshow();
+}
+
+/* ---------- player ---------- */
+function fmt(t){
+  if(!isFinite(t)) return '0:00';
+  const m = Math.floor(t / 60), s = Math.floor(t % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function playSong(i){
+  if(!SONGS.length) return;
+  current = ((i % SONGS.length) + SONGS.length) % SONGS.length;
+  const song = SONGS[current];
+  audio.src = song.file;
+  audio.play().catch(()=>{});
+  npTitle.textContent = song.title;
+  npWrap.classList.add('visible');
+  document.title = song.title + ' — alexander griffin king miller';
+  renderList();
+  loadVisuals(song);
+}
+
+function togglePlay(){
+  if(current < 0){ playSong(0); return; }
+  if(audio.paused) audio.play().catch(()=>{});
+  else audio.pause();
+}
+
+playbtn.addEventListener('click', togglePlay);
+document.getElementById('nextbtn').addEventListener('click', () => playSong(current + 1));
+document.getElementById('prevbtn').addEventListener('click', () => {
+  if(audio.currentTime > 3) audio.currentTime = 0;
+  else playSong(current - 1);
+});
+
+audio.addEventListener('play',  () => { iconPlay.style.display = 'none'; iconPause.style.display = ''; });
+audio.addEventListener('pause', () => { iconPlay.style.display = '';     iconPause.style.display = 'none'; });
+audio.addEventListener('ended', () => playSong(current + 1));
+let errStreak = 0;
+audio.addEventListener('error', () => {
+  // missing/broken file — skip ahead, but stop if every track fails
+  if(++errStreak >= SONGS.length) return;
+  setTimeout(() => playSong(current + 1), 800);
+});
+audio.addEventListener('playing', () => { errStreak = 0; });
+audio.addEventListener('timeupdate', () => {
+  fill.style.width = (audio.duration ? (audio.currentTime / audio.duration * 100) : 0) + '%';
+  timeEl.textContent = fmt(audio.currentTime) + ' / ' + fmt(audio.duration);
+});
+
+document.getElementById('progresswrap').addEventListener('click', e => {
+  if(!audio.duration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+});
+
+document.addEventListener('keydown', e => {
+  if(e.code === 'Space' && e.target === document.body){ e.preventDefault(); togglePlay(); }
+});
+
+/* ---------- playlist ---------- */
+const panel = document.getElementById('playlist');
+document.getElementById('listbtn').addEventListener('click', () => panel.classList.toggle('open'));
+document.getElementById('closelist').addEventListener('click', () => panel.classList.remove('open'));
+
+function renderList(){
+  const box = document.getElementById('tracklist');
+  box.innerHTML = '';
+  SONGS.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'track' + (i === current ? ' current' : '');
+    const num = document.createElement('span');
+    num.className = 'num';
+    num.textContent = i === current ? '♪' : (i + 1);
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = s.title;
+    row.appendChild(num); row.appendChild(name);
+    row.addEventListener('click', () => { playSong(i); panel.classList.remove('open'); });
+    box.appendChild(row);
+  });
+}
+
+/* ---------- init ---------- */
+if(SONGS.length){
+  renderList();
+  npTitle.textContent = SONGS[0].title;
+  npWrap.classList.add('visible');
+  // preload visuals for the first track so the canvas isn't blank before play
+  loadVisuals(SONGS[0]);
+  current = -1;
+} else {
+  document.getElementById('empty').classList.add('visible');
+}
+</script>
+</body>
+</html>
