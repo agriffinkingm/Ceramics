@@ -437,6 +437,7 @@ const firebaseConfig = {
 const W = 3456, H = 1944;
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
+const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
 const PALETTE = ["#f5f0e6","#1a1a1a","#d7263d","#f46036","#f9c22e","#2e933c",
                  "#1b98e0","#2a4494","#7b2cbf","#ff5d8f","#7f5539","#8d99ae"];
 
@@ -1106,6 +1107,96 @@ const genBar = document.getElementById("gen-bar");
 const genInput = document.getElementById("gen-prompt");
 const genGo = document.getElementById("gen-go");
 const pbReroll = document.getElementById("pb-reroll");
+/* ---------- wall-aware generative fill ----------
+   Instead of imagining in a vacuum, the keyed path sends the model a crop of the
+   wall AROUND the drag box (box + 50% margin each side, box dead-center) and asks
+   it to paint the prompt into the center so it blends with what's already there.
+   The returned center is cut back out, edge-feathered, and dropped into the normal
+   placement flow as a standard ai:1 image op. */
+function wallCrop(rx, ry, rw, rh) {
+  const m = 0.5 * Math.max(rw, rh);
+  const cx0 = rx - m, cy0 = ry - m;
+  const cw = rw + 2 * m, ch = rh + 2 * m;
+  const s = Math.min(1024 / Math.max(cw, ch), 2);   /* ≤1024 long side, never upscale >2x */
+  const c = document.createElement("canvas");
+  c.width = Math.max(64, Math.round(cw * s));
+  c.height = Math.max(64, Math.round(ch * s));
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = WALL_BASE;
+  ctx.fillRect(0, 0, c.width, c.height);            /* off-wall areas stay bare concrete */
+  ctx.setTransform(s, 0, 0, s, -cx0 * s, -cy0 * s);
+  ctx.drawImage(photoCv, 0, 0);
+  ctx.drawImage(aiCv, 0, 0);
+  ctx.drawImage(paintCv, 0, 0);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  return { canvas: c, fx: m / cw, fy: m / ch, fw: rw / cw, fh: rh / ch, rw, rh };
+}
+async function editFetch(blob, userPrompt) {
+  const instruction = "Add to the exact center of this image: " + userPrompt +
+    ". Paint it directly into the scene so it blends naturally with its surroundings — match the lighting, colors, texture, style and perspective of what is already there. Keep everything outside the center region exactly unchanged.";
+  const fd = new FormData();
+  fd.append("image", blob, "wall.jpg");
+  fd.append("prompt", instruction);
+  fd.append("model", GEN_MODEL);
+  const call = (bearer) => fetch("https://gen.pollinations.ai/v1/images/edits" + (bearer ? "" : "?key=" + POLLINATIONS_KEY),
+    { method: "POST", body: fd, headers: bearer ? { "Authorization": "Bearer " + POLLINATIONS_KEY } : undefined });
+  let r = await call(false);
+  if (r.status === 401) r = await call(true);
+  if (r.status === 429) { const e = new Error("rate limited — give the can a minute to recharge"); e.rl = true; throw e; }
+  if (r.status === 402) { const e = new Error("out of pollen"); e.pp = true; throw e; }
+  if (!r.ok) throw new Error("edit HTTP " + r.status);
+  const ct = r.headers.get("content-type") || "";
+  if (ct.indexOf("image/") === 0) return loadImg(URL.createObjectURL(await r.blob()));
+  const j = await r.json();
+  const d = j.data && j.data[0];
+  if (d && d.b64_json) return loadImg("data:image/png;base64," + d.b64_json);
+  if (d && d.url) {
+    const ir = await fetch(d.url);
+    if (!ir.ok) throw new Error("edit image fetch " + ir.status);
+    return loadImg(URL.createObjectURL(await ir.blob()));
+  }
+  throw new Error("edit: unexpected reply");
+}
+function cutBox(im, crop) {
+  /* cut the center box back out by crop fractions (robust to the model resizing
+     the whole image), aspect-correct to the drawn box, feather all four edges */
+  const iw = im.naturalWidth, ih = im.naturalHeight;
+  const sx = crop.fx * iw, sy = crop.fy * ih, sw = crop.fw * iw, sh = crop.fh * ih;
+  const outW = Math.max(16, Math.round(sw));
+  const outH = Math.max(16, Math.round(sw * crop.rh / crop.rw));
+  const c = document.createElement("canvas");
+  c.width = outW; c.height = outH;
+  const ctx = c.getContext("2d");
+  ctx.drawImage(im, sx, sy, sw, sh, 0, 0, outW, outH);
+  if (im.src && im.src.indexOf("blob:") === 0) URL.revokeObjectURL(im.src);
+  const f = Math.max(6, Math.round(0.045 * Math.min(outW, outH)));
+  ctx.globalCompositeOperation = "destination-out";
+  const edges = [
+    [0, 0, f, outH, [0, 0, f, 0]],            /* left  */
+    [outW - f, 0, f, outH, [outW, 0, outW - f, 0]], /* right */
+    [0, 0, outW, f, [0, 0, 0, f]],            /* top   */
+    [0, outH - f, outW, f, [0, outH, 0, outH - f]]  /* bottom */
+  ];
+  for (const [x, y, w, h, g] of edges) {
+    const gr = ctx.createLinearGradient(g[0], g[1], g[2], g[3]);
+    gr.addColorStop(0, "rgba(0,0,0,1)");
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gr;
+    ctx.fillRect(x, y, w, h);
+  }
+  ctx.globalCompositeOperation = "source-over";
+  let src = c.toDataURL("image/webp", 0.85);
+  if (src.indexOf("data:image/webp") !== 0) src = c.toDataURL("image/png");
+  if (src.length > 1500000) {
+    /* too heavy with alpha — fall back to a hard-edged jpeg of the same cut */
+    const jc = document.createElement("canvas");
+    jc.width = outW; jc.height = outH;
+    jc.getContext("2d").drawImage(im, sx, sy, sw, sh, 0, 0, outW, outH);
+    src = jc.toDataURL("image/jpeg", 0.8);
+  }
+  return src;
+}
+
 function resetGenUi() {
   genBar.style.display = "none";
   genGo.textContent = "Generate";
@@ -1160,23 +1251,41 @@ async function generate() {
   genGo.disabled = true; pbReroll.disabled = true;
   genGo.textContent = "painting…"; pbReroll.textContent = "painting…";
   try {
-    let im;
+    let src = null, im = null;
+    const freeChain = () => fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
     if (POLLINATIONS_KEY) {
-      try { im = await fetchIm(keyedUrl); }
-      catch (e) {
+      try {
+        /* wall-aware generative fill (see helpers above) */
+        const crop = wallCrop(rx, ry, rw, rh);
+        const blob = await new Promise(res => crop.canvas.toBlob(res, "image/jpeg", 0.9));
+        if (!blob) throw new Error("crop failed");
+        src = cutBox(await editFetch(blob, prompt), crop);
+      } catch (e) {
         if (e.rl) throw e;
-        if (e.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
-        im = await fetchIm(freeUrl("flux")).catch(e2 => e2.rl ? Promise.reject(e2) : fetchIm(freeUrl("")));
+        if (e.pp) {
+          showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
+          im = await freeChain();
+        } else {
+          showBanner("couldn't paint with the surroundings — painting from imagination");
+          try { im = await fetchIm(keyedUrl); }
+          catch (e2) {
+            if (e2.rl) throw e2;
+            if (e2.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
+            im = await freeChain();
+          }
+        }
       }
     } else {
-      im = await fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
+      im = await freeChain();
     }
-    const c = document.createElement("canvas");
-    c.width = im.naturalWidth || gw; c.height = im.naturalHeight || gh;
-    c.getContext("2d").drawImage(im, 0, 0);
-    URL.revokeObjectURL(im.src);
-    let src = c.toDataURL("image/jpeg", 0.82);
-    if (src.length > 1500000) src = c.toDataURL("image/jpeg", 0.7);
+    if (!src) {
+      const c = document.createElement("canvas");
+      c.width = im.naturalWidth || gw; c.height = im.naturalHeight || gh;
+      c.getContext("2d").drawImage(im, 0, 0);
+      URL.revokeObjectURL(im.src);
+      src = c.toDataURL("image/jpeg", 0.82);
+      if (src.length > 1500000) src = c.toDataURL("image/jpeg", 0.7);
+    }
     const img = await loadImg(src);
     placing = { src, img, x: rx + rw / 2, y: ry + rh / 2, scale: rw / img.width, rot: 0, op: 1, ai: true };
     pbScale.value = Math.max(5, Math.min(300, Math.round(placing.scale * 100)));
