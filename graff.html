@@ -1083,9 +1083,12 @@ document.getElementById("pb-cancel").addEventListener("click", () => {
 });
 
 /* ---------- AI image: drag a rectangle, describe it, the result drops into the
-   normal placement flow — so it publishes a standard image op that replays for
-   everyone and lives on the photo layer (photo eraser works on it). Generation
-   is Pollinations.ai: free, keyless, safe to call from a static page. ---------- */
+   normal placement flow — a standard image op (ai:1 → AI layer) that replays for
+   everyone. v6: generation is CONTEXT-AWARE like Photoshop's generative fill —
+   we send the model a crop of the wall AROUND the box, it paints the request
+   into that scene, and we paste back only the box (feathered edges), so new art
+   matches the colors, lighting and style of whatever it lands next to. Needs the
+   keyed endpoint; the free fallback can't see the wall. ---------- */
 /* Paid generation: budget-capped, models-only-scope key (visible in this public page
    by design — the cap bounds the damage if someone lifts it). ~0.039 pollen/image on
    nanobanana. When the pollen runs out the tool auto-falls back to the free flux can. */
@@ -1110,6 +1113,108 @@ function closeGen() {
   resetGenUi();
   rectSel = null;
   render();
+}
+/* Grab the wall pixels around the box: box + a margin on every side, padded with
+   concrete past the wall edge so the box always sits dead center of the crop
+   (the edit prompt says "the center", so centering must actually be true). */
+const WALL_BASE = "#aaa69c"; // ≈ the CSS concrete showing through transparent canvas
+function wallCrop(rx, ry, rw, rh) {
+  const m = Math.round(Math.max(rw, rh) * 0.5);
+  const cw = rw + 2 * m, ch = rh + 2 * m;
+  const sc = Math.min(1024 / Math.max(cw, ch), 2);
+  const c = document.createElement("canvas");
+  c.width = Math.max(64, Math.round(cw * sc));
+  c.height = Math.max(64, Math.round(ch * sc));
+  const x = c.getContext("2d");
+  x.fillStyle = WALL_BASE;
+  x.fillRect(0, 0, c.width, c.height);
+  x.setTransform(c.width / cw, 0, 0, c.height / ch, 0, 0);
+  x.translate(m - rx, m - ry);
+  x.drawImage(photoCv, 0, 0);
+  x.drawImage(aiCv, 0, 0);
+  x.drawImage(paintCv, 0, 0);
+  /* fractions of the crop that are the box — used to cut the result back out */
+  return { canvas: c, fx: m / cw, fy: m / ch, fw: rw / cw, fh: rh / ch };
+}
+/* POST the crop + instruction to the keyed edits endpoint (multipart, so no
+   public URL needed). Reply may be raw image bytes or OpenAI-style JSON. */
+async function editFetch(blob, instruction, useHeader) {
+  const fd = new FormData();
+  fd.append("image", blob, "wall.jpg");
+  fd.append("prompt", instruction);
+  fd.append("model", GEN_MODEL);
+  const url = "https://gen.pollinations.ai/v1/images/edits" + (useHeader ? "" : "?key=" + POLLINATIONS_KEY);
+  const r = await fetch(url, useHeader
+    ? { method: "POST", body: fd, headers: { "Authorization": "Bearer " + POLLINATIONS_KEY } }
+    : { method: "POST", body: fd });
+  if (r.status === 401 && !useHeader) return editFetch(blob, instruction, true);
+  if (r.status === 429) { const e = new Error("rate limited — give the can a minute to recharge"); e.rl = true; throw e; }
+  if (r.status === 402) { const e = new Error("out of pollen"); e.pp = true; throw e; }
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const ct = r.headers.get("content-type") || "";
+  let src;
+  if (ct.indexOf("json") >= 0) {
+    const j = await r.json();
+    const d = j.data && j.data[0];
+    if (d && d.b64_json) src = "data:image/png;base64," + d.b64_json;
+    else if (d && d.url) {
+      const rr = await fetch(d.url);
+      if (!rr.ok) throw new Error("HTTP " + rr.status);
+      src = URL.createObjectURL(await rr.blob());
+    }
+    else throw new Error("no image in reply");
+  } else {
+    src = URL.createObjectURL(await r.blob());
+  }
+  try {
+    return await new Promise((res, rej) => {
+      const i = new Image();
+      i.onload = () => res(i);
+      i.onerror = () => rej(new Error("the paint didn't arrive — try again"));
+      i.src = src;
+    });
+  } catch (e) { if (src.slice(0, 5) === "blob:") URL.revokeObjectURL(src); throw e; }
+}
+/* Cut the box back out of the edited crop (aspect-corrected to the drawn box so
+   placement lands pixel-true), then feather the edges so the paste melts into
+   the wall. Feather needs alpha → webp/png; oversized falls back to hard jpeg. */
+function cutBox(im, frac, rw, rh) {
+  const ow = im.naturalWidth, oh = im.naturalHeight;
+  const sx = frac.fx * ow, sy = frac.fy * oh;
+  const sw = Math.max(1, frac.fw * ow), sh = Math.max(1, frac.fh * oh);
+  const c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(sw));
+  c.height = Math.max(1, Math.round(c.width * rh / rw));
+  const x = c.getContext("2d");
+  x.drawImage(im, sx, sy, sw, sh, 0, 0, c.width, c.height);
+  const f = document.createElement("canvas");
+  f.width = c.width; f.height = c.height;
+  const fc = f.getContext("2d");
+  fc.drawImage(c, 0, 0);
+  const fe = Math.max(6, Math.round(Math.min(f.width, f.height) * 0.045));
+  fc.globalCompositeOperation = "destination-out";
+  const eras = (x0, y0, x1, y1, ex, ey, ew, eh) => {
+    const g = fc.createLinearGradient(x0, y0, x1, y1);
+    g.addColorStop(0, "rgba(0,0,0,1)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    fc.fillStyle = g;
+    fc.fillRect(ex, ey, ew, eh);
+  };
+  eras(0, 0, 0, fe, 0, 0, f.width, fe);
+  eras(0, f.height, 0, f.height - fe, 0, f.height - fe, f.width, fe);
+  eras(0, 0, fe, 0, 0, 0, fe, f.height);
+  eras(f.width, 0, f.width - fe, 0, f.width - fe, 0, fe, f.height);
+  fc.globalCompositeOperation = "source-over";
+  let src = f.toDataURL("image/webp", 0.85);
+  if (src.slice(0, 15) !== "data:image/webp" || src.length > 1500000) {
+    const png = f.toDataURL("image/png");
+    src = (png.length <= 1500000) ? png : null;
+  }
+  if (!src) {
+    src = c.toDataURL("image/jpeg", 0.82);
+    if (src.length > 1500000) src = c.toDataURL("image/jpeg", 0.7);
+  }
+  return src;
 }
 async function generate() {
   if (!rectSel || genBusy) return;
@@ -1148,24 +1253,54 @@ async function generate() {
   genBusy = true;
   genGo.disabled = true; pbReroll.disabled = true;
   genGo.textContent = "painting…"; pbReroll.textContent = "painting…";
-  try {
-    let im;
-    if (POLLINATIONS_KEY) {
-      try { im = await fetchIm(keyedUrl); }
-      catch (e) {
-        if (e.rl) throw e;
-        if (e.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
-        im = await fetchIm(freeUrl("flux")).catch(e2 => e2.rl ? Promise.reject(e2) : fetchIm(freeUrl("")));
-      }
-    } else {
-      im = await fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
-    }
+  const imToDataUrl = (im) => {
     const c = document.createElement("canvas");
     c.width = im.naturalWidth || gw; c.height = im.naturalHeight || gh;
     c.getContext("2d").drawImage(im, 0, 0);
     URL.revokeObjectURL(im.src);
-    let src = c.toDataURL("image/jpeg", 0.82);
-    if (src.length > 1500000) src = c.toDataURL("image/jpeg", 0.7);
+    let s = c.toDataURL("image/jpeg", 0.82);
+    if (s.length > 1500000) s = c.toDataURL("image/jpeg", 0.7);
+    return s;
+  };
+  /* text-only chain (free can, or keyed GET → free can) — the pre-v6 behaviour,
+     now the fallback for when the wall-aware edit can't run */
+  const freeChain = () => fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
+  try {
+    let src;
+    if (POLLINATIONS_KEY) {
+      try {
+        /* wall-aware path: the model sees the surroundings and paints into them */
+        const crop = wallCrop(rx, ry, rw, rh);
+        const blob = await new Promise(res => crop.canvas.toBlob(res, "image/jpeg", 0.9));
+        if (!blob) throw new Error("couldn't read the wall");
+        const instruction = "Add to the exact center of this image: " + prompt +
+          ". Paint it directly into the scene so it blends naturally with its surroundings" +
+          " — match the lighting, colors, texture, style and perspective of what is already there." +
+          " Keep everything outside the center region exactly unchanged.";
+        const eim = await editFetch(blob, instruction);
+        src = cutBox(eim, crop, rw, rh);
+        if (eim.src.slice(0, 5) === "blob:") URL.revokeObjectURL(eim.src);
+      } catch (e) {
+        if (e.rl) throw e;
+        if (e.pp) {
+          showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
+          src = imToDataUrl(await freeChain());
+        } else {
+          /* edit endpoint hiccup — fall back to plain keyed generation, then free */
+          showBanner("couldn't paint with the surroundings (" + e.message + ") — painting from imagination");
+          let im;
+          try { im = await fetchIm(keyedUrl); }
+          catch (e2) {
+            if (e2.rl) throw e2;
+            if (e2.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
+            im = await freeChain();
+          }
+          src = imToDataUrl(im);
+        }
+      }
+    } else {
+      src = imToDataUrl(await freeChain());
+    }
     const img = await loadImg(src);
     placing = { src, img, x: rx + rw / 2, y: ry + rh / 2, scale: rw / img.width, rot: 0, op: 1, ai: true };
     pbScale.value = Math.max(5, Math.min(300, Math.round(placing.scale * 100)));
