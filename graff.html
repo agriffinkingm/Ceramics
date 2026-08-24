@@ -228,6 +228,37 @@
   #pb-cancel { background: var(--panel-light); border-color: var(--panel-border); }
   #pb-hint { flex-basis: 100%; font-size: 10px; color: var(--panel-dim); }
 
+  /* ---------- AI generate bar ---------- */
+  #gen-bar {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    top: calc(14px + env(safe-area-inset-top));
+    background: var(--panel); border: 1px solid var(--panel-border);
+    box-shadow: 0 6px 22px rgba(0,0,0,.55);
+    padding: 8px 10px;
+    display: none; gap: 8px; align-items: center;
+    width: min(94vw, 520px); z-index: 27;
+  }
+  #gen-bar input[type=text] {
+    flex: 1; min-width: 0;
+    background: var(--panel-dark); border: 1px solid var(--panel-border);
+    color: var(--panel-text); font: inherit; padding: 7px 8px; border-radius: 2px; outline: none;
+  }
+  #gen-bar input[type=text]:focus { border-color: var(--hilite); }
+  #gen-go {
+    border: 1px solid #2b6cb0; color: #fff; padding: 7px 14px;
+    cursor: pointer; font: inherit; border-radius: 2px; background: var(--hilite); white-space: nowrap;
+  }
+  #gen-go:disabled { opacity: .6; cursor: wait; }
+  #gen-cancel {
+    background: var(--panel-light); border: 1px solid var(--panel-border); color: #fff;
+    padding: 7px 10px; cursor: pointer; font: inherit; border-radius: 2px;
+  }
+  #pb-reroll {
+    background: #7b2cbf; border: 1px solid #5a189a; color: #fff;
+    padding: 7px 12px; cursor: pointer; font: inherit; border-radius: 2px; white-space: nowrap;
+  }
+  #pb-reroll:disabled { opacity: .6; cursor: wait; }
+
   #banner {
     position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
     background: rgba(30,30,30,.92); border: 1px solid var(--panel-border);
@@ -244,7 +275,7 @@
       width: auto;
     }
     #tb-title { cursor: default; }
-    .tool-grid { grid-template-columns: repeat(8, 1fr); }
+    .tool-grid { grid-template-columns: repeat(9, 1fr); }
     .tool { aspect-ratio: auto; height: 46px; }
     .tool svg { width: 24px; height: 24px; }
     #opts-section { display: flex; gap: 12px; }
@@ -288,6 +319,9 @@
     </div>
     <div class="tool" data-tool="image" title="Upload Image (I)">
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>
+    </div>
+    <div class="tool" data-tool="gen" title="AI Image (G) — drag a box, describe what appears there">
+      <svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7L19 14z"/><path d="M5 15l.7 1.8L7.5 17.5l-1.8.7L5 20l-.7-1.8L2.5 17.5l1.8-.7L5 15z"/></svg>
     </div>
     <div class="tool" data-tool="perase" title="Photo Eraser (E) — erases placed images only, paint stays">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="11" height="8" rx="1"/><circle cx="6" cy="6.8" r="1"/><path d="M3 10.5l2.5-2.5 3 3"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
@@ -343,9 +377,16 @@
   <label>Scale <input type="range" id="pb-scale" min="5" max="300" value="100"></label>
   <label>Rotate <input type="range" id="pb-rot" min="-180" max="180" value="0"></label>
   <label>Opacity <input type="range" id="pb-op" min="5" max="100" value="100"></label>
+  <button id="pb-reroll" style="display:none" title="Generate a different version">🎲 Re-roll</button>
   <button id="pb-place">Place</button>
   <button id="pb-cancel">✕</button>
   <span id="pb-hint">Drag the image to position it. Once placed it becomes part of the wall.</span>
+</div>
+
+<div id="gen-bar">
+  <input type="text" id="gen-prompt" placeholder="describe what to paint here…" maxlength="300">
+  <button id="gen-go">Generate</button>
+  <button id="gen-cancel">✕</button>
 </div>
 
 <div id="banner"></div>
@@ -444,6 +485,14 @@ function render() {
     dctx.globalAlpha = 1;
   }
   if (placing) drawPlacing(dctx);
+  if (rectSel) {
+    const rx = Math.min(rectSel.x0, rectSel.x1), ry = Math.min(rectSel.y0, rectSel.y1);
+    dctx.strokeStyle = "#7b2cbf";
+    dctx.setLineDash([8, 6]);
+    dctx.lineWidth = 3 / cam.s;
+    dctx.strokeRect(rx, ry, Math.abs(rectSel.x1 - rectSel.x0), Math.abs(rectSel.y1 - rectSel.y0));
+    dctx.setLineDash([]);
+  }
   /* pan the concrete texture with the wall */
   wallEl.style.backgroundPosition = (-cam.x * cam.s) + "px " + (-cam.y * cam.s) + "px, 0 0";
 }
@@ -656,6 +705,7 @@ let pinch = null;
 let pan = null;
 let spaceHeld = false;
 let dragging = false, dragOff = [0, 0];
+let rectSel = null, genBusy = false;
 
 function startPinch() {
   const [p1, p2] = [...activePts.values()];
@@ -685,6 +735,7 @@ display.addEventListener("pointerdown", (e) => {
   activePts.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (activePts.size === 2) {
     if (drawing) endStroke();
+    if (rectSel && rectSel.drag) { rectSel = null; }
     dragging = false;
     startPinch();
     return;
@@ -700,6 +751,13 @@ display.addEventListener("pointerdown", (e) => {
   if (tool === "text") { beginText(e.clientX, e.clientY, x, y); return; }
   if (tool === "image") { fileInput.click(); return; }
   if (tool === "picker") { pickColor(x, y); return; }
+  if (tool === "gen") {
+    if (genBusy) return;
+    resetGenUi();
+    rectSel = { x0: x, y0: y, x1: x, y1: y, drag: true };
+    render();
+    return;
+  }
   drawing = true;
   curPts = [x, y];
   curSeed = (Math.random() * 0xffffffff) >>> 0;
@@ -725,6 +783,12 @@ display.addEventListener("pointermove", (e) => {
   if (placing && dragging) {
     const [x, y] = toWall(e);
     placing.x = x + dragOff[0]; placing.y = y + dragOff[1];
+    render();
+    return;
+  }
+  if (rectSel && rectSel.drag) {
+    const [x, y] = toWall(e);
+    rectSel.x1 = x; rectSel.y1 = y;
     render();
     return;
   }
@@ -764,6 +828,15 @@ function pointerEnd(e) {
   if (pan && activePts.size === 0) { pan = null; display.classList.remove("panning"); }
   if (activePts.size === 0) {
     dragging = false;
+    if (rectSel && rectSel.drag) {
+      rectSel.drag = false;
+      if (Math.abs(rectSel.x1 - rectSel.x0) < 24 || Math.abs(rectSel.y1 - rectSel.y0) < 24) {
+        rectSel = null;
+        render();
+      } else {
+        openGenBar();
+      }
+    }
     if (drawing) endStroke();
   }
 }
@@ -953,8 +1026,92 @@ document.getElementById("pb-cancel").addEventListener("click", () => {
   render();
 });
 
+/* ---------- AI image: drag a rectangle, describe it, the result drops into the
+   normal placement flow — so it publishes a standard image op that replays for
+   everyone and lives on the photo layer (photo eraser works on it). Generation
+   is Pollinations.ai: free, keyless, safe to call from a static page. ---------- */
+const genBar = document.getElementById("gen-bar");
+const genInput = document.getElementById("gen-prompt");
+const genGo = document.getElementById("gen-go");
+const pbReroll = document.getElementById("pb-reroll");
+function resetGenUi() {
+  genBar.style.display = "none";
+  genGo.textContent = "Generate";
+  pbReroll.style.display = "none";
+}
+function openGenBar() {
+  genGo.textContent = "Generate";
+  genBar.style.display = "flex";
+  genInput.focus();
+  render();
+}
+function closeGen() {
+  resetGenUi();
+  rectSel = null;
+  render();
+}
+async function generate() {
+  if (!rectSel || genBusy) return;
+  const prompt = genInput.value.trim();
+  if (!prompt) { genBar.style.display = "flex"; genInput.focus(); return; }
+  const rx = Math.min(rectSel.x0, rectSel.x1), ry = Math.min(rectSel.y0, rectSel.y1);
+  const rw = Math.max(24, Math.abs(rectSel.x1 - rectSel.x0));
+  const rh = Math.max(24, Math.abs(rectSel.y1 - rectSel.y0));
+  const cap = Math.min(1, 1024 / Math.max(rw, rh));
+  const gw = Math.max(64, Math.round(rw * cap));
+  const gh = Math.max(64, Math.round(rh * cap));
+  const seed = (Math.random() * 1e9) >>> 0;
+  const url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) +
+    "?width=" + gw + "&height=" + gh + "&seed=" + seed + "&nologo=true";
+  genBusy = true;
+  genGo.disabled = true; pbReroll.disabled = true;
+  genGo.textContent = "painting…"; pbReroll.textContent = "painting…";
+  try {
+    const im = await new Promise((res, rej) => {
+      const i = new Image();
+      i.crossOrigin = "anonymous";
+      i.onload = () => res(i);
+      i.onerror = () => rej(new Error("the paint didn't arrive — try again"));
+      i.src = url;
+    });
+    const c = document.createElement("canvas");
+    c.width = im.naturalWidth || gw; c.height = im.naturalHeight || gh;
+    c.getContext("2d").drawImage(im, 0, 0);
+    let src = c.toDataURL("image/jpeg", 0.82);
+    if (src.length > 1500000) src = c.toDataURL("image/jpeg", 0.7);
+    const img = await loadImg(src);
+    placing = { src, img, x: rx + rw / 2, y: ry + rh / 2, scale: rw / img.width, rot: 0, op: 1 };
+    pbScale.value = Math.max(5, Math.min(300, Math.round(placing.scale * 100)));
+    pbRot.value = 0;
+    pbOp.value = 100;
+    genBar.style.display = "none";
+    pbReroll.style.display = "";
+    placeBar.style.display = "flex";
+  } catch (err) {
+    showBanner("AI paint failed (" + err.message + ")");
+    genGo.textContent = "Generate";
+  }
+  pbReroll.textContent = "🎲 Re-roll";
+  if (genBar.style.display === "flex") genGo.textContent = "Generate";
+  genGo.disabled = false; pbReroll.disabled = false;
+  genBusy = false;
+  render();
+}
+genGo.addEventListener("click", generate);
+pbReroll.addEventListener("click", generate);
+document.getElementById("gen-cancel").addEventListener("click", () => { if (!genBusy) closeGen(); });
+genInput.addEventListener("keydown", (e) => {
+  e.stopPropagation();
+  if (e.key === "Enter") generate();
+  else if (e.key === "Escape" && !genBusy) closeGen();
+});
+/* placing or cancelling a generated image also clears the gen state
+   (these run after the original place/cancel handlers registered above) */
+document.getElementById("pb-place").addEventListener("click", () => { if (pbReroll.style.display !== "none") closeGen(); });
+document.getElementById("pb-cancel").addEventListener("click", () => { if (pbReroll.style.display !== "none" || genBar.style.display === "flex") closeGen(); });
+
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", perase: "Photo Eraser", picker: "Color Picker", hand: "Pan" };
+const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gen: "AI Image", perase: "Photo Eraser", picker: "Color Picker", hand: "Pan" };
 const toolEls = document.querySelectorAll(".tool");
 function setTool(t) {
   tool = t;
@@ -1097,6 +1254,7 @@ window.addEventListener("keydown", (e) => {
   else if (k === "s") setTool("smudge");
   else if (k === "t") setTool("text");
   else if (k === "i") setTool("image");
+  else if (k === "g") setTool("gen");
   else if (k === "e") setTool("perase");
   else if (k === "o") setTool("picker");
   else if (k === "h") setTool("hand");
