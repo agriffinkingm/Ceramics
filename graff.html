@@ -1068,9 +1068,11 @@ document.getElementById("pb-cancel").addEventListener("click", () => {
    normal placement flow — so it publishes a standard image op that replays for
    everyone and lives on the photo layer (photo eraser works on it). Generation
    is Pollinations.ai: free, keyless, safe to call from a static page. ---------- */
-/* Optional upgrade knobs — see comment in generate() */
-const POLLINATIONS_KEY = "";   // free publishable key from enter.pollinations.ai (pk_…) — raises rate limits, unlocks models
-const GEN_MODEL = "flux";      // with a key, try "seedream" or "nanobanana" here
+/* Paid generation: budget-capped, models-only-scope key (visible in this public page
+   by design — the cap bounds the damage if someone lifts it). ~0.039 pollen/image on
+   nanobanana. When the pollen runs out the tool auto-falls back to the free flux can. */
+const POLLINATIONS_KEY = "sk_FwBD5AH5UI2unXoI4rERFIMWtFxPYKC3";
+const GEN_MODEL = "nanobanana"; // needs pollen; seedream refuses <1024px boxes so don't use it here
 const genBar = document.getElementById("gen-bar");
 const genInput = document.getElementById("gen-prompt");
 const genGo = document.getElementById("gen-go");
@@ -1102,18 +1104,18 @@ async function generate() {
   const gw = Math.max(64, Math.round(rw * cap));
   const gh = Math.max(64, Math.round(rh * cap));
   const seed = (Math.random() * 1e9) >>> 0;
-  /* Keyless: flux + AI prompt enhancement is the strongest combo the free endpoint
-     serves, but it's tightly rate-limited per IP (429s). Paste a free publishable
-     key from enter.pollinations.ai into POLLINATIONS_KEY to raise the limits and
-     unlock stronger models via GEN_MODEL (e.g. "seedream", "nanobanana").
-     On model failure we fall back once to the endpoint's default model. */
-  const genUrl = (model) => "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) +
-    "?width=" + gw + "&height=" + gh + "&seed=" + seed + "&nologo=true&enhance=true" +
-    (model ? "&model=" + model : "") +
-    (POLLINATIONS_KEY ? "&key=" + POLLINATIONS_KEY : "&referrer=agriffinkingm.com");
+  /* Keyed: gen.pollinations.ai + GEN_MODEL (strong, costs pollen). Any keyed failure
+     falls back to the free keyless flux endpoint (tightly rate-limited per IP but $0),
+     so the wall keeps painting even at zero balance. */
+  const qs = "?width=" + gw + "&height=" + gh + "&seed=" + seed + "&nologo=true&enhance=true";
+  const keyedUrl = "https://gen.pollinations.ai/image/" + encodeURIComponent(prompt) + qs +
+    "&model=" + GEN_MODEL + "&key=" + POLLINATIONS_KEY;
+  const freeUrl = (model) => "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + qs +
+    (model ? "&model=" + model : "") + "&referrer=agriffinkingm.com";
   const fetchIm = async (url) => {
     const r = await fetch(url);
     if (r.status === 429) { const e = new Error("rate limited — give the can a minute to recharge"); e.rl = true; throw e; }
+    if (r.status === 402) { const e = new Error("out of pollen"); e.pp = true; throw e; }
     if (!r.ok) throw new Error("HTTP " + r.status);
     const obj = URL.createObjectURL(await r.blob());
     try {
@@ -1129,7 +1131,17 @@ async function generate() {
   genGo.disabled = true; pbReroll.disabled = true;
   genGo.textContent = "painting…"; pbReroll.textContent = "painting…";
   try {
-    const im = await fetchIm(genUrl(GEN_MODEL)).catch(e => e.rl ? Promise.reject(e) : fetchIm(genUrl("")));
+    let im;
+    if (POLLINATIONS_KEY) {
+      try { im = await fetchIm(keyedUrl); }
+      catch (e) {
+        if (e.rl) throw e;
+        if (e.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
+        im = await fetchIm(freeUrl("flux")).catch(e2 => e2.rl ? Promise.reject(e2) : fetchIm(freeUrl("")));
+      }
+    } else {
+      im = await fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
+    }
     const c = document.createElement("canvas");
     c.width = im.naturalWidth || gw; c.height = im.naturalHeight || gh;
     c.getContext("2d").drawImage(im, 0, 0);
