@@ -6,7 +6,9 @@
 <title>graff — the wall</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Calligraffiti&family=Knewave&family=Lacquer&family=Permanent+Marker&family=Rock+Salt&family=Rubik+Dirt&family=Rubik+Wet+Paint&family=Sedgwick+Ave&family=Sedgwick+Ave+Display&family=Wallpoet&display=swap" rel="stylesheet">
+<!-- roster fonts + (second link) retired ones, kept declared so old marks still replay in their font -->
+<link href="https://fonts.googleapis.com/css2?family=Knewave&family=Modak&family=Permanent+Marker&family=Rubik+Dirt&family=Rubik+Wet+Paint&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Calligraffiti&family=Lacquer&family=Rock+Salt&family=Sedgwick+Ave&family=Sedgwick+Ave+Display&family=Wallpoet&display=swap" rel="stylesheet">
 <style>
   :root {
     --panel: #3c3c3c;
@@ -118,6 +120,12 @@
   }
   #undo:disabled { opacity: .35; cursor: default; }
   #undo:hover:not(:disabled) { background: #565656; }
+  #save {
+    flex: 1; padding: 8px;
+    background: var(--panel-light); border: 1px solid var(--panel-border);
+    color: var(--panel-text); cursor: pointer; font: inherit; border-radius: 2px;
+  }
+  #save:hover { background: #565656; }
 
   /* detonate: hold it down until the fuse fills */
   #detonate {
@@ -317,10 +325,7 @@
     <div class="tool" data-tool="smudge" title="Smudge (S) — drag wet paint">
       <svg viewBox="0 0 24 24"><path d="M14 3c0 3-5 7-5 11a5 5 0 0 0 10 0c0-4-5-8-5-11z"/><path d="M7 20c-2 0-3 1-3 1"/></svg>
     </div>
-    <div class="tool" data-tool="text" title="Text (T)">
-      <svg viewBox="0 0 24 24"><path d="M5 5h14"/><path d="M12 5v14"/><path d="M9 19h6"/></svg>
-    </div>
-    <div class="tool" data-tool="gtext" title="Graff Text (F) — random graffiti font every hit">
+    <div class="tool" data-tool="text" title="Text (T) — random graffiti font every hit">
       <svg viewBox="0 0 24 24"><path d="M4 9 L3.4 4.6 L20.6 3.4 L20 7.8 L14.6 8.2 L15.4 18.6 Q15.5 20.8 13.2 20.8 Q11 20.8 10.9 18.8 L10 8.6 Z"/><path d="M18.3 8.4 C18.7 10.6 18.6 12.2 17.3 12.2 C16.2 12.2 16 10.8 16.6 9.3"/></svg>
     </div>
     <div class="tool" data-tool="image" title="Upload Image (I)">
@@ -357,6 +362,10 @@
       <div class="sr-head"><span>Rotate</span><span class="sr-val" id="rot-val">0°</span></div>
       <input type="range" id="trot" min="-180" max="180" value="0">
     </div>
+    <div class="slider-row" id="flow-row" style="display:none">
+      <div class="sr-head"><span>Strength</span><span class="sr-val" id="flow-val">100</span></div>
+      <input type="range" id="flow" min="20" max="300" value="100">
+    </div>
   </div>
 
   <div class="tb-section">
@@ -375,6 +384,7 @@
 
   <div class="tb-section" id="actions-row">
     <button id="undo" disabled title="Undo your last mark (Z)">↩ Undo</button>
+    <button id="save" title="Download the wall as a PNG">💾 Save</button>
     <button id="detonate" title="Hold to wipe the whole wall for everyone"><i class="fill"></i><span>💣 Detonate</span></button>
   </div>
 
@@ -432,7 +442,7 @@ const PALETTE = ["#f5f0e6","#1a1a1a","#d7263d","#f46036","#f9c22e","#2e933c",
 
 /* ---------- state ---------- */
 let tool = "brush", fg = DEFAULT_FG, bg = DEFAULT_BG;
-let size = 12, opacity = 1;
+let size = 12, opacity = 1, airFlow = 1;
 let drawing = false, curPts = [], curSeed = 0, curSm = null;
 let opCount = 0;
 
@@ -559,8 +569,10 @@ function pathBrush(ctx, pts, sz, color) {
     px = x; py = y;
   }
 }
-function sprayAir(ctx, pts, sz, color, op, seed) {
-  const R = Math.max(sz, 4), dots = Math.max(4, Math.round(R / 2));
+function sprayAir(ctx, pts, sz, color, op, seed, fl) {
+  /* fl = strength: paint per pass. Ops without fl (pre-slider) keep the old min-4 floor
+     so historic strokes replay exactly as they were sprayed. */
+  const R = Math.max(sz, 4), dots = Math.max(fl ? 2 : 4, Math.round(R / 2 * (fl || 1)));
   ctx.fillStyle = color;
   ctx.globalAlpha = 0.16 * op;
   for (let i = 0; i < pts.length; i += 2) {
@@ -696,7 +708,7 @@ async function applyOp(o) {
   else if (o.t === "s") {
     const pts = o.pts;
     if (!pts || pts.length < 2) return;
-    if (o.tool === "air") { sprayAir(paintCtx, pts, o.sz, o.c, o.op, o.seed); }
+    if (o.tool === "air") { sprayAir(paintCtx, pts, o.sz, o.c, o.op, o.seed, o.fl); }
     else if (o.tool === "smudge") {
       const sm = makeSmudger(paintCtx, o.sz, o.op);
       for (let i = 0; i < pts.length; i += 2) sm(pts[i], pts[i + 1]);
@@ -778,7 +790,7 @@ display.addEventListener("pointerdown", (e) => {
     display.classList.add("panning");
     return;
   }
-  if (tool === "text" || tool === "gtext") { beginText(e.clientX, e.clientY, x, y, tool === "gtext"); return; }
+  if (tool === "text") { beginText(e.clientX, e.clientY, x, y, true); return; }
   if (tool === "image") { fileInput.click(); return; }
   if (tool === "picker") { pickColor(x, y); return; }
   if (tool === "gen") {
@@ -841,7 +853,7 @@ function endStroke() {
   drawing = false;
   const op = { t: "s", tool, c: fg, sz: size, op: round2(opacity), pts: curPts };
   if (tool === "air" || tool === "smudge" || tool === "perase" || tool === "aerase") {
-    if (tool === "air") op.seed = curSeed;
+    if (tool === "air") { op.seed = curSeed; op.fl = round2(airFlow); }
     /* already applied live to the wall; just count + publish */
     opCount++; updateCount();
   } else {
@@ -893,7 +905,7 @@ function drawCurrent() {
 function airTick(x, y) {
   const ptIdx = curPts.length / 2 - 1; /* index of the point just pushed */
   const rng = mulberry32((curSeed + ptIdx) >>> 0);
-  const R = Math.max(size, 4), dots = Math.max(4, Math.round(R / 2));
+  const R = Math.max(size, 4), dots = Math.max(2, Math.round(R / 2 * airFlow));
   paintCtx.fillStyle = fg; paintCtx.globalAlpha = 0.16 * opacity;
   for (let d = 0; d < dots; d++) {
     const a = rng() * 6.2832, rr = Math.sqrt(rng()) * R, dr = 0.6 + rng() * 1.5;
@@ -951,8 +963,7 @@ function pickColor(x, y) {
 /* text tools: inline input at the click point — Enter stamps it onto the wall, Esc cancels.
    Graff Text picks a random graffiti font per hit; the font rides in the op (f) so it
    replays identically for everyone. */
-const GRAFF_FONTS = ["Permanent Marker", "Rock Salt", "Sedgwick Ave", "Sedgwick Ave Display",
-  "Rubik Wet Paint", "Rubik Dirt", "Knewave", "Wallpoet", "Calligraffiti", "Lacquer"];
+const GRAFF_FONTS = ["Permanent Marker", "Knewave", "Rubik Wet Paint", "Rubik Dirt", "Modak"];
 /* warm the whole crate of fonts once things settle, so previews + replays are instant */
 setTimeout(() => { GRAFF_FONTS.forEach(f => document.fonts.load("32px '" + f + "'").catch(() => {})); }, 1500);
 let textBox = null;
@@ -1083,12 +1094,9 @@ document.getElementById("pb-cancel").addEventListener("click", () => {
 });
 
 /* ---------- AI image: drag a rectangle, describe it, the result drops into the
-   normal placement flow — a standard image op (ai:1 → AI layer) that replays for
-   everyone. v6: generation is CONTEXT-AWARE like Photoshop's generative fill —
-   we send the model a crop of the wall AROUND the box, it paints the request
-   into that scene, and we paste back only the box (feathered edges), so new art
-   matches the colors, lighting and style of whatever it lands next to. Needs the
-   keyed endpoint; the free fallback can't see the wall. ---------- */
+   normal placement flow — so it publishes a standard image op that replays for
+   everyone and lives on the photo layer (photo eraser works on it). Generation
+   is Pollinations.ai: free, keyless, safe to call from a static page. ---------- */
 /* Paid generation: budget-capped, models-only-scope key (visible in this public page
    by design — the cap bounds the damage if someone lifts it). ~0.039 pollen/image on
    nanobanana. When the pollen runs out the tool auto-falls back to the free flux can. */
@@ -1113,108 +1121,6 @@ function closeGen() {
   resetGenUi();
   rectSel = null;
   render();
-}
-/* Grab the wall pixels around the box: box + a margin on every side, padded with
-   concrete past the wall edge so the box always sits dead center of the crop
-   (the edit prompt says "the center", so centering must actually be true). */
-const WALL_BASE = "#aaa69c"; // ≈ the CSS concrete showing through transparent canvas
-function wallCrop(rx, ry, rw, rh) {
-  const m = Math.round(Math.max(rw, rh) * 0.5);
-  const cw = rw + 2 * m, ch = rh + 2 * m;
-  const sc = Math.min(1024 / Math.max(cw, ch), 2);
-  const c = document.createElement("canvas");
-  c.width = Math.max(64, Math.round(cw * sc));
-  c.height = Math.max(64, Math.round(ch * sc));
-  const x = c.getContext("2d");
-  x.fillStyle = WALL_BASE;
-  x.fillRect(0, 0, c.width, c.height);
-  x.setTransform(c.width / cw, 0, 0, c.height / ch, 0, 0);
-  x.translate(m - rx, m - ry);
-  x.drawImage(photoCv, 0, 0);
-  x.drawImage(aiCv, 0, 0);
-  x.drawImage(paintCv, 0, 0);
-  /* fractions of the crop that are the box — used to cut the result back out */
-  return { canvas: c, fx: m / cw, fy: m / ch, fw: rw / cw, fh: rh / ch };
-}
-/* POST the crop + instruction to the keyed edits endpoint (multipart, so no
-   public URL needed). Reply may be raw image bytes or OpenAI-style JSON. */
-async function editFetch(blob, instruction, useHeader) {
-  const fd = new FormData();
-  fd.append("image", blob, "wall.jpg");
-  fd.append("prompt", instruction);
-  fd.append("model", GEN_MODEL);
-  const url = "https://gen.pollinations.ai/v1/images/edits" + (useHeader ? "" : "?key=" + POLLINATIONS_KEY);
-  const r = await fetch(url, useHeader
-    ? { method: "POST", body: fd, headers: { "Authorization": "Bearer " + POLLINATIONS_KEY } }
-    : { method: "POST", body: fd });
-  if (r.status === 401 && !useHeader) return editFetch(blob, instruction, true);
-  if (r.status === 429) { const e = new Error("rate limited — give the can a minute to recharge"); e.rl = true; throw e; }
-  if (r.status === 402) { const e = new Error("out of pollen"); e.pp = true; throw e; }
-  if (!r.ok) throw new Error("HTTP " + r.status);
-  const ct = r.headers.get("content-type") || "";
-  let src;
-  if (ct.indexOf("json") >= 0) {
-    const j = await r.json();
-    const d = j.data && j.data[0];
-    if (d && d.b64_json) src = "data:image/png;base64," + d.b64_json;
-    else if (d && d.url) {
-      const rr = await fetch(d.url);
-      if (!rr.ok) throw new Error("HTTP " + rr.status);
-      src = URL.createObjectURL(await rr.blob());
-    }
-    else throw new Error("no image in reply");
-  } else {
-    src = URL.createObjectURL(await r.blob());
-  }
-  try {
-    return await new Promise((res, rej) => {
-      const i = new Image();
-      i.onload = () => res(i);
-      i.onerror = () => rej(new Error("the paint didn't arrive — try again"));
-      i.src = src;
-    });
-  } catch (e) { if (src.slice(0, 5) === "blob:") URL.revokeObjectURL(src); throw e; }
-}
-/* Cut the box back out of the edited crop (aspect-corrected to the drawn box so
-   placement lands pixel-true), then feather the edges so the paste melts into
-   the wall. Feather needs alpha → webp/png; oversized falls back to hard jpeg. */
-function cutBox(im, frac, rw, rh) {
-  const ow = im.naturalWidth, oh = im.naturalHeight;
-  const sx = frac.fx * ow, sy = frac.fy * oh;
-  const sw = Math.max(1, frac.fw * ow), sh = Math.max(1, frac.fh * oh);
-  const c = document.createElement("canvas");
-  c.width = Math.max(1, Math.round(sw));
-  c.height = Math.max(1, Math.round(c.width * rh / rw));
-  const x = c.getContext("2d");
-  x.drawImage(im, sx, sy, sw, sh, 0, 0, c.width, c.height);
-  const f = document.createElement("canvas");
-  f.width = c.width; f.height = c.height;
-  const fc = f.getContext("2d");
-  fc.drawImage(c, 0, 0);
-  const fe = Math.max(6, Math.round(Math.min(f.width, f.height) * 0.045));
-  fc.globalCompositeOperation = "destination-out";
-  const eras = (x0, y0, x1, y1, ex, ey, ew, eh) => {
-    const g = fc.createLinearGradient(x0, y0, x1, y1);
-    g.addColorStop(0, "rgba(0,0,0,1)");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    fc.fillStyle = g;
-    fc.fillRect(ex, ey, ew, eh);
-  };
-  eras(0, 0, 0, fe, 0, 0, f.width, fe);
-  eras(0, f.height, 0, f.height - fe, 0, f.height - fe, f.width, fe);
-  eras(0, 0, fe, 0, 0, 0, fe, f.height);
-  eras(f.width, 0, f.width - fe, 0, f.width - fe, 0, fe, f.height);
-  fc.globalCompositeOperation = "source-over";
-  let src = f.toDataURL("image/webp", 0.85);
-  if (src.slice(0, 15) !== "data:image/webp" || src.length > 1500000) {
-    const png = f.toDataURL("image/png");
-    src = (png.length <= 1500000) ? png : null;
-  }
-  if (!src) {
-    src = c.toDataURL("image/jpeg", 0.82);
-    if (src.length > 1500000) src = c.toDataURL("image/jpeg", 0.7);
-  }
-  return src;
 }
 async function generate() {
   if (!rectSel || genBusy) return;
@@ -1253,54 +1159,24 @@ async function generate() {
   genBusy = true;
   genGo.disabled = true; pbReroll.disabled = true;
   genGo.textContent = "painting…"; pbReroll.textContent = "painting…";
-  const imToDataUrl = (im) => {
+  try {
+    let im;
+    if (POLLINATIONS_KEY) {
+      try { im = await fetchIm(keyedUrl); }
+      catch (e) {
+        if (e.rl) throw e;
+        if (e.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
+        im = await fetchIm(freeUrl("flux")).catch(e2 => e2.rl ? Promise.reject(e2) : fetchIm(freeUrl("")));
+      }
+    } else {
+      im = await fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
+    }
     const c = document.createElement("canvas");
     c.width = im.naturalWidth || gw; c.height = im.naturalHeight || gh;
     c.getContext("2d").drawImage(im, 0, 0);
     URL.revokeObjectURL(im.src);
-    let s = c.toDataURL("image/jpeg", 0.82);
-    if (s.length > 1500000) s = c.toDataURL("image/jpeg", 0.7);
-    return s;
-  };
-  /* text-only chain (free can, or keyed GET → free can) — the pre-v6 behaviour,
-     now the fallback for when the wall-aware edit can't run */
-  const freeChain = () => fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
-  try {
-    let src;
-    if (POLLINATIONS_KEY) {
-      try {
-        /* wall-aware path: the model sees the surroundings and paints into them */
-        const crop = wallCrop(rx, ry, rw, rh);
-        const blob = await new Promise(res => crop.canvas.toBlob(res, "image/jpeg", 0.9));
-        if (!blob) throw new Error("couldn't read the wall");
-        const instruction = "Add to the exact center of this image: " + prompt +
-          ". Paint it directly into the scene so it blends naturally with its surroundings" +
-          " — match the lighting, colors, texture, style and perspective of what is already there." +
-          " Keep everything outside the center region exactly unchanged.";
-        const eim = await editFetch(blob, instruction);
-        src = cutBox(eim, crop, rw, rh);
-        if (eim.src.slice(0, 5) === "blob:") URL.revokeObjectURL(eim.src);
-      } catch (e) {
-        if (e.rl) throw e;
-        if (e.pp) {
-          showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
-          src = imToDataUrl(await freeChain());
-        } else {
-          /* edit endpoint hiccup — fall back to plain keyed generation, then free */
-          showBanner("couldn't paint with the surroundings (" + e.message + ") — painting from imagination");
-          let im;
-          try { im = await fetchIm(keyedUrl); }
-          catch (e2) {
-            if (e2.rl) throw e2;
-            if (e2.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
-            im = await freeChain();
-          }
-          src = imToDataUrl(im);
-        }
-      }
-    } else {
-      src = imToDataUrl(await freeChain());
-    }
+    let src = c.toDataURL("image/jpeg", 0.82);
+    if (src.length > 1500000) src = c.toDataURL("image/jpeg", 0.7);
     const img = await loadImg(src);
     placing = { src, img, x: rx + rw / 2, y: ry + rh / 2, scale: rw / img.width, rot: 0, op: 1, ai: true };
     pbScale.value = Math.max(5, Math.min(300, Math.round(placing.scale * 100)));
@@ -1333,19 +1209,41 @@ document.getElementById("pb-place").addEventListener("click", () => { if (pbRero
 document.getElementById("pb-cancel").addEventListener("click", () => { if (pbReroll.style.display !== "none" || genBar.style.display === "flex") closeGen(); });
 
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", gtext: "Graff Text", image: "Image", gen: "AI Image", perase: "Photo Eraser", aerase: "AI Eraser", picker: "Color Picker", hand: "Pan" };
+const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gen: "AI Image", perase: "Photo Eraser", aerase: "AI Eraser", picker: "Color Picker", hand: "Pan" };
 const toolEls = document.querySelectorAll(".tool");
 function setTool(t) {
   tool = t;
   toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === t));
   document.getElementById("tool-name").textContent = TOOL_NAMES[t];
-  document.getElementById("rot-row").style.display = (t === "text" || t === "gtext") ? "" : "none";
+  document.getElementById("rot-row").style.display = (t === "text") ? "" : "none";
+  document.getElementById("flow-row").style.display = (t === "air") ? "" : "none";
   display.classList.toggle("hand", t === "hand");
 }
 toolEls.forEach(el => el.addEventListener("click", () => {
   setTool(el.dataset.tool);
   if (el.dataset.tool === "image" && !placing) fileInput.click();
 }));
+
+/* save: download the whole wall (all three layers over the concrete) as a PNG */
+document.getElementById("save").addEventListener("click", () => {
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const cx = c.getContext("2d");
+  cx.fillStyle = WALL_COLOR;
+  cx.fillRect(0, 0, W, H);
+  cx.drawImage(photoCv, 0, 0);
+  cx.drawImage(aiCv, 0, 0);
+  cx.drawImage(paintCv, 0, 0);
+  c.toBlob((blob) => {
+    if (!blob) { showBanner("save failed — try again"); return; }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    const d = new Date();
+    a.download = "graff-wall-" + d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0") + ".png";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }, "image/png");
+});
 
 const fgEl = document.getElementById("fg"), bgEl = document.getElementById("bg");
 const fgInput = document.getElementById("fg-input");
@@ -1369,6 +1267,8 @@ PALETTE.forEach(c => {
 const sizeEl = document.getElementById("size"), opEl = document.getElementById("opacity");
 sizeEl.addEventListener("input", () => { size = +sizeEl.value; document.getElementById("size-val").textContent = size; });
 opEl.addEventListener("input", () => { opacity = +opEl.value / 100; document.getElementById("op-val").textContent = opEl.value; });
+const flowEl = document.getElementById("flow");
+flowEl.addEventListener("input", () => { airFlow = +flowEl.value / 100; document.getElementById("flow-val").textContent = flowEl.value; });
 
 document.getElementById("tb-collapse").addEventListener("click", (e) => {
   const tb = document.getElementById("toolbox");
@@ -1478,7 +1378,6 @@ window.addEventListener("keydown", (e) => {
   else if (k === "a") setTool("air");
   else if (k === "s") setTool("smudge");
   else if (k === "t") setTool("text");
-  else if (k === "f") setTool("gtext");
   else if (k === "i") setTool("image");
   else if (k === "g") setTool("gen");
   else if (k === "e") setTool("perase");
