@@ -76,7 +76,7 @@
 
   /* ---------- now playing ---------- */
   #nowplaying {
-    position:fixed; left:2.5rem; bottom:8.2rem; z-index:15;
+    position:fixed; left:2.5rem; bottom:2.2rem; z-index:15;
     max-width:70vw;
     pointer-events:none;
   }
@@ -124,18 +124,37 @@
     color:rgba(250,248,245,0.85);
   }
 
-  /* ---------- player bar ---------- */
-  #player {
-    position:fixed; left:0; right:0; bottom:0; z-index:20;
-    padding:1.1rem 2.5rem 1.4rem;
-    background:rgba(20,17,12,0.6);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
-    border-top:1px solid rgba(250,248,245,0.1);
+  /* ---------- player panel (top left) ---------- */
+  #panel {
+    position:fixed; top:5.2rem; left:2.5rem; z-index:20;
+    width:300px;
+    max-height:calc(100vh - 12rem);
+    display:flex; flex-direction:column;
+    background:rgba(20,17,12,0.62);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border:1px solid rgba(250,248,245,0.12);
+  }
+  #controls {
+    display:flex; align-items:center; gap:1rem;
+    padding:0.9rem 1.1rem 0.5rem;
+  }
+  .ctl {
+    background:none; border:none; color:#FAF8F5; cursor:pointer;
+    padding:0.2rem; display:flex; align-items:center;
+    opacity:0.85; transition:opacity .2s, transform .2s;
+  }
+  .ctl:hover { opacity:1; transform:scale(1.08); }
+  .ctl svg { width:22px; height:22px; fill:currentColor; }
+  #playbtn svg { width:32px; height:32px; }
+  #time {
+    margin-left:auto;
+    font-size:0.7rem; letter-spacing:0.1em; color:rgba(250,248,245,0.75);
+    font-variant-numeric:tabular-nums;
   }
   #progresswrap {
-    height:16px; display:flex; align-items:center; cursor:pointer;
-    margin-bottom:0.7rem;
+    height:14px; display:flex; align-items:center; cursor:pointer;
+    padding:0 1.1rem; margin-bottom:0.4rem;
   }
   #progressbg {
     width:100%; height:2px; background:rgba(250,248,245,0.25);
@@ -146,64 +165,26 @@
     position:absolute; left:0; top:0; bottom:0; width:0%;
     background:#C67B5C;
   }
-  #controls {
-    display:flex; align-items:center; gap:1.4rem;
-  }
-  .ctl {
-    background:none; border:none; color:#FAF8F5; cursor:pointer;
-    padding:0.2rem; display:flex; align-items:center;
-    opacity:0.85; transition:opacity .2s, transform .2s;
-  }
-  .ctl:hover { opacity:1; transform:scale(1.08); }
-  .ctl svg { width:26px; height:26px; fill:currentColor; }
-  #playbtn svg { width:38px; height:38px; }
-  #time {
-    font-size:0.72rem; letter-spacing:0.12em; color:rgba(250,248,245,0.75);
-    font-variant-numeric:tabular-nums;
-  }
-  #spacer { flex:1; }
-  #listbtn {
-    font-family:'Karla', sans-serif;
-    font-size:0.72rem; letter-spacing:0.22em; text-transform:uppercase;
-  }
-
-  /* ---------- playlist panel ---------- */
-  #playlist {
-    position:fixed; top:0; right:0; bottom:0; z-index:25;
-    width:min(340px, 85vw);
-    background:rgba(24,21,16,0.92);
-    backdrop-filter:blur(14px);
-    -webkit-backdrop-filter:blur(14px);
-    transform:translateX(100%);
-    transition:transform .45s cubic-bezier(.25,.8,.25,1);
-    padding:5.5rem 0 2rem;
+  #tracklist {
     overflow-y:auto;
-  }
-  #playlist.open { transform:translateX(0); }
-  #playlist h2 {
-    font-family:'Cormorant Garamond', serif; font-weight:400;
-    font-size:1.4rem; padding:0 2rem 1rem;
-    border-bottom:1px solid rgba(250,248,245,0.12);
+    border-top:1px solid rgba(250,248,245,0.1);
+    padding:0.3rem 0 0.4rem;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(250,248,245,0.25) transparent;
   }
   .track {
-    padding:0.95rem 2rem; cursor:pointer;
-    display:flex; align-items:baseline; gap:0.9rem;
+    padding:0.42rem 1.1rem; cursor:pointer;
+    display:flex; align-items:baseline; gap:0.7rem;
     transition:background .2s;
   }
-  .track:hover { background:rgba(250,248,245,0.06); }
+  .track:hover { background:rgba(250,248,245,0.07); }
   .track.current { color:#C67B5C; }
   .track .num {
-    font-size:0.68rem; color:rgba(250,248,245,0.4);
+    font-size:0.64rem; color:rgba(250,248,245,0.4);
     font-variant-numeric:tabular-nums; min-width:1.2em;
   }
   .track.current .num { color:#C67B5C; }
-  .track .name { font-size:0.92rem; letter-spacing:0.04em; }
-  #closelist {
-    position:absolute; top:1.5rem; right:1.6rem;
-    background:none; border:none; color:rgba(250,248,245,0.7);
-    font-size:1.4rem; cursor:pointer; line-height:1;
-  }
-  #closelist:hover { color:#FAF8F5; }
+  .track .name { font-size:0.86rem; letter-spacing:0.04em; }
 
   /* ---------- empty state ---------- */
   #empty {
@@ -230,9 +211,10 @@
     .nav-links { gap:1.1rem; }
     .nav-links a { font-size:0.68rem; letter-spacing:0.12em; }
     .logo { display:none; }
-    #nowplaying { left:1.3rem; bottom:8.6rem; max-width:85vw; }
-    #player { padding:0.9rem 1.3rem 1.2rem; }
-    #controls { gap:1rem; }
+    #nowplaying { left:1.3rem; bottom:1.6rem; max-width:85vw; }
+    #panel { left:1rem; top:4.2rem; width:min(260px, 74vw); max-height:calc(100vh - 13rem); }
+    #controls { gap:0.7rem; padding:0.7rem 0.9rem 0.4rem; }
+    .track { padding:0.38rem 0.9rem; }
     #credit { right:1.3rem; }
   }
 </style>
@@ -274,10 +256,7 @@
   <div id="starthint">press play</div>
 </div>
 
-<div id="player">
-  <div id="progresswrap">
-    <div id="progressbg"><div id="progressfill"></div></div>
-  </div>
+<div id="panel">
   <div id="controls">
     <button class="ctl" id="prevbtn" title="previous">
       <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
@@ -290,14 +269,10 @@
       <svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
     </button>
     <span id="time">0:00 / 0:00</span>
-    <span id="spacer"></span>
-    <button class="ctl" id="listbtn">tracks</button>
   </div>
-</div>
-
-<div id="playlist">
-  <button id="closelist" title="close">&times;</button>
-  <h2>tracks</h2>
+  <div id="progresswrap">
+    <div id="progressbg"><div id="progressfill"></div></div>
+  </div>
   <div id="tracklist"></div>
 </div>
 
@@ -523,11 +498,7 @@ document.addEventListener('keydown', e => {
   if(e.code === 'Space' && e.target === document.body){ e.preventDefault(); togglePlay(); }
 });
 
-/* ---------- playlist ---------- */
-const panel = document.getElementById('playlist');
-document.getElementById('listbtn').addEventListener('click', () => panel.classList.toggle('open'));
-document.getElementById('closelist').addEventListener('click', () => panel.classList.remove('open'));
-
+/* ---------- track list ---------- */
 function renderList(){
   const box = document.getElementById('tracklist');
   box.innerHTML = '';
@@ -541,7 +512,7 @@ function renderList(){
     name.className = 'name';
     name.textContent = s.title;
     row.appendChild(num); row.appendChild(name);
-    row.addEventListener('click', () => { playSong(i); panel.classList.remove('open'); });
+    row.addEventListener('click', () => playSong(i));
     box.appendChild(row);
   });
 }
