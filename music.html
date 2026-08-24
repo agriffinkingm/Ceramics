@@ -33,6 +33,7 @@
     opacity:1;
     animation:drift 14s ease-in-out forwards;
   }
+  body.paused .slide.showing { animation-play-state:paused; }
   @keyframes drift {
     from { transform:scale(1.0); }
     to   { transform:scale(1.09); }
@@ -96,11 +97,41 @@
   #nowplaying.visible #np-label { opacity:1; }
   #nowplaying.visible #np-title { opacity:1; transform:translateY(0); }
 
+  /* ---------- start overlay ---------- */
+  #startoverlay {
+    position:fixed; inset:0; z-index:18;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:1.6rem; cursor:pointer;
+    background:radial-gradient(ellipse at center, rgba(28,24,18,0.25), rgba(28,24,18,0.7));
+    transition:opacity .7s;
+  }
+  #startoverlay.hidden { opacity:0; pointer-events:none; }
+  #startbtn {
+    width:110px; height:110px; border-radius:50%;
+    border:1px solid rgba(250,248,245,0.55);
+    background:rgba(20,17,12,0.45);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .25s, background .25s, border-color .25s;
+  }
+  #startoverlay:hover #startbtn {
+    transform:scale(1.07);
+    background:rgba(198,123,92,0.55);
+    border-color:#FAF8F5;
+  }
+  #startbtn svg { width:44px; height:44px; fill:#FAF8F5; margin-left:6px; }
+  #starthint {
+    font-size:0.72rem; letter-spacing:0.3em; text-transform:uppercase;
+    color:rgba(250,248,245,0.85);
+  }
+
   /* ---------- player bar ---------- */
   #player {
     position:fixed; left:0; right:0; bottom:0; z-index:20;
-    padding:1.1rem 2.5rem 1.5rem;
-    background:linear-gradient(to top, rgba(20,17,12,0.72), rgba(20,17,12,0));
+    padding:1.1rem 2.5rem 1.4rem;
+    background:rgba(20,17,12,0.6);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border-top:1px solid rgba(250,248,245,0.1);
   }
   #progresswrap {
     height:16px; display:flex; align-items:center; cursor:pointer;
@@ -124,8 +155,8 @@
     opacity:0.85; transition:opacity .2s, transform .2s;
   }
   .ctl:hover { opacity:1; transform:scale(1.08); }
-  .ctl svg { width:20px; height:20px; fill:currentColor; }
-  #playbtn svg { width:30px; height:30px; }
+  .ctl svg { width:26px; height:26px; fill:currentColor; }
+  #playbtn svg { width:38px; height:38px; }
   #time {
     font-size:0.72rem; letter-spacing:0.12em; color:rgba(250,248,245,0.75);
     font-variant-numeric:tabular-nums;
@@ -234,6 +265,13 @@
 <div id="nowplaying">
   <div id="np-label">now playing</div>
   <div id="np-title"></div>
+</div>
+
+<div id="startoverlay">
+  <div id="startbtn">
+    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </div>
+  <div id="starthint">press play</div>
 </div>
 
 <div id="player">
@@ -399,7 +437,8 @@ function showNextImage(token){
 }
 
 function startSlideshow(){
-  if(slideTimer) clearInterval(slideTimer);
+  if(slideTimer){ clearInterval(slideTimer); slideTimer = null; }
+  if(audio.paused) return; // photos only run while music plays
   const token = searchToken;
   showNextImage(token);
   slideTimer = setInterval(() => showNextImage(token), SLIDE_INTERVAL);
@@ -450,8 +489,17 @@ document.getElementById('prevbtn').addEventListener('click', () => {
   else playSong(current - 1);
 });
 
-audio.addEventListener('play',  () => { iconPlay.style.display = 'none'; iconPause.style.display = ''; });
-audio.addEventListener('pause', () => { iconPlay.style.display = '';     iconPause.style.display = 'none'; });
+audio.addEventListener('play',  () => {
+  iconPlay.style.display = 'none'; iconPause.style.display = '';
+  document.body.classList.remove('paused');
+  document.getElementById('startoverlay').classList.add('hidden');
+  if(!slideTimer && images.length) startSlideshow(); // resume photos
+});
+audio.addEventListener('pause', () => {
+  iconPlay.style.display = '';     iconPause.style.display = 'none';
+  document.body.classList.add('paused');
+  if(slideTimer){ clearInterval(slideTimer); slideTimer = null; } // freeze photos
+});
 audio.addEventListener('ended', () => playSong(current + 1));
 let errStreak = 0;
 audio.addEventListener('error', () => {
@@ -499,15 +547,17 @@ function renderList(){
 }
 
 /* ---------- init ---------- */
+document.getElementById('startoverlay').addEventListener('click', () => {
+  if(current < 0) playSong(0); else audio.play().catch(()=>{});
+});
+
 if(SONGS.length){
   renderList();
-  npTitle.textContent = SONGS[0].title;
-  npWrap.classList.add('visible');
-  // preload visuals for the first track so the canvas isn't blank before play
-  loadVisuals(SONGS[0]);
   current = -1;
+  // canvas stays dark until play is pressed — photos start with the music
 } else {
   document.getElementById('empty').classList.add('visible');
+  document.getElementById('startoverlay').classList.add('hidden');
 }
 </script>
 </body>
