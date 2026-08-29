@@ -733,6 +733,24 @@ async function applyOp(o) {
   else if (o.t === "i") {
     const img = await loadImg(o.src);
     const ic = o.ai ? aiCtx : photoCtx;  /* AI images live on their own layer */
+    /* ov:1 (v10+): the image was pasted OVER what was there — punch its exact
+       footprint out of every layer above its own, so placement order reads true
+       (the wheatpaste covers the spray; the next spray covers the wheatpaste).
+       Historic ops have no flag and replay exactly as before. Because the wall
+       rebuilds from the op log, undoing the image brings the covered paint back. */
+    if (o.ov) {
+      const punch = (ctx) => {
+        ctx.save();
+        ctx.translate(o.x, o.y);
+        ctx.rotate(o.rot || 0);
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.globalAlpha = (o.op == null ? 1 : o.op);
+        ctx.drawImage(img, -o.w / 2, -o.h / 2, o.w, o.h);
+        ctx.restore();
+      };
+      punch(paintCtx);
+      if (!o.ai) punch(aiCtx); /* a photo pasted over an AI image covers it too */
+    }
     ic.save();
     ic.translate(o.x, o.y);
     ic.rotate(o.rot || 0);
@@ -1145,6 +1163,7 @@ document.getElementById("pb-place").addEventListener("click", () => {
     src: p.src
   };
   if (p.ai) op.ai = 1;
+  op.ov = 1; /* v10: pasted OVER the wall — covers existing paint at placement */
   placing = null;
   placeBar.style.display = "none";
   enqueue(op); publish(op);
