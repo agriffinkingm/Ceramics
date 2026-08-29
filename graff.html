@@ -257,20 +257,20 @@
     color: var(--panel-text); font: inherit; padding: 7px 8px; border-radius: 2px; outline: none;
   }
   #gen-bar input[type=text]:focus { border-color: var(--hilite); }
-  #gen-go {
+  #gen-go, #gen-keep {
     border: 1px solid #2b6cb0; color: #fff; padding: 7px 14px;
     cursor: pointer; font: inherit; border-radius: 2px; background: var(--hilite); white-space: nowrap;
   }
-  #gen-go:disabled { opacity: .6; cursor: wait; }
+  #gen-go:disabled, #gen-keep:disabled { opacity: .6; cursor: wait; }
   #gen-cancel {
     background: var(--panel-light); border: 1px solid var(--panel-border); color: #fff;
     padding: 7px 10px; cursor: pointer; font: inherit; border-radius: 2px;
   }
-  #pb-reroll {
+  #pb-reroll, #gen-reroll {
     background: #7b2cbf; border: 1px solid #5a189a; color: #fff;
     padding: 7px 12px; cursor: pointer; font: inherit; border-radius: 2px; white-space: nowrap;
   }
-  #pb-reroll:disabled { opacity: .6; cursor: wait; }
+  #pb-reroll:disabled, #gen-reroll:disabled { opacity: .6; cursor: wait; }
 
   #banner {
     position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
@@ -364,7 +364,7 @@
     <div class="tool" data-tool="image" title="Upload Image (I)">
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>
     </div>
-    <div class="tool" data-tool="gen" title="AI Image (G) — drag a box, describe what appears there">
+    <div class="tool" data-tool="gen" title="AI Fill (G) — circle an area, describe what appears there (leave empty to remove)">
       <svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7L19 14z"/><path d="M5 15l.7 1.8L7.5 17.5l-1.8.7L5 20l-.7-1.8L2.5 17.5l1.8-.7L5 15z"/></svg>
     </div>
     <div class="tool" data-tool="perase" title="Photo Eraser (E) — erases uploaded photos only; AI images + paint stay">
@@ -442,8 +442,10 @@
 </div>
 
 <div id="gen-bar">
-  <input type="text" id="gen-prompt" placeholder="describe what to paint here…" maxlength="300">
+  <input type="text" id="gen-prompt" placeholder="describe what to paint — leave empty to remove…" maxlength="300">
   <button id="gen-go">Generate</button>
+  <button id="gen-keep" style="display:none">✓ Keep</button>
+  <button id="gen-reroll" style="display:none">🎲 Re-roll</button>
   <button id="gen-cancel">✕</button>
 </div>
 
@@ -551,12 +553,19 @@ function render() {
     dctx.globalAlpha = 1;
   }
   if (placing) drawPlacing(dctx);
-  if (rectSel) {
-    const rx = Math.min(rectSel.x0, rectSel.x1), ry = Math.min(rectSel.y0, rectSel.y1);
+  if (fillPrev) {
+    dctx.drawImage(fillPrev.img, fillPrev.x - fillPrev.w / 2, fillPrev.y - fillPrev.h / 2, fillPrev.w, fillPrev.h);
+  }
+  if (rectSel && rectSel.pts.length >= 4) {
+    const p = rectSel.pts;
     dctx.strokeStyle = "#7b2cbf";
     dctx.setLineDash([8, 6]);
     dctx.lineWidth = 3 / cam.s;
-    dctx.strokeRect(rx, ry, Math.abs(rectSel.x1 - rectSel.x0), Math.abs(rectSel.y1 - rectSel.y0));
+    dctx.beginPath();
+    dctx.moveTo(p[0], p[1]);
+    for (let i = 2; i < p.length; i += 2) dctx.lineTo(p[i], p[i + 1]);
+    if (!rectSel.drag) dctx.closePath();
+    dctx.stroke();
     dctx.setLineDash([]);
   }
   /* pan the concrete texture with the wall */
@@ -801,7 +810,7 @@ let pinch = null;
 let pan = null;
 let spaceHeld = false;
 let dragging = false, dragOff = [0, 0];
-let rectSel = null, genBusy = false;
+let rectSel = null, genBusy = false, fillPrev = null;
 
 /* iOS Safari pinches the whole page despite user-scalable=no — kill the native
    gesture so our pointer-based pinch-zoom on the wall gets it instead */
@@ -856,8 +865,8 @@ display.addEventListener("pointerdown", (e) => {
   if (tool === "gen") {
     if (genBusy) return;
     resetGenUi();
-    rectSel = { x0: x, y0: y, x1: x, y1: y, drag: true };
-    /* get the toolbox out of the way while boxing + generating on phones */
+    rectSel = { pts: [x, y], drag: true };
+    /* get the toolbox out of the way while lassoing + generating on phones */
     if (window.innerWidth <= 640 && !tbEl.classList.contains("collapsed")) {
       tbAutoHid = true; setTbCollapsed(true);
     }
@@ -894,8 +903,11 @@ display.addEventListener("pointermove", (e) => {
   }
   if (rectSel && rectSel.drag) {
     const [x, y] = toWall(e);
-    rectSel.x1 = x; rectSel.y1 = y;
-    render();
+    const n = rectSel.pts.length;
+    if (Math.hypot(x - rectSel.pts[n - 2], y - rectSel.pts[n - 1]) > 3) {
+      rectSel.pts.push(x, y);
+      render();
+    }
     return;
   }
   if (!drawing) return;
@@ -945,7 +957,8 @@ function pointerEnd(e) {
     dragging = false;
     if (rectSel && rectSel.drag) {
       rectSel.drag = false;
-      if (Math.abs(rectSel.x1 - rectSel.x0) < 24 || Math.abs(rectSel.y1 - rectSel.y0) < 24) {
+      const b = selBox(rectSel);
+      if (b.rw < 24 || b.rh < 24 || rectSel.pts.length < 6) {
         rectSel = null;
         restoreTb();
         render();
@@ -1186,13 +1199,27 @@ const GEN_MODEL = "nanobanana"; // needs pollen; seedream refuses <1024px boxes 
 const genBar = document.getElementById("gen-bar");
 const genInput = document.getElementById("gen-prompt");
 const genGo = document.getElementById("gen-go");
-const pbReroll = document.getElementById("pb-reroll");
-/* ---------- wall-aware generative fill ----------
-   Instead of imagining in a vacuum, the keyed path sends the model a crop of the
-   wall AROUND the drag box (box + 50% margin each side, box dead-center) and asks
-   it to paint the prompt into the center so it blends with what's already there.
-   The returned center is cut back out, edge-feathered, and dropped into the normal
-   placement flow as a standard ai:1 image op. */
+const genKeep = document.getElementById("gen-keep");
+const genReroll = document.getElementById("gen-reroll");
+/* ---------- generative fill ----------
+   Photoshop-style: lasso an area, describe what appears there (or leave the
+   prompt empty to Remove). The keyed path sends the model a crop of the wall
+   AROUND the lasso's bounding box (box + 50% margin each side, box dead-center)
+   and asks it to paint into the center so it blends with what's already there.
+   The returned center is cut back out, clipped to the lasso with a soft edge,
+   previewed IN PLACE, and on Keep published as an ai:1 ov:1 image op — the ov
+   punch (v10) makes the fill actually replace what it repainted. */
+function selBox(sel) {
+  const p = sel.pts;
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (let i = 0; i < p.length; i += 2) {
+    if (p[i] < x0) x0 = p[i];
+    if (p[i] > x1) x1 = p[i];
+    if (p[i + 1] < y0) y0 = p[i + 1];
+    if (p[i + 1] > y1) y1 = p[i + 1];
+  }
+  return { rx: x0, ry: y0, rw: x1 - x0, rh: y1 - y0 };
+}
 function wallCrop(rx, ry, rw, rh) {
   const m = 0.5 * Math.max(rw, rh);
   const cx0 = rx - m, cy0 = ry - m;
@@ -1211,9 +1238,7 @@ function wallCrop(rx, ry, rw, rh) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   return { canvas: c, fx: m / cw, fy: m / ch, fw: rw / cw, fh: rh / ch, rw, rh };
 }
-async function editFetch(blob, userPrompt) {
-  const instruction = "Add to the exact center of this image: " + userPrompt +
-    ". Paint it directly into the scene so it blends naturally with its surroundings — match the lighting, colors, texture, style and perspective of what is already there. Keep everything outside the center region exactly unchanged.";
+async function editFetch(blob, instruction) {
   const fd = new FormData();
   fd.append("image", blob, "wall.jpg");
   fd.append("prompt", instruction);
@@ -1237,53 +1262,74 @@ async function editFetch(blob, userPrompt) {
   }
   throw new Error("edit: unexpected reply");
 }
-function cutBox(im, crop) {
+function cutRect(im, crop) {
   /* cut the center box back out by crop fractions (robust to the model resizing
-     the whole image), aspect-correct to the drawn box, feather all four edges */
+     the whole image), aspect-corrected to the drawn box; lassoMask does the edges */
   const iw = im.naturalWidth, ih = im.naturalHeight;
   const sx = crop.fx * iw, sy = crop.fy * ih, sw = crop.fw * iw, sh = crop.fh * ih;
   const outW = Math.max(16, Math.round(sw));
   const outH = Math.max(16, Math.round(sw * crop.rh / crop.rw));
   const c = document.createElement("canvas");
   c.width = outW; c.height = outH;
-  const ctx = c.getContext("2d");
-  ctx.drawImage(im, sx, sy, sw, sh, 0, 0, outW, outH);
+  c.getContext("2d").drawImage(im, sx, sy, sw, sh, 0, 0, outW, outH);
   if (im.src && im.src.indexOf("blob:") === 0) URL.revokeObjectURL(im.src);
+  return c;
+}
+function lassoMask(c, sel, rx, ry, rw, rh) {
+  /* clip the rectangular fill to the drawn lasso with a soft edge. The feather
+     comes from rendering the mask small and scaling it up with smoothing — works
+     everywhere including iOS Safari, which lacks ctx.filter blur. */
+  const outW = c.width, outH = c.height;
   const f = Math.max(6, Math.round(0.045 * Math.min(outW, outH)));
-  ctx.globalCompositeOperation = "destination-out";
-  const edges = [
-    [0, 0, f, outH, [0, 0, f, 0]],            /* left  */
-    [outW - f, 0, f, outH, [outW, 0, outW - f, 0]], /* right */
-    [0, 0, outW, f, [0, 0, 0, f]],            /* top   */
-    [0, outH - f, outW, f, [0, outH, 0, outH - f]]  /* bottom */
-  ];
-  for (const [x, y, w, h, g] of edges) {
-    const gr = ctx.createLinearGradient(g[0], g[1], g[2], g[3]);
-    gr.addColorStop(0, "rgba(0,0,0,1)");
-    gr.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = gr;
-    ctx.fillRect(x, y, w, h);
-  }
+  const k = Math.max(2, Math.round(f / 2));
+  const mw = Math.max(8, Math.round(outW / k)), mh = Math.max(8, Math.round(outH / k));
+  const m = document.createElement("canvas");
+  m.width = mw; m.height = mh;
+  const mc = m.getContext("2d");
+  mc.setTransform(mw / rw, 0, 0, mh / rh, -rx * mw / rw, -ry * mh / rh);
+  mc.fillStyle = "#fff";
+  mc.beginPath();
+  const p = sel.pts;
+  mc.moveTo(p[0], p[1]);
+  for (let i = 2; i < p.length; i += 2) mc.lineTo(p[i], p[i + 1]);
+  mc.closePath();
+  mc.fill();
+  const ctx = c.getContext("2d");
+  ctx.globalCompositeOperation = "destination-in";
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(m, 0, 0, outW, outH);
   ctx.globalCompositeOperation = "source-over";
+}
+function encodeFill(c) {
   let src = c.toDataURL("image/webp", 0.85);
   if (src.indexOf("data:image/webp") !== 0) src = c.toDataURL("image/png");
   if (src.length > 1500000) {
-    /* too heavy with alpha — fall back to a hard-edged jpeg of the same cut */
-    const jc = document.createElement("canvas");
-    jc.width = outW; jc.height = outH;
-    jc.getContext("2d").drawImage(im, sx, sy, sw, sh, 0, 0, outW, outH);
-    src = jc.toDataURL("image/jpeg", 0.8);
+    /* too heavy — downscale instead of jpeg, which would lose the lasso alpha */
+    const d = document.createElement("canvas");
+    d.width = Math.max(16, Math.round(c.width * 0.7));
+    d.height = Math.max(16, Math.round(c.height * 0.7));
+    d.getContext("2d").drawImage(c, 0, 0, d.width, d.height);
+    src = d.toDataURL("image/webp", 0.8);
+    if (src.indexOf("data:image/webp") !== 0) src = d.toDataURL("image/png");
   }
   return src;
 }
 
+function genLabel() {
+  genGo.textContent = genInput.value.trim() ? "Generate" : "🧽 Remove";
+}
 function resetGenUi() {
   genBar.style.display = "none";
+  genInput.style.display = "";
+  genGo.style.display = "";
   genGo.textContent = "Generate";
-  pbReroll.style.display = "none";
+  genKeep.style.display = "none";
+  genReroll.style.display = "none";
+  fillPrev = null;
 }
 function openGenBar() {
-  genGo.textContent = "Generate";
+  genLabel();
   genBar.style.display = "flex";
   genInput.focus();
   render();
@@ -1297,17 +1343,19 @@ function closeGen() {
 async function generate() {
   if (!rectSel || genBusy) return;
   const prompt = genInput.value.trim();
-  if (!prompt) { genBar.style.display = "flex"; genInput.focus(); return; }
-  const rx = Math.min(rectSel.x0, rectSel.x1), ry = Math.min(rectSel.y0, rectSel.y1);
-  const rw = Math.max(24, Math.abs(rectSel.x1 - rectSel.x0));
-  const rh = Math.max(24, Math.abs(rectSel.y1 - rectSel.y0));
+  if (!prompt && !POLLINATIONS_KEY) { showBanner("Remove needs the keyed can — describe something to paint instead"); return; }
+  const b = selBox(rectSel);
+  const rx = b.rx, ry = b.ry;
+  const rw = Math.max(24, b.rw);
+  const rh = Math.max(24, b.rh);
   const cap = Math.min(1, 1280 / Math.max(rw, rh));
   const gw = Math.max(64, Math.round(rw * cap));
   const gh = Math.max(64, Math.round(rh * cap));
   const seed = (Math.random() * 1e9) >>> 0;
   /* Keyed: gen.pollinations.ai + GEN_MODEL (strong, costs pollen). Any keyed failure
      falls back to the free keyless flux endpoint (tightly rate-limited per IP but $0),
-     so the wall keeps painting even at zero balance. */
+     so the wall keeps painting even at zero balance. Remove has no imagination
+     fallback — you can't remove from a vacuum. */
   const qs = "?width=" + gw + "&height=" + gh + "&seed=" + seed + "&nologo=true&enhance=true";
   const keyedUrl = "https://gen.pollinations.ai/image/" + encodeURIComponent(prompt) + qs +
     "&model=" + GEN_MODEL + "&key=" + POLLINATIONS_KEY;
@@ -1329,20 +1377,25 @@ async function generate() {
     } catch (e) { URL.revokeObjectURL(obj); throw e; }
   };
   genBusy = true;
-  genGo.disabled = true; pbReroll.disabled = true;
-  genGo.textContent = "painting…"; pbReroll.textContent = "painting…";
+  genGo.disabled = true; genKeep.disabled = true; genReroll.disabled = true;
+  genGo.textContent = "painting…"; genReroll.textContent = "painting…";
   try {
-    let src = null, im = null;
+    let fillCv = null, im = null;
     const freeChain = () => fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
     if (POLLINATIONS_KEY) {
       try {
-        /* wall-aware generative fill (see helpers above) */
+        /* wall-aware fill (see helpers above) */
         const crop = wallCrop(rx, ry, rw, rh);
         const blob = await new Promise(res => crop.canvas.toBlob(res, "image/jpeg", 0.9));
         if (!blob) throw new Error("crop failed");
-        src = cutBox(await editFetch(blob, prompt), crop);
+        const instruction = prompt
+          ? "Add to the exact center of this image: " + prompt +
+            ". Paint it directly into the scene so it blends naturally with its surroundings — match the lighting, colors, texture, style and perspective of what is already there. Keep everything outside the center region exactly unchanged."
+          : "Remove whatever occupies the exact center region of this image and repaint that area as a natural continuation of its immediate surroundings — continue the wall texture, colors and lighting, and any marks that enter from the edges. Keep everything outside the center region exactly unchanged.";
+        fillCv = cutRect(await editFetch(blob, instruction), crop);
       } catch (e) {
         if (e.rl) throw e;
+        if (!prompt) throw (e.pp ? new Error("out of pollen — Remove needs the keyed can") : new Error("couldn't remove — try again"));
         if (e.pp) {
           showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
           im = await freeChain();
@@ -1359,50 +1412,62 @@ async function generate() {
     } else {
       im = await freeChain();
     }
-    if (!src) {
-      const c = document.createElement("canvas");
-      c.width = im.naturalWidth || gw; c.height = im.naturalHeight || gh;
-      c.getContext("2d").drawImage(im, 0, 0);
+    if (!fillCv) {
+      fillCv = document.createElement("canvas");
+      fillCv.width = gw; fillCv.height = gh;
+      fillCv.getContext("2d").drawImage(im, 0, 0, gw, gh);
       URL.revokeObjectURL(im.src);
-      src = c.toDataURL("image/jpeg", 0.82);
-      if (src.length > 1500000) src = c.toDataURL("image/jpeg", 0.7);
     }
+    lassoMask(fillCv, rectSel, rx, ry, rw, rh);
+    const src = encodeFill(fillCv);
     const img = await loadImg(src);
-    placing = { src, img, x: rx + rw / 2, y: ry + rh / 2, scale: rw / img.width, rot: 0, op: 1, ai: true };
-    pbScale.value = Math.max(5, Math.min(300, Math.round(placing.scale * 100)));
-    pbRot.value = 0;
-    pbOp.value = 100;
-    genBar.style.display = "none";
-    pbReroll.style.display = "";
-    placeBar.style.display = "flex";
+    if (rectSel) {
+      /* preview IN PLACE; bar swaps to Keep / Re-roll / ✕ */
+      fillPrev = { src, img, x: rx + rw / 2, y: ry + rh / 2, w: rw, h: rh };
+      genInput.style.display = "none";
+      genGo.style.display = "none";
+      genKeep.style.display = "";
+      genReroll.style.display = "";
+      genBar.style.display = "flex";
+    }
   } catch (err) {
     showBanner("AI paint failed (" + err.message + ")");
-    genGo.textContent = "Generate";
   }
-  pbReroll.textContent = "🎲 Re-roll";
-  if (genBar.style.display === "flex") genGo.textContent = "Generate";
-  genGo.disabled = false; pbReroll.disabled = false;
+  genLabel();
+  genReroll.textContent = "🎲 Re-roll";
+  genGo.disabled = false; genKeep.disabled = false; genReroll.disabled = false;
   genBusy = false;
   render();
 }
 genGo.addEventListener("click", generate);
-pbReroll.addEventListener("click", generate);
+genReroll.addEventListener("click", generate);
+genKeep.addEventListener("click", () => {
+  if (!fillPrev || genBusy) return;
+  const op = {
+    t: "i",
+    x: Math.round(fillPrev.x), y: Math.round(fillPrev.y),
+    w: Math.round(fillPrev.w), h: Math.round(fillPrev.h),
+    rot: 0, op: 1,
+    src: fillPrev.src,
+    ai: 1, ov: 1
+  };
+  enqueue(op); publish(op);
+  closeGen();
+});
 document.getElementById("gen-cancel").addEventListener("click", () => { if (!genBusy) closeGen(); });
+genInput.addEventListener("input", () => { if (!genBusy && genGo.style.display !== "none") genLabel(); });
 genInput.addEventListener("keydown", (e) => {
   e.stopPropagation();
   if (e.key === "Enter") generate();
   else if (e.key === "Escape" && !genBusy) closeGen();
 });
-/* placing or cancelling a generated image also clears the gen state
-   (these run after the original place/cancel handlers registered above) */
-document.getElementById("pb-place").addEventListener("click", () => { if (pbReroll.style.display !== "none") closeGen(); });
-document.getElementById("pb-cancel").addEventListener("click", () => { if (pbReroll.style.display !== "none" || genBar.style.display === "flex") closeGen(); });
 
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gen: "AI Image", perase: "Photo Eraser", aerase: "AI Eraser", picker: "Color Picker", hand: "Pan" };
+const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gen: "AI Fill", perase: "Photo Eraser", aerase: "AI Eraser", picker: "Color Picker", hand: "Pan" };
 const toolEls = document.querySelectorAll(".tool");
 function setTool(t) {
   tool = t;
+  if (t !== "gen" && !genBusy && (rectSel || fillPrev)) closeGen();
   toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === t));
   document.getElementById("tool-name").textContent = TOOL_NAMES[t];
   document.getElementById("tb-tool").textContent = TOOL_NAMES[t];
