@@ -424,6 +424,7 @@
 
   <div id="tb-foot">
     <span id="op-count">—</span>
+    <a href="compendium.html">compendium</a>
     <a href="index.html">← studio</a>
   </div>
 </div>
@@ -767,7 +768,7 @@ async function applyOp(o) {
     }
   }
   opCount++;
-  if (!batch) { updateCount(); render(); }
+  if (!batch) { updateCount(); render(); checkMilestone(); }
 }
 
 /* ---------- input: draw, pan (hand tool / space / two fingers), pinch zoom ---------- */
@@ -909,7 +910,7 @@ function endStroke() {
   if (tool === "air" || tool === "smudge" || tool === "perase" || tool === "aerase") {
     if (tool === "air") { op.seed = curSeed; op.fl = round2(airFlow); }
     /* already applied live to the wall; just count + publish */
-    opCount++; updateCount();
+    opCount++; updateCount(); checkMilestone();
   } else {
     enqueue(op);
   }
@@ -1498,13 +1499,62 @@ async function undo() {
 }
 undoBtn.addEventListener("click", undo);
 
+/* ---------- compendium: walls that survive to 100 marks get flicked into
+   walls/main/archive at every 100-mark milestone, plus a final flick right
+   before detonation. Deterministic key (first-op-key + tag) so racing
+   clients overwrite instead of duplicating. Under 100 marks = no trace. ---------- */
+let msPrev = 0;
+let capBusy = false;
+function snapshotJpeg(w, h, q) {
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const cx = c.getContext("2d");
+  cx.fillStyle = WALL_COLOR;
+  cx.fillRect(0, 0, w, h);
+  cx.drawImage(photoCv, 0, 0, w, h);
+  cx.drawImage(aiCv, 0, 0, w, h);
+  cx.drawImage(paintCv, 0, 0, w, h);
+  return c.toDataURL("image/jpeg", q);
+}
+async function captureWall(tag) {
+  if (!fbArchive) return;
+  if (tag !== "final") {
+    if (capBusy) return;
+    capBusy = true;
+  }
+  try {
+    const era = opsByKey.size ? opsByKey.keys().next().value : "e" + Date.now();
+    const t = Date.now(), n = opCount;
+    await fbArchive(era + "-" + tag,
+      { t, n, w: 1728, h: 972, img: snapshotJpeg(1728, 972, 0.85) },
+      { t, n, thumb: snapshotJpeg(432, 243, 0.7) });
+    showBanner(tag === "final"
+      ? "📸 final flick — this wall made the compendium"
+      : "📸 " + tag + " marks — flicked into the compendium");
+  } catch (err) {
+    showBanner("compendium flick failed (" + err.message + ")");
+  } finally {
+    if (tag !== "final") capBusy = false;
+  }
+}
+function checkMilestone() {
+  if (Math.floor(opCount / 100) > Math.floor(msPrev / 100)) {
+    msPrev = opCount;
+    captureWall(Math.floor(opCount / 100) * 100);
+  } else {
+    msPrev = opCount;
+  }
+}
+
 /* ---------- detonate: hold 1.2s, then the whole wall goes blank for everyone.
    Clearing the shared op log is also the reset valve for the wall's memory —
    the op history (including image data) stops growing from zero again. ---------- */
 const detBtn = document.getElementById("detonate");
 const boomEl = document.getElementById("boom");
 let detTimer = null;
-function detonate() {
+async function detonate() {
+  /* a wall that survived to 100 gets photographed before the buff */
+  if (opCount >= 100) await captureWall("final");
   boomEl.classList.remove("go");
   void boomEl.offsetWidth; /* restart animation */
   boomEl.classList.add("go");
@@ -1517,6 +1567,7 @@ function detonate() {
   paintCtx.clearRect(0, 0, W, H);
   imgCache.clear();
   opCount = 0;
+  msPrev = 0;
   updateCount();
   render();
   if (fbClear) {
@@ -1553,6 +1604,7 @@ function rebuild() {
       for (const op of opsByKey.values()) await applyOp(op);
       batch = false;
       updateCount();
+      msPrev = opCount;
       render();
     });
   }, 60);
@@ -1590,6 +1642,7 @@ const connDot = document.getElementById("conn-dot");
 let publish = () => {};
 let fbRemove = null;
 let fbClear = null;
+let fbArchive = null;
 const appliedKeys = new Set();
 const opsByKey = new Map();
 let bannerTimer = null;
@@ -1619,6 +1672,10 @@ async function initFirebase() {
     };
     fbRemove = (k) => remove(child(opsRef, k));
     fbClear = () => set(opsRef, null);
+    fbArchive = (k, full, idx) => Promise.all([
+      set(ref(db, "walls/main/archive/" + k), full),
+      set(ref(db, "walls/main/archiveIndex/" + k), idx)
+    ]);
     refreshUndo();
 
     /* fetch the whole existing wall in one read and paint it in a single pass —
@@ -1637,6 +1694,7 @@ async function initFirebase() {
           for (const op of initial) await applyOp(op);
           batch = false;
           updateCount();
+          msPrev = opCount;
           render();
         });
       }
