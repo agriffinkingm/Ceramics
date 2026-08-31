@@ -248,9 +248,11 @@
     background: var(--panel); border: 1px solid var(--panel-border);
     box-shadow: 0 6px 22px rgba(0,0,0,.55);
     padding: 8px 10px;
-    display: none; gap: 8px; align-items: center;
+    display: none; gap: 8px; align-items: center; flex-wrap: wrap;
     width: min(94vw, 520px); z-index: 27;
   }
+  #gen-bar label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--panel-dim); white-space: nowrap; }
+  #gen-bar input[type=range] { width: 92px; }
   #gen-bar input[type=text] {
     flex: 1; min-width: 0;
     background: var(--panel-dark); border: 1px solid var(--panel-border);
@@ -444,6 +446,7 @@
 <div id="gen-bar">
   <input type="text" id="gen-prompt" placeholder="describe what to paint — leave empty to remove…" maxlength="300">
   <button id="gen-go">Generate</button>
+  <label id="gen-op-row" style="display:none">Opacity <input type="range" id="gen-op" min="5" max="100" value="100"></label>
   <button id="gen-keep" style="display:none">✓ Keep</button>
   <button id="gen-reroll" style="display:none">🎲 Re-roll</button>
   <button id="gen-cancel">✕</button>
@@ -554,7 +557,9 @@ function render() {
   }
   if (placing) drawPlacing(dctx);
   if (fillPrev) {
+    dctx.globalAlpha = fillPrev.op == null ? 1 : fillPrev.op;
     dctx.drawImage(fillPrev.img, fillPrev.x - fillPrev.w / 2, fillPrev.y - fillPrev.h / 2, fillPrev.w, fillPrev.h);
+    dctx.globalAlpha = 1;
   }
   if (rectSel) {
     dctx.strokeStyle = "#7b2cbf";
@@ -1221,6 +1226,8 @@ const genInput = document.getElementById("gen-prompt");
 const genGo = document.getElementById("gen-go");
 const genKeep = document.getElementById("gen-keep");
 const genReroll = document.getElementById("gen-reroll");
+const genOpRow = document.getElementById("gen-op-row");
+const genOp = document.getElementById("gen-op");
 /* ---------- generative fill ----------
    Photoshop-style: lasso an area — hold ⇧ and drag to add more regions to the
    selection for a more precise fill — describe what appears there (or leave the
@@ -1348,6 +1355,8 @@ function resetGenUi() {
   genGo.textContent = "Generate";
   genKeep.style.display = "none";
   genReroll.style.display = "none";
+  genOpRow.style.display = "none";
+  genOp.value = 100;
   fillPrev = null;
 }
 function openGenBar() {
@@ -1445,11 +1454,12 @@ async function generate() {
     const img = await loadImg(src);
     if (rectSel) {
       /* preview IN PLACE; bar swaps to Keep / Re-roll / ✕ */
-      fillPrev = { src, img, x: rx + rw / 2, y: ry + rh / 2, w: rw, h: rh };
+      fillPrev = { src, img, x: rx + rw / 2, y: ry + rh / 2, w: rw, h: rh, op: +genOp.value / 100 };
       genInput.style.display = "none";
       genGo.style.display = "none";
       genKeep.style.display = "";
       genReroll.style.display = "";
+      genOpRow.style.display = "";
       genBar.style.display = "flex";
     }
   } catch (err) {
@@ -1469,13 +1479,15 @@ genKeep.addEventListener("click", () => {
     t: "i",
     x: Math.round(fillPrev.x), y: Math.round(fillPrev.y),
     w: Math.round(fillPrev.w), h: Math.round(fillPrev.h),
-    rot: 0, op: 1,
+    rot: 0, op: round2(fillPrev.op == null ? 1 : fillPrev.op),
     src: fillPrev.src,
     ai: 1, ov: 1
   };
   enqueue(op); publish(op);
   closeGen();
 });
+genOp.addEventListener("input", () => { if (fillPrev) { fillPrev.op = +genOp.value / 100; render(); } });
+genOp.addEventListener("keydown", (e) => e.stopPropagation());
 document.getElementById("gen-cancel").addEventListener("click", () => { if (!genBusy) closeGen(); });
 genInput.addEventListener("input", () => { if (!genBusy && genGo.style.display !== "none") genLabel(); });
 genInput.addEventListener("keydown", (e) => {
