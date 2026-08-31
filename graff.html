@@ -364,7 +364,7 @@
     <div class="tool" data-tool="image" title="Upload Image (I)">
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>
     </div>
-    <div class="tool" data-tool="gen" title="AI Fill (G) — circle an area, describe what appears there (leave empty to remove)">
+    <div class="tool" data-tool="gen" title="AI Fill (G) — circle an area (⇧-drag to add more regions), describe what appears there (leave empty to remove)">
       <svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7L19 14z"/><path d="M5 15l.7 1.8L7.5 17.5l-1.8.7L5 20l-.7-1.8L2.5 17.5l1.8-.7L5 15z"/></svg>
     </div>
     <div class="tool" data-tool="perase" title="Photo Eraser (E) — erases uploaded photos only; AI images + paint stay">
@@ -556,16 +556,20 @@ function render() {
   if (fillPrev) {
     dctx.drawImage(fillPrev.img, fillPrev.x - fillPrev.w / 2, fillPrev.y - fillPrev.h / 2, fillPrev.w, fillPrev.h);
   }
-  if (rectSel && rectSel.pts.length >= 4) {
-    const p = rectSel.pts;
+  if (rectSel) {
     dctx.strokeStyle = "#7b2cbf";
     dctx.setLineDash([8, 6]);
     dctx.lineWidth = 3 / cam.s;
-    dctx.beginPath();
-    dctx.moveTo(p[0], p[1]);
-    for (let i = 2; i < p.length; i += 2) dctx.lineTo(p[i], p[i + 1]);
-    if (!rectSel.drag) dctx.closePath();
-    dctx.stroke();
+    const trace = (p, close) => {
+      if (!p || p.length < 4) return;
+      dctx.beginPath();
+      dctx.moveTo(p[0], p[1]);
+      for (let i = 2; i < p.length; i += 2) dctx.lineTo(p[i], p[i + 1]);
+      if (close) dctx.closePath();
+      dctx.stroke();
+    };
+    for (const p of rectSel.paths) trace(p, true);
+    trace(rectSel.cur, !rectSel.drag);
     dctx.setLineDash([]);
   }
   /* pan the concrete texture with the wall */
@@ -846,7 +850,11 @@ display.addEventListener("pointerdown", (e) => {
   activePts.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (activePts.size === 2) {
     if (drawing) cancelStroke(); /* second finger = pinch, not a mark */
-    if (rectSel && rectSel.drag) { rectSel = null; restoreTb(); }
+    if (rectSel && rectSel.drag) {
+      /* second finger = pinch: drop the in-progress lasso, keep any regions already added */
+      rectSel.drag = false; rectSel.cur = null;
+      if (!rectSel.paths.length) { rectSel = null; restoreTb(); }
+    }
     dragging = false;
     startPinch();
     return;
@@ -864,8 +872,15 @@ display.addEventListener("pointerdown", (e) => {
   if (tool === "picker") { pickColor(x, y); return; }
   if (tool === "gen") {
     if (genBusy) return;
-    resetGenUi();
-    rectSel = { pts: [x, y], drag: true };
+    if (e.shiftKey && rectSel && !rectSel.drag) {
+      /* shift-drag adds another region to the selection for a more precise fill;
+         after a preview it keeps the regions and re-arms the prompt */
+      if (fillPrev) resetGenUi();
+      rectSel.cur = [x, y]; rectSel.drag = true;
+    } else {
+      resetGenUi();
+      rectSel = { paths: [], cur: [x, y], drag: true };
+    }
     /* get the toolbox out of the way while lassoing + generating on phones */
     if (window.innerWidth <= 640 && !tbEl.classList.contains("collapsed")) {
       tbAutoHid = true; setTbCollapsed(true);
@@ -903,9 +918,9 @@ display.addEventListener("pointermove", (e) => {
   }
   if (rectSel && rectSel.drag) {
     const [x, y] = toWall(e);
-    const n = rectSel.pts.length;
-    if (Math.hypot(x - rectSel.pts[n - 2], y - rectSel.pts[n - 1]) > 3) {
-      rectSel.pts.push(x, y);
+    const p = rectSel.cur, n = p.length;
+    if (Math.hypot(x - p[n - 2], y - p[n - 1]) > 3) {
+      p.push(x, y);
       render();
     }
     return;
@@ -957,8 +972,13 @@ function pointerEnd(e) {
     dragging = false;
     if (rectSel && rectSel.drag) {
       rectSel.drag = false;
-      const b = selBox(rectSel);
-      if (b.rw < 24 || b.rh < 24 || rectSel.pts.length < 6) {
+      const p = rectSel.cur;
+      rectSel.cur = null;
+      /* the first region must be a real area; shift-added ones can be small (precision) */
+      const min = rectSel.paths.length ? 10 : 24;
+      const b = selBox({ paths: [p] });
+      if (p.length >= 6 && b.rw >= min && b.rh >= min) rectSel.paths.push(p);
+      if (!rectSel.paths.length) {
         rectSel = null;
         restoreTb();
         render();
@@ -1202,7 +1222,8 @@ const genGo = document.getElementById("gen-go");
 const genKeep = document.getElementById("gen-keep");
 const genReroll = document.getElementById("gen-reroll");
 /* ---------- generative fill ----------
-   Photoshop-style: lasso an area, describe what appears there (or leave the
+   Photoshop-style: lasso an area — hold ⇧ and drag to add more regions to the
+   selection for a more precise fill — describe what appears there (or leave the
    prompt empty to Remove). The keyed path sends the model a crop of the wall
    AROUND the lasso's bounding box (box + 50% margin each side, box dead-center)
    and asks it to paint into the center so it blends with what's already there.
@@ -1210,9 +1231,9 @@ const genReroll = document.getElementById("gen-reroll");
    previewed IN PLACE, and on Keep published as an ai:1 ov:1 image op — the ov
    punch (v10) makes the fill actually replace what it repainted. */
 function selBox(sel) {
-  const p = sel.pts;
+  /* bounding box over every region in the selection */
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
-  for (let i = 0; i < p.length; i += 2) {
+  for (const p of sel.paths) for (let i = 0; i < p.length; i += 2) {
     if (p[i] < x0) x0 = p[i];
     if (p[i] > x1) x1 = p[i];
     if (p[i + 1] < y0) y0 = p[i + 1];
@@ -1288,12 +1309,13 @@ function lassoMask(c, sel, rx, ry, rw, rh) {
   const mc = m.getContext("2d");
   mc.setTransform(mw / rw, 0, 0, mh / rh, -rx * mw / rw, -ry * mh / rh);
   mc.fillStyle = "#fff";
-  mc.beginPath();
-  const p = sel.pts;
-  mc.moveTo(p[0], p[1]);
-  for (let i = 2; i < p.length; i += 2) mc.lineTo(p[i], p[i + 1]);
-  mc.closePath();
-  mc.fill();
+  for (const p of sel.paths) {
+    mc.beginPath();
+    mc.moveTo(p[0], p[1]);
+    for (let i = 2; i < p.length; i += 2) mc.lineTo(p[i], p[i + 1]);
+    mc.closePath();
+    mc.fill();
+  }
   const ctx = c.getContext("2d");
   ctx.globalCompositeOperation = "destination-in";
   ctx.imageSmoothingEnabled = true;
@@ -1341,7 +1363,7 @@ function closeGen() {
   render();
 }
 async function generate() {
-  if (!rectSel || genBusy) return;
+  if (!rectSel || !rectSel.paths.length || genBusy) return;
   const prompt = genInput.value.trim();
   if (!prompt && !POLLINATIONS_KEY) { showBanner("Remove needs the keyed can — describe something to paint instead"); return; }
   const b = selBox(rectSel);
