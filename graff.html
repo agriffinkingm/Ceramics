@@ -112,6 +112,18 @@
   }
   #tool-name { color: var(--panel-text); font-size: 11px; font-weight: 600; text-transform: none; letter-spacing: 0; }
 
+  /* today's background: the news story behind the wall */
+  #news-row { display: none; }
+  #news-row a {
+    display: flex; align-items: center; gap: 7px;
+    color: var(--panel-dim); text-decoration: none; font-size: 11px; line-height: 1.25;
+    padding: 5px 7px; border: 1px solid var(--panel-border); border-radius: 2px;
+  }
+  #news-row a:hover { color: #fff; border-color: #777; }
+  #news-row .nr-ico { flex: none; font-size: 13px; }
+  #news-row .nr-txt { flex: 1; min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  #news-row .nr-src { flex: none; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
+
   #actions-row { display: flex; gap: 6px; }
   #undo {
     flex: 1; padding: 8px;
@@ -305,7 +317,9 @@
     #toolbox.collapsed #tb-title { border-bottom: none; }
     #tb-home { display: inline-block; }
     #tb-collapse { font-size: 18px; padding: 10px 16px; margin: -10px -14px -10px 0; }
-    .tool-grid { grid-template-columns: repeat(10, 1fr); gap: 0; padding: 4px 6px; background: none; }
+    .tool-grid { grid-template-columns: repeat(11, 1fr); gap: 0; padding: 4px 6px; background: none; }
+    #news-row { padding: 6px 10px; }
+    #news-row a { border-radius: 10px; background: rgba(255,255,255,.06); }
     .tool { aspect-ratio: auto; height: 38px; background: none; border: none; border-radius: 9px; }
     .tool.active { background: var(--hilite); }
     .tool svg { width: 19px; height: 19px; }
@@ -375,6 +389,9 @@
     <div class="tool" data-tool="aerase" title="AI Eraser (R) — erases AI-generated images only; photos + paint stay">
       <svg viewBox="0 0 24 24"><path d="M7.5 3l1.2 3.1L11.8 7.3l-3.1 1.2L7.5 11.6 6.3 8.5 3.2 7.3l3.1-1.2L7.5 3z"/><path d="M13 5.5l.6 1.5 1.5.6-1.5.6-.6 1.5-.6-1.5-1.5-.6 1.5-.6.6-1.5z" transform="translate(1.5 -1.5)"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
     </div>
+    <div class="tool" data-tool="berase" title="Background Eraser (B) — rubs out today's news backdrop down to the bare concrete; nothing else is touched">
+      <svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="13" height="10" rx="1"/><path d="M2.5 12l3.5-4 3 3 2-2 4.5 5"/><circle cx="12" cy="7" r="1"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
+    </div>
     <div class="tool" data-tool="picker" title="Color Picker (O)">
       <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
     </div>
@@ -416,6 +433,12 @@
       </div>
       <div class="palette" id="palette" style="flex:1;"></div>
     </div>
+  </div>
+
+  <div class="tb-section" id="news-row">
+    <a id="news-link" href="#" target="_blank" rel="noopener" title="Today's backdrop — read the story it came from">
+      <span class="nr-ico">📰</span><span class="nr-txt" id="news-head"></span><span class="nr-src" id="news-src"></span>
+    </a>
   </div>
 
   <div class="tb-section" id="actions-row">
@@ -494,6 +517,17 @@ let opCount = 0;
      paintCv — every stroke, text, fill (top)
    Paint always sits over photos (spray over the wheatpaste), and the
    photo eraser can rub out images without touching paint. */
+/* Background layer (v12): today's news photo, chosen daily by a GitHub Action
+   (bg/pick_bg.py → bg/current.json + bg/current.jpg) and outpainted to the full
+   wall. It is NOT an op — it sits under the log, survives detonate, and changes
+   every day. Only the Background Eraser touches it; its "berase" ops carry the
+   background id (bg/current.json → id) and are ignored once the backdrop changes,
+   so erasures reset with each new day's image. */
+const bgCv = document.createElement("canvas");
+bgCv.width = W; bgCv.height = H;
+const bgCtx = bgCv.getContext("2d");
+let bgId = null, bgImg = null, bgMeta = null;
+
 const photoCv = document.createElement("canvas");
 photoCv.width = W; photoCv.height = H;
 const photoCtx = photoCv.getContext("2d");
@@ -548,6 +582,7 @@ function render() {
   dctx.setTransform(1, 0, 0, 1, 0, 0);
   dctx.clearRect(0, 0, display.width, display.height);
   dctx.setTransform(cam.s * dpr, 0, 0, cam.s * dpr, -cam.x * cam.s * dpr, -cam.y * cam.s * dpr);
+  dctx.drawImage(bgCv, 0, 0);
   dctx.drawImage(photoCv, 0, 0);
   dctx.drawImage(aiCv, 0, 0);
   dctx.drawImage(paintCv, 0, 0);
@@ -695,6 +730,7 @@ function makeSmudger(ctx, sz, strength) {
       tctx.clearRect(0, 0, d, d);
       tctx.save();
       tctx.beginPath(); tctx.arc(r, r, r, 0, 6.2832); tctx.clip();
+      tctx.drawImage(bgCv, lx - r, ly - r, d, d, 0, 0, d, d);
       tctx.drawImage(photoCv, lx - r, ly - r, d, d, 0, 0, d, d);
       tctx.drawImage(aiCv, lx - r, ly - r, d, d, 0, 0, d, d);
       tctx.drawImage(paintCv, lx - r, ly - r, d, d, 0, 0, d, d);
@@ -785,6 +821,13 @@ async function applyOp(o) {
     else if (o.tool === "smudge") {
       const sm = makeSmudger(paintCtx, o.sz, o.op);
       for (let i = 0; i < pts.length; i += 2) sm(pts[i], pts[i + 1]);
+    }
+    else if (o.tool === "berase") {
+      /* background eraser — only meaningful against the backdrop it was drawn on */
+      if (!bgId || o.bg !== bgId) return;
+      bgCtx.globalCompositeOperation = "destination-out";
+      pathPencil(bgCtx, pts, o.sz, "#000");
+      bgCtx.globalCompositeOperation = "source-over";
     }
     else if (o.tool === "perase" || o.tool === "aerase") {
       /* erasers — perase rubs uploaded photos, aerase rubs AI images; paint untouched */
@@ -901,12 +944,13 @@ display.addEventListener("pointerdown", (e) => {
     render();
     return;
   }
+  if (tool === "berase" && !bgId) { showBanner("No news backdrop loaded today — nothing to erase"); return; }
   drawing = true;
   curPts = [x, y];
   curSeed = (Math.random() * 0xffffffff) >>> 0;
   if (tool === "air") { airTick(x, y); }
   else if (tool === "smudge") { curSm = makeSmudger(paintCtx, size, opacity); curSm(x, y); }
-  else if (tool === "perase" || tool === "aerase") { eraseDot(x, y); erLast = [x, y]; }
+  else if (isEraser(tool)) { eraseDot(x, y); erLast = [x, y]; }
   else {
     sctx.clearRect(0, 0, W, H);
     drawCurrent();
@@ -953,7 +997,7 @@ display.addEventListener("pointermove", (e) => {
     curPts.push(x, y);
     if (tool === "air") airTick(x, y);
     else if (tool === "smudge" && curSm) curSm(x, y);
-    else if (tool === "perase" || tool === "aerase") eraseSeg(x, y);
+    else if (isEraser(tool)) eraseSeg(x, y);
   }
   if (tool === "brush") drawCurrent();
   render();
@@ -964,15 +1008,16 @@ function cancelStroke() {
      the op log to wipe the unpublished marks. */
   drawing = false; curPts = []; curSm = null; erLast = null;
   sctx.clearRect(0, 0, W, H);
-  if (tool === "air" || tool === "smudge" || tool === "perase" || tool === "aerase") rebuild();
+  if (tool === "air" || tool === "smudge" || isEraser(tool)) rebuild();
   else render();
 }
 function endStroke() {
   if (!drawing) { curPts = []; return; }
   drawing = false;
   const op = { t: "s", tool, c: fg, sz: size, op: round2(opacity), pts: curPts };
-  if (tool === "air" || tool === "smudge" || tool === "perase" || tool === "aerase") {
+  if (tool === "air" || tool === "smudge" || isEraser(tool)) {
     if (tool === "air") { op.seed = curSeed; op.fl = round2(airFlow); }
+    if (tool === "berase") op.bg = bgId; /* keyed to today's backdrop */
     /* already applied live to the wall; just count + publish */
     opCount++; updateCount(); checkMilestone();
   } else {
@@ -1051,7 +1096,8 @@ function round2(v) { return Math.round(v * 100) / 100; }
 /* photo eraser — live incremental erase on the photo layer (replay covers the
    same area with one full-alpha round-capped path, so results match) */
 let erLast = null;
-function eraseCtx() { return tool === "aerase" ? aiCtx : photoCtx; }
+function isEraser(t) { return t === "perase" || t === "aerase" || t === "berase"; }
+function eraseCtx() { return tool === "aerase" ? aiCtx : tool === "berase" ? bgCtx : photoCtx; }
 function eraseDot(x, y) {
   const ec = eraseCtx();
   ec.globalCompositeOperation = "destination-out";
@@ -1082,6 +1128,7 @@ const pickCtx = pickCv.getContext("2d", { willReadFrequently: true });
 function pickColor(x, y) {
   const px = Math.round(Math.min(x, W - 1)), py = Math.round(Math.min(y, H - 1));
   pickCtx.clearRect(0, 0, 1, 1);
+  pickCtx.drawImage(bgCv, px, py, 1, 1, 0, 0, 1, 1);
   pickCtx.drawImage(photoCv, px, py, 1, 1, 0, 0, 1, 1);
   pickCtx.drawImage(aiCv, px, py, 1, 1, 0, 0, 1, 1);
   pickCtx.drawImage(paintCv, px, py, 1, 1, 0, 0, 1, 1);
@@ -1277,6 +1324,7 @@ function wallCrop(rx, ry, rw, rh) {
   ctx.fillStyle = WALL_BASE;
   ctx.fillRect(0, 0, c.width, c.height);            /* off-wall areas stay bare concrete */
   ctx.setTransform(s, 0, 0, s, -cx0 * s, -cy0 * s);
+  ctx.drawImage(bgCv, 0, 0);
   ctx.drawImage(photoCv, 0, 0);
   ctx.drawImage(aiCv, 0, 0);
   ctx.drawImage(paintCv, 0, 0);
@@ -1530,7 +1578,7 @@ genInput.addEventListener("keydown", (e) => {
 });
 
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gen: "AI Fill", perase: "Photo Eraser", aerase: "AI Eraser", picker: "Color Picker", hand: "Pan" };
+const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gen: "AI Fill", perase: "Photo Eraser", aerase: "AI Eraser", berase: "Background Eraser", picker: "Color Picker", hand: "Pan" };
 const toolEls = document.querySelectorAll(".tool");
 function setTool(t) {
   tool = t;
@@ -1554,6 +1602,7 @@ document.getElementById("save").addEventListener("click", () => {
   const cx = c.getContext("2d");
   cx.fillStyle = WALL_COLOR;
   cx.fillRect(0, 0, W, H);
+  cx.drawImage(bgCv, 0, 0);
   cx.drawImage(photoCv, 0, 0);
   cx.drawImage(aiCv, 0, 0);
   cx.drawImage(paintCv, 0, 0);
@@ -1662,6 +1711,7 @@ function snapshotJpeg(w, h, q) {
   const cx = c.getContext("2d");
   cx.fillStyle = WALL_COLOR;
   cx.fillRect(0, 0, w, h);
+  cx.drawImage(bgCv, 0, 0, w, h);
   cx.drawImage(photoCv, 0, 0, w, h);
   cx.drawImage(aiCv, 0, 0, w, h);
   cx.drawImage(paintCv, 0, 0, w, h);
@@ -1713,6 +1763,7 @@ async function detonate() {
   appliedKeys.clear();
   ownKeys.length = 0;
   refreshUndo();
+  paintBg(); /* erasures were ops — a fresh wall gets the whole backdrop back */
   photoCtx.clearRect(0, 0, W, H);
   aiCtx.clearRect(0, 0, W, H);
   paintCtx.clearRect(0, 0, W, H);
@@ -1747,6 +1798,7 @@ function rebuild() {
   clearTimeout(rebuildTimer);
   rebuildTimer = setTimeout(() => {
     q(async () => {
+      paintBg();
       photoCtx.clearRect(0, 0, W, H);
       aiCtx.clearRect(0, 0, W, H);
       paintCtx.clearRect(0, 0, W, H);
@@ -1775,6 +1827,7 @@ window.addEventListener("keydown", (e) => {
   else if (k === "g") setTool("gen");
   else if (k === "e") setTool("perase");
   else if (k === "r") setTool("aerase");
+  else if (k === "b") setTool("berase");
   else if (k === "o") setTool("picker");
   else if (k === "h") setTool("hand");
   else if (k === "z") undo();
@@ -1803,6 +1856,39 @@ function showBanner(msg) {
   clearTimeout(bannerTimer);
   bannerTimer = setTimeout(() => { banner.style.display = "none"; }, 5000);
 }
+
+/* ---------- daily news backdrop ---------- */
+function paintBg() {
+  bgCtx.clearRect(0, 0, W, H);
+  if (!bgImg) return;
+  /* cover-fit whatever size the Action produced (normally exactly W×H) */
+  const s = Math.max(W / bgImg.width, H / bgImg.height);
+  const dw = bgImg.width * s, dh = bgImg.height * s;
+  bgCtx.drawImage(bgImg, (W - dw) / 2, (H - dh) / 2, dw, dh);
+}
+async function loadBackground() {
+  try {
+    const r = await fetch("bg/current.json?cb=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) return;
+    const m = await r.json();
+    if (!m || !m.id || !m.image) return;
+    const img = new Image();
+    img.decoding = "async";
+    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("bg image")); img.src = "bg/" + m.image; });
+    bgMeta = m; bgImg = img; bgId = m.id;
+    paintBg();
+    /* any berase ops that arrived before the backdrop replay onto it now */
+    for (const op of opsByKey.values()) if (op.t === "s" && op.tool === "berase") await applyOp(op);
+    if (m.url) {
+      document.getElementById("news-link").href = m.url;
+      document.getElementById("news-head").textContent = m.headline || "today's backdrop";
+      document.getElementById("news-src").textContent = m.outlet || "";
+      document.getElementById("news-row").style.display = "block";
+    }
+    render();
+  } catch (e) { /* no backdrop today — bare concrete, tool is a no-op */ }
+}
+loadBackground();
 
 async function initFirebase() {
   try {
