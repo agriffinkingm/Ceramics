@@ -1,0 +1,40 @@
+name: daily news backdrop
+
+on:
+  schedule:
+    - cron: "17 9 * * *"     # 09:17 UTC daily (odd minute avoids the on-the-hour queue)
+  workflow_dispatch:         # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-bg
+  cancel-in-progress: false
+
+jobs:
+  pick:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests pillow
+
+      - name: pick + outpaint today's backdrop
+        env:
+          POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
+        run: python bg/pick_bg.py
+
+      - name: commit
+        run: |
+          git config user.name "graff-bot"
+          git config user.email "graff-bot@users.noreply.github.com"
+          git add bg/current.jpg bg/current.json bg/history.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          HEAD_LINE=$(python -c "import json;print(json.load(open('bg/current.json'))['headline'][:72])")
+          git commit -m "bg: $HEAD_LINE"
+          git push
