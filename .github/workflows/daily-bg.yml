@@ -1,9 +1,16 @@
 name: daily news backdrop
 
+# The wall's day turns over at exactly 03:33 America/New_York — the page itself
+# does the flip + wipe on every viewer's clock (see graff.html "daily turnover").
+# This job just has to have the day's backdrop committed BEFORE then, so it runs
+# an hour early at 02:33 New York. GitHub cron is UTC and doesn't know DST, so
+# both candidate UTC times are scheduled and a guard step keeps only the run
+# where it's actually 02:xx in New York.
 on:
   schedule:
-    - cron: "17 9 * * *"     # 09:17 UTC daily (odd minute avoids the on-the-hour queue)
-  workflow_dispatch:         # "Run workflow" button in the Actions tab
+    - cron: "33 6 * * *"     # 02:33 EDT (UTC-4)
+    - cron: "33 7 * * *"     # 02:33 EST (UTC-5)
+  workflow_dispatch:         # "Run workflow" button in the Actions tab (always runs)
 
 permissions:
   contents: write
@@ -16,25 +23,39 @@ jobs:
   pick:
     runs-on: ubuntu-latest
     steps:
+      - name: DST guard (only the 02:xx New York run proceeds)
+        id: guard
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "go=1" >> "$GITHUB_OUTPUT"; exit 0; fi
+          H=$(TZ=America/New_York date +%H)
+          echo "New York hour: $H"
+          if [ "$H" = "02" ]; then echo "go=1" >> "$GITHUB_OUTPUT"; else echo "go=0" >> "$GITHUB_OUTPUT"; echo "not the 02:33 New York run - skipping"; fi
+
       - uses: actions/checkout@v4
+        if: steps.guard.outputs.go == '1'
 
       - uses: actions/setup-python@v5
+        if: steps.guard.outputs.go == '1'
         with:
           python-version: "3.12"
 
       - run: pip install requests pillow
+        if: steps.guard.outputs.go == '1'
 
       - name: pick + outpaint today's backdrop
+        if: steps.guard.outputs.go == '1'
         env:
           POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
         run: python bg/pick_bg.py
 
       - name: commit
+        if: steps.guard.outputs.go == '1'
         run: |
           git config user.name "graff-bot"
           git config user.email "graff-bot@users.noreply.github.com"
           if [ ! -f bg/current.json ]; then echo "no backdrop produced"; exit 0; fi
           git add bg/current.jpg bg/current.json bg/history.json
+          if [ -f bg/prev.jpg ]; then git add bg/prev.jpg bg/prev.json; fi
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           HEAD_LINE=$(python -c "import json;print(json.load(open('bg/current.json'))['headline'][:72])")
           git commit -m "bg: $HEAD_LINE"
