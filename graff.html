@@ -2317,8 +2317,8 @@ async function undo() {
 undoBtn.addEventListener("click", undo);
 
 /* ---------- compendium: walls that survive to MILESTONE marks get flicked into
-   walls/main/archive at every MILESTONE-mark step, plus a final flick right
-   before detonation / flatten / the 03:33 wipe. Deterministic key
+   walls/main/archive at every MILESTONE-mark step — and only then: detonate,
+   flatten and the 03:33 wipe take no farewell flick. Deterministic key
    (first-op-key + tag) so racing clients overwrite instead of duplicating.
    Under MILESTONE marks = no trace. ---------- */
 const MILESTONE = 200;
@@ -2375,8 +2375,6 @@ function checkMilestone() {
 const detBtn = document.getElementById("detonate");
 const boomEl = document.getElementById("boom");
 async function detonate(msg) {
-  /* a wall that survived to the milestone gets photographed before the buff */
-  if (opCount >= MILESTONE) await captureWall("final");
   boomEl.classList.remove("go");
   void boomEl.offsetWidth; /* restart animation */
   boomEl.classList.add("go");
@@ -2446,7 +2444,6 @@ async function flatten() {
   flatBusy = true;
   showBanner("🧱 flattening…");
   try {
-    if (opCount >= MILESTONE) await captureWall("final");
     /* keep transparency (bare concrete stays bare) where the browser can encode
        webp; otherwise a jpeg over flat concrete colour */
     let src = wallComposite(false).toDataURL("image/webp", 0.82);
