@@ -5,5 +5,12 @@
   "url": "https://www.yahoo.com/news/world/articles/san-diego-nonprofit-mobilizes-medical-220438370.html",
   "outlet": "yahoo.com",
   "method": "crop"
+ },
+ {
+  "id": "2026-09-04",
+  "headline": "Nepal : Two pulled alive from tunnel nine days after floods",
+  "url": "https://www.dw.com/en/nepal-two-pulled-alive-from-tunnel-nine-days-after-floods/a-78896890",
+  "outlet": "dw.com",
+  "method": "crop"
  }
 ]
