@@ -72,6 +72,14 @@ def pollinations_key():
 
 
 KEY = pollinations_key()
+# text + vision: the legacy text.pollinations.ai endpoint was deprecated (402 for
+# everyone, Sep 2026); the OpenAI-compatible one on gen.pollinations.ai takes the
+# same sk_ key as image generation and does vision (image_url content parts).
+CHAT_URL = "https://gen.pollinations.ai/v1/chat/completions"
+
+
+def chat_headers():
+    return {"Content-Type": "application/json", **({"Authorization": "Bearer " + KEY} if KEY else {})}
 
 
 # ---------------------------------------------------------------- 1. headlines
@@ -150,9 +158,7 @@ def llm_pick(cands):
               "and stories without a clear physical scene.\n\nStories:\n" + listing +
               "\n\nReply with ONLY the number of your pick.")
     try:
-        r = requests.post("https://text.pollinations.ai/openai",
-                          headers={"Content-Type": "application/json",
-                                   **({"Authorization": "Bearer " + KEY} if KEY else {})},
+        r = requests.post(CHAT_URL, headers=chat_headers(),
                           json={"model": "openai", "messages": [{"role": "user", "content": prompt}],
                                 "temperature": 0.3, "max_tokens": 8}, timeout=60)
         r.raise_for_status()
@@ -182,9 +188,7 @@ def vista_score(im):
               "headshots, people talking, objects, logos, graphics or text score 0-2. "
               "Reply with ONLY the number.")
     try:
-        r = requests.post("https://text.pollinations.ai/openai",
-                          headers={"Content-Type": "application/json",
-                                   **({"Authorization": "Bearer " + KEY} if KEY else {})},
+        r = requests.post(CHAT_URL, headers=chat_headers(),
                           json={"model": "openai",
                                 "messages": [{"role": "user", "content": [
                                     {"type": "text", "text": prompt},
