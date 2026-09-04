@@ -126,7 +126,26 @@
   #news-row .nr-txt { flex: 1; min-width: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
   #news-row .nr-src { flex: none; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
 
-  #actions-row { display: flex; gap: 6px; }
+  #actions-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  #actions-row > button { flex: 1 1 42%; }
+
+  /* flatten: hold it down like detonate — bakes every layer into the background */
+  #flatten {
+    padding: 8px;
+    position: relative; overflow: hidden;
+    background: #2b3d2b; border: 1px solid #3f5a3f;
+    color: #cfe3cf; cursor: pointer; font: inherit; border-radius: 2px;
+    touch-action: none;
+    -webkit-user-select: none; user-select: none;
+  }
+  #flatten .fill {
+    position: absolute; inset: 0; width: 0;
+    background: #3f7d3f;
+    transition: width 1.2s linear;
+  }
+  #flatten.arming .fill { width: 100%; }
+  #flatten span { position: relative; }
+  #flatten:hover { border-color: #5c8a5c; }
   #undo {
     flex: 1; padding: 8px;
     background: var(--panel-light); border: 1px solid var(--panel-border);
@@ -398,6 +417,10 @@
       padding: 9px 6px; font-size: 12px;
       background: rgba(148,38,38,.45); border: none; border-radius: 10px;
     }
+    #flatten {
+      padding: 9px 6px; font-size: 12px;
+      background: rgba(63,125,63,.35); border: none; border-radius: 10px;
+    }
     #tb-foot { display: none; }
     #banner { bottom: auto; top: calc(60px + env(safe-area-inset-top)); }
   }
@@ -512,6 +535,7 @@
   <div class="tb-section" id="actions-row">
     <button id="undo" disabled title="Undo your last mark (Z)">↩ Undo</button>
     <button id="save" title="Download the wall as a PNG">💾 Save</button>
+    <button id="flatten" title="Hold to merge every layer into a new background for everyone — the marks stop being undoable, and only the Background Eraser can touch them until 3:33"><i class="fill"></i><span>🧱 Flatten</span></button>
     <button id="detonate" title="Hold to wipe the whole wall for everyone"><i class="fill"></i><span>💣 Detonate</span></button>
   </div>
 
@@ -2348,7 +2372,6 @@ function checkMilestone() {
    the op history (including image data) stops growing from zero again. ---------- */
 const detBtn = document.getElementById("detonate");
 const boomEl = document.getElementById("boom");
-let detTimer = null;
 async function detonate(msg) {
   /* a wall that survived to 100 gets photographed before the buff */
   if (opCount >= 100) await captureWall("final");
@@ -2374,20 +2397,100 @@ async function detonate(msg) {
   }
   showBanner(msg || "💥 fresh wall");
 }
-function detArm(e) {
-  e.preventDefault();
-  detBtn.classList.add("arming");
-  clearTimeout(detTimer);
-  detTimer = setTimeout(() => { detBtn.classList.remove("arming"); detonate(); }, 1200);
+/* hold-to-arm wiring shared by Detonate and Flatten */
+function holdToFire(btn, fn) {
+  let timer = null;
+  const arm = (e) => {
+    e.preventDefault();
+    btn.classList.add("arming");
+    clearTimeout(timer);
+    timer = setTimeout(() => { btn.classList.remove("arming"); fn(); }, 1200);
+  };
+  const disarm = () => { clearTimeout(timer); btn.classList.remove("arming"); };
+  btn.addEventListener("pointerdown", arm);
+  btn.addEventListener("pointerup", disarm);
+  btn.addEventListener("pointerleave", disarm);
+  btn.addEventListener("pointercancel", disarm);
 }
-function detDisarm() {
-  clearTimeout(detTimer);
-  detBtn.classList.remove("arming");
+holdToFire(detBtn, () => detonate());
+
+/* ---------- flatten: bake every layer into a new shared background ----------
+   Composites bg + photos + AI + GIFs (current frame) + paint at full wall size,
+   stores it as walls/main/flat (one image node every client applies as its
+   backdrop, overriding the day's news photo) and clears the op log. The marks
+   stop being undoable; only the Background Eraser can touch them. Detonate
+   keeps the flattened background (it wipes marks, not the background); the
+   03:33 turnover clears it so each day starts from that day's news photo. */
+const flatBtn = document.getElementById("flatten");
+let fbFlat = null, flatMeta = null, flatBusy = false;
+function wallComposite(withConcrete) {
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const cx = c.getContext("2d");
+  const now = performance.now();
+  if (withConcrete) { cx.fillStyle = WALL_COLOR; cx.fillRect(0, 0, W, H); }
+  cx.drawImage(bgCv, 0, 0);
+  cx.drawImage(photoCv, 0, 0);
+  cx.drawImage(aiCv, 0, 0);
+  drawGifs(cx, true, now);
+  cx.drawImage(paintCv, 0, 0);
+  drawGifs(cx, false, now);
+  return c;
 }
-detBtn.addEventListener("pointerdown", detArm);
-detBtn.addEventListener("pointerup", detDisarm);
-detBtn.addEventListener("pointerleave", detDisarm);
-detBtn.addEventListener("pointercancel", detDisarm);
+async function flatten() {
+  if (flatBusy) return;
+  if (!fbFlat || !fbClear) { showBanner("not connected — can't flatten a wall nobody else can see"); return; }
+  if (!opCount) { showBanner("nothing to flatten yet"); return; }
+  flatBusy = true;
+  showBanner("🧱 flattening…");
+  try {
+    if (opCount >= 100) await captureWall("final");
+    /* keep transparency (bare concrete stays bare) where the browser can encode
+       webp; otherwise a jpeg over flat concrete colour */
+    let src = wallComposite(false).toDataURL("image/webp", 0.82);
+    if (src.indexOf("data:image/webp") !== 0) src = wallComposite(true).toDataURL("image/jpeg", 0.85);
+    if (src.length > 6e6) src = wallComposite(true).toDataURL("image/jpeg", 0.7);
+    const meta = { id: "flat-" + Date.now(), img: src, t: Date.now(), n: opCount, day: wallDay() };
+    await fbFlat(meta);
+    /* the log is now baked in — clear it for everyone (the flat node arrived first) */
+    opsByKey.clear();
+    appliedKeys.clear();
+    ownKeys.length = 0;
+    refreshUndo();
+    photoCtx.clearRect(0, 0, W, H);
+    aiCtx.clearRect(0, 0, W, H);
+    paintCtx.clearRect(0, 0, W, H);
+    gifOps.length = 0;
+    imgCache.clear();
+    opCount = 0; msPrev = 0;
+    updateCount();
+    await fbClear();
+    render();
+    showBanner("🧱 flattened — it's all background now (Background Eraser still works on it)");
+  } catch (err) {
+    showBanner("flatten failed (" + err.message + ")");
+  }
+  flatBusy = false;
+}
+holdToFire(flatBtn, flatten);
+async function applyFlat(meta) {
+  try {
+    const img = new Image();
+    img.decoding = "async";
+    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("flat image")); img.src = meta.img; });
+    flatMeta = meta; bgMeta = meta; bgImg = img; bgId = meta.id;
+    paintBg();
+    for (const op of opsByKey.values()) if (op.t === "s" && op.tool === "berase") await applyOp(op);
+    document.getElementById("news-row").style.display = "none";
+    render();
+  } catch (e) { console.error("graff flat:", e); }
+}
+function clearFlat() {
+  flatMeta = null; bgMeta = null; bgImg = null; bgId = null;
+  bgCtx.clearRect(0, 0, W, H);
+  render();
+  loadBackground(); /* back to the day's news photo */
+}
 
 /* debounced: a burst of removals (undo storm, detonate) rebuilds once */
 let rebuildTimer = null;
@@ -2519,7 +2622,10 @@ async function syncDay() {
   const day = wallDay();
   try {
     const mode = await fbDay(day);
-    if (mode === "wipe") await detonate("🌅 3:33 — the wall turned over. Fresh concrete.");
+    if (mode === "wipe") {
+      if (fbFlat) await fbFlat(null); /* a flattened background doesn't survive the day */
+      await detonate("🌅 3:33 — the wall turned over. Fresh concrete.");
+    }
   } catch (e) { console.error("graff day sync:", e); }
 }
 async function fetchBgMeta(name) {
@@ -2533,6 +2639,7 @@ function loadBackground() {
   if (bgLoading) return bgLoading;
   bgLoading = (async () => {
     try {
+      if (flatMeta) return; /* a flattened wall is the backdrop until the turnover */
       let m = await fetchBgMeta("current.json");
       /* committed early (id is still "tomorrow") → keep showing yesterday's until 03:33;
          if there is no prev.* to show, better the new one than bare concrete */
@@ -2593,6 +2700,14 @@ async function initFirebase() {
     /* daily turnover: atomically claim the wall-day. Resolves "same" (already
        turned over), "adopt" (first ever run — nothing to wipe) or "wipe" (this
        client won the 03:33 race and must clear the wall). */
+    /* flattened background: one shared image node; applied by every client */
+    const flatRef = ref(db, "walls/main/flat");
+    fbFlat = (v) => set(flatRef, v);
+    onValue(flatRef, (snap) => {
+      const v = snap.val();
+      if (v && v.img && v.id) { if (!flatMeta || flatMeta.id !== v.id) applyFlat(v); }
+      else if (flatMeta) clearFlat();
+    });
     fbDay = async (day) => {
       let mode = "same";
       const res = await runTransaction(ref(db, "walls/main/day"), (cur) => {
