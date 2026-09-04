@@ -2349,7 +2349,7 @@ function checkMilestone() {
 const detBtn = document.getElementById("detonate");
 const boomEl = document.getElementById("boom");
 let detTimer = null;
-async function detonate() {
+async function detonate(msg) {
   /* a wall that survived to 100 gets photographed before the buff */
   if (opCount >= 100) await captureWall("final");
   boomEl.classList.remove("go");
@@ -2372,7 +2372,7 @@ async function detonate() {
   if (fbClear) {
     fbClear().catch(err => showBanner("Detonated locally, but the server didn't get it (" + err.message + ")"));
   }
-  showBanner("💥 fresh wall");
+  showBanner(msg || "💥 fresh wall");
 }
 function detArm(e) {
   e.preventDefault();
@@ -2466,34 +2466,108 @@ function paintBg() {
   const dw = bgImg.width * s, dh = bgImg.height * s;
   bgCtx.drawImage(bgImg, (W - dw) / 2, (H - dh) / 2, dw, dh);
 }
-async function loadBackground() {
+/* ---------- daily turnover: 03:33 America/New_York, on the dot ----------
+   The wall's "day" runs 03:33 → 03:33 New York time. The GitHub Action commits
+   the day's backdrop an hour early (02:33) as bg/current.json with id = that NY
+   date, moving the outgoing one to bg/prev.*. Every open page computes the next
+   03:33 on its own clock and at that instant (1) races a Firebase transaction on
+   walls/main/day — exactly one client wins and wipes the shared wall (final
+   compendium flick first if it earned one) — and (2) swaps to the new backdrop.
+   A page opened later in the day does the same check on load, so the wipe
+   happens at 03:33 or the first moment anyone looks after it. Before 03:33 a
+   backdrop whose id is still "tomorrow" is not shown; prev.* is used instead. */
+const WALL_TZ = "America/New_York", FLIP_H = 3, FLIP_M = 33;
+const nyFmt = new Intl.DateTimeFormat("en-US", { timeZone: WALL_TZ, hourCycle: "h23",
+  year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+function nyParts(d) { const o = {}; for (const p of nyFmt.formatToParts(d)) o[p.type] = p.value; return o; }
+function wallDay(d) {
+  /* which wall-day a moment belongs to: the NY date, with days starting at 03:33 */
+  const p = nyParts(new Date((d || new Date()).getTime() - (FLIP_H * 60 + FLIP_M) * 60000));
+  return p.year + "-" + p.month + "-" + p.day;
+}
+function nextFlip(from) {
+  from = from || new Date();
+  const target = (FLIP_H * 60 + FLIP_M) * 60;
+  const p = nyParts(from);
+  let delta = target - ((+p.hour * 60 + +p.minute) * 60 + +p.second);
+  if (delta <= 0) delta += 86400;
+  let t = new Date(from.getTime() + delta * 1000);
+  /* DST shifts at 02:00 NY can put us an hour off — correct against the NY clock */
+  for (let i = 0; i < 2; i++) {
+    const q = nyParts(t);
+    const off = target - ((+q.hour * 60 + +q.minute) * 60 + +q.second);
+    if (!off) break;
+    t = new Date(t.getTime() + off * 1000);
+  }
+  return t;
+}
+let dayTimer = null, bgTimer = null, fbDay = null;
+function scheduleFlip() {
+  clearTimeout(dayTimer);
+  const ms = nextFlip().getTime() - Date.now();
+  dayTimer = setTimeout(turnover, Math.max(1000, ms) + 120);
+}
+async function turnover() {
+  await syncDay();
+  await loadBackground();
+  scheduleFlip();
+}
+/* one client wins the day → it wipes the wall for everyone. The very first run
+   (no day recorded yet) just adopts the current day without wiping. */
+async function syncDay() {
+  if (!fbDay) return;
+  const day = wallDay();
   try {
-    const r = await fetch("bg/current.json?cb=" + Date.now(), { cache: "no-store" });
-    if (!r.ok) return;
-    const m = await r.json();
-    if (!m || !m.id || !m.image) return;
-    const img = new Image();
-    img.decoding = "async";
-    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("bg image")); img.src = "bg/" + m.image; });
-    bgMeta = m; bgImg = img; bgId = m.id;
-    paintBg();
-    /* any berase ops that arrived before the backdrop replay onto it now */
-    for (const op of opsByKey.values()) if (op.t === "s" && op.tool === "berase") await applyOp(op);
-    if (m.url) {
-      document.getElementById("news-link").href = m.url;
-      document.getElementById("news-head").textContent = m.headline || "today's backdrop";
-      document.getElementById("news-src").textContent = m.outlet || "";
-      document.getElementById("news-row").style.display = "block";
-    }
-    render();
-  } catch (e) { /* no backdrop today — bare concrete, tool is a no-op */ }
+    const mode = await fbDay(day);
+    if (mode === "wipe") await detonate("🌅 3:33 — the wall turned over. Fresh concrete.");
+  } catch (e) { console.error("graff day sync:", e); }
+}
+async function fetchBgMeta(name) {
+  const r = await fetch("bg/" + name + "?cb=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) return null;
+  const m = await r.json();
+  return (m && m.id && m.image) ? m : null;
+}
+let bgLoading = null;
+function loadBackground() {
+  if (bgLoading) return bgLoading;
+  bgLoading = (async () => {
+    try {
+      let m = await fetchBgMeta("current.json");
+      if (m && m.id > wallDay()) m = await fetchBgMeta("prev.json"); /* committed early — not yet */
+      if (!m) return;
+      if (m.id === bgId) return; /* already showing it */
+      const img = new Image();
+      img.decoding = "async";
+      await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("bg image")); img.src = "bg/" + m.image; });
+      bgMeta = m; bgImg = img; bgId = m.id;
+      paintBg();
+      /* any berase ops that arrived before the backdrop replay onto it now */
+      for (const op of opsByKey.values()) if (op.t === "s" && op.tool === "berase") await applyOp(op);
+      if (m.url) {
+        document.getElementById("news-link").href = m.url;
+        document.getElementById("news-head").textContent = m.headline || "today's backdrop";
+        document.getElementById("news-src").textContent = m.outlet || "";
+        document.getElementById("news-row").style.display = "block";
+      }
+      render();
+    } catch (e) { /* no backdrop today — bare concrete, tool is a no-op */ }
+    finally { bgLoading = null; }
+  })();
+  return bgLoading;
 }
 loadBackground();
+scheduleFlip();
+/* a page left open catches a late-landing backdrop, and re-checks after sleep */
+bgTimer = setInterval(loadBackground, 10 * 60 * 1000);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") { loadBackground(); syncDay(); scheduleFlip(); }
+});
 
 async function initFirebase() {
   try {
     const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-    const { getDatabase, ref, child, push, set, remove, get, onChildAdded, onChildRemoved, onValue } =
+    const { getDatabase, ref, child, push, set, remove, get, onChildAdded, onChildRemoved, onValue, runTransaction } =
       await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -2514,6 +2588,18 @@ async function initFirebase() {
       set(ref(db, "walls/main/archiveIndex/" + k), idx)
     ]);
     refreshUndo();
+    /* daily turnover: atomically claim the wall-day. Resolves "same" (already
+       turned over), "adopt" (first ever run — nothing to wipe) or "wipe" (this
+       client won the 03:33 race and must clear the wall). */
+    fbDay = async (day) => {
+      let mode = "same";
+      const res = await runTransaction(ref(db, "walls/main/day"), (cur) => {
+        if (cur === day) { mode = "same"; return; }
+        mode = (cur == null) ? "adopt" : "wipe";
+        return day;
+      });
+      return res.committed ? mode : "same";
+    };
 
     /* fetch the whole existing wall in one read and paint it in a single pass —
        no stroke-by-stroke replay on screen when you open the page */
@@ -2525,16 +2611,18 @@ async function initFirebase() {
         opsByKey.set(ch.key, ch.val());
         initial.push(ch.val());
       });
-      if (initial.length) {
-        q(async () => {
+      q(async () => {
+        if (initial.length) {
           batch = true;
           for (const op of initial) await applyOp(op);
           batch = false;
           updateCount();
           msPrev = opCount;
           render();
-        });
-      }
+        }
+        /* opened after 03:33 with yesterday's wall still up? turn it over now */
+        syncDay();
+      });
     } catch (err) {
       console.error("graff initial load:", err);
     }
