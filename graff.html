@@ -502,8 +502,8 @@
     <div class="slider-row" id="shape-row" style="display:none">
       <div class="sr-head"><span>Shape</span></div>
       <div class="seg" id="shape-seg">
-        <button type="button" data-shape="lasso" class="on" title="Freehand lasso">⌒ Lasso</button>
-        <button type="button" data-shape="rect" title="Drag a box">▭ Rectangle</button>
+        <button type="button" data-shape="rect" class="on" title="Drag a box">▭ Rectangle</button>
+        <button type="button" data-shape="lasso" title="Freehand lasso">⌒ Lasso</button>
       </div>
     </div>
     <div class="slider-row" id="flow-row" style="display:none">
@@ -617,6 +617,10 @@ let tool = "brush", fg = DEFAULT_FG, bg = DEFAULT_BG;
 let size = 12, opacity = 1, airFlow = 1;
 let drawing = false, curPts = [], curSeed = 0, curSm = null;
 let opCount = 0;
+/* marks baked into a flattened background still count: walls/main/base is the
+   shared running total at the last flatten; the wall shows base + live ops */
+let flatBase = 0;
+function totalMarks() { return flatBase + opCount; }
 
 /* ---------- canvases ----------
    The wall is two stacked layers rebuilt from the shared op log:
@@ -1128,8 +1132,9 @@ function enqueue(op) { return q(() => applyOp(op)); }
    appears at once instead of replaying every mark sequentially. */
 let batch = false;
 function updateCount() {
+  const n = totalMarks();
   document.getElementById("op-count").textContent =
-    opCount ? opCount + (opCount === 1 ? " mark" : " marks") : "—";
+    n ? n + (n === 1 ? " mark" : " marks") : "—";
 }
 async function applyOp(o) {
   if (o.t === "f") { floodFill(paintCtx, o.x, o.y, o.c); }
@@ -1240,7 +1245,7 @@ let spaceHeld = false;
 let dragging = false, dragOff = [0, 0];
 let rectSel = null, genBusy = false, fillPrev = null, genDrag = null;
 /* AI Fill selection shape: freehand lasso or a dragged rectangle (toolbox toggle) */
-let genShape = "lasso";
+let genShape = "rect";
 document.querySelectorAll("#shape-seg button").forEach(b => b.addEventListener("click", () => {
   genShape = b.dataset.shape;
   document.querySelectorAll("#shape-seg button").forEach(o => o.classList.toggle("on", o === b));
@@ -2321,7 +2326,7 @@ undoBtn.addEventListener("click", undo);
    flatten and the 03:33 wipe take no farewell flick. Deterministic key
    (first-op-key + tag) so racing clients overwrite instead of duplicating.
    Under MILESTONE marks = no trace. ---------- */
-const MILESTONE = 200;
+const MILESTONE = 222;
 let msPrev = 0;
 let capBusy = false;
 function snapshotJpeg(w, h, q) {
@@ -2361,11 +2366,12 @@ async function captureWall(tag) {
   }
 }
 function checkMilestone() {
-  if (Math.floor(opCount / MILESTONE) > Math.floor(msPrev / MILESTONE)) {
-    msPrev = opCount;
-    captureWall(Math.floor(opCount / MILESTONE) * MILESTONE);
+  const n = totalMarks();
+  if (Math.floor(n / MILESTONE) > Math.floor(msPrev / MILESTONE)) {
+    msPrev = n;
+    captureWall(Math.floor(n / MILESTONE) * MILESTONE);
   } else {
-    msPrev = opCount;
+    msPrev = n;
   }
 }
 
@@ -2390,6 +2396,8 @@ async function detonate(msg) {
   imgCache.clear();
   opCount = 0;
   msPrev = 0;
+  flatBase = 0;
+  if (fbBase) fbBase(0).catch(() => {});
   updateCount();
   render();
   if (fbClear) {
@@ -2422,7 +2430,7 @@ holdToFire(detBtn, () => detonate());
    keeps the flattened background (it wipes marks, not the background); the
    03:33 turnover clears it so each day starts from that day's news photo. */
 const flatBtn = document.getElementById("flatten");
-let fbFlat = null, flatMeta = null, flatBusy = false;
+let fbFlat = null, fbBase = null, flatMeta = null, flatBusy = false;
 function wallComposite(withConcrete) {
   const c = document.createElement("canvas");
   c.width = W; c.height = H;
@@ -2449,8 +2457,11 @@ async function flatten() {
     let src = wallComposite(false).toDataURL("image/webp", 0.82);
     if (src.indexOf("data:image/webp") !== 0) src = wallComposite(true).toDataURL("image/jpeg", 0.85);
     if (src.length > 6e6) src = wallComposite(true).toDataURL("image/jpeg", 0.7);
-    const meta = { id: "flat-" + Date.now(), img: src, t: Date.now(), n: opCount, day: wallDay() };
+    const total = totalMarks();
+    const meta = { id: "flat-" + Date.now(), img: src, t: Date.now(), n: total, day: wallDay() };
     await fbFlat(meta);
+    await fbBase(total); /* the marks are baked in, not gone — the counter carries on */
+    flatBase = total;
     /* the log is now baked in — clear it for everyone (the flat node arrived first) */
     opsByKey.clear();
     appliedKeys.clear();
@@ -2461,7 +2472,7 @@ async function flatten() {
     paintCtx.clearRect(0, 0, W, H);
     gifOps.length = 0;
     imgCache.clear();
-    opCount = 0; msPrev = 0;
+    opCount = 0; msPrev = total;
     updateCount();
     await fbClear();
     render();
@@ -2507,7 +2518,7 @@ function rebuild() {
       for (const op of opsByKey.values()) await applyOp(op);
       batch = false;
       updateCount();
-      msPrev = opCount;
+      msPrev = totalMarks();
       render();
     });
   }, 60);
@@ -2702,6 +2713,13 @@ async function initFirebase() {
     /* flattened background: one shared image node; applied by every client */
     const flatRef = ref(db, "walls/main/flat");
     fbFlat = (v) => set(flatRef, v);
+    const baseRef = ref(db, "walls/main/base");
+    fbBase = (n) => set(baseRef, n);
+    onValue(baseRef, (snap) => {
+      flatBase = Math.max(0, +snap.val() || 0);
+      msPrev = totalMarks(); /* a baseline change is never a milestone by itself */
+      updateCount();
+    });
     onValue(flatRef, (snap) => {
       const v = snap.val();
       if (v && v.img && v.id) { if (!flatMeta || flatMeta.id !== v.id) applyFlat(v); }
@@ -2733,7 +2751,7 @@ async function initFirebase() {
           for (const op of initial) await applyOp(op);
           batch = false;
           updateCount();
-          msPrev = opCount;
+          msPrev = totalMarks();
           render();
         }
         /* opened after 03:33 with yesterday's wall still up? turn it over now */
