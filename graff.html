@@ -606,6 +606,10 @@ const firebaseConfig = {
    canvas pixel budget so iPhones can still allocate it. Old art keeps its
    coordinates in the top-left region. */
 const W = 3456, H = 1944;
+/* Bump on every deploy. Open tabs poll this and reload themselves when a newer
+   page is live (only while idle), so stale copies can't keep acting on old
+   rules — old milestones, unknown op types, etc. */
+const BUILD = "2026-09-04c";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -2679,8 +2683,20 @@ loadBackground();
 scheduleFlip();
 /* a page left open catches a late-landing backdrop, and re-checks after sleep */
 bgTimer = setInterval(loadBackground, 10 * 60 * 1000);
+async function checkBuild() {
+  try {
+    const r = await fetch("graff.html?cb=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) return;
+    const m = (await r.text()).match(/const BUILD = "([^"]+)"/);
+    if (!m || m[1] === BUILD) return;
+    const idle = !drawing && !placing && !rectSel && !fillPrev && !genBusy && !flatBusy && !gifBusy && !textBox;
+    if (idle) location.reload();
+    else showBanner("a newer wall is live — it'll reload when you're done");
+  } catch (e) { /* offline — try again next tick */ }
+}
+setInterval(checkBuild, 5 * 60 * 1000);
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") { loadBackground(); syncDay(); scheduleFlip(); }
+  if (document.visibilityState === "visible") { loadBackground(); syncDay(); scheduleFlip(); checkBuild(); }
 });
 
 async function initFirebase() {
