@@ -29,11 +29,14 @@ UA = {"User-Agent": "Mozilla/5.0 (graffwall daily backdrop; +https://agriffinkin
 DRY = "--dry" in sys.argv
 FORCE = "--force" in sys.argv
 
-QUERY = ('(flood OR earthquake OR wildfire OR hurricane OR typhoon OR cyclone OR eruption '
-         'OR explosion OR collapse OR derailment OR "plane crash" OR "state of emergency" '
-         'OR evacuation OR "dam breach" OR "glacial lake" OR landslide OR tsunami OR outbreak '
-         'OR blackout OR "oil spill" OR scandal OR resigns OR indicted OR riot OR "breaking news") '
-         'sourcelang:eng')
+# GDELT rejects long queries ("Your query was too short or too long", ~250 char cap)
+# and rate-limits to one request per 5 seconds, so this is split into short queries
+# fetched sequentially with a pause.
+QUERIES = [
+    '(flood OR earthquake OR wildfire OR hurricane OR typhoon OR eruption OR tsunami) sourcelang:eng',
+    '(explosion OR collapse OR derailment OR "plane crash" OR "state of emergency" OR landslide) sourcelang:eng',
+    '(evacuation OR "dam breach" OR outbreak OR blackout OR "oil spill" OR scandal OR indicted OR riot) sourcelang:eng',
+]
 GOOD_DOMAINS = ("reuters.com", "apnews.com", "bbc.com", "bbc.co.uk", "theguardian.com",
                 "aljazeera.com", "npr.org", "cnn.com", "nytimes.com", "washingtonpost.com",
                 "france24.com", "dw.com", "abc.net.au", "cbc.ca", "nbcnews.com", "cbsnews.com",
@@ -67,20 +70,31 @@ KEY = pollinations_key()
 
 # ---------------------------------------------------------------- 1. headlines
 def fetch_gdelt():
-    url = ("https://api.gdeltproject.org/api/v2/doc/doc?" + urllib.parse.urlencode({
-        "query": QUERY, "mode": "ArtList", "format": "json", "maxrecords": 120,
-        "timespan": "10d", "sort": "DateDesc"}))
-    for attempt in range(3):
-        try:
-            r = requests.get(url, headers=UA, timeout=40)
-            r.raise_for_status()
-            arts = r.json().get("articles", [])
-            if arts:
-                return arts
-        except Exception as e:
-            log("gdelt attempt", attempt, e)
-        time.sleep(5)
-    return []
+    arts, seen = [], set()
+    for qi, q in enumerate(QUERIES):
+        url = ("https://api.gdeltproject.org/api/v2/doc/doc?" + urllib.parse.urlencode({
+            "query": q, "mode": "ArtList", "format": "json", "maxrecords": 60,
+            "timespan": "10d", "sort": "DateDesc"}))
+        for attempt in range(3):
+            if qi or attempt:
+                time.sleep(7)   # GDELT: one request per 5s
+            try:
+                r = requests.get(url, headers=UA, timeout=40)
+                r.raise_for_status()
+                try:
+                    batch = r.json().get("articles", [])
+                except ValueError:
+                    log("gdelt non-json reply:", r.text[:120])
+                    continue
+                for a in batch:
+                    u = a.get("url")
+                    if u and u not in seen:
+                        seen.add(u)
+                        arts.append(a)
+                break
+            except Exception as e:
+                log("gdelt q%d attempt %d:" % (qi, attempt), e)
+    return arts
 
 
 def load_history():
