@@ -5,8 +5,9 @@ Daily news backdrop for the graffiti wall.
 Runs from .github/workflows/daily-bg.yml. Steps:
   1. Pull the last 10 days of English headlines from GDELT (free, keyless),
      biased toward disasters / emergencies / catastrophes / scandals.
-  2. Ask the Pollinations text model to pick the single most striking story
-     with a usable photo (heuristic fallback if that fails).
+  2. Ask the Pollinations text model to rank the stories (dramatic + likely a
+     far/wide view), then LOOK at the top photos with the vision model and take
+     the widest, most panoramic / aerial one (headline order if vision is down).
   3. Download the article's social/og image.
   4. Outpaint it to a 16:9 frame via gen.pollinations.ai edits (nanobanana),
      upscale to the wall (3456x1944) and paste the ORIGINAL photo back over its
@@ -45,6 +46,11 @@ BAD_WORDS = ("opinion", "explainer", "podcast", "live updates", "how to", "quiz"
 DISASTER_WORDS = ("flood", "quake", "fire", "hurricane", "typhoon", "cyclone", "erupt", "explo",
                   "collaps", "crash", "emergency", "evacuat", "breach", "landslide", "tsunami",
                   "outbreak", "blackout", "spill", "dead", "killed", "destroy", "scandal", "indict")
+# the wall wants the long view: aerial / drone / panoramic / satellite shots of the scene
+VISTA_WORDS = ("aerial", "drone", "from above", "satellite", "panoram", "bird's-eye", "birds-eye",
+               "overhead", "sweep", "swath", "skyline", "landscape", "footage shows", "images show")
+VISION_N = 10          # how many top candidates get their photo looked at
+VISTA_MIN = 4          # below this the photo is a close-up/portrait/graphic — skipped if anything better exists
 
 
 def log(*a):
@@ -120,6 +126,7 @@ def candidates(arts, history):
             continue
         dedupe.add(key)
         score = sum(2 for w in DISASTER_WORDS if w in title.lower())
+        score += sum(3 for w in VISTA_WORDS if w in title.lower())
         if any(dom.endswith(g) for g in GOOD_DOMAINS):
             score += 3
         out.append({"title": title, "url": url, "domain": dom, "image": img,
@@ -136,8 +143,11 @@ def llm_pick(cands):
     listing = "\n".join(f"{i}. [{c['domain']}] {c['title']}" for i, c in enumerate(cands))
     prompt = ("You choose one news story per day whose photo becomes the backdrop of a public "
               "graffiti wall. Prefer, in order: disasters, emergencies, catastrophes, scandals, "
-              "breaking news — the more dramatic and photographable the better. Avoid opinion "
-              "pieces and stories without a clear physical scene.\n\nStories:\n" + listing +
+              "breaking news — the more dramatic and photographable the better. Strongly prefer "
+              "stories whose photo is likely a FAR, WIDE view of the scene: aerial, drone, "
+              "satellite, panoramic, bird's-eye, a whole city / coastline / valley / crowd seen "
+              "from a distance. Avoid opinion pieces, portraits, press conferences, close-ups "
+              "and stories without a clear physical scene.\n\nStories:\n" + listing +
               "\n\nReply with ONLY the number of your pick.")
     try:
         r = requests.post("https://text.pollinations.ai/openai",
@@ -153,6 +163,40 @@ def llm_pick(cands):
             return int(m.group())
     except Exception as e:
         log("llm pick failed:", e)
+    return None
+
+
+def vista_score(im):
+    """Ask the vision model how much this photo is a far, wide, panoramic / aerial view.
+    0 = close-up, portrait, headshot, object, graphic, text; 10 = sweeping bird's-eye vista.
+    None if the model can't be reached — the caller falls back to headline order."""
+    small = im.copy()
+    small.thumbnail((640, 640), Image.LANCZOS)
+    buf = io.BytesIO()
+    small.save(buf, "JPEG", quality=80)
+    b64 = base64.b64encode(buf.getvalue()).decode()
+    prompt = ("Rate this news photo from 0 to 10 for how much it is a FAR, WIDE, LONG view of a "
+              "scene: aerial or drone or satellite shots, panoramas, bird's-eye views, whole "
+              "landscapes / cityscapes / coastlines / valleys / crowds seen from a distance score "
+              "8-10. Medium shots of a street or a building score 4-6. Close-ups, portraits, "
+              "headshots, people talking, objects, logos, graphics or text score 0-2. "
+              "Reply with ONLY the number.")
+    try:
+        r = requests.post("https://text.pollinations.ai/openai",
+                          headers={"Content-Type": "application/json",
+                                   **({"Authorization": "Bearer " + KEY} if KEY else {})},
+                          json={"model": "openai",
+                                "messages": [{"role": "user", "content": [
+                                    {"type": "text", "text": prompt},
+                                    {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + b64}}]}],
+                                "temperature": 0.1, "max_tokens": 6}, timeout=90)
+        r.raise_for_status()
+        txt = r.json()["choices"][0]["message"]["content"]
+        m = re.search(r"\d+(\.\d+)?", txt)
+        if m:
+            return max(0.0, min(10.0, float(m.group())))
+    except Exception as e:
+        log("vista score failed:", e)
     return None
 
 
@@ -222,7 +266,8 @@ def outpaint(photo, headline):
     prompt = ("This is a news photograph placed on a flat grey frame. Extend the photograph so "
               "it fills the ENTIRE frame edge to edge, continuing the same scene, lighting, "
               "weather and camera perspective naturally into the grey areas as if the camera "
-              "had a wider lens. Keep every original photo pixel exactly unchanged. No text, "
+              "had a much wider lens, revealing more of the surrounding landscape and distance. "
+              "Keep every original photo pixel exactly unchanged. No text, "
               "no borders, no watermarks. Context: " + headline)
     try:
         gen = edit_call(buf.getvalue(), prompt)
@@ -258,17 +303,30 @@ def main():
     if i is not None:
         order.append(i)
     order += [k for k in range(len(cands)) if k not in order]
-    photo = pick = None
-    for k in order[:8]:
+    # look at the actual photos of the top few and favour the long view: the pick is
+    # the highest vista score (headline order breaks ties); if the vision model is
+    # unreachable, the first downloadable photo in headline order wins as before
+    looked = []          # (vista, -rank, k, photo)
+    for rank, k in enumerate(order[:VISION_N]):
         try:
-            photo = download_image(cands[k]["image"])
-            pick = cands[k]
-            break
+            im = download_image(cands[k]["image"])
         except Exception as e:
             log("image failed for", cands[k]["domain"], e)
-    if photo is None:
+            continue
+        v = vista_score(im)
+        log("vista %s  %.0fx%.0f  [%s] %s" % ("-" if v is None else v, im.width, im.height,
+                                             cands[k]["domain"], cands[k]["title"][:70]))
+        looked.append((-1.0 if v is None else v, -rank, k, im))
+        if v is None and len(looked) >= 3 and all(x[0] < 0 for x in looked):
+            break            # model is down — no point downloading the rest
+    if not looked:
         log("no downloadable image; keeping current backdrop")
         return 0
+    looked.sort(key=lambda x: (x[0] if x[0] >= 0 else -1, x[1]), reverse=True)
+    v, _, k, photo = looked[0]
+    if 0 <= v < VISTA_MIN:
+        log("best vista only %.0f — nothing wide today, taking it anyway" % v)
+    pick = cands[k]
     log("PICK:", pick["title"], "|", pick["url"])
     out, method = outpaint(photo, pick["title"])
     # The wall's day turns over at 03:33 America/New_York (the page does the flip on
