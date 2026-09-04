@@ -2534,7 +2534,9 @@ function loadBackground() {
   bgLoading = (async () => {
     try {
       let m = await fetchBgMeta("current.json");
-      if (m && m.id > wallDay()) m = await fetchBgMeta("prev.json"); /* committed early — not yet */
+      /* committed early (id is still "tomorrow") → keep showing yesterday's until 03:33;
+         if there is no prev.* to show, better the new one than bare concrete */
+      if (m && m.id > wallDay()) m = (await fetchBgMeta("prev.json")) || m;
       if (!m) return;
       if (m.id === bgId) return; /* already showing it */
       const img = new Image();
