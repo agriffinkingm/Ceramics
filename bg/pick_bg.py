@@ -271,13 +271,33 @@ def main():
         return 0
     log("PICK:", pick["title"], "|", pick["url"])
     out, method = outpaint(photo, pick["title"])
-    today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
-    out.save(os.path.join(BG, "current.jpg"), "JPEG", quality=82, optimize=True, progressive=True)
-    meta = {"id": today, "image": "current.jpg?v=" + today, "headline": pick["title"],
+    # The wall's day turns over at 03:33 America/New_York (the page does the flip on
+    # each viewer's clock). This job runs at 02:33 NY, so "today" NY is the day this
+    # backdrop becomes active; until 03:33 the page keeps showing prev.*.
+    from zoneinfo import ZoneInfo
+    ny = dt.datetime.now(ZoneInfo("America/New_York"))
+    today = ny.strftime("%Y-%m-%d")
+    active_at = ny.replace(hour=3, minute=33, second=0, microsecond=0).isoformat(timespec="seconds")
+    cur_json = os.path.join(BG, "current.json")
+    cur_jpg = os.path.join(BG, "current.jpg")
+    prev_meta = None
+    try:
+        prev_meta = json.load(open(cur_json, encoding="utf-8"))
+    except (OSError, ValueError):
+        pass
+    if prev_meta and prev_meta.get("id") != today and os.path.exists(cur_jpg):
+        # keep yesterday's backdrop around so the page can show it until 03:33
+        import shutil
+        shutil.copyfile(cur_jpg, os.path.join(BG, "prev.jpg"))
+        prev_meta = dict(prev_meta, image="prev.jpg?v=" + str(prev_meta.get("id")))
+        json.dump(prev_meta, open(os.path.join(BG, "prev.json"), "w", encoding="utf-8"), indent=1)
+    out.save(cur_jpg, "JPEG", quality=82, optimize=True, progressive=True)
+    meta = {"id": today, "image": "current.jpg?v=" + today, "activeAt": active_at,
+            "headline": pick["title"],
             "url": pick["url"], "outlet": pick["domain"].replace("www.", ""),
             "seendate": pick["seendate"], "method": method,
             "generated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
-    json.dump(meta, open(os.path.join(BG, "current.json"), "w", encoding="utf-8"), indent=1)
+    json.dump(meta, open(cur_json, "w", encoding="utf-8"), indent=1)
     history.append({k: meta[k] for k in ("id", "headline", "url", "outlet", "method")})
     json.dump(history[-120:], open(os.path.join(BG, "history.json"), "w", encoding="utf-8"), indent=1)
     log("wrote bg/current.jpg (%s) + current.json" % method)
