@@ -98,6 +98,8 @@
   .tool.active { background: var(--hilite); border-color: #2b6cb0; }
   .tool svg { width: 22px; height: 22px; fill: none; stroke: var(--panel-text); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
   .tool.active svg { stroke: #fff; }
+  .tool svg text { fill: var(--panel-text); stroke: none; }
+  .tool.active svg text { fill: #fff; }
 
   .tb-section {
     border-top: 1px solid var(--panel-border);
@@ -197,6 +199,13 @@
   .chip:hover { transform: scale(1.12); }
 
   .slider-row { margin-bottom: 8px; }
+  .seg { display: flex; border: 1px solid var(--panel-border); border-radius: 2px; overflow: hidden; }
+  .seg button {
+    flex: 1; padding: 5px 4px; font: inherit; font-size: 11px; cursor: pointer;
+    background: var(--panel-dark); color: var(--panel-dim); border: none;
+  }
+  .seg button + button { border-left: 1px solid var(--panel-border); }
+  .seg button.on { background: var(--hilite); color: #fff; }
   .slider-row .sr-head { display: flex; justify-content: space-between; margin-bottom: 3px; }
   .slider-row .sr-val { color: var(--panel-text); font-variant-numeric: tabular-nums; }
   input[type=range] {
@@ -302,12 +311,28 @@
     color: var(--panel-text); font: inherit; padding: 7px 8px; border-radius: 2px; outline: none;
   }
   #gif-bar input[type=text]:focus { border-color: var(--hilite); }
-  #gif-load, #gif-file {
+  #gif-grid {
+    flex-basis: 100%; display: none; flex-wrap: wrap; gap: 4px; align-content: flex-start;
+    max-height: 42vh; overflow-y: auto; background: var(--panel-dark);
+    border: 1px solid var(--panel-border); padding: 4px; border-radius: 2px;
+  }
+  #gif-grid.open { display: flex; }
+  #gif-grid img {
+    height: 90px; width: auto; flex: 1 0 auto; max-width: 240px; object-fit: cover;
+    cursor: pointer; border: 2px solid transparent; border-radius: 2px; background: #222;
+  }
+  #gif-grid img:hover { border-color: var(--hilite); }
+  #gif-grid .gg-msg { flex-basis: 100%; color: var(--panel-dim); font-size: 11px; padding: 8px 6px; }
+  #gif-grid .gg-msg a { color: var(--panel-text); }
+  #gif-row2 { flex-basis: 100%; display: flex; gap: 8px; align-items: center; }
+  #gif-hint { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  #gif-credit { color: var(--panel-dim); letter-spacing: .06em; text-transform: uppercase; font-size: 9px; white-space: nowrap; }
+  #gif-search, #gif-load, #gif-file {
     border: 1px solid #2b6cb0; color: #fff; padding: 7px 12px;
     cursor: pointer; font: inherit; border-radius: 2px; background: var(--hilite); white-space: nowrap;
   }
   #gif-file { background: var(--panel-light); border-color: var(--panel-border); }
-  #gif-load:disabled, #gif-file:disabled { opacity: .6; cursor: wait; }
+  #gif-search:disabled, #gif-load:disabled, #gif-file:disabled { opacity: .6; cursor: wait; }
   #gif-cancel {
     background: var(--panel-light); border: 1px solid var(--panel-border); color: #fff;
     padding: 7px 10px; cursor: pointer; font: inherit; border-radius: 2px;
@@ -411,9 +436,9 @@
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>
     </div>
     <div class="tool" data-tool="gif" title="GIF (M) — paste a GIF link or pick a file; it animates on its own layer">
-      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 9h18M3 15h18"/><path d="M6 5v14M18 5v14"/><path d="M10.5 10v4l3.5-2z"/></svg>
+      <svg viewBox="0 0 24 24"><text x="12" y="16.5" text-anchor="middle" font-family="'Segoe UI', Cantarell, system-ui, sans-serif" font-size="11" font-weight="800" letter-spacing=".5" fill="currentColor" stroke="none">GIF</text></svg>
     </div>
-    <div class="tool" data-tool="gen" title="AI Fill (G) — circle an area (⇧-drag to add more regions), describe what appears there (leave empty to remove)">
+    <div class="tool" data-tool="gen" title="AI Fill (G) — lasso or box an area (pick the shape in the options; ⇧-drag to add more regions), describe what appears there (leave empty to remove)">
       <svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7L19 14z"/><path d="M5 15l.7 1.8L7.5 17.5l-1.8.7L5 20l-.7-1.8L2.5 17.5l1.8-.7L5 15z"/></svg>
     </div>
     <div class="tool" data-tool="perase" title="Photo Eraser (E) — erases uploaded photos only; AI images + paint stay">
@@ -426,7 +451,7 @@
       <svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="13" height="10" rx="1"/><path d="M2.5 12l3.5-4 3 3 2-2 4.5 5"/><circle cx="12" cy="7" r="1"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
     </div>
     <div class="tool" data-tool="gerase" title="GIF Eraser (N) — rubs out GIFs only; everything else stays">
-      <svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="12" height="9" rx="1"/><path d="M2.5 7h12M2.5 10h12"/><path d="M7 8.5v2l1.8-1z"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
+      <svg viewBox="0 0 24 24"><text x="8" y="11" text-anchor="middle" font-family="'Segoe UI', Cantarell, system-ui, sans-serif" font-size="8.5" font-weight="800" fill="currentColor" stroke="none">GIF</text><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
     </div>
     <div class="tool" data-tool="picker" title="Color Picker (O)">
       <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
@@ -443,13 +468,20 @@
       <div class="sr-head"><span>Size</span><span class="sr-val" id="size-val">12</span></div>
       <input type="range" id="size" min="1" max="120" value="12">
     </div>
-    <div class="slider-row">
+    <div class="slider-row" id="op-row">
       <div class="sr-head"><span>Opacity</span><span class="sr-val" id="op-val">100</span></div>
       <input type="range" id="opacity" min="5" max="100" value="100">
     </div>
     <div class="slider-row" id="rot-row" style="display:none">
       <div class="sr-head"><span>Rotate</span><span class="sr-val" id="rot-val">0°</span></div>
       <input type="range" id="trot" min="-180" max="180" value="0">
+    </div>
+    <div class="slider-row" id="shape-row" style="display:none">
+      <div class="sr-head"><span>Shape</span></div>
+      <div class="seg" id="shape-seg">
+        <button type="button" data-shape="lasso" class="on" title="Freehand lasso">⌒ Lasso</button>
+        <button type="button" data-shape="rect" title="Drag a box">▭ Rectangle</button>
+      </div>
     </div>
     <div class="slider-row" id="flow-row" style="display:none">
       <div class="sr-head"><span>Strength</span><span class="sr-val" id="flow-val">100</span></div>
@@ -505,11 +537,16 @@
 
 <input type="file" id="gif-input" accept="image/gif,.gif" style="display:none">
 <div id="gif-bar">
-  <input type="text" id="gif-url" placeholder="paste a GIF link (Giphy / Tenor media link, or any .gif URL)…">
-  <button id="gif-load">Load</button>
+  <input type="text" id="gif-q" placeholder="search GIPHY…" maxlength="100" autocomplete="off">
+  <button id="gif-search">Search</button>
   <button id="gif-file">📁 File</button>
   <button id="gif-cancel">✕</button>
-  <span id="gif-hint">GIFs get their own animated layer. Big ones are shrunk to fit the wall's memory budget.</span>
+  <div id="gif-grid"></div>
+  <div id="gif-row2">
+    <input type="text" id="gif-url" placeholder="…or paste a GIF link (Giphy / Tenor media link, any .gif URL)">
+    <button id="gif-load">Load</button>
+  </div>
+  <span id="gif-hint"><span>Click a GIF to drop it on the wall. GIFs get their own animated layer; big ones are shrunk to fit.</span><span id="gif-credit">Powered by GIPHY</span></span>
 </div>
 
 <div id="gen-bar">
@@ -659,7 +696,7 @@ function render() {
       dctx.stroke();
     };
     for (const p of rectSel.paths) trace(p, true);
-    trace(rectSel.cur, !rectSel.drag);
+    trace(rectSel.cur, !rectSel.drag || genShape === "rect");
     dctx.setLineDash([]);
   }
   /* pan the concrete texture with the wall */
@@ -1178,6 +1215,12 @@ let pan = null;
 let spaceHeld = false;
 let dragging = false, dragOff = [0, 0];
 let rectSel = null, genBusy = false, fillPrev = null, genDrag = null;
+/* AI Fill selection shape: freehand lasso or a dragged rectangle (toolbox toggle) */
+let genShape = "lasso";
+document.querySelectorAll("#shape-seg button").forEach(b => b.addEventListener("click", () => {
+  genShape = b.dataset.shape;
+  document.querySelectorAll("#shape-seg button").forEach(o => o.classList.toggle("on", o === b));
+}));
 
 /* iOS Safari pinches the whole page despite user-scalable=no — kill the native
    gesture so our pointer-based pinch-zoom on the wall gets it instead */
@@ -1298,7 +1341,13 @@ display.addEventListener("pointermove", (e) => {
   if (rectSel && rectSel.drag) {
     const [x, y] = toWall(e);
     const p = rectSel.cur, n = p.length;
-    if (Math.hypot(x - p[n - 2], y - p[n - 1]) > 3) {
+    if (genShape === "rect") {
+      /* box from the anchor to the pointer, as a 4-corner path — everything
+         downstream (bbox, mask, punch) treats it like any other lasso */
+      const ax = p[0], ay = p[1];
+      rectSel.cur = [ax, ay, x, ay, x, y, ax, y];
+      render();
+    } else if (Math.hypot(x - p[n - 2], y - p[n - 1]) > 3) {
       p.push(x, y);
       render();
     }
@@ -1639,12 +1688,71 @@ const gifInput = document.getElementById("gif-input");
 const pbUnder = document.getElementById("pb-under");
 const pbUnderRow = document.getElementById("pb-under-row");
 let gifBusy = false;
+/* ---------- GIPHY search: type, pick, it drops straight into placement ----------
+   Public-page key like the Pollinations one — Giphy's free tier is rate-limited
+   (~100 searches/hour) and meant for exactly this. Empty key = search disabled,
+   link + file still work. Attribution ("Powered by GIPHY") is a Giphy requirement. */
+const GIPHY_KEY = "xzpEalN96DvRfseEkNz4v5g1CwHIGpyc";
+const gifQ = document.getElementById("gif-q");
+const gifSearchBtn = document.getElementById("gif-search");
+const gifGrid = document.getElementById("gif-grid");
+let gifSeq = 0, gifSearchTimer = null, gifLastQ = null;
+function gridMsg(html) { gifGrid.innerHTML = '<div class="gg-msg">' + html + "</div>"; gifGrid.classList.add("open"); }
+async function giphySearch(q) {
+  q = (q || "").trim();
+  if (!GIPHY_KEY) { gridMsg("GIPHY search needs a key — add <code>GIPHY_KEY</code> in graff.html (developers.giphy.com). Paste a link or use 📁 File meanwhile."); return; }
+  if (q === gifLastQ) return;
+  gifLastQ = q;
+  const seq = ++gifSeq;
+  gridMsg(q ? "searching “" + q.replace(/</g, "&lt;") + "”…" : "loading trending…");
+  const url = q
+    ? "https://api.giphy.com/v1/gifs/search?api_key=" + GIPHY_KEY + "&q=" + encodeURIComponent(q) + "&limit=30&rating=pg-13&lang=en"
+    : "https://api.giphy.com/v1/gifs/trending?api_key=" + GIPHY_KEY + "&limit=30&rating=pg-13";
+  try {
+    const r = await fetch(url);
+    if (seq !== gifSeq) return; /* a newer search superseded this one */
+    if (r.status === 429) throw new Error("GIPHY rate limit — try again in a bit");
+    if (!r.ok) throw new Error("GIPHY HTTP " + r.status);
+    const j = await r.json();
+    const items = (j && j.data) || [];
+    if (!items.length) { gridMsg("nothing for “" + q.replace(/</g, "&lt;") + "”"); return; }
+    gifGrid.innerHTML = "";
+    for (const it of items) {
+      const im = it.images || {};
+      const thumb = (im.fixed_height_small || im.fixed_height || im.preview_gif || {}).url;
+      const full = (im.downsized_medium && im.downsized_medium.url) || (im.downsized && im.downsized.url) || (im.original && im.original.url);
+      if (!thumb || !full) continue;
+      const el = document.createElement("img");
+      el.src = thumb; el.loading = "lazy"; el.alt = it.title || "gif"; el.title = it.title || "";
+      el.draggable = false;
+      el.addEventListener("click", () => loadGifUrl(full));
+      gifGrid.appendChild(el);
+    }
+    gifGrid.classList.add("open");
+    gifGrid.scrollTop = 0;
+  } catch (err) {
+    if (seq !== gifSeq) return;
+    gifLastQ = null;
+    gridMsg("search failed (" + err.message + ")");
+  }
+}
+gifSearchBtn.addEventListener("click", () => giphySearch(gifQ.value));
+gifQ.addEventListener("keydown", (e) => {
+  e.stopPropagation();
+  if (e.key === "Enter") { clearTimeout(gifSearchTimer); giphySearch(gifQ.value); }
+  else if (e.key === "Escape") closeGifBar();
+});
+gifQ.addEventListener("input", () => {
+  clearTimeout(gifSearchTimer);
+  gifSearchTimer = setTimeout(() => giphySearch(gifQ.value), 450);
+});
 function openGifBar() {
   if (placing || gifBusy) return;
   gifBar.style.display = "flex";
-  gifUrl.focus();
+  gifQ.focus();
+  if (!gifGrid.classList.contains("open")) giphySearch(gifQ.value); /* trending on first open */
 }
-function closeGifBar() { gifBar.style.display = "none"; }
+function closeGifBar() { gifBar.style.display = "none"; clearTimeout(gifSearchTimer); }
 function gifSrcUrl(u) {
   let url;
   try { url = new URL(u); } catch (e) { throw new Error("that's not a link"); }
@@ -1680,7 +1788,7 @@ async function beginGif(buf) {
 async function gifFromBuffer(buf) {
   if (gifBusy) return;
   gifBusy = true;
-  gifLoad.disabled = gifFileBtn.disabled = true;
+  gifLoad.disabled = gifFileBtn.disabled = gifSearchBtn.disabled = true;
   gifLoad.textContent = "decoding…";
   try {
     if (buf.byteLength > 12e6) throw new Error("over 12MB — pick a smaller GIF");
@@ -1689,17 +1797,18 @@ async function gifFromBuffer(buf) {
     showBanner("GIF failed (" + err.message + ")");
   }
   gifLoad.textContent = "Load";
-  gifLoad.disabled = gifFileBtn.disabled = false;
+  gifLoad.disabled = gifFileBtn.disabled = gifSearchBtn.disabled = false;
   gifBusy = false;
 }
-async function loadGifUrl() {
-  const u = gifUrl.value.trim();
+async function loadGifUrl(direct) {
+  const u = (typeof direct === "string" ? direct : gifUrl.value).trim();
   if (!u || gifBusy) return;
   let src;
   try { src = gifSrcUrl(u); } catch (e) { showBanner(e.message); return; }
   gifBusy = true;
-  gifLoad.disabled = gifFileBtn.disabled = true;
+  gifLoad.disabled = gifFileBtn.disabled = gifSearchBtn.disabled = true;
   gifLoad.textContent = "fetching…";
+  gifBar.style.cursor = "wait";
   let buf = null;
   try {
     const r = await fetch(src, { mode: "cors" });
@@ -1709,11 +1818,12 @@ async function loadGifUrl() {
     showBanner("couldn't fetch that link (" + err.message + ") — that site may not allow it; download the GIF and use 📁 File");
   }
   gifLoad.textContent = "Load";
-  gifLoad.disabled = gifFileBtn.disabled = false;
+  gifLoad.disabled = gifFileBtn.disabled = gifSearchBtn.disabled = false;
+  gifBar.style.cursor = "";
   gifBusy = false;
   if (buf) { gifUrl.value = ""; await gifFromBuffer(buf); }
 }
-gifLoad.addEventListener("click", loadGifUrl);
+gifLoad.addEventListener("click", () => loadGifUrl());
 gifUrl.addEventListener("keydown", (e) => {
   e.stopPropagation();
   if (e.key === "Enter") loadGifUrl();
@@ -1731,7 +1841,7 @@ gifInput.addEventListener("change", async () => {
 /* pasting a GIF link anywhere while the GIF tool is up loads it */
 window.addEventListener("paste", (e) => {
   if (tool !== "gif" || placing || gifBusy) return;
-  if (document.activeElement === gifUrl) return; /* the input handles its own paste */
+  if (document.activeElement === gifUrl) return; /* the link input handles its own paste */
   const items = e.clipboardData && e.clipboardData.items;
   if (items) for (const it of items) {
     if (it.kind === "file" && it.type === "image/gif") {
@@ -2064,6 +2174,9 @@ function setTool(t) {
   document.getElementById("tb-tool").textContent = TOOL_NAMES[t];
   document.getElementById("rot-row").style.display = (t === "text") ? "" : "none";
   document.getElementById("flow-row").style.display = (t === "air") ? "" : "none";
+  document.getElementById("shape-row").style.display = (t === "gen") ? "" : "none";
+  /* erasers always rub at full strength — no opacity to set */
+  document.getElementById("op-row").style.display = isEraser(t) ? "none" : "";
   display.classList.toggle("hand", t === "hand");
 }
 toolEls.forEach(el => el.addEventListener("click", () => {
@@ -2309,7 +2422,7 @@ window.addEventListener("keydown", (e) => {
   else if (k === "s") setTool("smudge");
   else if (k === "t") setTool("text");
   else if (k === "i") setTool("image");
-  else if (k === "m") { setTool("gif"); openGifBar(); }
+  else if (k === "m") { e.preventDefault(); setTool("gif"); openGifBar(); } /* don't type the m into the search box */
   else if (k === "n") setTool("gerase");
   else if (k === "g") setTool("gen");
   else if (k === "e") setTool("perase");
