@@ -2316,10 +2316,12 @@ async function undo() {
 }
 undoBtn.addEventListener("click", undo);
 
-/* ---------- compendium: walls that survive to 100 marks get flicked into
-   walls/main/archive at every 100-mark milestone, plus a final flick right
-   before detonation. Deterministic key (first-op-key + tag) so racing
-   clients overwrite instead of duplicating. Under 100 marks = no trace. ---------- */
+/* ---------- compendium: walls that survive to MILESTONE marks get flicked into
+   walls/main/archive at every MILESTONE-mark step, plus a final flick right
+   before detonation / flatten / the 03:33 wipe. Deterministic key
+   (first-op-key + tag) so racing clients overwrite instead of duplicating.
+   Under MILESTONE marks = no trace. ---------- */
+const MILESTONE = 200;
 let msPrev = 0;
 let capBusy = false;
 function snapshotJpeg(w, h, q) {
@@ -2359,9 +2361,9 @@ async function captureWall(tag) {
   }
 }
 function checkMilestone() {
-  if (Math.floor(opCount / 100) > Math.floor(msPrev / 100)) {
+  if (Math.floor(opCount / MILESTONE) > Math.floor(msPrev / MILESTONE)) {
     msPrev = opCount;
-    captureWall(Math.floor(opCount / 100) * 100);
+    captureWall(Math.floor(opCount / MILESTONE) * MILESTONE);
   } else {
     msPrev = opCount;
   }
@@ -2373,8 +2375,8 @@ function checkMilestone() {
 const detBtn = document.getElementById("detonate");
 const boomEl = document.getElementById("boom");
 async function detonate(msg) {
-  /* a wall that survived to 100 gets photographed before the buff */
-  if (opCount >= 100) await captureWall("final");
+  /* a wall that survived to the milestone gets photographed before the buff */
+  if (opCount >= MILESTONE) await captureWall("final");
   boomEl.classList.remove("go");
   void boomEl.offsetWidth; /* restart animation */
   boomEl.classList.add("go");
@@ -2444,7 +2446,7 @@ async function flatten() {
   flatBusy = true;
   showBanner("🧱 flattening…");
   try {
-    if (opCount >= 100) await captureWall("final");
+    if (opCount >= MILESTONE) await captureWall("final");
     /* keep transparency (bare concrete stays bare) where the browser can encode
        webp; otherwise a jpeg over flat concrete colour */
     let src = wallComposite(false).toDataURL("image/webp", 0.82);
