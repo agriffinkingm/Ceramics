@@ -286,6 +286,36 @@
   }
   #pb-reroll:disabled, #gen-reroll:disabled { opacity: .6; cursor: wait; }
 
+  /* ---------- GIF source bar (link or file) ---------- */
+  #gif-bar {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    top: calc(14px + env(safe-area-inset-top));
+    background: var(--panel); border: 1px solid var(--panel-border);
+    box-shadow: 0 6px 22px rgba(0,0,0,.55);
+    padding: 8px 10px;
+    display: none; gap: 8px; align-items: center; flex-wrap: wrap;
+    width: min(94vw, 560px); z-index: 27;
+  }
+  #gif-bar input[type=text] {
+    flex: 1; min-width: 0;
+    background: var(--panel-dark); border: 1px solid var(--panel-border);
+    color: var(--panel-text); font: inherit; padding: 7px 8px; border-radius: 2px; outline: none;
+  }
+  #gif-bar input[type=text]:focus { border-color: var(--hilite); }
+  #gif-load, #gif-file {
+    border: 1px solid #2b6cb0; color: #fff; padding: 7px 12px;
+    cursor: pointer; font: inherit; border-radius: 2px; background: var(--hilite); white-space: nowrap;
+  }
+  #gif-file { background: var(--panel-light); border-color: var(--panel-border); }
+  #gif-load:disabled, #gif-file:disabled { opacity: .6; cursor: wait; }
+  #gif-cancel {
+    background: var(--panel-light); border: 1px solid var(--panel-border); color: #fff;
+    padding: 7px 10px; cursor: pointer; font: inherit; border-radius: 2px;
+  }
+  #gif-hint { flex-basis: 100%; font-size: 10px; color: var(--panel-dim); }
+  #pb-under-row { display: none; }
+  #pb-under-row input { accent-color: var(--hilite); }
+
   #banner {
     position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
     background: rgba(30,30,30,.92); border: 1px solid var(--panel-border);
@@ -317,7 +347,7 @@
     #toolbox.collapsed #tb-title { border-bottom: none; }
     #tb-home { display: inline-block; }
     #tb-collapse { font-size: 18px; padding: 10px 16px; margin: -10px -14px -10px 0; }
-    .tool-grid { grid-template-columns: repeat(11, 1fr); gap: 0; padding: 4px 6px; background: none; }
+    .tool-grid { grid-template-columns: repeat(13, 1fr); gap: 0; padding: 4px 6px; background: none; }
     #news-row { padding: 6px 10px; }
     #news-row a { border-radius: 10px; background: rgba(255,255,255,.06); }
     .tool { aspect-ratio: auto; height: 38px; background: none; border: none; border-radius: 9px; }
@@ -380,6 +410,9 @@
     <div class="tool" data-tool="image" title="Upload Image (I)">
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>
     </div>
+    <div class="tool" data-tool="gif" title="GIF (M) — paste a GIF link or pick a file; it animates on its own layer">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M3 9h18M3 15h18"/><path d="M6 5v14M18 5v14"/><path d="M10.5 10v4l3.5-2z"/></svg>
+    </div>
     <div class="tool" data-tool="gen" title="AI Fill (G) — circle an area (⇧-drag to add more regions), describe what appears there (leave empty to remove)">
       <svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7L19 14z"/><path d="M5 15l.7 1.8L7.5 17.5l-1.8.7L5 20l-.7-1.8L2.5 17.5l1.8-.7L5 15z"/></svg>
     </div>
@@ -391,6 +424,9 @@
     </div>
     <div class="tool" data-tool="berase" title="Background Eraser (B) — rubs out today's news backdrop down to the bare concrete; nothing else is touched">
       <svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="13" height="10" rx="1"/><path d="M2.5 12l3.5-4 3 3 2-2 4.5 5"/><circle cx="12" cy="7" r="1"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
+    </div>
+    <div class="tool" data-tool="gerase" title="GIF Eraser (N) — rubs out GIFs only; everything else stays">
+      <svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="12" height="9" rx="1"/><path d="M2.5 7h12M2.5 10h12"/><path d="M7 8.5v2l1.8-1z"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
     </div>
     <div class="tool" data-tool="picker" title="Color Picker (O)">
       <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
@@ -460,10 +496,20 @@
   <label>Scale <input type="range" id="pb-scale" min="5" max="300" value="100"></label>
   <label>Rotate <input type="range" id="pb-rot" min="-180" max="180" value="0"></label>
   <label>Opacity <input type="range" id="pb-op" min="5" max="100" value="100"></label>
+  <label id="pb-under-row" title="Put the GIF under the paint layer so spray can cover it"><input type="checkbox" id="pb-under"> Behind paint</label>
   <button id="pb-reroll" style="display:none" title="Generate a different version">🎲 Re-roll</button>
   <button id="pb-place">Place</button>
   <button id="pb-cancel">✕</button>
   <span id="pb-hint">Drag the image to position it. Once placed it becomes part of the wall.</span>
+</div>
+
+<input type="file" id="gif-input" accept="image/gif,.gif" style="display:none">
+<div id="gif-bar">
+  <input type="text" id="gif-url" placeholder="paste a GIF link (Giphy / Tenor media link, or any .gif URL)…">
+  <button id="gif-load">Load</button>
+  <button id="gif-file">📁 File</button>
+  <button id="gif-cancel">✕</button>
+  <span id="gif-hint">GIFs get their own animated layer. Big ones are shrunk to fit the wall's memory budget.</span>
 </div>
 
 <div id="gen-bar">
@@ -582,10 +628,13 @@ function render() {
   dctx.setTransform(1, 0, 0, 1, 0, 0);
   dctx.clearRect(0, 0, display.width, display.height);
   dctx.setTransform(cam.s * dpr, 0, 0, cam.s * dpr, -cam.x * cam.s * dpr, -cam.y * cam.s * dpr);
+  const now = performance.now();
   dctx.drawImage(bgCv, 0, 0);
   dctx.drawImage(photoCv, 0, 0);
   dctx.drawImage(aiCv, 0, 0);
+  drawGifs(dctx, true, now);   /* GIFs placed "behind paint" */
   dctx.drawImage(paintCv, 0, 0);
+  drawGifs(dctx, false, now);  /* GIF layer proper: animates above everything */
   if (drawing && tool === "brush") {
     dctx.globalAlpha = opacity;
     dctx.drawImage(strokeCv, 0, 0);
@@ -755,6 +804,259 @@ function loadImg(src) {
   });
 }
 
+/* ---------- GIF layer (v13) ----------
+   A GIF can't be drawn animated by drawImage (browsers give you frame 0), so the
+   uploader's browser decodes it ONCE (decoder below), packs the frames into a
+   sprite sheet (webp/png data URL) and publishes a "g" op:
+     { t:"g", x,y,w,h, rot, op, sheet, fw, fh, n, cols, d:[ms…], ow, oh, under? }
+   Every viewer just loads the sheet and plays it — one image per GIF, no decoder,
+   no per-frame memory. Each live GIF is an instance holding its own alpha MASK
+   (frame-sized, starts opaque); the GIF Eraser rubs destination-out into that
+   mask in the GIF's local coordinates, so erasures clip every frame and survive
+   rotation/scale. Log order = z order. `under:1` renders below the paint layer,
+   otherwise the GIF layer sits above everything (animation never gets buried). */
+const gifOps = [];
+let gifRaf = null;
+function gifFrame(m, now, t0) {
+  if (!m.d || m.n <= 1) return 0;
+  if (!m.tot) { m.tot = 0; for (const v of m.d) m.tot += v; if (m.tot <= 0) m.tot = 1; }
+  let t = (now - t0) % m.tot;
+  for (let i = 0; i < m.d.length; i++) { if (t < m.d[i]) return i; t -= m.d[i]; }
+  return 0;
+}
+function sheetFrame(ctx, img, m, i, dx, dy, dw, dh) {
+  const sx = (i % m.cols) * m.fw, sy = Math.floor(i / m.cols) * m.fh;
+  ctx.drawImage(img, sx, sy, m.fw, m.fh, dx, dy, dw, dh);
+}
+function makeGifInst(o, img) {
+  const mask = document.createElement("canvas"), cmp = document.createElement("canvas");
+  mask.width = cmp.width = o.fw; mask.height = cmp.height = o.fh;
+  const maskCtx = mask.getContext("2d");
+  maskCtx.fillStyle = "#fff"; maskCtx.fillRect(0, 0, o.fw, o.fh);
+  return { o, img, mask, maskCtx, cmp, cmpCtx: cmp.getContext("2d"), idx: -1, t0: performance.now() };
+}
+function gifCompose(inst, i) {
+  const o = inst.o, c = inst.cmpCtx;
+  c.clearRect(0, 0, o.fw, o.fh);
+  sheetFrame(c, inst.img, o, i, 0, 0, o.fw, o.fh);
+  c.globalCompositeOperation = "destination-in";
+  c.drawImage(inst.mask, 0, 0);
+  c.globalCompositeOperation = "source-over";
+  inst.idx = i;
+}
+function drawGifs(ctx, under, now) {
+  for (const inst of gifOps) {
+    const o = inst.o;
+    if (!!o.under !== under) continue;
+    const i = gifFrame(o, now, inst.t0);
+    if (i !== inst.idx) gifCompose(inst, i);
+    ctx.save();
+    ctx.translate(o.x, o.y);
+    ctx.rotate(o.rot || 0);
+    ctx.globalAlpha = o.op == null ? 1 : o.op;
+    ctx.drawImage(inst.cmp, -o.w / 2, -o.h / 2, o.w, o.h);
+    ctx.restore();
+  }
+}
+/* run fn(ctx) on every GIF's mask with the wall→local transform applied, so a
+   stroke given in wall coordinates lands (and scales) correctly on each GIF */
+function gifEraseAll(fn) {
+  for (const inst of gifOps) {
+    const o = inst.o, c = inst.maskCtx;
+    c.save();
+    c.globalCompositeOperation = "destination-out";
+    c.fillStyle = "#000"; c.strokeStyle = "#000";
+    c.translate(o.fw / 2, o.fh / 2);
+    c.scale(o.fw / o.w, o.fh / o.h);
+    c.rotate(-(o.rot || 0));
+    c.translate(-o.x, -o.y);
+    fn(c);
+    c.restore();
+    inst.idx = -1; /* recompose on next draw */
+  }
+}
+/* animation: redraw only when some visible GIF actually changes frame */
+function gifTick(now) {
+  gifRaf = null;
+  const live = gifOps.length || (placing && placing.gif);
+  if (!live) return;
+  let dirty = false;
+  if (!batch) {
+    for (const inst of gifOps) if (gifFrame(inst.o, now, inst.t0) !== inst.idx) { dirty = true; break; }
+    if (!dirty && placing && placing.gif && gifFrame(placing.meta, now, placing.t0) !== placing.idx) dirty = true;
+    if (dirty) render();
+  }
+  gifRaf = requestAnimationFrame(gifTick);
+}
+function startGifLoop() { if (!gifRaf) gifRaf = requestAnimationFrame(gifTick); }
+
+/* ---------- GIF decoder → sprite sheet (runs only on the uploader's machine) ---------- */
+function parseGif(buf) {
+  const b = new Uint8Array(buf);
+  if (b.length < 13 || b[0] !== 0x47 || b[1] !== 0x49 || b[2] !== 0x46) throw new Error("not a GIF");
+  let p = 6;
+  const w = b[p] | (b[p + 1] << 8), h = b[p + 2] | (b[p + 3] << 8), pf = b[p + 4];
+  p += 7;
+  let gct = null;
+  if (pf & 0x80) { const n = 2 << (pf & 7); gct = b.subarray(p, p + n * 3); p += n * 3; }
+  const readSub = () => {
+    const parts = []; let len;
+    while (p < b.length && (len = b[p++])) { parts.push(b.subarray(p, p + len)); p += len; }
+    return parts;
+  };
+  const frames = [];
+  let gce = null;
+  while (p < b.length) {
+    const c = b[p++];
+    if (c === 0x21) {
+      const lbl = b[p++];
+      const parts = readSub();
+      if (lbl === 0xF9 && parts[0] && parts[0].length >= 4) {
+        const d = parts[0];
+        gce = { disposal: (d[0] >> 2) & 7, trans: (d[0] & 1) ? d[3] : -1, delay: (d[1] | (d[2] << 8)) * 10 };
+      }
+    } else if (c === 0x2C) {
+      const x = b[p] | (b[p + 1] << 8), y = b[p + 2] | (b[p + 3] << 8);
+      const iw = b[p + 4] | (b[p + 5] << 8), ih = b[p + 6] | (b[p + 7] << 8), f = b[p + 8];
+      p += 9;
+      let ct = gct;
+      if (f & 0x80) { const n = 2 << (f & 7); ct = b.subarray(p, p + n * 3); p += n * 3; }
+      const minCode = b[p++];
+      const parts = readSub();
+      let tot = 0; for (const s of parts) tot += s.length;
+      const data = new Uint8Array(tot); let o = 0;
+      for (const s of parts) { data.set(s, o); o += s.length; }
+      let idx = lzwDecode(data, minCode, iw * ih);
+      if (f & 0x40) idx = deinterlace(idx, iw, ih);
+      const g = gce || { disposal: 0, trans: -1, delay: 100 };
+      frames.push({ x, y, iw, ih, ct, idx, disposal: g.disposal, trans: g.trans,
+                    delay: g.delay <= 10 ? 100 : g.delay }); /* browsers treat ≤10ms as 100ms */
+      gce = null;
+    } else break; /* 0x3B trailer, or junk — stop */
+  }
+  if (!frames.length) throw new Error("no frames");
+  return { w, h, frames };
+}
+function lzwDecode(data, minCode, npix) {
+  const out = new Uint8Array(npix);
+  const clear = 1 << minCode, eoi = clear + 1;
+  const prefix = new Uint16Array(4096), suffix = new Uint8Array(4096), stack = new Uint8Array(4097);
+  for (let i = 0; i < clear; i++) suffix[i] = i;
+  let codeSize = minCode + 1, codeMask = (1 << codeSize) - 1, avail = clear + 2;
+  let old = -1, first = 0, sp = 0, bits = 0, datum = 0, di = 0, pi = 0;
+  while (pi < npix) {
+    if (sp === 0) {
+      while (bits < codeSize) { if (di >= data.length) return out; datum |= data[di++] << bits; bits += 8; }
+      let code = datum & codeMask; datum >>= codeSize; bits -= codeSize;
+      if (code === clear) { codeSize = minCode + 1; codeMask = (1 << codeSize) - 1; avail = clear + 2; old = -1; continue; }
+      if (code === eoi) break;
+      if (old === -1) { stack[sp++] = suffix[code]; old = code; first = code; continue; }
+      const inCode = code;
+      if (code >= avail) { stack[sp++] = first; code = old; }
+      while (code >= clear) { stack[sp++] = suffix[code]; code = prefix[code]; }
+      first = suffix[code];
+      stack[sp++] = first;
+      if (avail < 4096) {
+        prefix[avail] = old; suffix[avail] = first; avail++;
+        if ((avail & codeMask) === 0 && avail < 4096) { codeSize++; codeMask += avail; }
+      }
+      old = inCode;
+    }
+    out[pi++] = stack[--sp];
+  }
+  return out;
+}
+function deinterlace(idx, w, h) {
+  const out = new Uint8Array(idx.length);
+  let row = 0;
+  for (const [start, step] of [[0, 8], [4, 8], [2, 4], [1, 2]])
+    for (let y = start; y < h; y += step, row++) out.set(idx.subarray(row * w, row * w + w), y * w);
+  return out;
+}
+/* compose frames (honouring disposal) and pack them into a sheet that fits the
+   wall's budgets: ≤ GIF_PX composed pixels, ≤ GIF_MAXF frames (extra frames are
+   merged into their neighbour's delay), ≤ ~1.4MB encoded. */
+const GIF_PX = 4.5e6, GIF_MAXF = 80, GIF_MAXSIDE = 640, GIF_MAXBYTES = 1450000;
+async function gifToSheet(buf) {
+  const g = parseGif(buf);
+  const n0 = g.frames.length;
+  const k = Math.max(1, Math.ceil(n0 / GIF_MAXF));
+  const keep = []; const delays = [];
+  for (let i = 0; i < n0; i += k) {
+    let d = 0; for (let j = i; j < Math.min(n0, i + k); j++) d += g.frames[j].delay;
+    keep.push(i); delays.push(d);
+  }
+  const n = keep.length;
+  let s = Math.min(1, GIF_MAXSIDE / Math.max(g.w, g.h), Math.sqrt(GIF_PX / (n * g.w * g.h)));
+  /* composite buffer at native size */
+  const W0 = g.w, H0 = g.h;
+  const buf4 = new Uint8ClampedArray(W0 * H0 * 4);
+  let saved = null;
+  const tmp = document.createElement("canvas"); tmp.width = W0; tmp.height = H0;
+  const tctx = tmp.getContext("2d");
+  const layout = (sc) => {
+    const fw = Math.max(1, Math.round(W0 * sc)), fh = Math.max(1, Math.round(H0 * sc));
+    const cols = Math.max(1, Math.min(n, Math.round(Math.sqrt(n * fh / fw)) || 1));
+    const rows = Math.ceil(n / cols);
+    return { fw, fh, cols, rows };
+  };
+  let L = layout(s);
+  let sheet = document.createElement("canvas");
+  sheet.width = L.cols * L.fw; sheet.height = L.rows * L.fh;
+  let sctx2 = sheet.getContext("2d");
+  let ki = 0;
+  for (let i = 0; i < n0; i++) {
+    const f = g.frames[i];
+    if (f.disposal === 3) saved = buf4.slice();
+    /* draw frame pixels */
+    for (let yy = 0; yy < f.ih; yy++) {
+      const py = f.y + yy; if (py >= H0) break;
+      for (let xx = 0; xx < f.iw; xx++) {
+        const px = f.x + xx; if (px >= W0) break;
+        const ci = f.idx[yy * f.iw + xx];
+        if (ci === f.trans || !f.ct || ci * 3 + 2 >= f.ct.length) continue;
+        const o = (py * W0 + px) * 4;
+        buf4[o] = f.ct[ci * 3]; buf4[o + 1] = f.ct[ci * 3 + 1]; buf4[o + 2] = f.ct[ci * 3 + 2]; buf4[o + 3] = 255;
+      }
+    }
+    if (ki < n && keep[ki] === i) {
+      tctx.putImageData(new ImageData(buf4, W0, H0), 0, 0);
+      sctx2.drawImage(tmp, 0, 0, W0, H0, (ki % L.cols) * L.fw, Math.floor(ki / L.cols) * L.fh, L.fw, L.fh);
+      ki++;
+    }
+    /* dispose before the next frame */
+    if (f.disposal === 2) {
+      for (let yy = 0; yy < f.ih; yy++) {
+        const py = f.y + yy; if (py >= H0) break;
+        const o = (py * W0 + f.x) * 4, len = Math.min(f.iw, W0 - f.x) * 4;
+        if (len > 0) buf4.fill(0, o, o + len);
+      }
+    } else if (f.disposal === 3 && saved) { buf4.set(saved); saved = null; }
+    if ((i & 7) === 7) await new Promise(r => setTimeout(r, 0)); /* keep the UI breathing */
+  }
+  /* encode; shrink until it fits the op budget */
+  const enc = (c) => {
+    let src = c.toDataURL("image/webp", 0.8);
+    if (src.indexOf("data:image/webp") !== 0) src = c.toDataURL("image/png");
+    return src;
+  };
+  let src = enc(sheet);
+  while (src.length > GIF_MAXBYTES) {
+    s *= 0.8;
+    const L2 = layout(s);
+    if (L2.fw < 24 || L2.fh < 24) throw new Error("too big to fit the wall — try a shorter or smaller GIF");
+    const c2 = document.createElement("canvas");
+    c2.width = L2.cols * L2.fw; c2.height = L2.rows * L2.fh;
+    const x2 = c2.getContext("2d");
+    for (let i = 0; i < n; i++)
+      x2.drawImage(sheet, (i % L.cols) * L.fw, Math.floor(i / L.cols) * L.fh, L.fw, L.fh,
+                   (i % L2.cols) * L2.fw, Math.floor(i / L2.cols) * L2.fh, L2.fw, L2.fh);
+    sheet = c2; L = L2;
+    src = enc(sheet);
+  }
+  return { sheet: src, n0, meta: { fw: L.fw, fh: L.fh, n, cols: L.cols, d: delays, ow: W0, oh: H0 } };
+}
+
 /* ---------- ordered async apply queue (images decode async; order must hold) ---------- */
 let chain = Promise.resolve();
 function q(fn) { chain = chain.then(fn).catch(err => console.error("graff apply:", err)); return chain; }
@@ -814,10 +1116,22 @@ async function applyOp(o) {
     ic.globalAlpha = 1;
     ic.restore();
   }
+  else if (o.t === "g") {
+    /* animated GIF: sprite sheet + delays, played by the GIF layer (see above) */
+    if (o.sheet && o.fw > 0 && o.fh > 0 && o.n > 0 && o.cols > 0) {
+      const img = await loadImg(o.sheet);
+      gifOps.push(makeGifInst(o, img));
+      startGifLoop();
+    }
+  }
   else if (o.t === "s") {
     const pts = o.pts;
     if (!pts || pts.length < 2) return;
-    if (o.tool === "air") { sprayAir(paintCtx, pts, o.sz, o.c, o.op, o.seed, o.fl); }
+    if (o.tool === "gerase") {
+      /* GIF eraser — clips every GIF that was on the wall when it was drawn */
+      gifEraseAll((c) => pathPencil(c, pts, o.sz, "#000"));
+    }
+    else if (o.tool === "air") { sprayAir(paintCtx, pts, o.sz, o.c, o.op, o.seed, o.fl); }
     else if (o.tool === "smudge") {
       const sm = makeSmudger(paintCtx, o.sz, o.op);
       for (let i = 0; i < pts.length; i += 2) sm(pts[i], pts[i + 1]);
@@ -919,6 +1233,7 @@ display.addEventListener("pointerdown", (e) => {
   }
   if (tool === "text") { beginText(e.clientX, e.clientY, x, y, true); return; }
   if (tool === "image") { fileInput.click(); return; }
+  if (tool === "gif") { openGifBar(); return; }
   if (tool === "picker") { pickColor(x, y); return; }
   if (tool === "gen") {
     if (genBusy) return;
@@ -945,6 +1260,7 @@ display.addEventListener("pointerdown", (e) => {
     return;
   }
   if (tool === "berase" && !bgId) { showBanner("No news backdrop loaded today — nothing to erase"); return; }
+  if (tool === "gerase" && !gifOps.length) { showBanner("No GIFs on the wall yet — nothing to erase"); return; }
   drawing = true;
   curPts = [x, y];
   curSeed = (Math.random() * 0xffffffff) >>> 0;
@@ -1096,9 +1412,13 @@ function round2(v) { return Math.round(v * 100) / 100; }
 /* photo eraser — live incremental erase on the photo layer (replay covers the
    same area with one full-alpha round-capped path, so results match) */
 let erLast = null;
-function isEraser(t) { return t === "perase" || t === "aerase" || t === "berase"; }
+function isEraser(t) { return t === "perase" || t === "aerase" || t === "berase" || t === "gerase"; }
 function eraseCtx() { return tool === "aerase" ? aiCtx : tool === "berase" ? bgCtx : photoCtx; }
 function eraseDot(x, y) {
+  if (tool === "gerase") {
+    gifEraseAll((c) => { c.beginPath(); c.arc(x, y, Math.max(size / 2, 0.5), 0, 6.2832); c.fill(); });
+    return;
+  }
   const ec = eraseCtx();
   ec.globalCompositeOperation = "destination-out";
   ec.beginPath();
@@ -1108,6 +1428,15 @@ function eraseDot(x, y) {
 }
 function eraseSeg(x, y) {
   if (!erLast) { eraseDot(x, y); erLast = [x, y]; return; }
+  if (tool === "gerase") {
+    const [lx, ly] = erLast;
+    gifEraseAll((c) => {
+      c.lineWidth = size; c.lineCap = "round"; c.lineJoin = "round";
+      c.beginPath(); c.moveTo(lx, ly); c.lineTo(x, y); c.stroke();
+    });
+    erLast = [x, y];
+    return;
+  }
   const ec = eraseCtx();
   ec.globalCompositeOperation = "destination-out";
   ec.strokeStyle = "#000";
@@ -1231,14 +1560,22 @@ async function downscale(f) {
   if (out.length > 1500000) out = c.toDataURL("image/jpeg", 0.7);
   return out;
 }
+function placingSize(p) {
+  return p.gif ? [p.meta.fw * p.scale, p.meta.fh * p.scale] : [p.img.width * p.scale, p.img.height * p.scale];
+}
 function drawPlacing(ctx) {
   const p = placing;
-  const w = p.img.width * p.scale, h = p.img.height * p.scale;
+  const [w, h] = placingSize(p);
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.rotate(p.rot);
   ctx.globalAlpha = p.op;
-  ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
+  if (p.gif) {
+    p.idx = gifFrame(p.meta, performance.now(), p.t0);
+    sheetFrame(ctx, p.img, p.meta, p.idx, -w / 2, -h / 2, w, h);
+  } else {
+    ctx.drawImage(p.img, -w / 2, -h / 2, w, h);
+  }
   ctx.globalAlpha = 1;
   ctx.strokeStyle = "#4a90d9";
   ctx.setLineDash([8, 6]);
@@ -1253,6 +1590,24 @@ pbOp.addEventListener("input", () => { if (placing) { placing.op = +pbOp.value /
 document.getElementById("pb-place").addEventListener("click", () => {
   if (!placing) return;
   const p = placing;
+  if (p.gif) {
+    const [w, h] = placingSize(p);
+    const op = {
+      t: "g",
+      x: Math.round(p.x), y: Math.round(p.y),
+      w: Math.max(1, Math.round(w)), h: Math.max(1, Math.round(h)),
+      rot: Math.round(p.rot * 1000) / 1000,
+      op: round2(p.op),
+      sheet: p.sheet, fw: p.meta.fw, fh: p.meta.fh, n: p.meta.n, cols: p.meta.cols, d: p.meta.d,
+      ow: p.meta.ow, oh: p.meta.oh
+    };
+    if (pbUnder.checked) op.under = 1;
+    placing = null;
+    placeBar.style.display = "none";
+    pbUnderRow.style.display = "none";
+    enqueue(op); publish(op);
+    return;
+  }
   const op = {
     t: "i",
     x: Math.round(p.x), y: Math.round(p.y),
@@ -1271,7 +1626,127 @@ document.getElementById("pb-place").addEventListener("click", () => {
 document.getElementById("pb-cancel").addEventListener("click", () => {
   placing = null;
   placeBar.style.display = "none";
+  pbUnderRow.style.display = "none";
   render();
+});
+
+/* ---------- GIF source: link or file → decode → sheet → normal placement flow ---------- */
+const gifBar = document.getElementById("gif-bar");
+const gifUrl = document.getElementById("gif-url");
+const gifLoad = document.getElementById("gif-load");
+const gifFileBtn = document.getElementById("gif-file");
+const gifInput = document.getElementById("gif-input");
+const pbUnder = document.getElementById("pb-under");
+const pbUnderRow = document.getElementById("pb-under-row");
+let gifBusy = false;
+function openGifBar() {
+  if (placing || gifBusy) return;
+  gifBar.style.display = "flex";
+  gifUrl.focus();
+}
+function closeGifBar() { gifBar.style.display = "none"; }
+function gifSrcUrl(u) {
+  let url;
+  try { url = new URL(u); } catch (e) { throw new Error("that's not a link"); }
+  if (/(^|\.)giphy\.com$/.test(url.hostname) && /^\/(gifs|stickers|embed|clips)\//.test(url.pathname)) {
+    /* Giphy page → its media file. The id is the tail of the slug. */
+    const seg = url.pathname.split("/").filter(Boolean).pop() || "";
+    const id = seg.split("-").pop();
+    if (id) return "https://media.giphy.com/media/" + id + "/giphy.gif";
+  }
+  if (url.hostname === "tenor.com" && /^\/view\//.test(url.pathname))
+    throw new Error("that's a Tenor page — right-click the GIF there and copy the image address instead");
+  return url.href;
+}
+async function beginGif(buf) {
+  const { sheet, meta, n0 } = await gifToSheet(buf);
+  const img = await loadImg(sheet);
+  /* open at the GIF's own size (capped to a third of the wall), centred in view */
+  const s0 = Math.min(3, meta.ow / meta.fw, (W * 0.3) / meta.fw, (H * 0.3) / meta.fh);
+  const vx = cam.x + window.innerWidth / cam.s / 2;
+  const vy = cam.y + window.innerHeight / cam.s / 2;
+  placing = { gif: true, sheet, img, meta, x: vx, y: vy, scale: s0, rot: 0, op: 1, t0: performance.now(), idx: -1 };
+  pbScale.value = Math.round(s0 * 100);
+  pbRot.value = 0;
+  pbOp.value = 100;
+  pbUnder.checked = false;
+  pbUnderRow.style.display = "";
+  closeGifBar();
+  placeBar.style.display = "flex";
+  startGifLoop();
+  render();
+  if (meta.n < n0) showBanner("long GIF — kept " + meta.n + " of " + n0 + " frames (timing preserved)");
+}
+async function gifFromBuffer(buf) {
+  if (gifBusy) return;
+  gifBusy = true;
+  gifLoad.disabled = gifFileBtn.disabled = true;
+  gifLoad.textContent = "decoding…";
+  try {
+    if (buf.byteLength > 12e6) throw new Error("over 12MB — pick a smaller GIF");
+    await beginGif(buf);
+  } catch (err) {
+    showBanner("GIF failed (" + err.message + ")");
+  }
+  gifLoad.textContent = "Load";
+  gifLoad.disabled = gifFileBtn.disabled = false;
+  gifBusy = false;
+}
+async function loadGifUrl() {
+  const u = gifUrl.value.trim();
+  if (!u || gifBusy) return;
+  let src;
+  try { src = gifSrcUrl(u); } catch (e) { showBanner(e.message); return; }
+  gifBusy = true;
+  gifLoad.disabled = gifFileBtn.disabled = true;
+  gifLoad.textContent = "fetching…";
+  let buf = null;
+  try {
+    const r = await fetch(src, { mode: "cors" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    buf = await r.arrayBuffer();
+  } catch (err) {
+    showBanner("couldn't fetch that link (" + err.message + ") — that site may not allow it; download the GIF and use 📁 File");
+  }
+  gifLoad.textContent = "Load";
+  gifLoad.disabled = gifFileBtn.disabled = false;
+  gifBusy = false;
+  if (buf) { gifUrl.value = ""; await gifFromBuffer(buf); }
+}
+gifLoad.addEventListener("click", loadGifUrl);
+gifUrl.addEventListener("keydown", (e) => {
+  e.stopPropagation();
+  if (e.key === "Enter") loadGifUrl();
+  else if (e.key === "Escape") closeGifBar();
+});
+gifFileBtn.addEventListener("click", () => gifInput.click());
+document.getElementById("gif-cancel").addEventListener("click", closeGifBar);
+gifInput.addEventListener("change", async () => {
+  const f = gifInput.files[0];
+  gifInput.value = "";
+  if (!f) return;
+  try { await gifFromBuffer(await f.arrayBuffer()); }
+  catch (err) { showBanner("Couldn't read that file (" + err.message + ")"); }
+});
+/* pasting a GIF link anywhere while the GIF tool is up loads it */
+window.addEventListener("paste", (e) => {
+  if (tool !== "gif" || placing || gifBusy) return;
+  if (document.activeElement === gifUrl) return; /* the input handles its own paste */
+  const items = e.clipboardData && e.clipboardData.items;
+  if (items) for (const it of items) {
+    if (it.kind === "file" && it.type === "image/gif") {
+      e.preventDefault();
+      it.getAsFile().arrayBuffer().then(gifFromBuffer);
+      return;
+    }
+  }
+  const txt = e.clipboardData && e.clipboardData.getData("text");
+  if (txt && /^https?:\/\//i.test(txt.trim())) {
+    e.preventDefault();
+    gifUrl.value = txt.trim();
+    openGifBar();
+    loadGifUrl();
+  }
 });
 
 /* ---------- AI image: drag a rectangle, describe it, the result drops into the
@@ -1578,11 +2053,12 @@ genInput.addEventListener("keydown", (e) => {
 });
 
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gen: "AI Fill", perase: "Photo Eraser", aerase: "AI Eraser", berase: "Background Eraser", picker: "Color Picker", hand: "Pan" };
+const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gif: "GIF", gen: "AI Fill", perase: "Photo Eraser", aerase: "AI Eraser", berase: "Background Eraser", gerase: "GIF Eraser", picker: "Color Picker", hand: "Pan" };
 const toolEls = document.querySelectorAll(".tool");
 function setTool(t) {
   tool = t;
   if (t !== "gen" && !genBusy && (rectSel || fillPrev)) closeGen();
+  if (t !== "gif") closeGifBar();
   toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === t));
   document.getElementById("tool-name").textContent = TOOL_NAMES[t];
   document.getElementById("tb-tool").textContent = TOOL_NAMES[t];
@@ -1593,6 +2069,7 @@ function setTool(t) {
 toolEls.forEach(el => el.addEventListener("click", () => {
   setTool(el.dataset.tool);
   if (el.dataset.tool === "image" && !placing) fileInput.click();
+  if (el.dataset.tool === "gif") openGifBar();
 }));
 
 /* save: download the whole wall (all three layers over the concrete) as a PNG */
@@ -1602,10 +2079,13 @@ document.getElementById("save").addEventListener("click", () => {
   const cx = c.getContext("2d");
   cx.fillStyle = WALL_COLOR;
   cx.fillRect(0, 0, W, H);
+  const now = performance.now();
   cx.drawImage(bgCv, 0, 0);
   cx.drawImage(photoCv, 0, 0);
   cx.drawImage(aiCv, 0, 0);
+  drawGifs(cx, true, now);
   cx.drawImage(paintCv, 0, 0);
+  drawGifs(cx, false, now); /* GIFs freeze on whatever frame they're showing */
   c.toBlob((blob) => {
     if (!blob) { showBanner("save failed — try again"); return; }
     const a = document.createElement("a");
@@ -1711,10 +2191,13 @@ function snapshotJpeg(w, h, q) {
   const cx = c.getContext("2d");
   cx.fillStyle = WALL_COLOR;
   cx.fillRect(0, 0, w, h);
+  const now = performance.now();
   cx.drawImage(bgCv, 0, 0, w, h);
   cx.drawImage(photoCv, 0, 0, w, h);
   cx.drawImage(aiCv, 0, 0, w, h);
+  cx.save(); cx.scale(w / W, h / H); drawGifs(cx, true, now); cx.restore();
   cx.drawImage(paintCv, 0, 0, w, h);
+  cx.save(); cx.scale(w / W, h / H); drawGifs(cx, false, now); cx.restore();
   return c.toDataURL("image/jpeg", q);
 }
 async function captureWall(tag) {
@@ -1767,6 +2250,7 @@ async function detonate() {
   photoCtx.clearRect(0, 0, W, H);
   aiCtx.clearRect(0, 0, W, H);
   paintCtx.clearRect(0, 0, W, H);
+  gifOps.length = 0;
   imgCache.clear();
   opCount = 0;
   msPrev = 0;
@@ -1802,6 +2286,7 @@ function rebuild() {
       photoCtx.clearRect(0, 0, W, H);
       aiCtx.clearRect(0, 0, W, H);
       paintCtx.clearRect(0, 0, W, H);
+      gifOps.length = 0;
       opCount = 0;
       batch = true;
       for (const op of opsByKey.values()) await applyOp(op);
@@ -1824,6 +2309,8 @@ window.addEventListener("keydown", (e) => {
   else if (k === "s") setTool("smudge");
   else if (k === "t") setTool("text");
   else if (k === "i") setTool("image");
+  else if (k === "m") { setTool("gif"); openGifBar(); }
+  else if (k === "n") setTool("gerase");
   else if (k === "g") setTool("gen");
   else if (k === "e") setTool("perase");
   else if (k === "r") setTool("aerase");
