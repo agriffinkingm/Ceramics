@@ -226,7 +226,7 @@ document.addEventListener("keydown", (e) => {
 
 function emptyRoom() {
   cardMsg.innerHTML = "Nothing has survived yet. Walls enter the compendium at " +
-    "222 marks — <a href=\"graff.html\">go make one live that long</a>.";
+    "100 marks — <a href=\"graff.html\">go make one live that long</a>.";
 }
 function darkRoom(err) {
   cardMsg.textContent = "Couldn't reach the archive (" + err + "). Refresh to try again.";
@@ -246,6 +246,7 @@ async function load() {
   const snap = await get(ref(db, "walls/main/archiveIndex"));
   snap.forEach((ch) => {
     const v = ch.val();
+    if (v.hidden) return; /* curated out — stays in the database, off the wall of fame */
     entries.push({ key: ch.key, t: v.t || 0, n: v.n || 0, thumb: v.thumb || "" });
   });
   entries.sort((a, b) => a.t - b.t);

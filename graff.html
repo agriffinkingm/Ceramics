@@ -609,7 +609,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-04c";
+const BUILD = "2026-09-04d";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -2325,12 +2325,13 @@ async function undo() {
 }
 undoBtn.addEventListener("click", undo);
 
-/* ---------- compendium: walls that survive to MILESTONE marks get flicked into
-   walls/main/archive at every MILESTONE-mark step — and only then: detonate,
-   flatten and the 03:33 wipe take no farewell flick. Deterministic key
-   (first-op-key + tag) so racing clients overwrite instead of duplicating.
-   Under MILESTONE marks = no trace. ---------- */
-const MILESTONE = 222;
+/* ---------- compendium: walls get flicked into walls/main/archive whenever the
+   mark total crosses a multiple of ANY milestone (every 100 and every 222) — and
+   only then: detonate, flatten and the 03:33 wipe take no farewell flick.
+   Deterministic key (first-op-key + tag) so racing clients overwrite instead of
+   duplicating. Entries Griffin doesn't like get hidden:true on their archiveIndex
+   row (the compendium page skips those). ---------- */
+const MILESTONES = [100, 222];
 let msPrev = 0;
 let capBusy = false;
 function snapshotJpeg(w, h, q) {
@@ -2370,12 +2371,10 @@ async function captureWall(tag) {
   }
 }
 function checkMilestone() {
-  const n = totalMarks();
-  if (Math.floor(n / MILESTONE) > Math.floor(msPrev / MILESTONE)) {
-    msPrev = n;
-    captureWall(Math.floor(n / MILESTONE) * MILESTONE);
-  } else {
-    msPrev = n;
+  const n = totalMarks(), prev = msPrev;
+  msPrev = n;
+  for (const m of MILESTONES) {
+    if (Math.floor(n / m) > Math.floor(prev / m)) captureWall(Math.floor(n / m) * m);
   }
 }
 
