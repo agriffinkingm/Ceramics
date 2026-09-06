@@ -1,16 +1,23 @@
 name: daily news backdrop
 
-# The wall's day turns over at exactly 03:33 America/New_York — the page itself
-# does the flip + wipe on every viewer's clock (see graff.html "daily turnover").
-# This job just has to have the day's backdrop committed BEFORE then, so it runs
-# an hour early at 02:33 New York. GitHub cron is UTC and doesn't know DST, so
-# both candidate UTC times are scheduled and a guard step keeps only the run
-# where it's actually 02:xx in New York.
+# Two jobs in one workflow:
+#  • FULL pick at 02:33 America/New_York — the day's backdrop (bg/current.*), an hour
+#    before the wall's 03:33 turnover. GitHub cron is UTC and ignores DST, so both
+#    candidate UTC times are scheduled and the guard keeps the one where it's 02:3x NY.
+#  • POOL top-up every 3 hours — adds up to three fresh, wide, mutually different scenes
+#    from around the world to bg/pool.json for the wall's 🗞 Fresh news button.
 on:
   schedule:
-    - cron: "33 6 * * *"     # 02:33 EDT (UTC-4)
-    - cron: "33 7 * * *"     # 02:33 EST (UTC-5)
-  workflow_dispatch:         # "Run workflow" button in the Actions tab (always runs)
+    - cron: "33 6 * * *"      # 02:33 EDT (UTC-4)  → full
+    - cron: "33 7 * * *"      # 02:33 EST (UTC-5)  → full
+    - cron: "11 */3 * * *"    # every 3h            → pool
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "full = pick today's backdrop · pool = top up the Fresh-news pool"
+        default: pool
+        type: choice
+        options: [pool, full]
 
 permissions:
   contents: write
@@ -23,41 +30,54 @@ jobs:
   pick:
     runs-on: ubuntu-latest
     steps:
-      - name: DST guard (only the 02:xx New York run proceeds)
+      - name: decide mode
         id: guard
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then echo "go=1" >> "$GITHUB_OUTPUT"; exit 0; fi
-          H=$(TZ=America/New_York date +%H)
-          echo "New York hour: $H"
-          if [ "$H" = "02" ]; then echo "go=1" >> "$GITHUB_OUTPUT"; else echo "go=0" >> "$GITHUB_OUTPUT"; echo "not the 02:33 New York run - skipping"; fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          H=$(TZ=America/New_York date +%H); M=$(date +%M)
+          echo "New York hour $H, minute $M"
+          if [ "$H" = "02" ] && [ "$M" -ge 30 ]; then echo "mode=full" >> "$GITHUB_OUTPUT"
+          elif [ "$M" -ge 30 ]; then echo "mode=skip" >> "$GITHUB_OUTPUT"; echo "the other DST twin — skipping"
+          else echo "mode=pool" >> "$GITHUB_OUTPUT"; fi
 
       - uses: actions/checkout@v4
-        if: steps.guard.outputs.go == '1'
+        if: steps.guard.outputs.mode != 'skip'
 
       - uses: actions/setup-python@v5
-        if: steps.guard.outputs.go == '1'
+        if: steps.guard.outputs.mode != 'skip'
         with:
           python-version: "3.12"
 
       - run: pip install requests pillow
-        if: steps.guard.outputs.go == '1'
+        if: steps.guard.outputs.mode != 'skip'
 
-      - name: pick + outpaint today's backdrop
-        if: steps.guard.outputs.go == '1'
+      - name: pick today's backdrop
+        if: steps.guard.outputs.mode == 'full'
         env:
           POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
         run: python bg/pick_bg.py
 
+      - name: top up the pool
+        if: steps.guard.outputs.mode == 'pool'
+        env:
+          POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
+        run: python bg/pick_bg.py --pool
+
       - name: commit
-        if: steps.guard.outputs.go == '1'
+        if: steps.guard.outputs.mode != 'skip'
         run: |
           git config user.name "graff-bot"
           git config user.email "graff-bot@users.noreply.github.com"
-          if [ ! -f bg/current.json ]; then echo "no backdrop produced"; exit 0; fi
-          git add bg/current.jpg bg/current.json bg/history.json
-          if [ -f bg/pool.json ]; then git add -A bg/pool.json bg/pool-*.jpg; fi
+          git add bg/current.jpg bg/current.json bg/history.json 2>/dev/null || true
           if [ -f bg/prev.jpg ]; then git add bg/prev.jpg bg/prev.json; fi
+          if [ -f bg/pool.json ]; then git add -A bg/pool.json; git add -A bg/pool-*.jpg 2>/dev/null || true; git add -u bg/; fi
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
-          HEAD_LINE=$(python -c "import json;print(json.load(open('bg/current.json'))['headline'][:72])")
-          git commit -m "bg: $HEAD_LINE"
+          if [ "${{ steps.guard.outputs.mode }}" = "full" ]; then
+            MSG="bg: $(python -c "import json;print(json.load(open('bg/current.json'))['headline'][:72])")"
+          else
+            MSG="bg: pool +$(python -c "import json;p=json.load(open('bg/pool.json'));print(len(p))") backdrops"
+          fi
+          git commit -m "$MSG"
           git push
