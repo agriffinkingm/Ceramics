@@ -113,6 +113,7 @@ def fetch_gdelt():
                     u = a.get("url")
                     if u and u not in seen:
                         seen.add(u)
+                        a["_vis"] = q.startswith("imagetag") or q.startswith("(imagetag")  # photo-tag query
                         arts.append(a)
                 break
             except Exception as e:
@@ -192,10 +193,14 @@ def candidates(arts, history):
             score += 3
         # same place / story as something already on the wall lately → push it down
         score -= 3 * len(topics & topic_words([title]))
+        # came in because GDELT tagged its PHOTO as aerial / skyline / landscape / crowd…:
+        # that's the whole point of the pool, so those go to the front of the queue
+        if a.get("_vis"):
+            score += 8
         out.append({"title": title, "url": url, "domain": dom, "image": img,
                     "seendate": a.get("seendate", ""), "score": score})
     out.sort(key=lambda c: -c["score"])
-    return out[:40]
+    return out[:(60 if POOL_MODE else 40)]
 
 
 # ---------------------------------------------------------------- 2. pick
@@ -370,7 +375,7 @@ def main():
     # the highest vista score (headline order breaks ties); if the vision model is
     # unreachable, the first downloadable photo in headline order wins as before
     looked = []          # (vista, -rank, k, photo)
-    for rank, k in enumerate(order[:(16 if POOL_MODE else VISION_N)]):
+    for rank, k in enumerate(order[:(20 if POOL_MODE else VISION_N)]):
         try:
             im = download_image(cands[k]["image"])
         except Exception as e:
