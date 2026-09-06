@@ -55,6 +55,7 @@ jobs:
           git config user.email "graff-bot@users.noreply.github.com"
           if [ ! -f bg/current.json ]; then echo "no backdrop produced"; exit 0; fi
           git add bg/current.jpg bg/current.json bg/history.json
+          if [ -f bg/pool.json ]; then git add -A bg/pool.json bg/pool-*.jpg; fi
           if [ -f bg/prev.jpg ]; then git add bg/prev.jpg bg/prev.json; fi
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           HEAD_LINE=$(python -c "import json;print(json.load(open('bg/current.json'))['headline'][:72])")
