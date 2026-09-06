@@ -649,7 +649,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-06e";
+const BUILD = "2026-09-06f";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -2804,7 +2804,7 @@ async function flatten() {
     let src = wallComposite(false).toDataURL("image/webp", 0.82);
     if (src.indexOf("data:image/webp") !== 0) src = wallComposite(true).toDataURL("image/jpeg", 0.85);
     if (src.length > 6e6) src = wallComposite(true).toDataURL("image/jpeg", 0.7);
-    const total = totalMarks();
+    const total = totalMarks() + 1; /* flattening is itself a mark */
     const meta = { id: "flat-" + Date.now(), img: src, t: Date.now(), n: total, day: wallDay() };
     await fbFlat(meta);
     await fbBase(total); /* the marks are baked in, not gone — the counter carries on */
@@ -2819,8 +2819,9 @@ async function flatten() {
     paintCtx.clearRect(0, 0, W, H);
     gifOps.length = 0;
     imgCache.clear();
-    opCount = 0; msPrev = total;
+    opCount = 0;
     updateCount();
+    msPrev = total - 1; checkMilestone(); /* the flatten mark can itself cross a milestone */
     await fbClear();
     render();
     showBanner("🧱 flattened — it's all background now (Background Eraser still works on it)");
