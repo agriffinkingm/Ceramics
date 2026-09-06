@@ -565,6 +565,7 @@
   <label>Scale <input type="range" id="pb-scale" min="5" max="300" value="100"></label>
   <label>Rotate <input type="range" id="pb-rot" min="-180" max="180" value="0"></label>
   <label>Opacity <input type="range" id="pb-op" min="5" max="100" value="100"></label>
+  <label id="pb-flip-row" title="Mirror left-right"><input type="checkbox" id="pb-flip"> Flip</label>
   <label id="pb-under-row" title="Put the GIF under the paint layer so spray can cover it"><input type="checkbox" id="pb-under"> Behind paint</label>
   <label id="pb-thresh-row" style="display:none">Cut <input type="range" id="pb-thresh" min="5" max="95" value="50"></label>
   <label id="pb-invert-row" style="display:none" title="Paint the light parts instead of the dark parts"><input type="checkbox" id="pb-invert"> Invert</label>
@@ -596,6 +597,7 @@
   <label id="gen-scale-row" style="display:none">Scale <input type="range" id="gen-scale" min="20" max="300" value="100"></label>
   <label id="gen-rot-row" style="display:none">Rotate <input type="range" id="gen-rot" min="-180" max="180" value="0"></label>
   <label id="gen-op-row" style="display:none">Opacity <input type="range" id="gen-op" min="5" max="100" value="100"></label>
+  <label id="gen-flip-row" style="display:none" title="Mirror left-right"><input type="checkbox" id="gen-flip"> Flip</label>
   <button id="gen-keep" style="display:none">✓ Keep</button>
   <button id="gen-reroll" style="display:none">🎲 Re-roll</button>
   <button id="gen-cancel">✕</button>
@@ -627,7 +629,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-04h";
+const BUILD = "2026-09-04i";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -732,6 +734,7 @@ function render() {
     dctx.save();
     dctx.translate(fillPrev.x, fillPrev.y);
     dctx.rotate(fillPrev.rot || 0);
+    if (fillPrev.flip) dctx.scale(-1, 1);
     dctx.globalAlpha = fillPrev.op == null ? 1 : fillPrev.op;
     dctx.drawImage(fillPrev.img, -fillPrev.w / 2, -fillPrev.h / 2, fillPrev.w, fillPrev.h);
     dctx.restore();
@@ -1705,6 +1708,7 @@ function drawPlacing(ctx) {
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.rotate(p.rot);
+  if (p.flip) ctx.scale(-1, 1);
   ctx.globalAlpha = p.op;
   if (p.gif) {
     p.idx = gifFrame(p.meta, performance.now(), p.t0);
@@ -1734,7 +1738,7 @@ document.getElementById("pb-place").addEventListener("click", () => {
       w: Math.max(1, Math.round(w)), h: Math.max(1, Math.round(h)),
       rot: Math.round(p.rot * 1000) / 1000,
       op: round2(p.op),
-      src: encodeFill(p.img)
+      src: encodeFill(p.flip ? mirrored(p.img) : p.img)
     };
     placing = null;
     resetPlaceBar();
@@ -1765,7 +1769,7 @@ document.getElementById("pb-place").addEventListener("click", () => {
     h: Math.max(1, Math.round(p.img.height * p.scale)),
     rot: Math.round(p.rot * 1000) / 1000,
     op: round2(p.op),
-    src: p.src
+    src: p.flip ? encodeFill(mirrored(p.img)) : p.src
   };
   if (p.ai) op.ai = 1;
   op.ov = 1; /* v10: pasted OVER the wall — covers existing paint at placement */
@@ -1776,6 +1780,8 @@ document.getElementById("pb-place").addEventListener("click", () => {
 function resetPlaceBar() {
   placeBar.style.display = "none";
   pbUnderRow.style.display = "none";
+  pbFlipRow.style.display = "";
+  pbFlip.checked = false;
   pbThreshRow.style.display = "none";
   pbInvertRow.style.display = "none";
   pbToneRow.style.display = "none";
@@ -1795,6 +1801,9 @@ const gifFileBtn = document.getElementById("gif-file");
 const gifInput = document.getElementById("gif-input");
 const pbUnder = document.getElementById("pb-under");
 const pbUnderRow = document.getElementById("pb-under-row");
+const pbFlip = document.getElementById("pb-flip");
+const pbFlipRow = document.getElementById("pb-flip-row");
+pbFlip.addEventListener("change", () => { if (placing && !placing.gif) { placing.flip = pbFlip.checked; render(); } });
 let gifBusy = false;
 /* ---------- GIPHY search: type, pick, it drops straight into placement ----------
    Public-page key like the Pollinations one — Giphy's free tier is rate-limited
@@ -1888,6 +1897,7 @@ async function beginGif(buf) {
   pbUnder.checked = false;
   resetPlaceBar();
   pbUnderRow.style.display = "";
+  pbFlipRow.style.display = "none"; /* sprite sheets aren't mirrored (yet) */
   closeGifBar();
   placeBar.style.display = "flex";
   startGifLoop();
@@ -1988,6 +1998,17 @@ const genScaleRow = document.getElementById("gen-scale-row");
 const genScale = document.getElementById("gen-scale");
 const genRotRow = document.getElementById("gen-rot-row");
 const genRot = document.getElementById("gen-rot");
+const genFlipRow = document.getElementById("gen-flip-row");
+const genFlip = document.getElementById("gen-flip");
+/* bake a horizontal mirror into an image so the published op stays a plain picture */
+function mirrored(img) {
+  const c = document.createElement("canvas");
+  c.width = img.width; c.height = img.height;
+  const ctx = c.getContext("2d");
+  ctx.translate(c.width, 0); ctx.scale(-1, 1);
+  ctx.drawImage(img, 0, 0);
+  return c;
+}
 /* ---------- generative fill ----------
    Photoshop-style: lasso an area — hold ⇧ and drag to add more regions to the
    selection for a more precise fill — describe what appears there (or leave the
@@ -2240,6 +2261,8 @@ function resetGenUi() {
   genScale.value = 100;
   genRotRow.style.display = "none";
   genRot.value = 0;
+  genFlipRow.style.display = "none";
+  genFlip.checked = false;
   fillPrev = null;
   genDrag = null;
 }
@@ -2343,7 +2366,7 @@ async function generate() {
       const px = fillPrev ? fillPrev.x : rx + rw / 2;
       const py = fillPrev ? fillPrev.y : ry + rh / 2;
       fillPrev = { src, img, x: px, y: py, w: rw * sc, h: rh * sc, w0: rw, h0: rh, op: +genOp.value / 100,
-                   rot: +genRot.value * Math.PI / 180 };
+                   rot: +genRot.value * Math.PI / 180, flip: genFlip.checked };
       genInput.style.display = "none";
       genGo.style.display = "none";
       genKeep.style.display = "";
@@ -2351,6 +2374,7 @@ async function generate() {
       genScaleRow.style.display = "";
       genRotRow.style.display = "";
       genOpRow.style.display = "";
+      genFlipRow.style.display = "";
       genBar.style.display = "flex";
     }
   } catch (err) {
@@ -2371,7 +2395,7 @@ genKeep.addEventListener("click", () => {
     x: Math.round(fillPrev.x), y: Math.round(fillPrev.y),
     w: Math.round(fillPrev.w), h: Math.round(fillPrev.h),
     rot: Math.round((fillPrev.rot || 0) * 1000) / 1000, op: round2(fillPrev.op == null ? 1 : fillPrev.op),
-    src: fillPrev.src,
+    src: fillPrev.flip ? encodeFill(mirrored(fillPrev.img)) : fillPrev.src,
     ai: 1, ov: 1
   };
   enqueue(op); publish(op);
@@ -2390,6 +2414,7 @@ genScale.addEventListener("keydown", (e) => e.stopPropagation());
 genRot.addEventListener("input", () => { if (fillPrev) { fillPrev.rot = +genRot.value * Math.PI / 180; render(); } });
 genRot.addEventListener("dblclick", () => { genRot.value = 0; genRot.dispatchEvent(new Event("input")); });
 genRot.addEventListener("keydown", (e) => e.stopPropagation());
+genFlip.addEventListener("change", () => { if (fillPrev) { fillPrev.flip = genFlip.checked; render(); } });
 document.getElementById("gen-cancel").addEventListener("click", () => { if (!genBusy) closeGen(); });
 genInput.addEventListener("input", () => { if (!genBusy && genGo.style.display !== "none") genLabel(); });
 genInput.addEventListener("keydown", (e) => {
