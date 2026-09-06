@@ -172,7 +172,7 @@ function fate(e) {
   const isFinal = /-final$/.test(e.key);
   const marks = isFinal
     ? "buffed at " + e.n + " marks"
-    : e.n + " marks · still growing";
+    : e.n + " marks";
   return date + " · <span class=\"fate\">" + marks + "</span>";
 }
 
@@ -218,10 +218,11 @@ function setPaused(v) {
 
 document.getElementById("next").addEventListener("click", () => show(idx + 1));
 document.getElementById("prev").addEventListener("click", () => show(idx - 1, -1));
-document.addEventListener("keydown", (e) => {
+window.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") show(idx + 1);
   else if (e.key === "ArrowLeft") show(idx - 1, -1);
-  else if (e.key === " ") { e.preventDefault(); setPaused(!paused); }
+  else if (e.key === " " || e.code === "Space") { e.preventDefault(); setPaused(!paused); }
+  else if (e.key === "Escape") { e.preventDefault(); location.href = "graff.html"; } /* back to the wall */
 });
 
 function emptyRoom() {
