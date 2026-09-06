@@ -458,7 +458,7 @@
     <div class="tool" data-tool="image" title="Upload Image (I)">
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>
     </div>
-    <div class="tool" data-tool="gen" title="AI Fill (G) — lasso or box an area (pick the shape in the options; ⇧-drag to add more regions), describe what appears there (leave empty to remove)">
+    <div class="tool" data-tool="gen" title="AI Fill (G) — box or lasso an area (⇧-drag adds regions), describe what appears there (leave empty to remove). Fill: Blend in = content-aware, Imagine = made up from the prompt">
       <svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3z"/><path d="M19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7L19 14z"/><path d="M5 15l.7 1.8L7.5 17.5l-1.8.7L5 20l-.7-1.8L2.5 17.5l1.8-.7L5 15z"/></svg>
     </div>
     <div class="tool" data-tool="gif" title="GIF (M) — paste a GIF link or pick a file; it animates on its own layer">
@@ -513,6 +513,13 @@
       <div class="seg" id="shape-seg">
         <button type="button" data-shape="rect" class="on" title="Drag a box">▭ Rectangle</button>
         <button type="button" data-shape="lasso" title="Freehand lasso">⌒ Lasso</button>
+      </div>
+    </div>
+    <div class="slider-row" id="mode-row" style="display:none">
+      <div class="sr-head"><span>Fill</span></div>
+      <div class="seg" id="mode-seg">
+        <button type="button" data-mode="blend" class="on" title="Content-aware: the model sees the wall around the selection and paints into it so it blends">🧩 Blend in</button>
+        <button type="button" data-mode="imagine" title="Made up from the prompt alone — ignores what's on the wall">✨ Imagine</button>
       </div>
     </div>
     <div class="slider-row" id="drip-row" style="display:none">
@@ -629,7 +636,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-04i";
+const BUILD = "2026-09-04j";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -1303,6 +1310,13 @@ let dragging = false, dragOff = [0, 0];
 let rectSel = null, genBusy = false, fillPrev = null, genDrag = null;
 /* AI Fill selection shape: freehand lasso or a dragged rectangle (toolbox toggle) */
 let genShape = "rect";
+/* AI Fill mode: "blend" = content-aware inpainting (default), "imagine" = prompt only */
+let genMode = "blend";
+document.querySelectorAll("#mode-seg button").forEach(b => b.addEventListener("click", () => {
+  genMode = b.dataset.mode;
+  document.querySelectorAll("#mode-seg button").forEach(o => o.classList.toggle("on", o === b));
+  if (genBar.style.display === "flex" && genGo.style.display !== "none") genLabel();
+}));
 document.querySelectorAll("#shape-seg button").forEach(b => b.addEventListener("click", () => {
   genShape = b.dataset.shape;
   document.querySelectorAll("#shape-seg button").forEach(o => o.classList.toggle("on", o === b));
@@ -2246,7 +2260,7 @@ pbInvert.addEventListener("change", refreshStencil);
 pbTone.addEventListener("change", refreshStencil);
 
 function genLabel() {
-  genGo.textContent = genInput.value.trim() ? "Generate" : "🧽 Remove";
+  genGo.textContent = !genInput.value.trim() ? "🧽 Remove" : genMode === "imagine" ? "✨ Imagine" : "Generate";
 }
 function resetGenUi() {
   genBar.style.display = "none";
@@ -2316,11 +2330,20 @@ async function generate() {
   };
   genBusy = true;
   genGo.disabled = true; genKeep.disabled = true; genReroll.disabled = true;
-  genGo.textContent = "painting…"; genReroll.textContent = "painting…";
+  genGo.textContent = genMode === "imagine" && prompt ? "imagining…" : "painting…"; genReroll.textContent = "painting…";
   try {
     let fillCv = null, im = null;
     const freeChain = () => fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
-    if (POLLINATIONS_KEY) {
+    /* Imagine mode skips the wall-aware edit and paints from the prompt alone;
+       Remove (empty prompt) always needs the wall, so it stays content-aware */
+    if (POLLINATIONS_KEY && genMode === "imagine" && prompt) {
+      try { im = await fetchIm(keyedUrl); }
+      catch (e2) {
+        if (e2.rl) throw e2;
+        if (e2.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
+        im = await freeChain();
+      }
+    } else if (POLLINATIONS_KEY) {
       try {
         /* wall-aware fill (see helpers above) */
         const crop = wallCrop(rx, ry, rw, rh);
@@ -2436,6 +2459,7 @@ function setTool(t) {
   document.getElementById("rot-row").style.display = (t === "text") ? "" : "none";
   document.getElementById("flow-row").style.display = (t === "air") ? "" : "none";
   document.getElementById("shape-row").style.display = (t === "gen" || t === "clone") ? "" : "none";
+  document.getElementById("mode-row").style.display = (t === "gen") ? "" : "none";
   document.getElementById("drip-row").style.display = (t === "drip") ? "" : "none";
   /* erasers always rub at full strength — no opacity to set */
   document.getElementById("op-row").style.display = isEraser(t) ? "none" : "";
