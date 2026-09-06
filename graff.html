@@ -577,6 +577,7 @@
   <input type="text" id="gen-prompt" placeholder="describe what to paint — leave empty to remove…" maxlength="300">
   <button id="gen-go">Generate</button>
   <label id="gen-scale-row" style="display:none">Scale <input type="range" id="gen-scale" min="20" max="300" value="100"></label>
+  <label id="gen-rot-row" style="display:none">Rotate <input type="range" id="gen-rot" min="-180" max="180" value="0"></label>
   <label id="gen-op-row" style="display:none">Opacity <input type="range" id="gen-op" min="5" max="100" value="100"></label>
   <button id="gen-keep" style="display:none">✓ Keep</button>
   <button id="gen-reroll" style="display:none">🎲 Re-roll</button>
@@ -609,7 +610,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-04d";
+const BUILD = "2026-09-04e";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -711,9 +712,12 @@ function render() {
   }
   if (placing) drawPlacing(dctx);
   if (fillPrev) {
+    dctx.save();
+    dctx.translate(fillPrev.x, fillPrev.y);
+    dctx.rotate(fillPrev.rot || 0);
     dctx.globalAlpha = fillPrev.op == null ? 1 : fillPrev.op;
-    dctx.drawImage(fillPrev.img, fillPrev.x - fillPrev.w / 2, fillPrev.y - fillPrev.h / 2, fillPrev.w, fillPrev.h);
-    dctx.globalAlpha = 1;
+    dctx.drawImage(fillPrev.img, -fillPrev.w / 2, -fillPrev.h / 2, fillPrev.w, fillPrev.h);
+    dctx.restore();
   }
   if (rectSel) {
     dctx.strokeStyle = "#7b2cbf";
@@ -1313,8 +1317,7 @@ display.addEventListener("pointerdown", (e) => {
   if (tool === "picker") { pickColor(x, y); return; }
   if (tool === "gen") {
     if (genBusy) return;
-    if (fillPrev && !e.shiftKey &&
-        Math.abs(x - fillPrev.x) < fillPrev.w / 2 && Math.abs(y - fillPrev.y) < fillPrev.h / 2) {
+    if (fillPrev && !e.shiftKey && inFillPrev(x, y)) {
       /* grab the preview to reposition it before Keep */
       genDrag = { dx: fillPrev.x - x, dy: fillPrev.y - y };
       return;
@@ -1910,6 +1913,8 @@ const genOpRow = document.getElementById("gen-op-row");
 const genOp = document.getElementById("gen-op");
 const genScaleRow = document.getElementById("gen-scale-row");
 const genScale = document.getElementById("gen-scale");
+const genRotRow = document.getElementById("gen-rot-row");
+const genRot = document.getElementById("gen-rot");
 /* ---------- generative fill ----------
    Photoshop-style: lasso an area — hold ⇧ and drag to add more regions to the
    selection for a more precise fill — describe what appears there (or leave the
@@ -1919,6 +1924,12 @@ const genScale = document.getElementById("gen-scale");
    The returned center is cut back out, clipped to the lasso with a soft edge,
    previewed IN PLACE, and on Keep published as an ai:1 ov:1 image op — the ov
    punch (v10) makes the fill actually replace what it repainted. */
+function inFillPrev(x, y) {
+  /* is the wall point inside the (possibly rotated) preview box? */
+  const r = -(fillPrev.rot || 0), dx = x - fillPrev.x, dy = y - fillPrev.y;
+  const lx = dx * Math.cos(r) - dy * Math.sin(r), ly = dx * Math.sin(r) + dy * Math.cos(r);
+  return Math.abs(lx) < fillPrev.w / 2 && Math.abs(ly) < fillPrev.h / 2;
+}
 function selBox(sel) {
   /* bounding box over every region in the selection */
   let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
@@ -2042,6 +2053,8 @@ function resetGenUi() {
   genOp.value = 100;
   genScaleRow.style.display = "none";
   genScale.value = 100;
+  genRotRow.style.display = "none";
+  genRot.value = 0;
   fillPrev = null;
   genDrag = null;
 }
@@ -2144,12 +2157,14 @@ async function generate() {
       /* re-roll keeps whatever position/scale/opacity the last preview had */
       const px = fillPrev ? fillPrev.x : rx + rw / 2;
       const py = fillPrev ? fillPrev.y : ry + rh / 2;
-      fillPrev = { src, img, x: px, y: py, w: rw * sc, h: rh * sc, w0: rw, h0: rh, op: +genOp.value / 100 };
+      fillPrev = { src, img, x: px, y: py, w: rw * sc, h: rh * sc, w0: rw, h0: rh, op: +genOp.value / 100,
+                   rot: +genRot.value * Math.PI / 180 };
       genInput.style.display = "none";
       genGo.style.display = "none";
       genKeep.style.display = "";
       genReroll.style.display = "";
       genScaleRow.style.display = "";
+      genRotRow.style.display = "";
       genOpRow.style.display = "";
       genBar.style.display = "flex";
     }
@@ -2170,7 +2185,7 @@ genKeep.addEventListener("click", () => {
     t: "i",
     x: Math.round(fillPrev.x), y: Math.round(fillPrev.y),
     w: Math.round(fillPrev.w), h: Math.round(fillPrev.h),
-    rot: 0, op: round2(fillPrev.op == null ? 1 : fillPrev.op),
+    rot: Math.round((fillPrev.rot || 0) * 1000) / 1000, op: round2(fillPrev.op == null ? 1 : fillPrev.op),
     src: fillPrev.src,
     ai: 1, ov: 1
   };
@@ -2187,6 +2202,9 @@ genScale.addEventListener("input", () => {
   }
 });
 genScale.addEventListener("keydown", (e) => e.stopPropagation());
+genRot.addEventListener("input", () => { if (fillPrev) { fillPrev.rot = +genRot.value * Math.PI / 180; render(); } });
+genRot.addEventListener("dblclick", () => { genRot.value = 0; genRot.dispatchEvent(new Event("input")); });
+genRot.addEventListener("keydown", (e) => e.stopPropagation());
 document.getElementById("gen-cancel").addEventListener("click", () => { if (!genBusy) closeGen(); });
 genInput.addEventListener("input", () => { if (!genBusy && genGo.style.display !== "none") genLabel(); });
 genInput.addEventListener("keydown", (e) => {
