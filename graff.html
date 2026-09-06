@@ -649,7 +649,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-06d";
+const BUILD = "2026-09-06e";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -2701,7 +2701,7 @@ async function captureWall(tag) {
   }
   try {
     const era = opsByKey.size ? opsByKey.keys().next().value : "e" + Date.now();
-    const t = Date.now(), n = opCount;
+    const t = Date.now(), n = totalMarks(); /* the number the wall shows (base + live) */
     await fbArchive(era + "-" + tag,
       { t, n, w: 1728, h: 972, img: snapshotJpeg(1728, 972, 0.85) },
       { t, n, thumb: snapshotJpeg(432, 243, 0.7) });
