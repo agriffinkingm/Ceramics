@@ -4,13 +4,13 @@ name: daily news backdrop
 #  • FULL pick at 02:33 America/New_York — the day's backdrop (bg/current.*), an hour
 #    before the wall's 03:33 turnover. GitHub cron is UTC and ignores DST, so both
 #    candidate UTC times are scheduled and the guard keeps the one where it's 02:3x NY.
-#  • POOL top-up every 3 hours — adds up to three fresh, wide, mutually different scenes
+#  • POOL top-up every 6 hours — adds up to three fresh, wide, mutually different scenes
 #    from around the world to bg/pool.json for the wall's 🗞 Fresh news button.
 on:
   schedule:
     - cron: "33 6 * * *"      # 02:33 EDT (UTC-4)  → full
     - cron: "33 7 * * *"      # 02:33 EST (UTC-5)  → full
-    - cron: "11 */3 * * *"    # every 3h            → pool
+    - cron: "11 */6 * * *"    # every 6h            → pool (4 runs/day ≈ 12 new scenes; each run = ~14 vision calls of pollen)
   workflow_dispatch:
     inputs:
       mode:
