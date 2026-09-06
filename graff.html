@@ -648,7 +648,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-06b";
+const BUILD = "2026-09-06c";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -1647,30 +1647,42 @@ const trotEl = document.getElementById("trot");
 trotEl.addEventListener("input", () => {
   trot = +trotEl.value;
   document.getElementById("rot-val").textContent = trot + "°";
-  if (textBox) textBox.style.transform = "rotate(" + trot + "deg)";
+  styleTextBox();
 });
 trotEl.addEventListener("dblclick", () => { trotEl.value = 0; trotEl.dispatchEvent(new Event("input")); });
+/* the queued text follows the toolbox live: Size, Opacity, Rotate and the colour
+   swatch restyle it until Enter stamps it. Losing focus (to drag a slider) keeps it. */
+function styleTextBox() {
+  const inp = textBox;
+  if (!inp) return;
+  const fontPx = Math.max(size * 2, 14);
+  inp.style.top = (inp._cy - fontPx * cam.s / 2) + "px";
+  inp.style.font = inp._fam ? (fontPx * cam.s) + "px '" + inp._fam + "', cursive"
+                            : "bold " + (fontPx * cam.s) + "px 'Arial Black', Arial, sans-serif";
+  inp.style.color = fg;
+  inp.style.opacity = opacity;
+  inp.style.transform = trot ? "rotate(" + trot + "deg)" : "";
+}
 function beginText(cx, cy, wx, wy, graff) {
   if (textBox) textBox.remove();
-  const fontPx = Math.max(size * 2, 14);
   const fam = graff ? GRAFF_FONTS[(Math.random() * GRAFF_FONTS.length) | 0] : null;
-  if (fam) document.fonts.load(fontPx * cam.s + "px '" + fam + "'").catch(() => {});
+  if (fam) document.fonts.load(Math.max(size * 2, 14) * cam.s + "px '" + fam + "'").catch(() => {});
   const inp = document.createElement("input");
   textBox = inp;
+  inp._cy = cy; inp._fam = fam;
   inp.type = "text";
   inp.placeholder = fam ? fam + "…" : "type, then Enter";
-  inp.style.cssText = "position:fixed;left:" + cx + "px;top:" + (cy - fontPx * cam.s / 2) + "px;" +
+  inp.style.cssText = "position:fixed;left:" + cx + "px;" +
     "background:transparent;border:1px dashed rgba(0,0,0,.4);outline:none;padding:0 2px;" +
-    "font:" + (fam ? (fontPx * cam.s) + "px '" + fam + "', cursive"
-                   : "bold " + (fontPx * cam.s) + "px 'Arial Black', Arial, sans-serif") + ";color:" + fg + ";" +
-    "min-width:60px;max-width:60vw;z-index:25;transform-origin:0 50%;" +
-    (trot ? "transform:rotate(" + trot + "deg);" : "");
+    "min-width:60px;max-width:60vw;z-index:25;transform-origin:0 50%;";
+  styleTextBox();
   document.body.appendChild(inp);
   inp.focus();
   setTimeout(() => inp.focus(), 0);
   inp.addEventListener("keydown", (e) => {
     e.stopPropagation();
     if (e.key === "Enter" && inp.value.trim()) {
+      const fontPx = Math.max(size * 2, 14); /* whatever the sliders say NOW */
       const op = { t: "t", x: wx, y: wy, c: fg, sz: fontPx, op: round2(opacity), txt: inp.value.slice(0, 120) };
       if (fam) op.f = fam;
       if (trot) op.rot = +(trot * Math.PI / 180).toFixed(4);
@@ -1678,7 +1690,8 @@ function beginText(cx, cy, wx, wy, graff) {
       inp.remove(); textBox = null;
     } else if (e.key === "Escape") { inp.remove(); textBox = null; }
   });
-  inp.addEventListener("blur", () => { if (textBox === inp) { inp.remove(); textBox = null; } });
+  /* an empty box that loses focus goes away; one with text waits for Enter */
+  inp.addEventListener("blur", () => { if (textBox === inp && !inp.value.trim()) { inp.remove(); textBox = null; } });
 }
 
 /* ---------- image upload + placement ---------- */
@@ -2465,6 +2478,7 @@ function setTool(t) {
   tool = t;
   if (t !== "gen" && t !== "clone" && !genBusy && (rectSel || fillPrev)) closeGen();
   if (t !== "gif") closeGifBar();
+  if (t !== "text" && textBox) { textBox.remove(); textBox = null; }
   toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === t));
   document.getElementById("tool-name").textContent = TOOL_NAMES[t];
   document.getElementById("tb-tool").textContent = TOOL_NAMES[t];
@@ -2512,7 +2526,7 @@ document.getElementById("save").addEventListener("click", () => {
 const fgEl = document.getElementById("fg"), bgEl = document.getElementById("bg");
 const fgMini = document.getElementById("fg-mini");
 const fgInput = document.getElementById("fg-input");
-function setFg(c) { fg = c; fgEl.style.background = c; fgMini.style.background = c; refreshStencil(); }
+function setFg(c) { fg = c; fgEl.style.background = c; fgMini.style.background = c; refreshStencil(); styleTextBox(); }
 function setBg(c) { bg = c; bgEl.style.background = c; }
 setFg(DEFAULT_FG); setBg(DEFAULT_BG);
 fgEl.addEventListener("click", () => fgInput.click());
@@ -2531,8 +2545,8 @@ PALETTE.forEach(c => {
 });
 
 const sizeEl = document.getElementById("size"), opEl = document.getElementById("opacity");
-sizeEl.addEventListener("input", () => { size = +sizeEl.value; document.getElementById("size-val").textContent = size; });
-opEl.addEventListener("input", () => { opacity = +opEl.value / 100; document.getElementById("op-val").textContent = opEl.value; });
+sizeEl.addEventListener("input", () => { size = +sizeEl.value; document.getElementById("size-val").textContent = size; styleTextBox(); });
+opEl.addEventListener("input", () => { opacity = +opEl.value / 100; document.getElementById("op-val").textContent = opEl.value; styleTextBox(); });
 const dripEl = document.getElementById("drip");
 dripEl.addEventListener("input", () => { dripAmt = +dripEl.value / 100; document.getElementById("drip-val").textContent = dripEl.value; });
 const flowEl = document.getElementById("flow");
