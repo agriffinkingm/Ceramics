@@ -34,19 +34,39 @@ POOL_MODE = "--pool" in sys.argv   # top up bg/pool.json with fresh wide scenes;
 # GDELT rejects long queries ("Your query was too short or too long", ~250 char cap)
 # and rate-limits to one request per 5 seconds, so this is split into short queries
 # fetched sequentially with a pause.
-QUERIES = [
+DISASTER_QUERIES = [
     '(flood OR earthquake OR wildfire OR hurricane OR typhoon OR eruption OR tsunami) sourcelang:eng',
     '(explosion OR collapse OR derailment OR "plane crash" OR "state of emergency" OR landslide) sourcelang:eng',
     '(evacuation OR "dam breach" OR outbreak OR blackout OR "oil spill" OR scandal OR indicted OR riot) sourcelang:eng',
-    # GDELT tags the lead photo of every article — these pull stories whose PHOTO is the
-    # long view, whatever the story is about, from anywhere in the world
-    'imagetag:"aerial photography" sourcelang:eng',
-    'imagetag:"bird\'s-eye view" sourcelang:eng',
-    '(imagetag:"skyline" OR imagetag:"cityscape") sourcelang:eng',
-    '(imagetag:"landscape" OR imagetag:"mountain range" OR imagetag:"coast") sourcelang:eng',
-    '(imagetag:"crowd" OR imagetag:"stadium" OR imagetag:"protest") sourcelang:eng',
-    '(imagetag:"satellite imagery" OR imagetag:"volcano" OR imagetag:"glacier") sourcelang:eng',
 ]
+# scenes worth a wide shot, whatever the story: the vision scorer does the real picking,
+# these just make sure it gets to see varied material from all over
+SCENE_QUERIES = [
+    '(aerial OR "drone footage" OR "satellite images" OR "from above" OR "bird\'s-eye") sourcelang:eng',
+    '(volcano OR lava OR glacier OR avalanche OR drought OR "dust storm" OR wildfire) sourcelang:eng',
+    '(festival OR parade OR pilgrimage OR marathon OR carnival OR "mass rally" OR procession) sourcelang:eng',
+    '(skyline OR harbour OR harbor OR "container port" OR "traffic jam" OR stadium OR bridge) sourcelang:eng',
+    '(flood OR typhoon OR hurricane OR cyclone OR monsoon OR "storm surge" OR blizzard) sourcelang:eng',
+    '("refugee camp" OR "tent city" OR desert OR "sea ice" OR reef OR rainforest OR "open-pit") sourcelang:eng',
+]
+# a few random countries per run so consecutive runs look at different parts of the world
+COUNTRIES = ["japan", "india", "brazil", "mexico", "kenya", "nigeria", "egypt", "turkey", "indonesia",
+             "philippines", "australia", "canada", "germany", "france", "spain", "italy", "chile",
+             "argentina", "peru", "pakistan", "bangladesh", "vietnam", "thailand", "iran", "iraq",
+             "israel", "ukraine", "poland", "greece", "morocco", "ethiopia", "tanzania", "colombia",
+             "malaysia", "taiwan", "southkorea", "southafrica", "unitedkingdom", "norway", "iceland",
+             "newzealand", "saudiarabia", "unitedarabemirates", "mongolia", "nepal", "srilanka", "cuba"]
+COUNTRY_SCENE = '(aerial OR flood OR fire OR crowd OR skyline OR volcano OR storm OR harbour OR festival) sourcecountry:%s sourcelang:eng'
+
+
+def build_queries():
+    import random
+    if POOL_MODE:
+        return SCENE_QUERIES + [COUNTRY_SCENE % c for c in random.sample(COUNTRIES, 3)]
+    return DISASTER_QUERIES + SCENE_QUERIES[:2] + [COUNTRY_SCENE % c for c in random.sample(COUNTRIES, 1)]
+
+
+QUERIES = None  # built per run
 GOOD_DOMAINS = ("reuters.com", "apnews.com", "bbc.com", "bbc.co.uk", "theguardian.com",
                 "aljazeera.com", "npr.org", "cnn.com", "nytimes.com", "washingtonpost.com",
                 "france24.com", "dw.com", "abc.net.au", "cbc.ca", "nbcnews.com", "cbsnews.com",
@@ -94,7 +114,8 @@ def chat_headers():
 # ---------------------------------------------------------------- 1. headlines
 def fetch_gdelt():
     arts, seen = [], set()
-    for qi, q in enumerate(QUERIES):
+    for qi, q in enumerate(build_queries()):
+        log("query:", q[:90])
         url = ("https://api.gdeltproject.org/api/v2/doc/doc?" + urllib.parse.urlencode({
             "query": q, "mode": "ArtList", "format": "json", "maxrecords": 60,
             "timespan": "10d", "sort": "DateDesc"}))
@@ -113,7 +134,7 @@ def fetch_gdelt():
                     u = a.get("url")
                     if u and u not in seen:
                         seen.add(u)
-                        a["_vis"] = q.startswith("imagetag") or q.startswith("(imagetag")  # photo-tag query
+                        a["_vis"] = q in SCENE_QUERIES or "sourcecountry:" in q  # scene / country query
                         arts.append(a)
                 break
             except Exception as e:
@@ -196,7 +217,7 @@ def candidates(arts, history):
         # came in because GDELT tagged its PHOTO as aerial / skyline / landscape / crowd…:
         # that's the whole point of the pool, so those go to the front of the queue
         if a.get("_vis"):
-            score += 8
+            score += 4
         out.append({"title": title, "url": url, "domain": dom, "image": img,
                     "seendate": a.get("seendate", ""), "score": score})
     out.sort(key=lambda c: -c["score"])
