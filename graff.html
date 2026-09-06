@@ -127,7 +127,7 @@
   #news-row .nr-src { flex: none; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; opacity: .8; }
 
   #actions-row { display: flex; flex-wrap: wrap; gap: 6px; }
-  #actions-row > button { flex: 1 1 42%; }
+  #actions-row > button { flex: 1 1 42%; white-space: nowrap; padding-left: 4px; padding-right: 4px; }
 
   /* flatten: hold it down like detonate — bakes every layer into the background */
   #flatten {
@@ -138,6 +138,18 @@
     touch-action: none;
     -webkit-user-select: none; user-select: none;
   }
+  #freshnews {
+    padding: 8px;
+    position: relative; overflow: hidden;
+    background: #2b3546; border: 1px solid #3e4c66;
+    color: #cdd8ea; cursor: pointer; font: inherit; border-radius: 2px;
+    touch-action: none;
+    -webkit-user-select: none; user-select: none;
+  }
+  #freshnews .fill { position: absolute; inset: 0; width: 0; background: #3f5c8a; transition: width 1.2s linear; }
+  #freshnews.arming .fill { width: 100%; }
+  #freshnews span { position: relative; }
+  #freshnews:hover { border-color: #5b76a3; }
   #flatten .fill {
     position: absolute; inset: 0; width: 0;
     background: #3f7d3f;
@@ -430,6 +442,10 @@
       padding: 9px 6px; font-size: 12px;
       background: rgba(63,125,63,.35); border: none; border-radius: 10px;
     }
+    #freshnews {
+      padding: 9px 6px; font-size: 12px;
+      background: rgba(63,92,138,.35); border: none; border-radius: 10px;
+    }
     #tb-foot { display: none; }
     #banner { bottom: auto; top: calc(60px + env(safe-area-inset-top)); }
   }
@@ -565,6 +581,7 @@
     <button id="undo" disabled title="Undo your last mark (Z)">↩ Undo</button>
     <button id="save" title="Download the wall as a PNG">💾 Save</button>
     <button id="flatten" title="Hold to merge every layer into a new background for everyone — the marks stop being undoable, and only the Background Eraser can touch them until 3:33"><i class="fill"></i><span>🧱 Flatten</span></button>
+    <button id="freshnews" title="Hold to wipe the wall and swap in a different recent news photo for everyone (from the last few days' picks)"><i class="fill"></i><span>🗞 Fresh news</span></button>
     <button id="detonate" title="Hold to wipe the whole wall for everyone — marks, flattened background and today's news photo; bare concrete until 3:33"><i class="fill"></i><span>💣 Detonate</span></button>
   </div>
 
@@ -649,7 +666,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-06h";
+const BUILD = "2026-09-06i";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -2727,7 +2744,7 @@ function checkMilestone() {
    the op history (including image data) stops growing from zero again. ---------- */
 const detBtn = document.getElementById("detonate");
 const boomEl = document.getElementById("boom");
-async function detonate(msg, keepBg) {
+async function detonate(msg, keepBg, keepPick) {
   boomEl.classList.remove("go");
   void boomEl.offsetWidth; /* restart animation */
   boomEl.classList.add("go");
@@ -2738,6 +2755,7 @@ async function detonate(msg, keepBg) {
   if (!keepBg) {
     /* the background goes too: drop any flattened wall and hide today's news photo */
     if (fbFlat) fbFlat(null).catch(() => {});
+    if (fbPick && !keepPick) fbPick(null).catch(() => {});
     noBgDay = wallDay();
     if (fbNobg) fbNobg(noBgDay).catch(() => {});
   }
@@ -2854,11 +2872,72 @@ async function applyFlat(meta) {
     if (flatMeta === meta) { flatMeta = null; loadBackground(); } /* couldn't load it — fall back to the photo */
   }
 }
+async function applyPick(meta) {
+  pickMeta = meta;
+  try {
+    const img = new Image();
+    img.decoding = "async";
+    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("pick image")); img.src = "bg/" + meta.image; });
+    if (pickMeta !== meta) return;
+    if (flatMeta) return; /* a flat still wins while it exists */
+    bgMeta = meta; bgImg = img; bgId = meta.id;
+    paintBg();
+    for (const op of opsByKey.values()) if (op.t === "s" && op.tool === "berase") await applyOp(op);
+    if (meta.url) {
+      document.getElementById("news-link").href = meta.url;
+      document.getElementById("news-head").textContent = meta.headline || "backdrop";
+      document.getElementById("news-src").textContent = meta.outlet || "";
+      document.getElementById("news-row").style.display = "block";
+    }
+    render();
+  } catch (e) {
+    console.error("graff pick:", e);
+    if (pickMeta === meta) { pickMeta = null; loadBackground(); }
+  }
+}
+function clearPick() {
+  pickMeta = null;
+  if (flatMeta) return;
+  bgMeta = null; bgImg = null; bgId = null;
+  bgCtx.clearRect(0, 0, W, H);
+  render();
+  loadBackground();
+}
+/* 🗞 Fresh news: wipe the wall (marks to zero) and swap in a different backdrop from
+   the last few days' picks. Hold-to-arm like Detonate. */
+const freshBtn = document.getElementById("freshnews");
+let freshBusy = false;
+async function freshNews() {
+  if (freshBusy) return;
+  if (!fbPick || !fbClear) { showBanner("not connected — can't swap the backdrop for everyone"); return; }
+  freshBusy = true;
+  try {
+    const r = await fetch("bg/pool.json?cb=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error("no pool yet");
+    const pool = (await r.json()).filter(p => p && p.id && p.image);
+    const cur = pickMeta ? pickMeta.id : bgId;
+    let choices = pool.filter(p => p.id !== cur);
+    if (!choices.length) choices = pool;
+    if (!choices.length) throw new Error("the pool is empty — it fills up from the daily picks");
+    const pick = choices[(Math.random() * choices.length) | 0];
+    /* wipe first (keeps the backdrop machinery untouched), then swap the photo */
+    await detonate("🗞 fresh wall, fresh news", true, true);
+    if (fbNobg) await fbNobg(null); /* un-buff if the wall had been detonated to bare */
+    if (fbFlat) await fbFlat(null);
+    await fbPick({ id: pick.id, image: pick.image, headline: pick.headline || "", url: pick.url || "",
+                   outlet: pick.outlet || "", day: wallDay(), t: Date.now() });
+  } catch (err) {
+    showBanner("fresh news failed (" + err.message + ")");
+  }
+  freshBusy = false;
+}
+holdToFire(freshBtn, freshNews);
 function clearFlat() {
   flatMeta = null; bgMeta = null; bgImg = null; bgId = null;
   bgCtx.clearRect(0, 0, W, H);
   render();
-  loadBackground(); /* back to the day's news photo */
+  if (pickMeta) { const m = pickMeta; pickMeta = null; applyPick(m); } /* back to the fresh-news pick */
+  else loadBackground(); /* back to the day's news photo */
 }
 
 /* debounced: a burst of removals (undo storm, detonate) rebuilds once */
@@ -2936,10 +3015,13 @@ function showBanner(msg) {
 /* Detonate buffs the backdrop too: walls/main/nobg holds the wall-day it happened
    on, and until the next 03:33 the news photo stays off for everyone (bare concrete). */
 let noBgDay = null, fbNobg = null;
+/* "Fresh news": walls/main/bgPick = one of bg/pool.json's recent backdrops, chosen by
+   someone on the wall; overrides the day's photo until the next 03:33 (like a flat). */
+let pickMeta = null, fbPick = null;
 function paintBg() {
   bgCtx.clearRect(0, 0, W, H);
   if (!bgImg) return;
-  if (!flatMeta && noBgDay && noBgDay === wallDay()) return; /* buffed to bare concrete today */
+  if (!flatMeta && !pickMeta && noBgDay && noBgDay === wallDay()) return; /* buffed to bare concrete today */
   /* cover-fit whatever size the Action produced (normally exactly W×H) */
   const s = Math.max(W / bgImg.width, H / bgImg.height);
   const dw = bgImg.width * s, dh = bgImg.height * s;
@@ -3000,6 +3082,7 @@ async function syncDay() {
     const mode = await fbDay(day);
     if (mode === "wipe") {
       if (fbFlat) await fbFlat(null); /* a flattened background doesn't survive the day */
+      if (fbPick) await fbPick(null);  /* nor does a fresh-news pick */
       await detonate("🌅 3:33 — the wall turned over. Fresh concrete.", true); /* new day's photo stays */
     }
   } catch (e) { console.error("graff day sync:", e); }
@@ -3015,7 +3098,7 @@ function loadBackground() {
   if (bgLoading) return bgLoading;
   bgLoading = (async () => {
     try {
-      if (flatMeta) return; /* a flattened wall is the backdrop until the turnover */
+      if (flatMeta || pickMeta) return; /* a flattened wall / fresh-news pick is the backdrop until the turnover */
       let m = await fetchBgMeta("current.json");
       /* committed early (id is still "tomorrow") → keep showing yesterday's until 03:33;
          if there is no prev.* to show, better the new one than bare concrete */
@@ -3028,7 +3111,7 @@ function loadBackground() {
       /* a flattened wall may have arrived from Firebase while the photo was
          downloading — it wins, always (this race once put the news photo under
          a wall that had been flattened, and the compendium flicked that) */
-      if (flatMeta) return;
+      if (flatMeta || pickMeta) return;
       bgMeta = m; bgImg = img; bgId = m.id;
       paintBg();
       /* any berase ops that arrived before the backdrop replay onto it now */
@@ -3095,6 +3178,13 @@ async function initFirebase() {
     /* flattened background: one shared image node; applied by every client */
     const flatRef = ref(db, "walls/main/flat");
     fbFlat = (v) => set(flatRef, v);
+    const pickRef = ref(db, "walls/main/bgPick");
+    fbPick = (v) => set(pickRef, v);
+    onValue(pickRef, (snap) => {
+      const v = snap.val();
+      if (v && v.image && v.id && v.day === wallDay()) { if (!pickMeta || pickMeta.id !== v.id) applyPick(v); }
+      else if (pickMeta) clearPick();
+    });
     const nobgRef = ref(db, "walls/main/nobg");
     fbNobg = (v) => set(nobgRef, v);
     onValue(nobgRef, (snap) => { noBgDay = snap.val() || null; paintBg(); render(); });
