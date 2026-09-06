@@ -565,7 +565,7 @@
     <button id="undo" disabled title="Undo your last mark (Z)">↩ Undo</button>
     <button id="save" title="Download the wall as a PNG">💾 Save</button>
     <button id="flatten" title="Hold to merge every layer into a new background for everyone — the marks stop being undoable, and only the Background Eraser can touch them until 3:33"><i class="fill"></i><span>🧱 Flatten</span></button>
-    <button id="detonate" title="Hold to wipe the whole wall for everyone"><i class="fill"></i><span>💣 Detonate</span></button>
+    <button id="detonate" title="Hold to wipe the whole wall for everyone — marks, flattened background and today's news photo; bare concrete until 3:33"><i class="fill"></i><span>💣 Detonate</span></button>
   </div>
 
   <div id="tb-foot">
@@ -649,7 +649,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-06g";
+const BUILD = "2026-09-06h";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -2727,7 +2727,7 @@ function checkMilestone() {
    the op history (including image data) stops growing from zero again. ---------- */
 const detBtn = document.getElementById("detonate");
 const boomEl = document.getElementById("boom");
-async function detonate(msg) {
+async function detonate(msg, keepBg) {
   boomEl.classList.remove("go");
   void boomEl.offsetWidth; /* restart animation */
   boomEl.classList.add("go");
@@ -2735,7 +2735,13 @@ async function detonate(msg) {
   appliedKeys.clear();
   ownKeys.length = 0;
   refreshUndo();
-  paintBg(); /* erasures were ops — a fresh wall gets the whole backdrop back */
+  if (!keepBg) {
+    /* the background goes too: drop any flattened wall and hide today's news photo */
+    if (fbFlat) fbFlat(null).catch(() => {});
+    noBgDay = wallDay();
+    if (fbNobg) fbNobg(noBgDay).catch(() => {});
+  }
+  paintBg();
   photoCtx.clearRect(0, 0, W, H);
   aiCtx.clearRect(0, 0, W, H);
   paintCtx.clearRect(0, 0, W, H);
@@ -2927,9 +2933,13 @@ function showBanner(msg) {
 }
 
 /* ---------- daily news backdrop ---------- */
+/* Detonate buffs the backdrop too: walls/main/nobg holds the wall-day it happened
+   on, and until the next 03:33 the news photo stays off for everyone (bare concrete). */
+let noBgDay = null, fbNobg = null;
 function paintBg() {
   bgCtx.clearRect(0, 0, W, H);
   if (!bgImg) return;
+  if (!flatMeta && noBgDay && noBgDay === wallDay()) return; /* buffed to bare concrete today */
   /* cover-fit whatever size the Action produced (normally exactly W×H) */
   const s = Math.max(W / bgImg.width, H / bgImg.height);
   const dw = bgImg.width * s, dh = bgImg.height * s;
@@ -2990,7 +3000,7 @@ async function syncDay() {
     const mode = await fbDay(day);
     if (mode === "wipe") {
       if (fbFlat) await fbFlat(null); /* a flattened background doesn't survive the day */
-      await detonate("🌅 3:33 — the wall turned over. Fresh concrete.");
+      await detonate("🌅 3:33 — the wall turned over. Fresh concrete.", true); /* new day's photo stays */
     }
   } catch (e) { console.error("graff day sync:", e); }
 }
@@ -3085,6 +3095,9 @@ async function initFirebase() {
     /* flattened background: one shared image node; applied by every client */
     const flatRef = ref(db, "walls/main/flat");
     fbFlat = (v) => set(flatRef, v);
+    const nobgRef = ref(db, "walls/main/nobg");
+    fbNobg = (v) => set(nobgRef, v);
+    onValue(nobgRef, (snap) => { noBgDay = snap.val() || null; paintBg(); render(); });
     const baseRef = ref(db, "walls/main/base");
     fbBase = (n) => set(baseRef, n);
     onValue(baseRef, (snap) => {
