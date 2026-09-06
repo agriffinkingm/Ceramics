@@ -636,7 +636,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-04j";
+const BUILD = "2026-09-06a";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -2743,16 +2743,21 @@ async function flatten() {
 }
 holdToFire(flatBtn, flatten);
 async function applyFlat(meta) {
+  flatMeta = meta; /* claim the backdrop immediately so a news photo in flight can't land on top */
   try {
     const img = new Image();
     img.decoding = "async";
     await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("flat image")); img.src = meta.img; });
-    flatMeta = meta; bgMeta = meta; bgImg = img; bgId = meta.id;
+    if (flatMeta !== meta) return; /* superseded (cleared or re-flattened) while loading */
+    bgMeta = meta; bgImg = img; bgId = meta.id;
     paintBg();
     for (const op of opsByKey.values()) if (op.t === "s" && op.tool === "berase") await applyOp(op);
     document.getElementById("news-row").style.display = "none";
     render();
-  } catch (e) { console.error("graff flat:", e); }
+  } catch (e) {
+    console.error("graff flat:", e);
+    if (flatMeta === meta) { flatMeta = null; loadBackground(); } /* couldn't load it — fall back to the photo */
+  }
 }
 function clearFlat() {
   flatMeta = null; bgMeta = null; bgImg = null; bgId = null;
@@ -2921,6 +2926,10 @@ function loadBackground() {
       const img = new Image();
       img.decoding = "async";
       await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("bg image")); img.src = "bg/" + m.image; });
+      /* a flattened wall may have arrived from Firebase while the photo was
+         downloading — it wins, always (this race once put the news photo under
+         a wall that had been flattened, and the compendium flicked that) */
+      if (flatMeta) return;
       bgMeta = m; bgImg = img; bgId = m.id;
       paintBg();
       /* any berase ops that arrived before the backdrop replay onto it now */
