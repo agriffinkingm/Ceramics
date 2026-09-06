@@ -58,7 +58,7 @@ DISASTER_WORDS = ("flood", "quake", "fire", "hurricane", "typhoon", "cyclone", "
 # the wall wants the long view: aerial / drone / panoramic / satellite shots of the scene
 VISTA_WORDS = ("aerial", "drone", "from above", "satellite", "panoram", "bird's-eye", "birds-eye",
                "overhead", "sweep", "swath", "skyline", "landscape", "footage shows", "images show")
-VISION_N = 10          # how many top candidates get their photo looked at
+VISION_N = 10          # how many top candidates get their photo looked at (16 in --pool mode)
 VISTA_MIN = 4          # below this the photo is a close-up/portrait/graphic — skipped if anything better exists
 
 
@@ -133,14 +133,32 @@ STOP = {"After", "With", "From", "Over", "Into", "This", "That", "What", "When",
 
 
 def topic_words(headlines):
-    """Capitalised words (places, names, events) from recent picks — used to steer away
-    from the same story / country showing up again and again."""
+    """Place / name / event stems from recent picks — used to steer away from the same
+    story or country showing up again and again. Capitalised words are keyed by their
+    first six letters (Indonesia ≈ Indonesian), plus disaster-type stems (erupt, flood…)."""
     out = set()
     for h in headlines:
-        for w in re.findall(r"[A-Z][a-zA-Z'\-]{3,}", h or ""):
+        h = h or ""
+        for w in re.findall(r"[A-Z][a-zA-Z'\-]{3,}", h):
             if w not in STOP:
-                out.add(w.lower())
+                out.add(w.lower()[:6])
+        low = h.lower()
+        for stem in DISASTER_WORDS:
+            if stem in low:
+                out.add("#" + stem)
     return out
+
+
+def ahash(im):
+    """64-bit average hash — catches the same wire photo run by different outlets."""
+    g = im.convert("L").resize((8, 8), Image.LANCZOS)
+    px = list(g.getdata())
+    avg = sum(px) / 64.0
+    return sum(1 << i for i, p in enumerate(px) if p > avg)
+
+
+def hamming(a, b):
+    return bin((a or 0) ^ (b or 0)).count("1")
 
 
 def load_pool():
@@ -225,7 +243,7 @@ def vista_score(im):
     prompt = ("Rate this news photo from 0 to 10 for how much it is a FAR, WIDE, LONG view of a "
               "scene: aerial or drone or satellite shots, panoramas, bird's-eye views, whole "
               "landscapes / cityscapes / coastlines / valleys / crowds seen from a distance score "
-              "8-10. Medium shots of a street or a building score 4-6. Close-ups, portraits, "
+              "8-10. Medium shots of a street, a single building, rubble or a vehicle score 3-5. Close-ups, portraits, "
               "headshots, people talking, objects, logos, graphics or text score 0-2. "
               "Reply with ONLY the number.")
     try:
@@ -352,7 +370,7 @@ def main():
     # the highest vista score (headline order breaks ties); if the vision model is
     # unreachable, the first downloadable photo in headline order wins as before
     looked = []          # (vista, -rank, k, photo)
-    for rank, k in enumerate(order[:VISION_N]):
+    for rank, k in enumerate(order[:(16 if POOL_MODE else VISION_N)]):
         try:
             im = download_image(cands[k]["image"])
         except Exception as e:
@@ -414,7 +432,7 @@ def main():
 
 
 POOL_KEEP = 18
-POOL_MIN_VISTA = 5
+POOL_MIN_VISTA = 7
 
 
 def pool_run(cands, looked):
@@ -423,23 +441,29 @@ def pool_run(cands, looked):
     stamp = dt.datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d-%H%M")
     pool = load_pool()
     used = topic_words([p.get("headline") for p in pool])
+    hashes = [p.get("hash") for p in pool if p.get("hash")]
     added = []
     for v, _, k, im in looked:
         if len(added) >= 3:
             break
-        if v >= 0 and v < POOL_MIN_VISTA:
+        if v < POOL_MIN_VISTA:   # unscored (vision down) counts as not wide enough
             continue
         c = cands[k]
         tw = topic_words([c["title"]])
         if tw & used:
             log("pool skip (same place/story):", c["title"][:60])
             continue
+        h = ahash(im)
+        if any(hamming(h, x) <= 6 for x in hashes):
+            log("pool skip (same photo):", c["title"][:60])
+            continue
         used |= tw
+        hashes.append(h)
         pid = "%s-%d" % (stamp, len(added))
         cover(im, 1728, 972).save(os.path.join(BG, "pool-" + pid + ".jpg"), "JPEG", quality=80, optimize=True, progressive=True)
         added.append({"id": pid, "image": "pool-" + pid + ".jpg", "headline": c["title"], "url": c["url"],
                       "outlet": c["domain"].replace("www.", ""), "t": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-                      "vista": v})
+                      "vista": v, "hash": h})
         log("pool +", "%.0f" % v, c["title"][:70])
     if not added:
         log("pool: nothing wide and new this run")
@@ -463,14 +487,14 @@ def update_pool(today, meta, primary, extras):
     pool = load_pool()
     now = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     entries = [{"id": today, "image": "pool-" + today + ".jpg", "headline": meta["headline"],
-                "url": meta["url"], "outlet": meta["outlet"], "t": now}]
+                "url": meta["url"], "outlet": meta["outlet"], "t": now, "hash": ahash(primary)}]
     primary.resize((1728, 972), Image.LANCZOS).save(os.path.join(pool_dir, "pool-" + today + ".jpg"),
                                                     "JPEG", quality=80, optimize=True, progressive=True)
     for i, (cand, im) in enumerate(extras):
         pid = "%s-%s" % (today, "bc"[i])
         cover(im, 1728, 972).save(os.path.join(pool_dir, "pool-" + pid + ".jpg"), "JPEG", quality=80, optimize=True, progressive=True)
         entries.append({"id": pid, "image": "pool-" + pid + ".jpg", "headline": cand["title"],
-                        "url": cand["url"], "outlet": cand["domain"].replace("www.", ""), "t": now})
+                        "url": cand["url"], "outlet": cand["domain"].replace("www.", ""), "t": now, "hash": ahash(im)})
     write_pool([p for p in pool if p["id"] != today and not p["id"].startswith(today + "-")
                 or re.match(r"\d{4}-\d\d-\d\d-\d{4}-", p["id"])] + entries)
 
