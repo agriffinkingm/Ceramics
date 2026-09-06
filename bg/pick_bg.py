@@ -396,7 +396,7 @@ def main():
     # the highest vista score (headline order breaks ties); if the vision model is
     # unreachable, the first downloadable photo in headline order wins as before
     looked = []          # (vista, -rank, k, photo)
-    for rank, k in enumerate(order[:(20 if POOL_MODE else VISION_N)]):
+    for rank, k in enumerate(order[:(14 if POOL_MODE else VISION_N)]):
         try:
             im = download_image(cands[k]["image"])
         except Exception as e:
