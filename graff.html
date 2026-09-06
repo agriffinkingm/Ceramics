@@ -488,7 +488,7 @@
     <div class="tool" data-tool="berase" title="Background Eraser (B) — rubs out today's news backdrop down to the bare concrete; nothing else is touched">
       <svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="13" height="10" rx="1"/><path d="M2.5 12l3.5-4 3 3 2-2 4.5 5"/><circle cx="12" cy="7" r="1"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
     </div>
-    <div class="tool" data-tool="clone" title="Clone (C) — box or lasso a bit of the wall, then drop a copy anywhere (scale, rotate, fade)">
+    <div class="tool" data-tool="clone" title="Clone (C) — box or lasso a bit of the wall, then drop a copy anywhere (scale, rotate, flip, invert, fade)">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="12" height="12" rx="1"/><path d="M9 9h12v12H9z"/><path d="M15 9v6H9"/></svg>
     </div>
     <div class="tool" data-tool="drip" title="Drip (W) — paint that runs; Runniness sets how far it drips">
@@ -583,6 +583,7 @@
   <label>Rotate <input type="range" id="pb-rot" min="-180" max="180" value="0"></label>
   <label>Opacity <input type="range" id="pb-op" min="5" max="100" value="100"></label>
   <label id="pb-flip-row" title="Mirror left-right"><input type="checkbox" id="pb-flip"> Flip</label>
+  <label id="pb-neg-row" title="Invert the colours (negative)"><input type="checkbox" id="pb-neg"> Invert</label>
   <label id="pb-under-row" title="Put the GIF under the paint layer so spray can cover it"><input type="checkbox" id="pb-under"> Behind paint</label>
   <label id="pb-thresh-row" style="display:none">Cut <input type="range" id="pb-thresh" min="5" max="95" value="50"></label>
   <label id="pb-invert-row" style="display:none" title="Paint the light parts instead of the dark parts"><input type="checkbox" id="pb-invert"> Invert</label>
@@ -648,7 +649,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-09-06c";
+const BUILD = "2026-09-06d";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -1808,7 +1809,7 @@ document.getElementById("pb-place").addEventListener("click", () => {
     h: Math.max(1, Math.round(p.img.height * p.scale)),
     rot: Math.round(p.rot * 1000) / 1000,
     op: round2(p.op),
-    src: p.flip ? encodeFill(mirrored(p.img)) : p.src
+    src: (p.flip || p.neg) ? encodeFill(p.flip ? mirrored(p.img) : p.img) : p.src
   };
   if (p.ai) op.ai = 1;
   op.ov = 1; /* v10: pasted OVER the wall — covers existing paint at placement */
@@ -1821,6 +1822,8 @@ function resetPlaceBar() {
   pbUnderRow.style.display = "none";
   pbFlipRow.style.display = "";
   pbFlip.checked = false;
+  pbNegRow.style.display = "";
+  pbNeg.checked = false;
   pbThreshRow.style.display = "none";
   pbInvertRow.style.display = "none";
   pbToneRow.style.display = "none";
@@ -1842,6 +1845,27 @@ const pbUnder = document.getElementById("pb-under");
 const pbUnderRow = document.getElementById("pb-under-row");
 const pbFlip = document.getElementById("pb-flip");
 const pbFlipRow = document.getElementById("pb-flip-row");
+const pbNeg = document.getElementById("pb-neg");
+const pbNegRow = document.getElementById("pb-neg-row");
+/* colour negative of an image, alpha untouched (pixel loop: ctx.filter isn't everywhere) */
+function negative(img) {
+  const c = document.createElement("canvas");
+  c.width = img.width; c.height = img.height;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  ctx.drawImage(img, 0, 0);
+  const id = ctx.getImageData(0, 0, c.width, c.height), d = id.data;
+  for (let i = 0; i < d.length; i += 4) { d[i] = 255 - d[i]; d[i + 1] = 255 - d[i + 1]; d[i + 2] = 255 - d[i + 2]; }
+  ctx.putImageData(id, 0, 0);
+  return c;
+}
+pbNeg.addEventListener("change", () => {
+  if (!placing || placing.gif || placing.stencil) return;
+  if (!placing.img0) placing.img0 = placing.img;
+  if (pbNeg.checked && !placing.imgNeg) placing.imgNeg = negative(placing.img0);
+  placing.img = pbNeg.checked ? placing.imgNeg : placing.img0;
+  placing.neg = pbNeg.checked;
+  render();
+});
 pbFlip.addEventListener("change", () => { if (placing && !placing.gif) { placing.flip = pbFlip.checked; render(); } });
 let gifBusy = false;
 /* ---------- GIPHY search: type, pick, it drops straight into placement ----------
@@ -1937,6 +1961,7 @@ async function beginGif(buf) {
   resetPlaceBar();
   pbUnderRow.style.display = "";
   pbFlipRow.style.display = "none"; /* sprite sheets aren't mirrored (yet) */
+  pbNegRow.style.display = "none";
   closeGifBar();
   placeBar.style.display = "flex";
   startGifLoop();
@@ -2273,6 +2298,7 @@ stencilInput.addEventListener("change", async () => {
     placing = { stencil: st, img: stencilCutout(st, 0.5, false, fg, false), x: vx, y: vy, scale: s0, rot: 0, op: 1 };
     pbScale.value = Math.round(s0 * 100); pbRot.value = 0; pbOp.value = 100;
     pbThreshRow.style.display = ""; pbInvertRow.style.display = ""; pbToneRow.style.display = "";
+    pbNegRow.style.display = "none";
     placeBar.style.display = "flex";
     pbHint.textContent = "Cut sets what counts as dark; Invert flips the picture; Tone keeps the greys. Colour = your current colour.";
     render();
