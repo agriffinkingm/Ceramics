@@ -29,6 +29,7 @@ GEN_W, GEN_H = 1024, 576                 # nanobanana works at ~1024 long side
 UA = {"User-Agent": "Mozilla/5.0 (graffwall daily backdrop; +https://agriffinkingm.com)"}
 DRY = "--dry" in sys.argv
 FORCE = "--force" in sys.argv
+POOL_MODE = "--pool" in sys.argv   # top up bg/pool.json with fresh wide scenes; leave current.* alone
 
 # GDELT rejects long queries ("Your query was too short or too long", ~250 char cap)
 # and rate-limits to one request per 5 seconds, so this is split into short queries
@@ -37,6 +38,14 @@ QUERIES = [
     '(flood OR earthquake OR wildfire OR hurricane OR typhoon OR eruption OR tsunami) sourcelang:eng',
     '(explosion OR collapse OR derailment OR "plane crash" OR "state of emergency" OR landslide) sourcelang:eng',
     '(evacuation OR "dam breach" OR outbreak OR blackout OR "oil spill" OR scandal OR indicted OR riot) sourcelang:eng',
+    # GDELT tags the lead photo of every article — these pull stories whose PHOTO is the
+    # long view, whatever the story is about, from anywhere in the world
+    'imagetag:"aerial photography" sourcelang:eng',
+    'imagetag:"bird\'s-eye view" sourcelang:eng',
+    '(imagetag:"skyline" OR imagetag:"cityscape") sourcelang:eng',
+    '(imagetag:"landscape" OR imagetag:"mountain range" OR imagetag:"coast") sourcelang:eng',
+    '(imagetag:"crowd" OR imagetag:"stadium" OR imagetag:"protest") sourcelang:eng',
+    '(imagetag:"satellite imagery" OR imagetag:"volcano" OR imagetag:"glacier") sourcelang:eng',
 ]
 GOOD_DOMAINS = ("reuters.com", "apnews.com", "bbc.com", "bbc.co.uk", "theguardian.com",
                 "aljazeera.com", "npr.org", "cnn.com", "nytimes.com", "washingtonpost.com",
@@ -118,9 +127,35 @@ def load_history():
         return []
 
 
+STOP = {"After", "With", "From", "Over", "Into", "This", "That", "What", "When", "Where", "While",
+        "Will", "Have", "Been", "Says", "Said", "Amid", "More", "Than", "Live", "News", "Watch",
+        "Video", "Photos", "Here", "Their", "They", "Your", "About", "Just", "Some", "Also"}
+
+
+def topic_words(headlines):
+    """Capitalised words (places, names, events) from recent picks — used to steer away
+    from the same story / country showing up again and again."""
+    out = set()
+    for h in headlines:
+        for w in re.findall(r"[A-Z][a-zA-Z'\-]{3,}", h or ""):
+            if w not in STOP:
+                out.add(w.lower())
+    return out
+
+
+def load_pool():
+    try:
+        return json.load(open(os.path.join(BG, "pool.json"), encoding="utf-8"))
+    except Exception:
+        return []
+
+
 def candidates(arts, history):
-    seen_urls = {h.get("url") for h in history[-30:]}
-    seen_heads = {(h.get("headline") or "").lower()[:40] for h in history[-30:]}
+    pool = load_pool()
+    recent = history[-30:]
+    seen_urls = {h.get("url") for h in recent} | {p.get("url") for p in pool}
+    seen_heads = {(h.get("headline") or "").lower()[:40] for h in recent} | {(p.get("headline") or "").lower()[:40] for p in pool}
+    topics = topic_words([h.get("headline") for h in history[-8:]] + [p.get("headline") for p in pool])
     out, dedupe = [], set()
     for a in arts:
         img, title, url = a.get("socialimage") or "", (a.get("title") or "").strip(), a.get("url") or ""
@@ -137,6 +172,8 @@ def candidates(arts, history):
         score += sum(3 for w in VISTA_WORDS if w in title.lower())
         if any(dom.endswith(g) for g in GOOD_DOMAINS):
             score += 3
+        # same place / story as something already on the wall lately → push it down
+        score -= 3 * len(topics & topic_words([title]))
         out.append({"title": title, "url": url, "domain": dom, "image": img,
                     "seendate": a.get("seendate", ""), "score": score})
     out.sort(key=lambda c: -c["score"])
@@ -149,13 +186,17 @@ def llm_pick(cands):
     if not cands:
         return None
     listing = "\n".join(f"{i}. [{c['domain']}] {c['title']}" for i, c in enumerate(cands))
+    recent = [h.get("headline") for h in load_history()[-6:]] + [p.get("headline") for p in load_pool()]
+    recent_txt = ("\n\nAlready used recently (pick a DIFFERENT place and story):\n" +
+                  "\n".join("- " + (r or "") for r in recent[-12:])) if recent else ""
     prompt = ("You choose one news story per day whose photo becomes the backdrop of a public "
               "graffiti wall. Prefer, in order: disasters, emergencies, catastrophes, scandals, "
               "breaking news — the more dramatic and photographable the better. Strongly prefer "
               "stories whose photo is likely a FAR, WIDE view of the scene: aerial, drone, "
               "satellite, panoramic, bird's-eye, a whole city / coastline / valley / crowd seen "
               "from a distance. Avoid opinion pieces, portraits, press conferences, close-ups "
-              "and stories without a clear physical scene.\n\nStories:\n" + listing +
+              "and stories without a clear physical scene. Vary the part of the world." + recent_txt +
+              "\n\nStories:\n" + listing +
               "\n\nReply with ONLY the number of your pick.")
     try:
         r = requests.post(CHAT_URL, headers=chat_headers(),
@@ -327,6 +368,8 @@ def main():
         log("no downloadable image; keeping current backdrop")
         return 0
     looked.sort(key=lambda x: (x[0] if x[0] >= 0 else -1, x[1]), reverse=True)
+    if POOL_MODE:
+        return pool_run(cands, looked)
     v, _, k, photo = looked[0]
     if 0 <= v < VISTA_MIN:
         log("best vista only %.0f — nothing wide today, taking it anyway" % v)
@@ -370,15 +413,54 @@ def main():
     return 0
 
 
-POOL_KEEP = 12
+POOL_KEEP = 18
+POOL_MIN_VISTA = 5
+
+
+def pool_run(cands, looked):
+    """--pool: add up to 3 wide, mutually different scenes to the pool; current.* untouched."""
+    from zoneinfo import ZoneInfo
+    stamp = dt.datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d-%H%M")
+    pool = load_pool()
+    used = topic_words([p.get("headline") for p in pool])
+    added = []
+    for v, _, k, im in looked:
+        if len(added) >= 3:
+            break
+        if v >= 0 and v < POOL_MIN_VISTA:
+            continue
+        c = cands[k]
+        tw = topic_words([c["title"]])
+        if tw & used:
+            log("pool skip (same place/story):", c["title"][:60])
+            continue
+        used |= tw
+        pid = "%s-%d" % (stamp, len(added))
+        cover(im, 1728, 972).save(os.path.join(BG, "pool-" + pid + ".jpg"), "JPEG", quality=80, optimize=True, progressive=True)
+        added.append({"id": pid, "image": "pool-" + pid + ".jpg", "headline": c["title"], "url": c["url"],
+                      "outlet": c["domain"].replace("www.", ""), "t": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+                      "vista": v})
+        log("pool +", "%.0f" % v, c["title"][:70])
+    if not added:
+        log("pool: nothing wide and new this run")
+        return 0
+    write_pool(pool + added)
+    return 0
+
+
+def write_pool(pool):
+    pool = pool[-POOL_KEEP:]
+    keep = {p["image"] for p in pool}
+    for f in os.listdir(BG):
+        if f.startswith("pool-") and f.endswith(".jpg") and f not in keep:
+            os.remove(os.path.join(BG, f))
+    json.dump(pool, open(os.path.join(BG, "pool.json"), "w", encoding="utf-8"), indent=1)
+    log("pool: %d backdrops" % len(pool))
 
 
 def update_pool(today, meta, primary, extras):
     pool_dir = BG  # flat files bg/pool-<id>.jpg (the GitHub upload page can't make new dirs)
-    try:
-        pool = json.load(open(os.path.join(BG, "pool.json"), encoding="utf-8"))
-    except Exception:
-        pool = []
+    pool = load_pool()
     now = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     entries = [{"id": today, "image": "pool-" + today + ".jpg", "headline": meta["headline"],
                 "url": meta["url"], "outlet": meta["outlet"], "t": now}]
@@ -389,14 +471,8 @@ def update_pool(today, meta, primary, extras):
         cover(im, 1728, 972).save(os.path.join(pool_dir, "pool-" + pid + ".jpg"), "JPEG", quality=80, optimize=True, progressive=True)
         entries.append({"id": pid, "image": "pool-" + pid + ".jpg", "headline": cand["title"],
                         "url": cand["url"], "outlet": cand["domain"].replace("www.", ""), "t": now})
-    pool = [p for p in pool if not p["id"].startswith(today)] + entries
-    pool = pool[-POOL_KEEP:]
-    keep = {p["image"] for p in pool}
-    for f in os.listdir(pool_dir):
-        if f.startswith("pool-") and f.endswith(".jpg") and f not in keep:
-            os.remove(os.path.join(pool_dir, f))
-    json.dump(pool, open(os.path.join(BG, "pool.json"), "w", encoding="utf-8"), indent=1)
-    log("pool: %d backdrops" % len(pool))
+    write_pool([p for p in pool if p["id"] != today and not p["id"].startswith(today + "-")
+                or re.match(r"\d{4}-\d\d-\d\d-\d{4}-", p["id"])] + entries)
 
 
 if __name__ == "__main__":
