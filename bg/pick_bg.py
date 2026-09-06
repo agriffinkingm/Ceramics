@@ -363,7 +363,40 @@ def main():
     history.append({k: meta[k] for k in ("id", "headline", "url", "outlet", "method")})
     json.dump(history[-120:], open(os.path.join(BG, "history.json"), "w", encoding="utf-8"), indent=1)
     log("wrote bg/current.jpg (%s) + current.json" % method)
+    # ---- pool: today's pick plus the next-best two photos, kept for ~POOL_KEEP days,
+    # so the wall's "Fresh news" button can swap in a different backdrop instantly
+    # (the page picks one at random from bg/pool.json; no job needed).
+    update_pool(today, meta, out, [(cands[kk], im) for _, _, kk, im in looked[1:3]])
     return 0
+
+
+POOL_KEEP = 12
+
+
+def update_pool(today, meta, primary, extras):
+    pool_dir = BG  # flat files bg/pool-<id>.jpg (the GitHub upload page can't make new dirs)
+    try:
+        pool = json.load(open(os.path.join(BG, "pool.json"), encoding="utf-8"))
+    except Exception:
+        pool = []
+    now = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+    entries = [{"id": today, "image": "pool-" + today + ".jpg", "headline": meta["headline"],
+                "url": meta["url"], "outlet": meta["outlet"], "t": now}]
+    primary.resize((1728, 972), Image.LANCZOS).save(os.path.join(pool_dir, "pool-" + today + ".jpg"),
+                                                    "JPEG", quality=80, optimize=True, progressive=True)
+    for i, (cand, im) in enumerate(extras):
+        pid = "%s-%s" % (today, "bc"[i])
+        cover(im, 1728, 972).save(os.path.join(pool_dir, "pool-" + pid + ".jpg"), "JPEG", quality=80, optimize=True, progressive=True)
+        entries.append({"id": pid, "image": "pool-" + pid + ".jpg", "headline": cand["title"],
+                        "url": cand["url"], "outlet": cand["domain"].replace("www.", ""), "t": now})
+    pool = [p for p in pool if not p["id"].startswith(today)] + entries
+    pool = pool[-POOL_KEEP:]
+    keep = {p["image"] for p in pool}
+    for f in os.listdir(pool_dir):
+        if f.startswith("pool-") and f.endswith(".jpg") and f not in keep:
+            os.remove(os.path.join(pool_dir, f))
+    json.dump(pool, open(os.path.join(BG, "pool.json"), "w", encoding="utf-8"), indent=1)
+    log("pool: %d backdrops" % len(pool))
 
 
 if __name__ == "__main__":
