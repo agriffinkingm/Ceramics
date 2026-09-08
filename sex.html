@@ -83,26 +83,31 @@
     color: var(--charcoal);
     margin-bottom: .8rem;
   }
-  #choices { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
-  #choices button:last-child { grid-column: 1 / -1; }
-  #choices button {
+  .poll { margin-bottom: .9rem; }
+  .poll:last-of-type { margin-bottom: 0; }
+  .poll h3 { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 300; font-size: 1.25rem; color: var(--stone); margin-bottom: .4rem; }
+  .choices { display: flex; gap: .4rem; }
+  .choices button {
+    flex: 1 1 0;
     font: inherit; font-size: .9rem; letter-spacing: .04em;
     background: none; border: 1px solid var(--plaster-deep); color: var(--stone);
     padding: .6rem .3rem; cursor: pointer;
     transition: border-color .2s, color .2s, background .2s;
   }
-  #choices button:hover, #choices button:focus-visible { border-color: var(--terracotta); color: var(--terracotta); outline: none; }
-  #choices button:disabled { cursor: default; opacity: .5; }
-
-  #tally { display: none; }
-  #tally.shown { display: block; }
-  .row { display: grid; grid-template-columns: 7.6em 1fr 3.2em; align-items: center; gap: .6rem; font-size: .9rem; color: var(--stone); margin: .35rem 0; }
+  .choices button:hover, .choices button:focus-visible { border-color: var(--terracotta); color: var(--terracotta); outline: none; }
+  .choices button:disabled { cursor: default; opacity: .5; }
+  .poll.done .choices { display: none; }
+  .tally { display: none; }
+  .poll.done .tally { display: block; }
+  #after { display: none; }
+  #after.shown { display: block; }
+  .row { display: grid; grid-template-columns: 6.4em 1fr 3.2em; align-items: center; gap: .6rem; font-size: .9rem; color: var(--stone); margin: .35rem 0; }
   .row .bar { height: 2px; background: var(--plaster-deep); position: relative; }
   .row .bar i { position: absolute; left: 0; top: -1px; height: 4px; width: 0; background: var(--stone); transition: width .7s cubic-bezier(.2,.7,.2,1); }
   .row.mine { color: var(--terracotta); }
   .row.mine .bar i { background: var(--terracotta); }
   .row .n { text-align: right; font-variant-numeric: tabular-nums; }
-  #count { font-size: .78rem; color: var(--clay-dark); margin-top: .5rem; }
+  .count { font-size: .78rem; color: var(--clay-dark); margin-top: .3rem; }
   #who { display: none; margin-top: .6rem; font-size: .85rem; }
   #who.shown { display: block; }
   #who button { font: inherit; background: none; border: 0; padding: 0; color: var(--clay-dark); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
@@ -143,7 +148,7 @@
   @media (max-width: 560px) {
     #q { font-size: 1.6rem; }
     #label { padding: .9rem 1rem 1rem; margin-bottom: max(1rem, env(safe-area-inset-bottom)); }
-    #choices button { font-size: .82rem; padding: .55rem .2rem; }
+    .choices button { font-size: .82rem; padding: .55rem .2rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     #art, .row .bar i, #toast { transition: none; }
@@ -164,20 +169,33 @@
 
 <div id="label">
   <div id="q">Who made it?</div>
-  <div id="choices">
-    <button data-c="sman">Straight man</button>
-    <button data-c="swoman">Straight woman</button>
-    <button data-c="qman">Queer man</button>
-    <button data-c="qwoman">Queer woman</button>
-    <button data-c="nb">Non-binary</button>
+  <div id="polls">
+    <div class="poll" data-p="sex">
+      <div class="choices">
+        <button data-c="man">Man</button>
+        <button data-c="woman">Woman</button>
+        <button data-c="nb">Non-binary</button>
+      </div>
+      <div class="tally">
+        <div class="row" data-c="man"><span>Man</span><span class="bar"><i></i></span><span class="n">–</span></div>
+        <div class="row" data-c="woman"><span>Woman</span><span class="bar"><i></i></span><span class="n">–</span></div>
+        <div class="row" data-c="nb"><span>Non-binary</span><span class="bar"><i></i></span><span class="n">–</span></div>
+        <div class="count"></div>
+      </div>
+    </div>
+    <div class="poll" data-p="or">
+      <div class="choices">
+        <button data-c="straight">Straight</button>
+        <button data-c="gay">Gay</button>
+      </div>
+      <div class="tally">
+        <div class="row" data-c="straight"><span>Straight</span><span class="bar"><i></i></span><span class="n">–</span></div>
+        <div class="row" data-c="gay"><span>Gay</span><span class="bar"><i></i></span><span class="n">–</span></div>
+        <div class="count"></div>
+      </div>
+    </div>
   </div>
-  <div id="tally">
-    <div class="row" data-c="sman"><span>Straight man</span><span class="bar"><i></i></span><span class="n">–</span></div>
-    <div class="row" data-c="swoman"><span>Straight woman</span><span class="bar"><i></i></span><span class="n">–</span></div>
-    <div class="row" data-c="qman"><span>Queer man</span><span class="bar"><i></i></span><span class="n">–</span></div>
-    <div class="row" data-c="qwoman"><span>Queer woman</span><span class="bar"><i></i></span><span class="n">–</span></div>
-    <div class="row" data-c="nb"><span>Non-binary</span><span class="bar"><i></i></span><span class="n">–</span></div>
-    <div id="count"></div>
+  <div id="after">
     <div id="who"><button type="button">who actually made it?</button><div class="ans"><span class="nm"></span> <a target="_blank" rel="noopener"></a></div></div>
     <button id="next">Next piece</button>
   </div>
@@ -191,7 +209,7 @@
 <div id="toast"></div>
 
 <script type="module">
-const BUILD = "2026-09-08b";
+const BUILD = "2026-09-08c";
 const DB = "https://griffgraff-baa46-default-rtdb.firebaseio.com";
 const firebaseConfig = {
   apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I",
@@ -204,11 +222,11 @@ const firebaseConfig = {
   measurementId: "G-7KC0BJ1LYG"
 };
 const MAX_SIDE = 1400, MAX_CHARS = 900_000;
-const CHOICES = ["sman", "swoman", "qman", "qwoman", "nb"];
+const POLLS = { sex: ["man", "woman", "nb"], or: ["straight", "gay"] };
 
 const $ = s => document.querySelector(s);
-const artEl = $("#art"), emptyEl = $("#empty"), choicesEl = $("#choices"), tallyEl = $("#tally"),
-      countEl = $("#count"), nextBtn = $("#next"), fileEl = $("#file"), toastEl = $("#toast"),
+const artEl = $("#art"), emptyEl = $("#empty"), pollsEl = $("#polls"), afterEl = $("#after"),
+      nextBtn = $("#next"), fileEl = $("#file"), toastEl = $("#toast"),
       qEl = $("#q"), whoEl = $("#who"), hangForm = $("#hangform"), linkEl = $("#link"), artistEl = $("#artist");
 let pending = null;     // { img, dataUrl } waiting for the hang form
 
@@ -216,20 +234,27 @@ let fb = null;          // { ref, push, set, get, runTransaction, onValue }
 let keys = [];          // all artwork keys
 let cur = null;         // current key
 let hist = [];          // keys already shown this session (for ← back)
-let unsub = null;       // onValue unsubscribe for the tally
+let unsubs = [];        // onValue unsubscribes for the tallies
 let toastT;
 
 function toast(msg, ms = 2500) {
   toastEl.textContent = msg; toastEl.classList.add("shown");
   clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove("shown"), ms);
 }
-function myVotes() { try { return JSON.parse(localStorage.getItem("sexvotes") || "{}"); } catch { return {}; } }
-function setVote(k, c) { const v = myVotes(); v[k] = c; localStorage.setItem("sexvotes", JSON.stringify(v)); }
+function myVotes() { try { return JSON.parse(localStorage.getItem("sexvotes2") || "{}"); } catch { return {}; } }
+function setVote(k, p, c) { const v = myVotes(); v[k] = Object.assign(v[k] || {}, { [p]: c }); localStorage.setItem("sexvotes2", JSON.stringify(v)); }
+function voted(k) { const v = myVotes()[k]; return v && (v.sex || v.or); }
+function stopTallies() { unsubs.forEach(f => f()); unsubs = []; }
+function resetPolls() {
+  pollsEl.querySelectorAll(".poll").forEach(p => p.classList.remove("done"));
+  pollsEl.querySelectorAll("button").forEach(b => b.disabled = false);
+  afterEl.classList.remove("shown");
+}
 
 function showEmpty(msg) {
   artEl.classList.remove("shown"); artEl.removeAttribute("src");
   emptyEl.textContent = msg; emptyEl.classList.add("shown");
-  choicesEl.style.display = "none"; tallyEl.classList.remove("shown");
+  pollsEl.style.display = "none"; afterEl.classList.remove("shown");
 }
 
 /* ---------- picking ---------- */
@@ -241,28 +266,27 @@ async function fetchKeys() {
 }
 function pickKey() {
   const voted = myVotes();
-  const fresh = keys.filter(k => !(k in voted) && k !== cur);
+  const fresh = keys.filter(k => !(voted[k] && voted[k].sex && voted[k].or) && k !== cur);
   const pool = fresh.length ? fresh : keys.filter(k => k !== cur);
   if (!pool.length) return keys[0] || null;
   return pool[Math.floor(Math.random() * pool.length)];
 }
 async function show(key, back) {
-  if (unsub) { unsub(); unsub = null; }
+  stopTallies();
   if (cur && !back && hist[hist.length - 1] !== cur) hist.push(cur);
   cur = key;
   emptyEl.classList.remove("shown");
   artEl.classList.remove("shown");
-  tallyEl.classList.remove("shown");
-  choicesEl.style.display = "";
-  choicesEl.querySelectorAll("button").forEach(b => b.disabled = false);
+  pollsEl.style.display = "";
+  resetPolls();
   const snap = await fb.get(fb.ref(fb.db, `polls/art/${key}`));
   const a = snap.val();
   if (!a || !a.img) { keys = keys.filter(k => k !== key); return next(); }
   setWho(a.artist, a.link);
   await new Promise(res => { artEl.onload = res; artEl.onerror = res; artEl.src = a.img; });
   artEl.classList.add("shown");
-  const mine = myVotes()[key];
-  if (mine) revealTally(key, mine);
+  const mine = myVotes()[key] || {};
+  for (const p in POLLS) if (mine[p]) revealTally(key, p, mine[p]);
 }
 function next() {
   if (!keys.length) return showEmpty("Nothing on the wall yet — hang a piece.");
@@ -272,18 +296,18 @@ function next() {
 }
 
 /* ---------- voting ---------- */
-choicesEl.addEventListener("click", async e => {
+pollsEl.addEventListener("click", async e => {
   const btn = e.target.closest("button[data-c]");
   if (!btn || !cur || !fb) return;
-  const c = btn.dataset.c;
-  choicesEl.querySelectorAll("button").forEach(b => b.disabled = true);
+  const pollEl = btn.closest(".poll"), p = pollEl.dataset.p, c = btn.dataset.c, key = cur;
+  pollEl.querySelectorAll("button").forEach(b => b.disabled = true);
   try {
-    await fb.runTransaction(fb.ref(fb.db, `polls/votes/${cur}/${c}`), n => (n || 0) + 1);
-    setVote(cur, c);
-    revealTally(cur, c);
+    await fb.runTransaction(fb.ref(fb.db, `polls/votes/${key}/${p}/${c}`), n => (n || 0) + 1);
+    setVote(key, p, c);
+    if (cur === key) revealTally(key, p, c);
   } catch (err) {
     console.error(err);
-    choicesEl.querySelectorAll("button").forEach(b => b.disabled = false);
+    pollEl.querySelectorAll("button").forEach(b => b.disabled = false);
     toast("Couldn't cast that vote — try again");
   }
 });
@@ -298,21 +322,21 @@ function setWho(name, link) {
   else { a.removeAttribute("href"); a.textContent = ""; }
 }
 whoEl.querySelector("button").addEventListener("click", () => whoEl.classList.add("open"));
-function revealTally(key, mine) {
-  choicesEl.style.display = "none";
-  tallyEl.classList.add("shown");
-  if (unsub) unsub();
-  unsub = fb.onValue(fb.ref(fb.db, `polls/votes/${key}`), snap => {
+function revealTally(key, p, mine) {
+  const pollEl = pollsEl.querySelector(`.poll[data-p="${p}"]`);
+  pollEl.classList.add("done");
+  afterEl.classList.add("shown");
+  unsubs.push(fb.onValue(fb.ref(fb.db, `polls/votes/${key}/${p}`), snap => {
     const v = snap.val() || {};
-    const total = CHOICES.reduce((s, c) => s + (v[c] || 0), 0);
-    tallyEl.querySelectorAll(".row").forEach(row => {
+    const total = POLLS[p].reduce((s, c) => s + (v[c] || 0), 0);
+    pollEl.querySelectorAll(".row").forEach(row => {
       const c = row.dataset.c, n = v[c] || 0, pct = total ? Math.round(100 * n / total) : 0;
       row.classList.toggle("mine", c === mine);
       row.querySelector(".n").textContent = total ? pct + "%" : "–";
       requestAnimationFrame(() => row.querySelector("i").style.width = pct + "%");
     });
-    countEl.textContent = total === 1 ? "1 vote" : `${total} votes`;
-  });
+    pollEl.querySelector(".count").textContent = total === 1 ? "1 vote" : `${total} votes`;
+  }));
 }
 function prev() {
   if (!hist.length) return;
@@ -323,9 +347,9 @@ window.addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT" || pending) return;
   if (e.key === "ArrowRight") { e.preventDefault(); next(); }        // skip without voting
   if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
-  if (e.key === " " && tallyEl.classList.contains("shown")) { e.preventDefault(); next(); }
-  const i = { "1": 0, "2": 1, "3": 2, "4": 3, "5": 4 }[e.key];
-  if (i != null && choicesEl.style.display !== "none") choicesEl.querySelectorAll("button")[i].click();
+  if (e.key === " " && afterEl.classList.contains("shown")) { e.preventDefault(); next(); }
+  const k = { "1": ["sex", 0], "2": ["sex", 1], "3": ["sex", 2], "4": ["or", 0], "5": ["or", 1] }[e.key];
+  if (k) { const b = pollsEl.querySelectorAll(`.poll[data-p="${k[0]}"] .choices button`)[k[1]]; if (b && !b.disabled) b.click(); }
 });
 
 /* ---------- hanging ---------- */
@@ -337,13 +361,13 @@ fileEl.addEventListener("change", async () => {
   try {
     const img = await loadFile(f);
     pending = { img, dataUrl: shrink(img) };
-    if (unsub) { unsub(); unsub = null; }
+    stopTallies();
     emptyEl.classList.remove("shown");
     artEl.classList.remove("shown");
     await new Promise(res => { artEl.onload = res; artEl.onerror = res; artEl.src = pending.dataUrl; });
     artEl.classList.add("shown");
     qEl.textContent = "Hang this?";
-    choicesEl.style.display = "none"; tallyEl.classList.remove("shown");
+    pollsEl.style.display = "none"; afterEl.classList.remove("shown");
     linkEl.value = ""; artistEl.value = ""; hangForm.classList.add("shown"); artistEl.focus();
   } catch (err) {
     console.error(err);
