@@ -128,5 +128,35 @@
   "t": "2026-09-09T12:36:45+00:00",
   "vista": 8.0,
   "hash": 13898687892693683710
+ },
+ {
+  "id": "2026-09-10-0830-0",
+  "image": "pool-2026-09-10-0830-0.jpg",
+  "headline": "Tropical Storm Norbert forms in the Pacific Ocean and isnt threatening land",
+  "url": "https://www.wral.com/news/ap/022ea-tropical-storm-norbert-forms-in-the-pacific-ocean-and-isnt-threatening-land/",
+  "outlet": "wral.com",
+  "t": "2026-09-10T12:30:07+00:00",
+  "vista": 9.0,
+  "hash": 16111821972043726848
+ },
+ {
+  "id": "2026-09-10-0830-1",
+  "image": "pool-2026-09-10-0830-1.jpg",
+  "headline": "Rs 1 , 800 crore cleared for Nashik Kumbh mela ; govt sets strict spending rules",
+  "url": "https://economictimes.indiatimes.com/news/india/maharashtra-government-allocates-rs-1800-crore-for-nashik-kumbh-mela-amidst-fraud-allegations/articleshow/134003724.cms",
+  "outlet": "economictimes.indiatimes.com",
+  "t": "2026-09-10T12:30:07+00:00",
+  "vista": 8.0,
+  "hash": 15054614904248864270
+ },
+ {
+  "id": "2026-09-10-0830-2",
+  "image": "pool-2026-09-10-0830-2.jpg",
+  "headline": "Explore gold rush history on a the 100km OKeefe Rail Trail | The Rural",
+  "url": "https://www.therural.com.au/story/9346569/explore-gold-rush-history-on-a-the-100km-okeefe-rail-trail/",
+  "outlet": "therural.com.au",
+  "t": "2026-09-10T12:30:07+00:00",
+  "vista": 7.0,
+  "hash": 13545987549101304
  }
 ]
