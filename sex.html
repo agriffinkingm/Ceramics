@@ -99,6 +99,10 @@
   .poll.done .choices { display: none; }
   .tally { display: none; }
   .poll.done .tally { display: block; }
+  #peek { margin-top: .1rem; font-size: .8rem; text-align: center; }
+  #peek button { font: inherit; background: none; border: 0; padding: .2rem 0; color: var(--clay-dark); cursor: pointer; text-decoration: underline dotted; text-underline-offset: 3px; }
+  #peek button:hover { color: var(--terracotta); }
+  #peek.hidden { display: none; }
   #after { display: none; }
   #after.shown { display: block; }
   .row { display: grid; grid-template-columns: 6.4em 1fr 3.2em; align-items: center; gap: .6rem; font-size: .9rem; color: var(--stone); margin: .35rem 0; }
@@ -195,6 +199,7 @@
       </div>
     </div>
   </div>
+  <div id="peek"><button type="button">just show me the results</button></div>
   <div id="after">
     <div id="who"><button type="button">who actually made it?</button><div class="ans"><span class="nm"></span> <a target="_blank" rel="noopener"></a></div></div>
     <button id="next">Next piece</button>
@@ -209,7 +214,7 @@
 <div id="toast"></div>
 
 <script type="module">
-const BUILD = "2026-09-08c";
+const BUILD = "2026-09-10a";
 const DB = "https://griffgraff-baa46-default-rtdb.firebaseio.com";
 const firebaseConfig = {
   apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I",
@@ -227,7 +232,7 @@ const POLLS = { sex: ["man", "woman", "nb"], or: ["straight", "gay"] };
 const $ = s => document.querySelector(s);
 const artEl = $("#art"), emptyEl = $("#empty"), pollsEl = $("#polls"), afterEl = $("#after"),
       nextBtn = $("#next"), fileEl = $("#file"), toastEl = $("#toast"),
-      qEl = $("#q"), whoEl = $("#who"), hangForm = $("#hangform"), linkEl = $("#link"), artistEl = $("#artist");
+      qEl = $("#q"), whoEl = $("#who"), peekEl = $("#peek"), hangForm = $("#hangform"), linkEl = $("#link"), artistEl = $("#artist");
 let pending = null;     // { img, dataUrl } waiting for the hang form
 
 let fb = null;          // { ref, push, set, get, runTransaction, onValue }
@@ -241,20 +246,36 @@ function toast(msg, ms = 2500) {
   toastEl.textContent = msg; toastEl.classList.add("shown");
   clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove("shown"), ms);
 }
+// one anonymous id per browser; votes are mirrored to polls/voters/<id> so they survive a cleared cache
+const VID = (() => { let v = localStorage.getItem("sexvoter"); if (!v) { v = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)).replace(/-/g, ""); localStorage.setItem("sexvoter", v); } return v; })();
+const PEEK = "peek";    // stored in place of a choice when the viewer looked without voting
 function myVotes() { try { return JSON.parse(localStorage.getItem("sexvotes2") || "{}"); } catch { return {}; } }
-function setVote(k, p, c) { const v = myVotes(); v[k] = Object.assign(v[k] || {}, { [p]: c }); localStorage.setItem("sexvotes2", JSON.stringify(v)); }
+function setVote(k, p, c) {
+  const v = myVotes(); v[k] = Object.assign(v[k] || {}, { [p]: c }); localStorage.setItem("sexvotes2", JSON.stringify(v));
+  if (fb) fb.set(fb.ref(fb.db, `polls/voters/${VID}/${k}/${p}`), c).catch(console.error);
+}
+async function syncVotes() {   // pull this voter's record from the DB and merge it into localStorage
+  try {
+    const r = await fetch(`${DB}/polls/voters/${VID}.json`);
+    if (!r.ok) return;
+    const remote = await r.json() || {}, local = myVotes();
+    for (const k in remote) local[k] = Object.assign({}, remote[k], local[k] || {});
+    localStorage.setItem("sexvotes2", JSON.stringify(local));
+  } catch (err) { console.error(err); }
+}
 function voted(k) { const v = myVotes()[k]; return v && (v.sex || v.or); }
 function stopTallies() { unsubs.forEach(f => f()); unsubs = []; }
 function resetPolls() {
   pollsEl.querySelectorAll(".poll").forEach(p => p.classList.remove("done"));
   pollsEl.querySelectorAll("button").forEach(b => b.disabled = false);
   afterEl.classList.remove("shown");
+  peekEl.classList.remove("hidden");
 }
 
 function showEmpty(msg) {
   artEl.classList.remove("shown"); artEl.removeAttribute("src");
   emptyEl.textContent = msg; emptyEl.classList.add("shown");
-  pollsEl.style.display = "none"; afterEl.classList.remove("shown");
+  pollsEl.style.display = "none"; afterEl.classList.remove("shown"); peekEl.classList.add("hidden");
 }
 
 /* ---------- picking ---------- */
@@ -288,6 +309,13 @@ async function show(key, back) {
   const mine = myVotes()[key] || {};
   for (const p in POLLS) if (mine[p]) revealTally(key, p, mine[p]);
 }
+// look without voting: the remaining polls open read-only and this piece counts as done for this viewer
+function peek() {
+  if (!cur || !fb) return;
+  const key = cur, mine = myVotes()[key] || {};
+  for (const p in POLLS) if (!mine[p]) { setVote(key, p, PEEK); revealTally(key, p, PEEK); }
+}
+peekEl.querySelector("button").addEventListener("click", peek);
 function next() {
   if (!keys.length) return showEmpty("Nothing on the wall yet — hang a piece.");
   const k = pickKey();
@@ -326,6 +354,7 @@ function revealTally(key, p, mine) {
   const pollEl = pollsEl.querySelector(`.poll[data-p="${p}"]`);
   pollEl.classList.add("done");
   afterEl.classList.add("shown");
+  if (pollsEl.querySelectorAll(".poll:not(.done)").length === 0) peekEl.classList.add("hidden");
   unsubs.push(fb.onValue(fb.ref(fb.db, `polls/votes/${key}/${p}`), snap => {
     const v = snap.val() || {};
     const total = POLLS[p].reduce((s, c) => s + (v[c] || 0), 0);
@@ -350,6 +379,7 @@ window.addEventListener("keydown", e => {
   if (e.key === " " && afterEl.classList.contains("shown")) { e.preventDefault(); next(); }
   const k = { "1": ["sex", 0], "2": ["sex", 1], "3": ["sex", 2], "4": ["or", 0], "5": ["or", 1] }[e.key];
   if (k) { const b = pollsEl.querySelectorAll(`.poll[data-p="${k[0]}"] .choices button`)[k[1]]; if (b && !b.disabled) b.click(); }
+  if (e.key === "0" && !peekEl.classList.contains("hidden")) peek();
 });
 
 /* ---------- hanging ---------- */
@@ -436,7 +466,7 @@ function shrink(img) {
     const m = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
     const app = initializeApp(firebaseConfig);
     fb = { db: m.getDatabase(app), ref: m.ref, push: m.push, set: m.set, get: m.get, runTransaction: m.runTransaction, onValue: m.onValue };
-    await fetchKeys();
+    await Promise.all([fetchKeys(), syncVotes()]);
     next();
   } catch (err) {
     console.error(err);
