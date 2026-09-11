@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-09-06-0745-0",
-  "image": "pool-2026-09-06-0745-0.jpg",
-  "headline": "Avalanche hits glacier on China Muztagh Ata in Xinjiang",
-  "url": "https://www.freemalaysiatoday.com/category/world/2026/09/06/avalanche-hits-glacier-on-china-s-muztagh-ata-in-xinjiang",
-  "outlet": "freemalaysiatoday.com",
-  "t": "2026-09-06T11:45:33+00:00",
-  "vista": 8.0,
-  "hash": 4264432762879
- },
- {
-  "id": "2026-09-06-0745-1",
-  "image": "pool-2026-09-06-0745-1.jpg",
-  "headline": "Banyuwangi govt declares emergency over Ijen forest fire",
-  "url": "https://en.antaranews.com/news/430095/banyuwangi-govt-declares-emergency-over-ijen-forest-fire",
-  "outlet": "en.antaranews.com",
-  "t": "2026-09-06T11:45:34+00:00",
-  "vista": 8.0,
-  "hash": 864832900900388095
- },
- {
-  "id": "2026-09-06-1134-0",
-  "image": "pool-2026-09-06-1134-0.jpg",
-  "headline": "Gaza holds funeral for 100 Palestinians recovered from rubble of destroyed homes",
-  "url": "https://aa.com.tr/en/middle-east/gaza-holds-funeral-for-100-palestinians-recovered-from-rubble-of-destroyed-homes/4048688",
-  "outlet": "aa.com.tr",
-  "t": "2026-09-06T15:34:05+00:00",
-  "vista": 7.0,
-  "hash": 25984607958498304
- },
- {
   "id": "2026-09-06-1629-0",
   "image": "pool-2026-09-06-1629-0.jpg",
   "headline": "CMHC Launches 2026 Housing Research Awards",
@@ -178,5 +148,35 @@
   "t": "2026-09-11T12:28:00+00:00",
   "vista": 9.0,
   "hash": 6931106892425404928
+ },
+ {
+  "id": "2026-09-11-1233-0",
+  "image": "pool-2026-09-11-1233-0.jpg",
+  "headline": "Sarasota County Commissioners approve 5 , 000 - home project",
+  "url": "https://wslr.org/sarasota-county-commissioners-approve-5000-home-project/",
+  "outlet": "wslr.org",
+  "t": "2026-09-11T16:33:30+00:00",
+  "vista": 9.0,
+  "hash": 18410997855473926655
+ },
+ {
+  "id": "2026-09-11-1233-1",
+  "image": "pool-2026-09-11-1233-1.jpg",
+  "headline": "Planning bid due for Clonmacnoise cycleway link | Westmeath Independent",
+  "url": "https://www.westmeathindependent.ie/2026/09/11/planning-bid-due-for-clonmacnoise-cycleway-link/",
+  "outlet": "westmeathindependent.ie",
+  "t": "2026-09-11T16:33:30+00:00",
+  "vista": 9.0,
+  "hash": 956301311
+ },
+ {
+  "id": "2026-09-11-1233-2",
+  "image": "pool-2026-09-11-1233-2.jpg",
+  "headline": "Serious Boca Raton Crash Leads To Pregnant Woman Being Airlifted",
+  "url": "https://bocanewsnow.com/2026/09/11/serious-boca-raton-crash-leads-to-pregnant-woman-being-airlifted/",
+  "outlet": "bocanewsnow.com",
+  "t": "2026-09-11T16:33:30+00:00",
+  "vista": 8.0,
+  "hash": 9570020216198793784
  }
 ]
