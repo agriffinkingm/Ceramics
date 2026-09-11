@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-09-06-0730-0",
-  "image": "pool-2026-09-06-0730-0.jpg",
-  "headline": "Lebanon says 4 dead in strikes that Israel calls response to Hezbollah drones",
-  "url": "https://www.standardmedia.co.ke/america/article/2001557108/lebanon-says-4-dead-in-strikes-that-israel-calls-response-to-hezbollah-drones",
-  "outlet": "standardmedia.co.ke",
-  "t": "2026-09-06T11:30:34+00:00",
-  "vista": 8.0,
-  "hash": 280238008892668
- },
- {
   "id": "2026-09-06-0745-0",
   "image": "pool-2026-09-06-0745-0.jpg",
   "headline": "Avalanche hits glacier on China Muztagh Ata in Xinjiang",
@@ -178,5 +168,15 @@
   "t": "2026-09-10T16:29:15+00:00",
   "vista": 9.0,
   "hash": 1729382810961051647
+ },
+ {
+  "id": "2026-09-11-0828-0",
+  "image": "pool-2026-09-11-0828-0.jpg",
+  "headline": "At the Nicolas Cage sinkhole in Malibu , El Ni\u00f1o fears alter good vibes",
+  "url": "https://www.latimes.com/california/story/2026-09-11/at-nicolas-cage-sinkhole-in-malibu-el-nino-fears-alter-good-vibes",
+  "outlet": "latimes.com",
+  "t": "2026-09-11T12:28:00+00:00",
+  "vista": 9.0,
+  "hash": 6931106892425404928
  }
 ]
