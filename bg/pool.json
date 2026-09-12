@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-09-08-0825-0",
-  "image": "pool-2026-09-08-0825-0.jpg",
-  "headline": "Letters : Corps of Engineer record makes residents wary\u00a0 | Letters",
-  "url": "https://www.nola.com/opinions/letters/letters-corps-lock/article_1addcf75-0075-462b-b244-3adc232233b6.html",
-  "outlet": "nola.com",
-  "t": "2026-09-08T12:25:19+00:00",
-  "vista": 7.0,
-  "hash": 56294995342393343
- },
- {
-  "id": "2026-09-09-0726-0",
-  "image": "pool-2026-09-09-0726-0.jpg",
-  "headline": "Immersed in tradition : A guide to celebrating the grape harvest in Portugal Douro region",
-  "url": "https://www.euronews.com/travel/2026/09/09/immersed-in-tradition-guide-to-harvest-celebrations-in-portugals-douro-region",
-  "outlet": "euronews.com",
-  "t": "2026-09-09T11:26:03+00:00",
-  "vista": 8.0,
-  "hash": 1009935528127855999
- },
- {
   "id": "2026-09-09-0836-0",
   "image": "pool-2026-09-09-0836-0.jpg",
   "headline": "Trump administration objects to California water plan",
@@ -178,5 +158,25 @@
   "t": "2026-09-12T11:12:26+00:00",
   "vista": 8.0,
   "hash": 279275970232319
+ },
+ {
+  "id": "2026-09-12-1138-0",
+  "image": "pool-2026-09-12-1138-0.jpg",
+  "headline": "El Ni\u00f1o has broken Atlantic hurricanes . Now the season is breaking records",
+  "url": "https://us.cnn.com/2026/09/12/weather/el-nino-hurricane-storm-atlantic-record-climate",
+  "outlet": "us.cnn.com",
+  "t": "2026-09-12T15:38:47+00:00",
+  "vista": 10.0,
+  "hash": 3493804283974682649
+ },
+ {
+  "id": "2026-09-12-1138-1",
+  "image": "pool-2026-09-12-1138-1.jpg",
+  "headline": "El Ni\u00f1o , Sahara dust squelches big storms from brewing lately",
+  "url": "http://www.rockymounttelegram.com/news/local/el-ni-o-sahara-dust-squelches-big-storms-from-brewing-lately/article_c1bd4138-e66e-47bf-99dc-26f4f0345628.html",
+  "outlet": "rockymounttelegram.com",
+  "t": "2026-09-12T15:38:47+00:00",
+  "vista": 10.0,
+  "hash": 16201938223305914480
  }
 ]
