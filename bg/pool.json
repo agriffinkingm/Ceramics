@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-09-07-1736-0",
-  "image": "pool-2026-09-07-1736-0.jpg",
-  "headline": "Four killed , over a dozen injured as Russia strikes Kyiv region for sixth successive day",
-  "url": "https://www.internazionale.it/ultime-notizie-reuters/2026/09/01/explosions-heard-in-ukraine-s-kyiv-four-people-injured",
-  "outlet": "internazionale.it",
-  "t": "2026-09-07T21:36:04+00:00",
-  "vista": 7.0,
-  "hash": 71213130300453056
- },
- {
-  "id": "2026-09-08-0719-0",
-  "image": "pool-2026-09-08-0719-0.jpg",
-  "headline": "Hurricane Lowell expected to cause major rains across Hawaii | Nation and World",
-  "url": "https://www.reviewjournal.com/news/nation-and-world/lowell-expected-to-cause-major-rains-across-hawaii-3883346/",
-  "outlet": "reviewjournal.com",
-  "t": "2026-09-08T11:19:46+00:00",
-  "vista": 10.0,
-  "hash": 13896130123586386032
- },
- {
-  "id": "2026-09-08-0719-1",
-  "image": "pool-2026-09-08-0719-1.jpg",
-  "headline": "Bihar ministers - in - charge , secretaries to monitor 13 Ganga riverine districts ; CM Samrat Choudhary takes aerial stock",
-  "url": "http://www.iraqsun.com/news/279288187/bihar-ministers-in-charge-secretaries-to-monitor-13-ganga-riverine-districts-cm-samrat-choudhary-takes-aerial-stock",
-  "outlet": "iraqsun.com",
-  "t": "2026-09-08T11:19:46+00:00",
-  "vista": 7.0,
-  "hash": 63328558289583356
- },
- {
   "id": "2026-09-08-0825-0",
   "image": "pool-2026-09-08-0825-0.jpg",
   "headline": "Letters : Corps of Engineer record makes residents wary\u00a0 | Letters",
@@ -178,5 +148,35 @@
   "t": "2026-09-12T04:37:59+00:00",
   "vista": 9.0,
   "hash": 2221330973569655267
+ },
+ {
+  "id": "2026-09-12-0712-0",
+  "image": "pool-2026-09-12-0712-0.jpg",
+  "headline": "Recovery becomes self - propelling : Five positive tipping points that can save the world",
+  "url": "https://www.euronews.com/2026/09/12/recovery-becomes-self-propelling-five-positive-tipping-points-that-can-save-the-world",
+  "outlet": "euronews.com",
+  "t": "2026-09-12T11:12:26+00:00",
+  "vista": 9.0,
+  "hash": 578774332813148159
+ },
+ {
+  "id": "2026-09-12-0712-1",
+  "image": "pool-2026-09-12-0712-1.jpg",
+  "headline": "The world deadliest sea route keeps getting busier",
+  "url": "https://us.cnn.com/2026/09/12/asia/rohingya-bangladesh-myanmar-refugees-dst-intl-hnk",
+  "outlet": "us.cnn.com",
+  "t": "2026-09-12T11:12:26+00:00",
+  "vista": 8.0,
+  "hash": 36028799182239743
+ },
+ {
+  "id": "2026-09-12-0712-2",
+  "image": "pool-2026-09-12-0712-2.jpg",
+  "headline": "The sands of glacial Lake Souris",
+  "url": "https://news.prairiepublic.org/podcast/natural-north-dakota/2026-09-12/the-sands-of-glacial-lake-souris",
+  "outlet": "news.prairiepublic.org",
+  "t": "2026-09-12T11:12:26+00:00",
+  "vista": 8.0,
+  "hash": 279275970232319
  }
 ]
