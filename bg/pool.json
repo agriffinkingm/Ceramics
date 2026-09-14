@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-09-10-1229-0",
-  "image": "pool-2026-09-10-1229-0.jpg",
-  "headline": "Scientists issue warning as 100 - day heatwave breaks worrying record",
-  "url": "https://www.express.co.uk/news/world/2247446/ocean-heating-temperatures-rising",
-  "outlet": "express.co.uk",
-  "t": "2026-09-10T16:29:15+00:00",
-  "vista": 9.0,
-  "hash": 17905765697656455167
- },
- {
   "id": "2026-09-10-1229-1",
   "image": "pool-2026-09-10-1229-1.jpg",
   "headline": "Mercury : The smallest planet in our solar system is shrinking",
@@ -178,5 +168,15 @@
   "t": "2026-09-14T13:18:12+00:00",
   "vista": 8.0,
   "hash": 9006916895001100159
+ },
+ {
+  "id": "2026-09-14-1031-0",
+  "image": "pool-2026-09-14-1031-0.jpg",
+  "headline": "Japan to develop drone - based quantum sensors to detect submarines",
+  "url": "https://asia.nikkei.com/politics/defense/japan-to-develop-drone-based-quantum-sensors-to-detect-submarines",
+  "outlet": "asia.nikkei.com",
+  "t": "2026-09-14T14:31:47+00:00",
+  "vista": 7.0,
+  "hash": 53326327119871
  }
 ]
