@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-09-10-0830-1",
-  "image": "pool-2026-09-10-0830-1.jpg",
-  "headline": "Rs 1 , 800 crore cleared for Nashik Kumbh mela ; govt sets strict spending rules",
-  "url": "https://economictimes.indiatimes.com/news/india/maharashtra-government-allocates-rs-1800-crore-for-nashik-kumbh-mela-amidst-fraud-allegations/articleshow/134003724.cms",
-  "outlet": "economictimes.indiatimes.com",
-  "t": "2026-09-10T12:30:07+00:00",
-  "vista": 8.0,
-  "hash": 15054614904248864270
- },
- {
-  "id": "2026-09-10-0830-2",
-  "image": "pool-2026-09-10-0830-2.jpg",
-  "headline": "Explore gold rush history on a the 100km OKeefe Rail Trail | The Rural",
-  "url": "https://www.therural.com.au/story/9346569/explore-gold-rush-history-on-a-the-100km-okeefe-rail-trail/",
-  "outlet": "therural.com.au",
-  "t": "2026-09-10T12:30:07+00:00",
-  "vista": 7.0,
-  "hash": 13545987549101304
- },
- {
   "id": "2026-09-10-1229-0",
   "image": "pool-2026-09-10-1229-0.jpg",
   "headline": "Scientists issue warning as 100 - day heatwave breaks worrying record",
@@ -178,5 +158,25 @@
   "t": "2026-09-13T12:20:21+00:00",
   "vista": 9.0,
   "hash": 9223443371748415743
+ },
+ {
+  "id": "2026-09-14-0918-0",
+  "image": "pool-2026-09-14-0918-0.jpg",
+  "headline": "Up - Close : The Worlds Most Terrifying Glacier",
+  "url": "http://www.theuknews.com/news/279304277/up-close-the-worlds-most-terrifying-glacier",
+  "outlet": "theuknews.com",
+  "t": "2026-09-14T13:18:12+00:00",
+  "vista": 9.0,
+  "hash": 17455489377416837240
+ },
+ {
+  "id": "2026-09-14-0918-1",
+  "image": "pool-2026-09-14-0918-1.jpg",
+  "headline": "Before drought comes landslide : Sri Lanka watershed was already broken",
+  "url": "https://www.ft.lk/columns/Before-drought-comes-landslide-Sri-Lanka-s-watershed-was-already-broken/4-796998",
+  "outlet": "ft.lk",
+  "t": "2026-09-14T13:18:12+00:00",
+  "vista": 8.0,
+  "hash": 9006916895001100159
  }
 ]
