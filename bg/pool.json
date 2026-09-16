@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-09-10-1229-1",
-  "image": "pool-2026-09-10-1229-1.jpg",
-  "headline": "Mercury : The smallest planet in our solar system is shrinking",
-  "url": "https://www.cnn.com/2026/09/10/science/mercury-shrinking-study",
-  "outlet": "cnn.com",
-  "t": "2026-09-10T16:29:15+00:00",
-  "vista": 9.0,
-  "hash": 18410291407412272128
- },
- {
-  "id": "2026-09-10-1229-2",
-  "image": "pool-2026-09-10-1229-2.jpg",
-  "headline": "They were on duty the day airplanes were used to attack America . This is how they remember it 25 years later",
-  "url": "https://www.cnn.com/2026/09/10/us/25-years-after-911-aviation",
-  "outlet": "cnn.com",
-  "t": "2026-09-10T16:29:15+00:00",
-  "vista": 9.0,
-  "hash": 1729382810961051647
- },
- {
   "id": "2026-09-11-0828-0",
   "image": "pool-2026-09-11-0828-0.jpg",
   "headline": "At the Nicolas Cage sinkhole in Malibu , El Ni\u00f1o fears alter good vibes",
@@ -178,5 +158,25 @@
   "t": "2026-09-14T14:31:47+00:00",
   "vista": 7.0,
   "hash": 53326327119871
+ },
+ {
+  "id": "2026-09-16-0736-0",
+  "image": "pool-2026-09-16-0736-0.jpg",
+  "headline": "Four police officers , seven civilians killed in Benue attack",
+  "url": "https://punchng.com/four-police-officers-seven-civilians-killed-in-benue-community-attack/",
+  "outlet": "punchng.com",
+  "t": "2026-09-16T11:36:06+00:00",
+  "vista": 9.0,
+  "hash": 8013758193995776
+ },
+ {
+  "id": "2026-09-16-0736-1",
+  "image": "pool-2026-09-16-0736-1.jpg",
+  "headline": "Explore Dublin coastal gems on Ireland scenic DART railway | Redland City Bulletin",
+  "url": "https://www.redlandcitybulletin.com.au/story/9344844/explore-dublins-coastal-gems-on-irelands-scenic-dart-railway/",
+  "outlet": "redlandcitybulletin.com.au",
+  "t": "2026-09-16T11:36:06+00:00",
+  "vista": 8.0,
+  "hash": 1286273325651724262
  }
 ]
