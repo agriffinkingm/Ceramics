@@ -1,15 +1,18 @@
 name: daily news backdrop
 
 # Two jobs in one workflow:
-#  • FULL pick at 02:33 America/New_York — the day's backdrop (bg/current.*), an hour
-#    before the wall's 03:33 turnover. GitHub cron is UTC and ignores DST, so both
-#    candidate UTC times are scheduled and the guard keeps the one where it's 02:3x NY.
+#  • FULL pick — the day's backdrop (bg/current.*). Meant for 02:33 America/New_York, an
+#    hour before the wall's 03:33 turnover — but GitHub fires scheduled runs hours late
+#    on this repo, so the guard no longer looks at the clock: the FIRST run after 02:30 NY
+#    whose bg/current.json is not stamped with today's NY date does the pick. Any later
+#    run that day (or a run before 02:30) tops up the pool instead. A pick that fails to
+#    write current.* just gets retried by the next run.
 #  • POOL top-up every 6 hours — adds up to three fresh, wide, mutually different scenes
 #    from around the world to bg/pool.json for the wall's 🗞 Fresh news button.
 on:
   schedule:
-    - cron: "33 6 * * *"      # 02:33 EDT (UTC-4)  → full
-    - cron: "33 7 * * *"      # 02:33 EST (UTC-5)  → full
+    - cron: "33 6 * * *"      # 02:33 EDT (UTC-4)  → full (whichever fires first after 02:30 NY)
+    - cron: "33 7 * * *"      # 02:33 EST (UTC-5)  → full / pool
     - cron: "11 */6 * * *"    # every 6h            → pool (4 runs/day ≈ 12 new scenes; each run = ~14 vision calls of pollen)
   workflow_dispatch:
     inputs:
@@ -30,28 +33,29 @@ jobs:
   pick:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: decide mode
         id: guard
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"; exit 0
           fi
-          H=$(TZ=America/New_York date +%H); M=$(date +%M)
-          echo "New York hour $H, minute $M"
-          if [ "$H" = "02" ] && [ "$M" -ge 30 ]; then echo "mode=full" >> "$GITHUB_OUTPUT"
-          elif [ "$M" -ge 30 ]; then echo "mode=skip" >> "$GITHUB_OUTPUT"; echo "the other DST twin — skipping"
-          else echo "mode=pool" >> "$GITHUB_OUTPUT"; fi
-
-      - uses: actions/checkout@v4
-        if: steps.guard.outputs.mode != 'skip'
+          TODAY=$(TZ=America/New_York date +%Y-%m-%d)
+          HHMM=$(TZ=America/New_York date +%H%M)
+          CUR=$(python3 -c "import json;print(json.load(open('bg/current.json')).get('id',''))" 2>/dev/null || echo none)
+          echo "New York $TODAY $HHMM, current backdrop id $CUR"
+          if [ "$((10#$HHMM))" -ge 230 ] && [ "$CUR" != "$TODAY" ]; then
+            echo "mode=full" >> "$GITHUB_OUTPUT"; echo "no backdrop for $TODAY yet — picking one"
+          else
+            echo "mode=pool" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: actions/setup-python@v5
-        if: steps.guard.outputs.mode != 'skip'
         with:
           python-version: "3.12"
 
       - run: pip install requests pillow
-        if: steps.guard.outputs.mode != 'skip'
 
       - name: pick today's backdrop
         if: steps.guard.outputs.mode == 'full'
@@ -66,7 +70,6 @@ jobs:
         run: python bg/pick_bg.py --pool
 
       - name: commit
-        if: steps.guard.outputs.mode != 'skip'
         run: |
           git config user.name "graff-bot"
           git config user.email "graff-bot@users.noreply.github.com"
