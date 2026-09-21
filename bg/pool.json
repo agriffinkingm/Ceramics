@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-09-12-0712-2",
-  "image": "pool-2026-09-12-0712-2.jpg",
-  "headline": "The sands of glacial Lake Souris",
-  "url": "https://news.prairiepublic.org/podcast/natural-north-dakota/2026-09-12/the-sands-of-glacial-lake-souris",
-  "outlet": "news.prairiepublic.org",
-  "t": "2026-09-12T11:12:26+00:00",
-  "vista": 8.0,
-  "hash": 279275970232319
- },
- {
   "id": "2026-09-12-1138-0",
   "image": "pool-2026-09-12-1138-0.jpg",
   "headline": "El Ni\u00f1o has broken Atlantic hurricanes . Now the season is breaking records",
@@ -175,5 +165,15 @@
   "t": "2026-09-21T13:15:12+00:00",
   "vista": 8.0,
   "hash": 13823799746644467936
+ },
+ {
+  "id": "2026-09-21-1037-0",
+  "image": "pool-2026-09-21-1037-0.jpg",
+  "headline": "Tight Brazil election challenges fragile gains for Amazon conservation",
+  "url": "https://news.mongabay.com/2026/09/tight-brazil-election-challenges-fragile-gains-for-amazon-conservation/",
+  "outlet": "news.mongabay.com",
+  "t": "2026-09-21T14:37:26+00:00",
+  "vista": 9.0,
+  "hash": 1755415111294969060
  }
 ]
