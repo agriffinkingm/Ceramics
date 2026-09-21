@@ -339,6 +339,33 @@ def edit_call(png_bytes, prompt):
     raise RuntimeError("edit reply had no image: " + str(j)[:200])
 
 
+def outpaint_took(gen, box, grey=(170, 166, 156)):
+    """Did the model actually paint the grey margins? (Sep 21 2026: nanobanana returned
+    the framed input untouched and the wall got a photo sitting on a grey mat.) Sample
+    the margins of the result; if most pixels are still within a stone's throw of the
+    frame grey — or the margins are nearly flat — the outpaint did not take."""
+    x, y, cw, ch = box
+    g = gen.convert("RGB").resize((GEN_W, GEN_H), Image.BILINEAR)
+    px = g.load()
+    near = flat = total = 0
+    vals = []
+    for yy in range(0, GEN_H, 4):
+        for xx in range(0, GEN_W, 4):
+            if x <= xx < x + cw and y <= yy < y + ch:
+                continue
+            r, gg, b = px[xx, yy]
+            total += 1
+            vals.append(r + gg + b)
+            if abs(r - grey[0]) + abs(gg - grey[1]) + abs(b - grey[2]) < 45:
+                near += 1
+    if not total:
+        return True
+    mean = sum(vals) / total
+    std = (sum((v - mean) ** 2 for v in vals) / total) ** 0.5
+    log("outpaint margins: %.0f%% frame-grey, std %.1f" % (100 * near / total, std))
+    return near / total < 0.35 and std > 24
+
+
 def outpaint(photo, headline):
     """Return (W×H image, method)."""
     ar = photo.width / photo.height
@@ -363,6 +390,9 @@ def outpaint(photo, headline):
     except Exception as e:
         log("outpaint failed → crop:", e)
         return cover(photo, W, H), "crop-fallback"
+    if not outpaint_took(gen, (x, y, cw, ch)):
+        log("outpaint left the grey frame in place → crop")
+        return cover(photo, W, H), "crop-flat"
     big = cover(gen, W, H)
     # paste the original (higher-res) photo back over its region with a soft edge
     sx, sy = W / GEN_W, H / GEN_H
