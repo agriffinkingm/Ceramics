@@ -26,5 +26,12 @@
   "url": "https://www.riotimesonline.com/al-amoudi-broke-morocco-only-refinery-2026/",
   "outlet": "riotimesonline.com",
   "method": "outpaint"
+ },
+ {
+  "id": "2026-09-21",
+  "headline": "Weekly Climate and Energy News Roundup # 707 - Watts Up With That ?",
+  "url": "https://wattsupwiththat.com/2026/09/21/weekly-climate-and-energy-news-roundup-707/",
+  "outlet": "wattsupwiththat.com",
+  "method": "crop-flat"
  }
 ]
