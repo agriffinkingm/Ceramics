@@ -19,5 +19,12 @@
   "url": "https://www.wapt.com/article/2-trapped-workers-rescued-alive-nepal/73611556",
   "outlet": "wapt.com",
   "method": "crop"
+ },
+ {
+  "id": "2026-09-21",
+  "headline": "Morocco SAMIR Refinery and Why the Kingdom Imports Its Fuel",
+  "url": "https://www.riotimesonline.com/al-amoudi-broke-morocco-only-refinery-2026/",
+  "outlet": "riotimesonline.com",
+  "method": "outpaint"
  }
 ]
