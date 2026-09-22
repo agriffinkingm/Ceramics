@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-09-13-0820-1",
-  "image": "pool-2026-09-13-0820-1.jpg",
-  "headline": "TUI BLUE all - inclusive hotel in Corfu offers the perfect blend of recreation and relaxation",
-  "url": "https://www.irishmirror.ie/lifestyle/travel/tui-blue-inclusive-hotel-corfu-37624876",
-  "outlet": "irishmirror.ie",
-  "t": "2026-09-13T12:20:21+00:00",
-  "vista": 9.0,
-  "hash": 9223443371748415743
- },
- {
-  "id": "2026-09-14-0918-0",
-  "image": "pool-2026-09-14-0918-0.jpg",
-  "headline": "Up - Close : The Worlds Most Terrifying Glacier",
-  "url": "http://www.theuknews.com/news/279304277/up-close-the-worlds-most-terrifying-glacier",
-  "outlet": "theuknews.com",
-  "t": "2026-09-14T13:18:12+00:00",
-  "vista": 9.0,
-  "hash": 17455489377416837240
- },
- {
   "id": "2026-09-14-0918-1",
   "image": "pool-2026-09-14-0918-1.jpg",
   "headline": "Before drought comes landslide : Sri Lanka watershed was already broken",
@@ -175,5 +155,25 @@
   "t": "2026-09-21T22:04:23+00:00",
   "vista": 7.0,
   "hash": 75329266343072767
+ },
+ {
+  "id": "2026-09-22-0055-0",
+  "image": "pool-2026-09-22-0055-0.jpg",
+  "headline": "Deep in Antarctic winter a long - silent volcano glowing with a rare lava lake revealed its  heartbeat  to a passing satellite before clouds swept back in and erased the only clear view scientists had seen in years , exposing a fiery secret buried be...",
+  "url": "https://www.ecoportal.net/en/antarctic-volcano-mount-michael-lava/38632/",
+  "outlet": "ecoportal.net",
+  "t": "2026-09-22T04:55:20+00:00",
+  "vista": 9.0,
+  "hash": 13803506409245090209
+ },
+ {
+  "id": "2026-09-22-0055-1",
+  "image": "pool-2026-09-22-0055-1.jpg",
+  "headline": "SoCal threatened by Hurricane Polo as Category 5 storm nears",
+  "url": "https://nypost.com/2026/09/21/us-news/socal-threatened-by-hurricane-polo-as-category-5-storm-nears/",
+  "outlet": "nypost.com",
+  "t": "2026-09-22T04:55:20+00:00",
+  "vista": 7.0,
+  "hash": 17865480547262857216
  }
 ]
