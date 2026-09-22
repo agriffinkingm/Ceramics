@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-09-20-0725-0",
-  "image": "pool-2026-09-20-0725-0.jpg",
-  "headline": "PHOTOS : Out of the smoke and into the North Cascades",
-  "url": "https://dailyinterlake.com/news/2026/sep/19/photos-out-of-the-smoke-and-into-the-north-cascades/",
-  "outlet": "dailyinterlake.com",
-  "t": "2026-09-20T11:25:08+00:00",
-  "vista": 9.0,
-  "hash": 289356276113014783
- },
- {
   "id": "2026-09-21",
   "image": "pool-2026-09-21.jpg",
   "headline": "Weekly Climate and Energy News Roundup # 707 - Watts Up With That ?",
@@ -172,5 +162,15 @@
   "t": "2026-09-22T12:04:59+00:00",
   "vista": 8.0,
   "hash": 38157444990925920
+ },
+ {
+  "id": "2026-09-22-0856-0",
+  "image": "pool-2026-09-22-0856-0.jpg",
+  "headline": "Worsening El Nino threatens Asia with drought , potentially raising food prices globally",
+  "url": "https://www.mankatofreepress.com/news/business/worsening-el-nino-threatens-asia-with-drought-potentially-raising-food-prices-globally/article_7525af8b-4d22-5040-a1c6-2d442d764995.html",
+  "outlet": "mankatofreepress.com",
+  "t": "2026-09-22T12:56:38+00:00",
+  "vista": 9.0,
+  "hash": 879625450390015
  }
 ]
