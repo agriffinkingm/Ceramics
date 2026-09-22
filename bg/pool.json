@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-09-14-0918-1",
-  "image": "pool-2026-09-14-0918-1.jpg",
-  "headline": "Before drought comes landslide : Sri Lanka watershed was already broken",
-  "url": "https://www.ft.lk/columns/Before-drought-comes-landslide-Sri-Lanka-s-watershed-was-already-broken/4-796998",
-  "outlet": "ft.lk",
-  "t": "2026-09-14T13:18:12+00:00",
-  "vista": 8.0,
-  "hash": 9006916895001100159
- },
- {
-  "id": "2026-09-14-1031-0",
-  "image": "pool-2026-09-14-1031-0.jpg",
-  "headline": "Japan to develop drone - based quantum sensors to detect submarines",
-  "url": "https://asia.nikkei.com/politics/defense/japan-to-develop-drone-based-quantum-sensors-to-detect-submarines",
-  "outlet": "asia.nikkei.com",
-  "t": "2026-09-14T14:31:47+00:00",
-  "vista": 7.0,
-  "hash": 53326327119871
- },
- {
-  "id": "2026-09-16-0736-0",
-  "image": "pool-2026-09-16-0736-0.jpg",
-  "headline": "Four police officers , seven civilians killed in Benue attack",
-  "url": "https://punchng.com/four-police-officers-seven-civilians-killed-in-benue-community-attack/",
-  "outlet": "punchng.com",
-  "t": "2026-09-16T11:36:06+00:00",
-  "vista": 9.0,
-  "hash": 8013758193995776
- },
- {
   "id": "2026-09-16-0736-1",
   "image": "pool-2026-09-16-0736-1.jpg",
   "headline": "Explore Dublin coastal gems on Ireland scenic DART railway | Redland City Bulletin",
@@ -175,5 +145,32 @@
   "t": "2026-09-22T04:55:20+00:00",
   "vista": 7.0,
   "hash": 17865480547262857216
+ },
+ {
+  "id": "2026-09-22",
+  "image": "pool-2026-09-22.jpg",
+  "headline": "In 1971 , Soviet engineers set fire to a collapsed gas crater in the Turkmen desert expecting it to burn itself out within weeks , and more than 50 years later the 230 - foot pit is still burning day and night locals now call it the Door to Hell",
+  "url": "https://scienceblog.com/b-in-1971-soviet-engineers-set-fire-to-a-collapsed-gas-crater-in-the-turkmen-desert-expecting-it-to-burn-itself-out-within-weeks-and-more-than-50-years-later-the-230-foot-pit-is-still-burning-day-and/",
+  "outlet": "scienceblog.com",
+  "t": "2026-09-22T11:36:50+00:00",
+  "hash": 7028078341521407
+ },
+ {
+  "id": "2026-09-22-b",
+  "image": "pool-2026-09-22-b.jpg",
+  "headline": "Qatar propaganda machine could be  first casualty  of LNG collapse - Israel & Jewish News",
+  "url": "https://www.jns.org/analysis/qatars-propaganda-machine-could-be-first-casualty-of-lng-collapse",
+  "outlet": "jns.org",
+  "t": "2026-09-22T11:36:50+00:00",
+  "hash": 1095199815920
+ },
+ {
+  "id": "2026-09-22-c",
+  "image": "pool-2026-09-22-c.jpg",
+  "headline": "Cordon remains after  250kg WW2 missile  found in Falmouth dock",
+  "url": "https://www.bbc.co.uk/news/articles/c9rk3vm3plego",
+  "outlet": "bbc.co.uk",
+  "t": "2026-09-22T11:36:50+00:00",
+  "hash": 68102033315741503
  }
 ]
