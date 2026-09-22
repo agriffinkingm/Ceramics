@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-09-16-0736-1",
-  "image": "pool-2026-09-16-0736-1.jpg",
-  "headline": "Explore Dublin coastal gems on Ireland scenic DART railway | Redland City Bulletin",
-  "url": "https://www.redlandcitybulletin.com.au/story/9344844/explore-dublins-coastal-gems-on-irelands-scenic-dart-railway/",
-  "outlet": "redlandcitybulletin.com.au",
-  "t": "2026-09-16T11:36:06+00:00",
-  "vista": 8.0,
-  "hash": 1286273325651724262
- },
- {
-  "id": "2026-09-16-1722-0",
-  "image": "pool-2026-09-16-1722-0.jpg",
-  "headline": "Houthis tighten grip on shipping route , seize strategic island",
-  "url": "http://www.sanantoniopost.com/news/279301376/houthis-tighten-grip-on-shipping-route-seize-strategic-island",
-  "outlet": "sanantoniopost.com",
-  "t": "2026-09-16T21:22:01+00:00",
-  "vista": 9.0,
-  "hash": 14251574515425407408
- },
- {
   "id": "2026-09-20-0725-0",
   "image": "pool-2026-09-20-0725-0.jpg",
   "headline": "PHOTOS : Out of the smoke and into the North Cascades",
@@ -172,5 +152,25 @@
   "outlet": "bbc.co.uk",
   "t": "2026-09-22T11:36:50+00:00",
   "hash": 68102033315741503
+ },
+ {
+  "id": "2026-09-22-0804-0",
+  "image": "pool-2026-09-22-0804-0.jpg",
+  "headline": "In 1910 , Oregon planted European beachgrass to stabilize shifting dunes ; it spread along the coast , reshaped the landscape and squeezed open sandy habitat used by native wildlife",
+  "url": "https://timesofindia.indiatimes.com/science/nature/in-1910-oregon-planted-european-beachgrass-to-stabilize-shifting-dunes-it-spread-along-the-coast-reshaped-the-landscape-and-squeezed-open-sandy-habitat-used-by-native-wildlife/articleshow/134403672.cms",
+  "outlet": "timesofindia.indiatimes.com",
+  "t": "2026-09-22T12:04:59+00:00",
+  "vista": 9.0,
+  "hash": 13679011225926143
+ },
+ {
+  "id": "2026-09-22-0804-1",
+  "image": "pool-2026-09-22-0804-1.jpg",
+  "headline": "US - Iran conflict : Concerns grow in Washington over drone warfare toll",
+  "url": "https://www.bankingnews.gr/diethni/articles/900764/us-iran-conflict-concerns-grow-in-washington-over-drone-warfare-toll%20title=",
+  "outlet": "bankingnews.gr",
+  "t": "2026-09-22T12:04:59+00:00",
+  "vista": 8.0,
+  "hash": 38157444990925920
  }
 ]
