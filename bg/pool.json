@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-09-21-b",
-  "image": "pool-2026-09-21-b.jpg",
-  "headline": "Hundreds of flights cancelled as Typhoon Dujuan nears Japan",
-  "url": "https://www.channelnewsasia.com/east-asia/japan-typhoon-dujuan-flood-landslide-warnings-6398486",
-  "outlet": "channelnewsasia.com",
-  "t": "2026-09-21T12:26:08+00:00",
-  "hash": 8681898624416249983
- },
- {
-  "id": "2026-09-21-c",
-  "image": "pool-2026-09-21-c.jpg",
-  "headline": "Govt failing to adequately address hardships , says Brown Burke | News",
-  "url": "https://jamaica-gleaner.com/article/news/20260921/govt-failing-adequately-address-hardships-says-brown-burke",
-  "outlet": "jamaica-gleaner.com",
-  "t": "2026-09-21T12:26:08+00:00",
-  "hash": 3462153208679496703
- },
- {
   "id": "2026-09-21-0850-0",
   "image": "pool-2026-09-21-0850-0.jpg",
   "headline": "Tropical Storm Fay is Getting Weaker",
@@ -173,5 +155,25 @@
   "t": "2026-09-22T17:00:04+00:00",
   "vista": 9.0,
   "hash": 524629566971445791
+ },
+ {
+  "id": "2026-09-22-1723-0",
+  "image": "pool-2026-09-22-1723-0.jpg",
+  "headline": "Uhackatik crater : A satellite map revealed a mysterious giant circle that was hiding in Canada for 390 million years . One amateur astronomer finally noticed it",
+  "url": "https://economictimes.indiatimes.com/news/international/global-trends/a-satellite-map-revealed-a-mysterious-giant-circle-that-was-hiding-in-canada-for-390-million-years-one-amateur-astronomer-finally-noticed-it/articleshow/134419751.cms",
+  "outlet": "economictimes.indiatimes.com",
+  "t": "2026-09-22T21:23:19+00:00",
+  "vista": 9.0,
+  "hash": 3544395513283016958
+ },
+ {
+  "id": "2026-09-22-1723-1",
+  "image": "pool-2026-09-22-1723-1.jpg",
+  "headline": "Is Lubbock Urgently In Need of Roundabouts ?",
+  "url": "https://b93.net/ixp/192/p/lubbock-roundabouts-txdot/",
+  "outlet": "b93.net",
+  "t": "2026-09-22T21:23:19+00:00",
+  "vista": 9.0,
+  "hash": 1737327870606439264
  }
 ]
