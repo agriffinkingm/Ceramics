@@ -275,7 +275,12 @@
         }
 
         /* Slipcast */
-        .sc-wrap { max-width: 720px; margin: 0 auto; }
+        .sc-forms { display: flex; flex-direction: column; gap: 6rem; }
+        .sc-wrap { max-width: 720px; width: 100%; margin: 0 auto; }
+        .sc-name {
+            font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; color: var(--stone);
+            letter-spacing: 0.04em; text-transform: lowercase; margin-bottom: 1rem; text-align: center;
+        }
         .sc-stage {
             position: relative;
             width: 100%;
@@ -324,7 +329,7 @@
         }
         .sc-dot.on { background: var(--terracotta); border-color: var(--terracotta); transform: scale(1.25); }
         .sc-dot.model { border-radius: 1px; }
-        .sc-hint { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: none; color: var(--clay-dark); opacity: 0.8; margin-top: 0.75rem; text-align: center; }
+        .sc-hint { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: none; color: var(--clay-dark); opacity: 0.8; margin-top: 3rem; text-align: center; }
         @media (max-width: 768px) {
             .sc-arrow { opacity: 0.5; width: 44px; font-size: 2.4rem; }
             .sc-foot { flex-direction: column; gap: 0.75rem; }
@@ -431,26 +436,37 @@
 
         <!-- Slipcast Section -->
         <section id="slipcast-section">
-            <div class="sc-wrap">
-                <div class="sc-stage" id="scStage">
-                    <div class="sc-slide on" data-kind="model" id="scModelSlide">
-                        <div class="sc-loading" id="scLoading">loading model</div>
+            <div class="sc-forms">
+
+                <div class="sc-wrap" data-stl="models/boxthing.stl">
+                    <div class="sc-name">boxthing</div>
+                    <div class="sc-stage">
+                        <div class="sc-slide on" data-kind="model"><div class="sc-loading">loading model</div></div>
+                        <div class="sc-slide"><img src="images/boxthing-1.jpg" alt="Slipcast form, olive ash glaze with dark tenmoku break at the shoulder" loading="lazy" draggable="false"></div>
+                        <div class="sc-slide"><img src="images/boxthing-2.jpg" alt="Slipcast form, amber glaze with a frothy white rim drip" loading="lazy" draggable="false"></div>
+                        <div class="sc-slide"><img src="images/boxthing-3.jpg" alt="Slipcast form, cream base with iron-brown drips" loading="lazy" draggable="false"></div>
+                        <div class="sc-slide"><img src="images/boxthing-4.jpg" alt="Slipcast form, pale green crackle with a dark shoulder" loading="lazy" draggable="false"></div>
+                        <div class="sc-slide"><img src="images/boxthing-5.jpg" alt="Slipcast form, chestnut brown breaking to blue-violet at the base" loading="lazy" draggable="false"></div>
+                        <button class="sc-arrow prev" type="button" aria-label="Previous">&lsaquo;</button>
+                        <button class="sc-arrow next" type="button" aria-label="Next">&rsaquo;</button>
                     </div>
-                    <div class="sc-slide"><img src="images/boxthing-1.jpg" alt="Slipcast form, olive ash glaze with dark tenmoku break at the shoulder" loading="lazy" draggable="false"></div>
-                    <div class="sc-slide"><img src="images/boxthing-2.jpg" alt="Slipcast form, amber glaze with a frothy white rim drip" loading="lazy" draggable="false"></div>
-                    <div class="sc-slide"><img src="images/boxthing-3.jpg" alt="Slipcast form, cream base with iron-brown drips" loading="lazy" draggable="false"></div>
-                    <div class="sc-slide"><img src="images/boxthing-4.jpg" alt="Slipcast form, pale green crackle with a dark shoulder" loading="lazy" draggable="false"></div>
-                    <div class="sc-slide"><img src="images/boxthing-5.jpg" alt="Slipcast form, chestnut brown breaking to blue-violet at the base" loading="lazy" draggable="false"></div>
-                    <button class="sc-arrow prev" id="scPrev" type="button" aria-label="Previous">&lsaquo;</button>
-                    <button class="sc-arrow next" id="scNext" type="button" aria-label="Next">&rsaquo;</button>
+                    <div class="sc-foot"><span class="sc-label">model</span><div class="sc-dots"></div><span class="sc-count"></span></div>
                 </div>
-                <div class="sc-foot">
-                    <span id="scLabel">model</span>
-                    <div class="sc-dots" id="scDots"></div>
-                    <span id="scCount">1 / 6</span>
+
+                <div class="sc-wrap" data-stl="models/snakeyvase.stl">
+                    <div class="sc-name">snakey vase</div>
+                    <div class="sc-stage">
+                        <div class="sc-slide on" data-kind="model"><div class="sc-loading">loading model</div></div>
+                        <div class="sc-slide"><img src="images/snakeyvase-1.jpg" alt="Twisted hourglass vase, mottled olive glaze with dark blue-green spots" loading="lazy" draggable="false"></div>
+                        <div class="sc-slide"><img src="images/snakeyvase-2.jpg" alt="Twisted hourglass vase, dark tenmoku with white streaks" loading="lazy" draggable="false"></div>
+                        <button class="sc-arrow prev" type="button" aria-label="Previous">&lsaquo;</button>
+                        <button class="sc-arrow next" type="button" aria-label="Next">&rsaquo;</button>
+                    </div>
+                    <div class="sc-foot"><span class="sc-label">model</span><div class="sc-dots"></div><span class="sc-count"></span></div>
                 </div>
-                <div class="sc-hint" id="scHint">drag to turn the model &middot; tap, swipe, or use the arrow keys to move through the glazes</div>
+
             </div>
+            <div class="sc-hint">drag to turn a model &middot; tap, swipe, or use the arrow keys to move through its glazes</div>
         </section>
 
 <script type="importmap">
@@ -467,165 +483,161 @@ import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
 
 (function () {
     var section = document.getElementById('slipcast-section');
-    var stage = document.getElementById('scStage');
-    var slides = Array.prototype.slice.call(stage.querySelectorAll('.sc-slide'));
-    var labels = ['model', 'glaze i', 'glaze ii', 'glaze iii', 'glaze iv', 'glaze v'];
-    var idx = 0, n = slides.length;
-    var dotsEl = document.getElementById('scDots');
-    var labelEl = document.getElementById('scLabel');
-    var countEl = document.getElementById('scCount');
-    var hintEl = document.getElementById('scHint');
-    var hints = {
-        model: 'drag to turn the model · tap, swipe, or use the arrow keys to move through the glazes',
-        photo: 'tap, swipe, or use the arrow keys · first slide is the 3D model'
-    };
+    var ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x'];
+    var forms = [];
+    var focused = null; // the form the arrow keys drive: last touched, else nearest viewport centre
 
-    slides.forEach(function (s, i) {
-        var d = document.createElement('button');
-        d.type = 'button';
-        d.className = 'sc-dot' + (i === 0 ? ' model on' : '');
-        d.setAttribute('aria-label', labels[i]);
-        d.addEventListener('click', function (e) { e.stopPropagation(); go(i); });
-        dotsEl.appendChild(d);
+    function makeForm(wrap) {
+        var stage = wrap.querySelector('.sc-stage');
+        var slides = Array.prototype.slice.call(stage.querySelectorAll('.sc-slide'));
+        var labels = slides.map(function (s, i) { return i === 0 ? 'model' : 'glaze ' + (ROMAN[i - 1] || i); });
+        var dotsEl = wrap.querySelector('.sc-dots'), labelEl = wrap.querySelector('.sc-label'), countEl = wrap.querySelector('.sc-count');
+        var modelSlide = slides[0], loadingEl = modelSlide.querySelector('.sc-loading');
+        var F = { wrap: wrap, stage: stage, idx: 0, n: slides.length, built: false, running: false, inView: false };
+
+        slides.forEach(function (s, i) {
+            var d = document.createElement('button');
+            d.type = 'button';
+            d.className = 'sc-dot' + (i === 0 ? ' model on' : '');
+            d.setAttribute('aria-label', labels[i]);
+            d.addEventListener('click', function (e) { e.stopPropagation(); go(i); });
+            dotsEl.appendChild(d);
+        });
+
+        function go(i) {
+            F.idx = ((i % F.n) + F.n) % F.n;
+            slides.forEach(function (s, k) { s.classList.toggle('on', k === F.idx); });
+            Array.prototype.forEach.call(dotsEl.children, function (d, k) { d.classList.toggle('on', k === F.idx); });
+            labelEl.textContent = labels[F.idx];
+            countEl.textContent = (F.idx + 1) + ' / ' + F.n;
+            focused = F;
+            if (F.idx === 0) start(); else stop();
+        }
+        F.next = function () { go(F.idx + 1); };
+        F.prev = function () { go(F.idx - 1); };
+
+        wrap.querySelector('.sc-arrow.next').addEventListener('click', function (e) { e.stopPropagation(); F.next(); });
+        wrap.querySelector('.sc-arrow.prev').addEventListener('click', function (e) { e.stopPropagation(); F.prev(); });
+
+        // tap = advance; horizontal swipe = prev/next on photo slides (on the model a drag orbits)
+        var pd = null;
+        stage.addEventListener('pointerdown', function (e) {
+            focused = F;
+            if (e.target.closest('.sc-arrow')) return;
+            pd = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId };
+        }, true);
+        stage.addEventListener('pointerup', function (e) {
+            if (!pd || e.pointerId !== pd.id) return;
+            var dx = e.clientX - pd.x, dy = e.clientY - pd.y, dt = performance.now() - pd.t;
+            pd = null;
+            if (e.target.closest('.sc-arrow')) return;
+            if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && dt < 400) { F.next(); return; }
+            if (F.idx !== 0 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { dx < 0 ? F.next() : F.prev(); }
+        }, true);
+        stage.addEventListener('pointercancel', function () { pd = null; }, true);
+
+        // ---- 3D ----
+        var renderer, scene, camera, controls;
+        function build() {
+            F.built = true;
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            modelSlide.insertBefore(renderer.domElement, loadingEl);
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(32, 1, 0.1, 1000);
+            scene.add(new THREE.HemisphereLight(0xfaf8f5, 0x8b7968, 1.6));
+            var key = new THREE.DirectionalLight(0xfff4e6, 2.2); key.position.set(3, 5, 4); scene.add(key);
+            var fill = new THREE.DirectionalLight(0xdde6f0, 0.8); fill.position.set(-4, 2, -3); scene.add(fill);
+            var rim = new THREE.DirectionalLight(0xffffff, 0.6); rim.position.set(0, 3, -6); scene.add(rim);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.enablePan = false;
+            controls.rotateSpeed = 0.7;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.9;
+            controls.addEventListener('start', function () { controls.autoRotate = false; });
+
+            new STLLoader().load(wrap.dataset.stl, function (geo) {
+                geo.deleteAttribute('normal');
+                geo = toCreasedNormals(geo, Math.PI / 5); // smooth the thrown curves, keep cut edges crisp
+                geo.rotateX(-Math.PI / 2);                 // Rhino Z-up -> Y-up
+                geo.computeBoundingBox();
+                var bb = geo.boundingBox, c = new THREE.Vector3(); bb.getCenter(c);
+                geo.translate(-c.x, -c.y, -c.z);
+                var size = new THREE.Vector3(); bb.getSize(size);
+                var s = 1.0 / Math.max(size.x, size.y, size.z);
+                geo.scale(s, s, s);
+                scene.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xd9cfc1, roughness: 0.82, metalness: 0 })));
+                camera.position.set(0.95, 0.42, 1.85);
+                controls.target.set(0, 0, 0);
+                controls.minDistance = 1.2;
+                controls.maxDistance = 5;
+                controls.update();
+                loadingEl.classList.add('off');
+            }, undefined, function () { loadingEl.textContent = 'model unavailable'; });
+
+            resize();
+        }
+        function resize() {
+            if (!renderer) return;
+            var w = stage.clientWidth, h = stage.clientHeight;
+            if (!w || !h) return;
+            renderer.setSize(w, h, false);
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+        }
+        function frame() {
+            if (!F.running) return;
+            controls.update();
+            renderer.render(scene, camera);
+            requestAnimationFrame(frame);
+        }
+        function start() {
+            if (!F.built || F.idx !== 0 || !F.inView || document.hidden || !stage.clientWidth) return;
+            if (!F.running) { F.running = true; requestAnimationFrame(frame); }
+        }
+        function stop() { F.running = false; }
+        F.start = start; F.stop = stop;
+
+        // the model (and its STL download) is only built the first time this block scrolls into view
+        new ResizeObserver(function () { resize(); start(); }).observe(stage);
+        new IntersectionObserver(function (entries) {
+            F.inView = entries[0].isIntersecting;
+            if (F.inView && !F.built && stage.clientWidth > 0) build();
+            if (F.inView) start(); else stop();
+        }, { threshold: 0.05 }).observe(stage);
+
+        go(0);
+        return F;
+    }
+
+    Array.prototype.forEach.call(section.querySelectorAll('.sc-wrap'), function (w) { forms.push(makeForm(w)); });
+
+    document.addEventListener('visibilitychange', function () {
+        forms.forEach(function (F) { if (document.hidden) F.stop(); else F.start(); });
     });
 
-    function go(i) {
-        idx = ((i % n) + n) % n;
-        slides.forEach(function (s, k) { s.classList.toggle('on', k === idx); });
-        Array.prototype.forEach.call(dotsEl.children, function (d, k) { d.classList.toggle('on', k === idx); });
-        labelEl.textContent = labels[idx];
-        countEl.textContent = (idx + 1) + ' / ' + n;
-        hintEl.textContent = idx === 0 ? hints.model : hints.photo;
-        stage.classList.toggle('on-model', idx === 0);
+    function nearestForm() {
+        var mid = window.innerHeight / 2, best = null, bestD = Infinity;
+        forms.forEach(function (F) {
+            var r = F.stage.getBoundingClientRect(), d = Math.abs((r.top + r.bottom) / 2 - mid);
+            if (d < bestD) { bestD = d; best = F; }
+        });
+        return best;
     }
-    function next() { go(idx + 1); }
-    function prev() { go(idx - 1); }
-
-    document.getElementById('scNext').addEventListener('click', function (e) { e.stopPropagation(); next(); });
-    document.getElementById('scPrev').addEventListener('click', function (e) { e.stopPropagation(); prev(); });
-
-    // keyboard, only while this tab is showing
     document.addEventListener('keydown', function (e) {
         if (!section.classList.contains('active')) return;
         var t = e.target && e.target.tagName;
         if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
-        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
-        else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
-    });
-
-    // tap = advance (any slide); horizontal swipe = prev/next (photo slides only — on the model a drag orbits)
-    var pd = null;
-    stage.addEventListener('pointerdown', function (e) {
-        if (e.target.closest('.sc-arrow')) return;
-        pd = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId };
-    }, true);
-    stage.addEventListener('pointerup', function (e) {
-        if (!pd || e.pointerId !== pd.id) return;
-        var dx = e.clientX - pd.x, dy = e.clientY - pd.y, dt = performance.now() - pd.t;
-        pd = null;
-        if (e.target.closest('.sc-arrow')) return;
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && dt < 400) { next(); return; }
-        if (idx !== 0 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { dx < 0 ? next() : prev(); }
-    }, true);
-    stage.addEventListener('pointercancel', function () { pd = null; }, true);
-
-    // ---- 3D model (lazy: built the first time the stage has a size) ----
-    var built = false;
-    var modelSlide = document.getElementById('scModelSlide');
-    var loadingEl = document.getElementById('scLoading');
-    var renderer, scene, camera, controls, running = false;
-
-    function build() {
-        built = true;
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.0;
-        modelSlide.insertBefore(renderer.domElement, loadingEl);
-
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(32, 1, 0.1, 1000);
-
-        var hemi = new THREE.HemisphereLight(0xfaf8f5, 0x8b7968, 1.6);
-        scene.add(hemi);
-        var key = new THREE.DirectionalLight(0xfff4e6, 2.2);
-        key.position.set(3, 5, 4);
-        scene.add(key);
-        var fill = new THREE.DirectionalLight(0xdde6f0, 0.8);
-        fill.position.set(-4, 2, -3);
-        scene.add(fill);
-        var rim = new THREE.DirectionalLight(0xffffff, 0.6);
-        rim.position.set(0, 3, -6);
-        scene.add(rim);
-
-        controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.08;
-        controls.enablePan = false;
-        controls.rotateSpeed = 0.7;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.9;
-        controls.addEventListener('start', function () { controls.autoRotate = false; });
-
-        new STLLoader().load('models/boxthing.stl', function (geo) {
-            geo.deleteAttribute('normal');
-            geo = toCreasedNormals(geo, Math.PI / 5); // smooth the thrown curves, keep the cut edges crisp
-            geo.rotateX(-Math.PI / 2);                 // Rhino Z-up -> Y-up
-            geo.computeBoundingBox();
-            var bb = geo.boundingBox, c = new THREE.Vector3();
-            bb.getCenter(c);
-            geo.translate(-c.x, -c.y, -c.z);
-            var size = new THREE.Vector3(); bb.getSize(size);
-            var s = 1.0 / Math.max(size.x, size.y, size.z);
-            geo.scale(s, s, s);
-
-            var mat = new THREE.MeshStandardMaterial({ color: 0xd9cfc1, roughness: 0.82, metalness: 0.0 });
-            var mesh = new THREE.Mesh(geo, mat);
-            scene.add(mesh);
-
-            camera.position.set(0.95, 0.42, 1.85);
-            controls.target.set(0, 0, 0);
-            controls.minDistance = 1.2;
-            controls.maxDistance = 5;
-            controls.update();
-            loadingEl.classList.add('off');
-        }, undefined, function () {
-            loadingEl.textContent = 'model unavailable';
-        });
-
-        resize();
-        start();
-    }
-
-    function resize() {
-        if (!renderer) return;
-        var w = stage.clientWidth, h = stage.clientHeight;
-        if (!w || !h) return;
-        renderer.setSize(w, h, false);
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-    }
-
-    function frame() {
-        if (!running) return;
-        controls.update();
-        renderer.render(scene, camera);
-        requestAnimationFrame(frame);
-    }
-    function start() { if (!running) { running = true; requestAnimationFrame(frame); } }
-    function stop() { running = false; }
-
-    // build when visible, pause rendering when the tab is hidden
-    var ro = new ResizeObserver(function () {
-        var visible = stage.clientWidth > 0;
-        if (visible && !built) build();
-        else if (visible) { resize(); start(); }
-        else stop();
-    });
-    ro.observe(stage);
-    document.addEventListener('visibilitychange', function () {
-        if (document.hidden) stop(); else if (stage.clientWidth > 0 && built) start();
+        var F = (focused && focused.stage.getBoundingClientRect().bottom > 0 && focused.stage.getBoundingClientRect().top < window.innerHeight) ? focused : nearestForm();
+        if (!F) return;
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); F.next(); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); F.prev(); }
     });
 })();
 </script>
