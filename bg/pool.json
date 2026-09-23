@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-09-21-1804-1",
-  "image": "pool-2026-09-21-1804-1.jpg",
-  "headline": "Gov . Newsom Declares State of Emergency Ahead of El Ni\u00f1o",
-  "url": "https://www.kmjnow.com/2026/09/21/newsom-declares-state-of-emergency-ahead-of/",
-  "outlet": "kmjnow.com",
-  "t": "2026-09-21T22:04:23+00:00",
-  "vista": 8.0,
-  "hash": 9264168801572503359
- },
- {
   "id": "2026-09-21-1804-2",
   "image": "pool-2026-09-21-1804-2.jpg",
   "headline": "IAF to showcase aerial prowess over Ganga at Namo Ghat on Oct 25",
@@ -172,5 +162,15 @@
   "outlet": "economictimes.indiatimes.com",
   "t": "2026-09-23T11:33:49+00:00",
   "hash": 5223890781302692895
+ },
+ {
+  "id": "2026-09-23-0803-0",
+  "image": "pool-2026-09-23-0803-0.jpg",
+  "headline": "El Ni\u00f1o transforms Atacama desert as thousands of hectares burst into bloom",
+  "url": "https://www.euronews.com/2026/09/23/el-nino-transforms-atacama-desert-as-thousands-of-hectares-burst-into-bloom",
+  "outlet": "euronews.com",
+  "t": "2026-09-23T12:03:50+00:00",
+  "vista": 9.0,
+  "hash": 2179318907670676479
  }
 ]
