@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-09-21-0850-0",
-  "image": "pool-2026-09-21-0850-0.jpg",
-  "headline": "Tropical Storm Fay is Getting Weaker",
-  "url": "https://www.mysuncoast.com/2026/09/21/tropical-storm-fay-is-getting-weaker/",
-  "outlet": "mysuncoast.com",
-  "t": "2026-09-21T12:50:07+00:00",
-  "vista": 9.0,
-  "hash": 822476799
- },
- {
-  "id": "2026-09-21-0850-1",
-  "image": "pool-2026-09-21-0850-1.jpg",
-  "headline": "Tasmania bushfires bring fresh insurance pressure for brokers and businesses",
-  "url": "https://www.insurancebusinessmag.com/au/news/catastrophe/tasmania-bushfires-bring-fresh-insurance-pressure-for-brokers-and-businesses-590440.aspx",
-  "outlet": "insurancebusinessmag.com",
-  "t": "2026-09-21T12:50:07+00:00",
-  "vista": 8.0,
-  "hash": 13576969139962848
- },
- {
   "id": "2026-09-21-0915-0",
   "image": "pool-2026-09-21-0915-0.jpg",
   "headline": "Mass drone barrage on Moscow kills 2",
@@ -175,5 +155,25 @@
   "t": "2026-09-22T21:23:19+00:00",
   "vista": 9.0,
   "hash": 1737327870606439264
+ },
+ {
+  "id": "2026-09-23-0047-0",
+  "image": "pool-2026-09-23-0047-0.jpg",
+  "headline": "More than 151 , 000 plants seized in Lassen County illegal marijuana grow crackdown",
+  "url": "https://foxreno.com/news/local/more-than-151000-plants-seized-in-lassen-county-illegal-marijuana-grow-crackdown",
+  "outlet": "foxreno.com",
+  "t": "2026-09-23T04:47:02+00:00",
+  "vista": 9.0,
+  "hash": 3605639262588674
+ },
+ {
+  "id": "2026-09-23-0047-1",
+  "image": "pool-2026-09-23-0047-1.jpg",
+  "headline": "Saudi Arabia and Vi\u1ec7t Nam : growing relations and new horizons for joint cooperation",
+  "url": "https://vietnamnews.vn/opinion/1800314/saudi-arabia-and-viet-nam-growing-relations-and-new-horizons-for-joint-cooperation.html",
+  "outlet": "vietnamnews.vn",
+  "t": "2026-09-23T04:47:02+00:00",
+  "vista": 9.0,
+  "hash": 3467771715507978239
  }
 ]
