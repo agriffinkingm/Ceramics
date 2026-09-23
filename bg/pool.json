@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-09-21-0915-0",
-  "image": "pool-2026-09-21-0915-0.jpg",
-  "headline": "Mass drone barrage on Moscow kills 2",
-  "url": "https://www.freemalaysiatoday.com/category/world/2026/09/20/mass-drone-barrage-on-moscow-kills-2",
-  "outlet": "freemalaysiatoday.com",
-  "t": "2026-09-21T13:15:12+00:00",
-  "vista": 8.0,
-  "hash": 13823799746644467936
- },
- {
-  "id": "2026-09-21-1037-0",
-  "image": "pool-2026-09-21-1037-0.jpg",
-  "headline": "Tight Brazil election challenges fragile gains for Amazon conservation",
-  "url": "https://news.mongabay.com/2026/09/tight-brazil-election-challenges-fragile-gains-for-amazon-conservation/",
-  "outlet": "news.mongabay.com",
-  "t": "2026-09-21T14:37:26+00:00",
-  "vista": 9.0,
-  "hash": 1755415111294969060
- },
- {
-  "id": "2026-09-21-1804-0",
-  "image": "pool-2026-09-21-1804-0.jpg",
-  "headline": "Tenerife set for full - scale volcanic eruption drill in days as tourists to get message | World | News",
-  "url": "https://www.express.co.uk/news/world/2250495/tenerife-first-volcanic-eruption-exercise-spain",
-  "outlet": "express.co.uk",
-  "t": "2026-09-21T22:04:23+00:00",
-  "vista": 9.0,
-  "hash": 9004982645807906800
- },
- {
   "id": "2026-09-21-1804-1",
   "image": "pool-2026-09-21-1804-1.jpg",
   "headline": "Gov . Newsom Declares State of Emergency Ahead of El Ni\u00f1o",
@@ -175,5 +145,32 @@
   "t": "2026-09-23T04:47:02+00:00",
   "vista": 9.0,
   "hash": 3467771715507978239
+ },
+ {
+  "id": "2026-09-23",
+  "image": "pool-2026-09-23.jpg",
+  "headline": "Flood destroys equipment , pushing back Siddhababa tunnel opening",
+  "url": "https://kathmandupost.com/province-no-5/2026/09/23/flood-destroys-equipment-pushing-back-siddhababa-tunnel-opening",
+  "outlet": "kathmandupost.com",
+  "t": "2026-09-23T11:33:49+00:00",
+  "hash": 18373837673941991560
+ },
+ {
+  "id": "2026-09-23-b",
+  "image": "pool-2026-09-23-b.jpg",
+  "headline": "While Trump builds a drone port , the Secret Service launches one next door",
+  "url": "https://www.wokv.com/news/politics/trump-says-his/I3QUSJ3GA4ZIFL2YYT6HCJN5JA/",
+  "outlet": "wokv.com",
+  "t": "2026-09-23T11:33:49+00:00",
+  "hash": 3491130833247747072
+ },
+ {
+  "id": "2026-09-23-c",
+  "image": "pool-2026-09-23-c.jpg",
+  "headline": "India new drone killer : DRDO starts production process of a mobile weapon that can destroy drone swarms 5 km away",
+  "url": "https://economictimes.indiatimes.com/news/defence/indias-new-drone-killer-drdo-starts-production-process-of-a-mobile-weapon-that-can-destroy-drone-swarms-5-km-away/articleshow/134429019.cms",
+  "outlet": "economictimes.indiatimes.com",
+  "t": "2026-09-23T11:33:49+00:00",
+  "hash": 5223890781302692895
  }
 ]
