@@ -329,6 +329,8 @@
         }
         .sc-dot.on { background: var(--terracotta); border-color: var(--terracotta); transform: scale(1.25); }
         .sc-dot.model { border-radius: 1px; }
+        .sc-solo .sc-arrow, .sc-solo .sc-dots, .sc-solo .sc-count { display: none; }
+        .sc-solo .sc-foot { justify-content: center; }
         .sc-hint { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: none; color: var(--clay-dark); opacity: 0.8; margin-top: 3rem; text-align: center; }
         @media (max-width: 768px) {
             .sc-arrow { opacity: 0.5; width: 44px; font-size: 2.4rem; }
@@ -466,6 +468,16 @@
                     <div class="sc-foot"><span class="sc-label">model</span><div class="sc-dots"></div><span class="sc-count"></span></div>
                 </div>
 
+                <div class="sc-wrap" data-stl="models/moonjar.stl">
+                    <div class="sc-name">moon jar</div>
+                    <div class="sc-stage">
+                        <div class="sc-slide on" data-kind="model"><div class="sc-loading">loading model</div></div>
+                        <button class="sc-arrow prev" type="button" aria-label="Previous">&lsaquo;</button>
+                        <button class="sc-arrow next" type="button" aria-label="Next">&rsaquo;</button>
+                    </div>
+                    <div class="sc-foot"><span class="sc-label">model</span><div class="sc-dots"></div><span class="sc-count"></span></div>
+                </div>
+
             </div>
             <div class="sc-hint">drag to turn a model &middot; tap, swipe, or use the arrow keys to move through its glazes</div>
         </section>
@@ -495,6 +507,7 @@ import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
         var dotsEl = wrap.querySelector('.sc-dots'), labelEl = wrap.querySelector('.sc-label'), countEl = wrap.querySelector('.sc-count');
         var modelSlide = slides[0], loadingEl = modelSlide.querySelector('.sc-loading');
         var F = { wrap: wrap, stage: stage, idx: 0, n: slides.length, built: false, running: false, inView: false };
+        if (F.n < 2) wrap.classList.add('sc-solo');
 
         slides.forEach(function (s, i) {
             var d = document.createElement('button');
