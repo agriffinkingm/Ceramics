@@ -253,7 +253,9 @@
             }
             
             .nav-links {
-                gap: 1.5rem;
+                gap: 1rem 1.5rem;
+                flex-wrap: wrap;
+                justify-content: center;
             }
             
             main {
@@ -270,6 +272,62 @@
                 grid-template-columns: 1fr;
                 gap: 2rem;
             }
+        }
+
+        /* Slipcast */
+        .sc-wrap { max-width: 720px; margin: 0 auto; }
+        .sc-stage {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #EDE9E3;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: pan-y;
+        }
+        .sc-slide {
+            position: absolute; inset: 0;
+            opacity: 0; transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+        .sc-slide.on { opacity: 1; pointer-events: auto; }
+        .sc-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .sc-slide canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+        .sc-slide canvas:active { cursor: grabbing; }
+        .sc-loading {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 300; color: var(--clay-dark);
+            letter-spacing: 0.08em; pointer-events: none; transition: opacity 0.4s ease;
+        }
+        .sc-loading.off { opacity: 0; }
+        .sc-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 56px; height: 96px; border: 0; background: transparent;
+            color: var(--stone); font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300;
+            line-height: 1; cursor: pointer; opacity: 0.35; transition: opacity 0.3s ease; z-index: 5;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .sc-arrow:hover { opacity: 1; }
+        .sc-arrow:focus { outline: none; }
+        .sc-arrow:focus-visible { outline: 1px solid var(--terracotta); outline-offset: -8px; }
+        .sc-arrow.prev { left: 0; }
+        .sc-arrow.next { right: 0; }
+        .sc-foot {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 1.25rem; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--clay-dark);
+        }
+        .sc-dots { display: flex; gap: 0.6rem; align-items: center; }
+        .sc-dot {
+            width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--clay-dark);
+            background: transparent; padding: 0; cursor: pointer; transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .sc-dot.on { background: var(--terracotta); border-color: var(--terracotta); transform: scale(1.25); }
+        .sc-dot.model { border-radius: 1px; }
+        .sc-hint { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: none; color: var(--clay-dark); opacity: 0.8; margin-top: 0.75rem; text-align: center; }
+        @media (max-width: 768px) {
+            .sc-arrow { opacity: 0.5; width: 44px; font-size: 2.4rem; }
+            .sc-foot { flex-direction: column; gap: 0.75rem; }
         }
         /* Contact Section */
 .contact-content {
@@ -321,7 +379,8 @@
         <div class="nav-content">
             <div class="logo">alexander griffin king miller</div>
             <ul class="nav-links">
-    <li><a href="#gallery" class="nav-link active">gallery</a></li>
+    <li><a href="#planters" class="nav-link active">planters</a></li>
+    <li><a href="#slipcast" class="nav-link">slipcast</a></li>
     
     
     <li><a href="#fingerstrument" class="nav-link">fingerstrument</a></li>
@@ -333,8 +392,8 @@
    </div>
     </nav>
     <main>
-        <!-- Gallery Section -->
-        <section id="gallery-section" class="active">
+        <!-- Planters Section -->
+        <section id="planters-section" class="active">
             <div class="gallery-grid">
                 <!-- Placeholder for images -->
                 <div class="gallery-item">
@@ -369,6 +428,207 @@
                 </div>
             </div>
         </section>
+
+        <!-- Slipcast Section -->
+        <section id="slipcast-section">
+            <div class="sc-wrap">
+                <div class="sc-stage" id="scStage">
+                    <div class="sc-slide on" data-kind="model" id="scModelSlide">
+                        <div class="sc-loading" id="scLoading">loading model</div>
+                    </div>
+                    <div class="sc-slide"><img src="images/boxthing-1.jpg" alt="Slipcast form, olive ash glaze with dark tenmoku break at the shoulder" loading="lazy" draggable="false"></div>
+                    <div class="sc-slide"><img src="images/boxthing-2.jpg" alt="Slipcast form, amber glaze with a frothy white rim drip" loading="lazy" draggable="false"></div>
+                    <div class="sc-slide"><img src="images/boxthing-3.jpg" alt="Slipcast form, cream base with iron-brown drips" loading="lazy" draggable="false"></div>
+                    <div class="sc-slide"><img src="images/boxthing-4.jpg" alt="Slipcast form, pale green crackle with a dark shoulder" loading="lazy" draggable="false"></div>
+                    <div class="sc-slide"><img src="images/boxthing-5.jpg" alt="Slipcast form, chestnut brown breaking to blue-violet at the base" loading="lazy" draggable="false"></div>
+                    <button class="sc-arrow prev" id="scPrev" type="button" aria-label="Previous">&lsaquo;</button>
+                    <button class="sc-arrow next" id="scNext" type="button" aria-label="Next">&rsaquo;</button>
+                </div>
+                <div class="sc-foot">
+                    <span id="scLabel">model</span>
+                    <div class="sc-dots" id="scDots"></div>
+                    <span id="scCount">1 / 6</span>
+                </div>
+                <div class="sc-hint" id="scHint">drag to turn the model &middot; tap, swipe, or use the arrow keys to move through the glazes</div>
+            </div>
+        </section>
+
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { toCreasedNormals } from 'three/addons/utils/BufferGeometryUtils.js';
+
+(function () {
+    var section = document.getElementById('slipcast-section');
+    var stage = document.getElementById('scStage');
+    var slides = Array.prototype.slice.call(stage.querySelectorAll('.sc-slide'));
+    var labels = ['model', 'glaze i', 'glaze ii', 'glaze iii', 'glaze iv', 'glaze v'];
+    var idx = 0, n = slides.length;
+    var dotsEl = document.getElementById('scDots');
+    var labelEl = document.getElementById('scLabel');
+    var countEl = document.getElementById('scCount');
+    var hintEl = document.getElementById('scHint');
+    var hints = {
+        model: 'drag to turn the model · tap, swipe, or use the arrow keys to move through the glazes',
+        photo: 'tap, swipe, or use the arrow keys · first slide is the 3D model'
+    };
+
+    slides.forEach(function (s, i) {
+        var d = document.createElement('button');
+        d.type = 'button';
+        d.className = 'sc-dot' + (i === 0 ? ' model on' : '');
+        d.setAttribute('aria-label', labels[i]);
+        d.addEventListener('click', function (e) { e.stopPropagation(); go(i); });
+        dotsEl.appendChild(d);
+    });
+
+    function go(i) {
+        idx = ((i % n) + n) % n;
+        slides.forEach(function (s, k) { s.classList.toggle('on', k === idx); });
+        Array.prototype.forEach.call(dotsEl.children, function (d, k) { d.classList.toggle('on', k === idx); });
+        labelEl.textContent = labels[idx];
+        countEl.textContent = (idx + 1) + ' / ' + n;
+        hintEl.textContent = idx === 0 ? hints.model : hints.photo;
+        stage.classList.toggle('on-model', idx === 0);
+    }
+    function next() { go(idx + 1); }
+    function prev() { go(idx - 1); }
+
+    document.getElementById('scNext').addEventListener('click', function (e) { e.stopPropagation(); next(); });
+    document.getElementById('scPrev').addEventListener('click', function (e) { e.stopPropagation(); prev(); });
+
+    // keyboard, only while this tab is showing
+    document.addEventListener('keydown', function (e) {
+        if (!section.classList.contains('active')) return;
+        var t = e.target && e.target.tagName;
+        if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    });
+
+    // tap = advance (any slide); horizontal swipe = prev/next (photo slides only — on the model a drag orbits)
+    var pd = null;
+    stage.addEventListener('pointerdown', function (e) {
+        if (e.target.closest('.sc-arrow')) return;
+        pd = { x: e.clientX, y: e.clientY, t: performance.now(), id: e.pointerId };
+    }, true);
+    stage.addEventListener('pointerup', function (e) {
+        if (!pd || e.pointerId !== pd.id) return;
+        var dx = e.clientX - pd.x, dy = e.clientY - pd.y, dt = performance.now() - pd.t;
+        pd = null;
+        if (e.target.closest('.sc-arrow')) return;
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8 && dt < 400) { next(); return; }
+        if (idx !== 0 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) { dx < 0 ? next() : prev(); }
+    }, true);
+    stage.addEventListener('pointercancel', function () { pd = null; }, true);
+
+    // ---- 3D model (lazy: built the first time the stage has a size) ----
+    var built = false;
+    var modelSlide = document.getElementById('scModelSlide');
+    var loadingEl = document.getElementById('scLoading');
+    var renderer, scene, camera, controls, running = false;
+
+    function build() {
+        built = true;
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+        modelSlide.insertBefore(renderer.domElement, loadingEl);
+
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(32, 1, 0.1, 1000);
+
+        var hemi = new THREE.HemisphereLight(0xfaf8f5, 0x8b7968, 1.6);
+        scene.add(hemi);
+        var key = new THREE.DirectionalLight(0xfff4e6, 2.2);
+        key.position.set(3, 5, 4);
+        scene.add(key);
+        var fill = new THREE.DirectionalLight(0xdde6f0, 0.8);
+        fill.position.set(-4, 2, -3);
+        scene.add(fill);
+        var rim = new THREE.DirectionalLight(0xffffff, 0.6);
+        rim.position.set(0, 3, -6);
+        scene.add(rim);
+
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.enablePan = false;
+        controls.rotateSpeed = 0.7;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.9;
+        controls.addEventListener('start', function () { controls.autoRotate = false; });
+
+        new STLLoader().load('models/boxthing.stl', function (geo) {
+            geo.deleteAttribute('normal');
+            geo = toCreasedNormals(geo, Math.PI / 5); // smooth the thrown curves, keep the cut edges crisp
+            geo.rotateX(-Math.PI / 2);                 // Rhino Z-up -> Y-up
+            geo.computeBoundingBox();
+            var bb = geo.boundingBox, c = new THREE.Vector3();
+            bb.getCenter(c);
+            geo.translate(-c.x, -c.y, -c.z);
+            var size = new THREE.Vector3(); bb.getSize(size);
+            var s = 1.0 / Math.max(size.x, size.y, size.z);
+            geo.scale(s, s, s);
+
+            var mat = new THREE.MeshStandardMaterial({ color: 0xd9cfc1, roughness: 0.82, metalness: 0.0 });
+            var mesh = new THREE.Mesh(geo, mat);
+            scene.add(mesh);
+
+            camera.position.set(0.95, 0.42, 1.85);
+            controls.target.set(0, 0, 0);
+            controls.minDistance = 1.2;
+            controls.maxDistance = 5;
+            controls.update();
+            loadingEl.classList.add('off');
+        }, undefined, function () {
+            loadingEl.textContent = 'model unavailable';
+        });
+
+        resize();
+        start();
+    }
+
+    function resize() {
+        if (!renderer) return;
+        var w = stage.clientWidth, h = stage.clientHeight;
+        if (!w || !h) return;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+    }
+
+    function frame() {
+        if (!running) return;
+        controls.update();
+        renderer.render(scene, camera);
+        requestAnimationFrame(frame);
+    }
+    function start() { if (!running) { running = true; requestAnimationFrame(frame); } }
+    function stop() { running = false; }
+
+    // build when visible, pause rendering when the tab is hidden
+    var ro = new ResizeObserver(function () {
+        var visible = stage.clientWidth > 0;
+        if (visible && !built) build();
+        else if (visible) { resize(); start(); }
+        else stop();
+    });
+    ro.observe(stage);
+    document.addEventListener('visibilitychange', function () {
+        if (document.hidden) stop(); else if (stage.clientWidth > 0 && built) start();
+    });
+})();
+</script>
 
         <!-- Fingerstrument Section -->
         <section id="fingerstrument-section">
@@ -1551,7 +1811,8 @@ else init();
         // Navigation
         const navLinks = document.querySelectorAll('.nav-link');
         const sections = {
-    'gallery': document.getElementById('gallery-section'),
+    'planters': document.getElementById('planters-section'),
+    'slipcast': document.getElementById('slipcast-section'),
     'fingerstrument': document.getElementById('fingerstrument-section'),
 
 'contact': document.getElementById('contact-section')
@@ -1574,6 +1835,13 @@ else init();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         });
+
+        // Keep content clear of the fixed nav, whatever height it wraps to
+        var navEl = document.querySelector('nav'), mainEl = document.querySelector('main');
+        function fitNav() { mainEl.style.marginTop = (navEl.offsetHeight + 24) + 'px'; }
+        fitNav();
+        window.addEventListener('resize', fitNav);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
 
         // Smooth scroll on page load
         window.scrollTo(0, 0);
