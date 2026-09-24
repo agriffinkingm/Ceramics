@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-09-22-0055-0",
-  "image": "pool-2026-09-22-0055-0.jpg",
-  "headline": "Deep in Antarctic winter a long - silent volcano glowing with a rare lava lake revealed its  heartbeat  to a passing satellite before clouds swept back in and erased the only clear view scientists had seen in years , exposing a fiery secret buried be...",
-  "url": "https://www.ecoportal.net/en/antarctic-volcano-mount-michael-lava/38632/",
-  "outlet": "ecoportal.net",
-  "t": "2026-09-22T04:55:20+00:00",
-  "vista": 9.0,
-  "hash": 13803506409245090209
- },
- {
-  "id": "2026-09-22-0055-1",
-  "image": "pool-2026-09-22-0055-1.jpg",
-  "headline": "SoCal threatened by Hurricane Polo as Category 5 storm nears",
-  "url": "https://nypost.com/2026/09/21/us-news/socal-threatened-by-hurricane-polo-as-category-5-storm-nears/",
-  "outlet": "nypost.com",
-  "t": "2026-09-22T04:55:20+00:00",
-  "vista": 7.0,
-  "hash": 17865480547262857216
- },
- {
-  "id": "2026-09-22",
-  "image": "pool-2026-09-22.jpg",
-  "headline": "In 1971 , Soviet engineers set fire to a collapsed gas crater in the Turkmen desert expecting it to burn itself out within weeks , and more than 50 years later the 230 - foot pit is still burning day and night locals now call it the Door to Hell",
-  "url": "https://scienceblog.com/b-in-1971-soviet-engineers-set-fire-to-a-collapsed-gas-crater-in-the-turkmen-desert-expecting-it-to-burn-itself-out-within-weeks-and-more-than-50-years-later-the-230-foot-pit-is-still-burning-day-and/",
-  "outlet": "scienceblog.com",
-  "t": "2026-09-22T11:36:50+00:00",
-  "hash": 7028078341521407
- },
- {
   "id": "2026-09-22-b",
   "image": "pool-2026-09-22-b.jpg",
   "headline": "Qatar propaganda machine could be  first casualty  of LNG collapse - Israel & Jewish News",
@@ -172,5 +143,32 @@
   "t": "2026-09-24T04:48:04+00:00",
   "vista": 8.0,
   "hash": 1167121938808509211
+ },
+ {
+  "id": "2026-09-24",
+  "image": "pool-2026-09-24.jpg",
+  "headline": "Kashmir Faces Potential  Great  Earthquake as Accumulated Strain , Vulnerable Geology and Unsafe Construction Combine : Study | Kashmir Life",
+  "url": "https://kashmirlife.net/kashmir-faces-potential-great-earthquake-as-accumulated-strain-vulnerable-geology-and-unsafe-construction-combine-study-452152/",
+  "outlet": "kashmirlife.net",
+  "t": "2026-09-24T11:45:36+00:00",
+  "hash": 18428667857839851399
+ },
+ {
+  "id": "2026-09-24-b",
+  "image": "pool-2026-09-24-b.jpg",
+  "headline": "Ukrainian Council of Churches and Religious Organizations , WCC appeal for end to humanitarian catastrophe in Oleshky",
+  "url": "https://www.oikoumene.org/news/ukrainian-council-of-churches-and-religious-organizations-wcc-appeal-for-end-to-humanitarian-catastrophe-in-oleshky",
+  "outlet": "oikoumene.org",
+  "t": "2026-09-24T11:45:36+00:00",
+  "hash": 7881368457395774
+ },
+ {
+  "id": "2026-09-24-c",
+  "image": "pool-2026-09-24-c.jpg",
+  "headline": "US releases additional $267m to combat Ebola outbreak",
+  "url": "https://punchng.com/us-releases-additional-267m-to-combat-ebola-outbreak/",
+  "outlet": "punchng.com",
+  "t": "2026-09-24T11:45:36+00:00",
+  "hash": 9657413078269655160
  }
 ]
