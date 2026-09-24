@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-09-22-b",
-  "image": "pool-2026-09-22-b.jpg",
-  "headline": "Qatar propaganda machine could be  first casualty  of LNG collapse - Israel & Jewish News",
-  "url": "https://www.jns.org/analysis/qatars-propaganda-machine-could-be-first-casualty-of-lng-collapse",
-  "outlet": "jns.org",
-  "t": "2026-09-22T11:36:50+00:00",
-  "hash": 1095199815920
- },
- {
-  "id": "2026-09-22-c",
-  "image": "pool-2026-09-22-c.jpg",
-  "headline": "Cordon remains after  250kg WW2 missile  found in Falmouth dock",
-  "url": "https://www.bbc.co.uk/news/articles/c9rk3vm3plego",
-  "outlet": "bbc.co.uk",
-  "t": "2026-09-22T11:36:50+00:00",
-  "hash": 68102033315741503
- },
- {
-  "id": "2026-09-22-0804-0",
-  "image": "pool-2026-09-22-0804-0.jpg",
-  "headline": "In 1910 , Oregon planted European beachgrass to stabilize shifting dunes ; it spread along the coast , reshaped the landscape and squeezed open sandy habitat used by native wildlife",
-  "url": "https://timesofindia.indiatimes.com/science/nature/in-1910-oregon-planted-european-beachgrass-to-stabilize-shifting-dunes-it-spread-along-the-coast-reshaped-the-landscape-and-squeezed-open-sandy-habitat-used-by-native-wildlife/articleshow/134403672.cms",
-  "outlet": "timesofindia.indiatimes.com",
-  "t": "2026-09-22T12:04:59+00:00",
-  "vista": 9.0,
-  "hash": 13679011225926143
- },
- {
   "id": "2026-09-22-0804-1",
   "image": "pool-2026-09-22-0804-1.jpg",
   "headline": "US - Iran conflict : Concerns grow in Washington over drone warfare toll",
@@ -170,5 +142,35 @@
   "outlet": "punchng.com",
   "t": "2026-09-24T11:45:36+00:00",
   "hash": 9657413078269655160
+ },
+ {
+  "id": "2026-09-24-0812-0",
+  "image": "pool-2026-09-24-0812-0.jpg",
+  "headline": "Russian Missile and Drone Attack on Kyiv Kills Two , Damages Maternity Hospital",
+  "url": "http://www.econotimes.com/Russian-Missile-and-Drone-Attack-on-Kyiv-Kills-Two-Damages-Maternity-Hospital-1752912",
+  "outlet": "econotimes.com",
+  "t": "2026-09-24T12:12:44+00:00",
+  "vista": 9.0,
+  "hash": 3492814707191984128
+ },
+ {
+  "id": "2026-09-24-0812-1",
+  "image": "pool-2026-09-24-0812-1.jpg",
+  "headline": "Patriot vs Iron Dome : Which system offers stronger protection against modern aerial threats ?",
+  "url": "https://www.moneycontrol.com/defence/patriot-vs-iron-dome-which-system-offers-stronger-protection-against-modern-aerial-threats-article-14037229.html",
+  "outlet": "moneycontrol.com",
+  "t": "2026-09-24T12:12:45+00:00",
+  "vista": 8.0,
+  "hash": 4179128377607194624
+ },
+ {
+  "id": "2026-09-24-0812-2",
+  "image": "pool-2026-09-24-0812-2.jpg",
+  "headline": "Germany Olympic hosts : Munich or Cologne - Rhine - Ruhr ?",
+  "url": "https://www.dw.com/en/munich-and-cologne-rhine-ruhr-germanys-two-remaining-olympic-candidates/a-79386915",
+  "outlet": "dw.com",
+  "t": "2026-09-24T12:12:45+00:00",
+  "vista": 8.0,
+  "hash": 1610612607
  }
 ]
