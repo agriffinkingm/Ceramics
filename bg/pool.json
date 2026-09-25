@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-09-23",
-  "image": "pool-2026-09-23.jpg",
-  "headline": "Flood destroys equipment , pushing back Siddhababa tunnel opening",
-  "url": "https://kathmandupost.com/province-no-5/2026/09/23/flood-destroys-equipment-pushing-back-siddhababa-tunnel-opening",
-  "outlet": "kathmandupost.com",
-  "t": "2026-09-23T11:33:49+00:00",
-  "hash": 18373837673941991560
- },
- {
-  "id": "2026-09-23-b",
-  "image": "pool-2026-09-23-b.jpg",
-  "headline": "While Trump builds a drone port , the Secret Service launches one next door",
-  "url": "https://www.wokv.com/news/politics/trump-says-his/I3QUSJ3GA4ZIFL2YYT6HCJN5JA/",
-  "outlet": "wokv.com",
-  "t": "2026-09-23T11:33:49+00:00",
-  "hash": 3491130833247747072
- },
- {
-  "id": "2026-09-23-c",
-  "image": "pool-2026-09-23-c.jpg",
-  "headline": "India new drone killer : DRDO starts production process of a mobile weapon that can destroy drone swarms 5 km away",
-  "url": "https://economictimes.indiatimes.com/news/defence/indias-new-drone-killer-drdo-starts-production-process-of-a-mobile-weapon-that-can-destroy-drone-swarms-5-km-away/articleshow/134429019.cms",
-  "outlet": "economictimes.indiatimes.com",
-  "t": "2026-09-23T11:33:49+00:00",
-  "hash": 5223890781302692895
- },
- {
   "id": "2026-09-23-0803-0",
   "image": "pool-2026-09-23-0803-0.jpg",
   "headline": "El Ni\u00f1o transforms Atacama desert as thousands of hectares burst into bloom",
@@ -172,5 +145,32 @@
   "t": "2026-09-25T04:59:49+00:00",
   "vista": 8.0,
   "hash": 859040672764748065
+ },
+ {
+  "id": "2026-09-25",
+  "image": "pool-2026-09-25.jpg",
+  "headline": "Explosive Intensification for Hurricane Polo",
+  "url": "https://science.nasa.gov/earth/earth-observatory/explosive-intensification-for-hurricane-polo/",
+  "outlet": "science.nasa.gov",
+  "t": "2026-09-25T11:51:05+00:00",
+  "hash": 233692668800932392
+ },
+ {
+  "id": "2026-09-25-b",
+  "image": "pool-2026-09-25-b.jpg",
+  "headline": "How AI powered autonomous drones are reshaping aerial combat",
+  "url": "https://timesofindia.indiatimes.com/defence/international/how-ai-powered-autonomous-drones-are-reshaping-aerial-combat/articleshow/134480023.cms",
+  "outlet": "timesofindia.indiatimes.com",
+  "t": "2026-09-25T11:51:05+00:00",
+  "hash": 18446743041239678976
+ },
+ {
+  "id": "2026-09-25-c",
+  "image": "pool-2026-09-25-c.jpg",
+  "headline": "3 injured after explosion causes building collapse in Athens",
+  "url": "https://www.scmp.com/news/world/europe/article/3368808/3-injured-after-explosion-causes-building-collapse-athens-tourist-centre",
+  "outlet": "scmp.com",
+  "t": "2026-09-25T11:51:05+00:00",
+  "hash": 9277690397080162079
  }
 ]
