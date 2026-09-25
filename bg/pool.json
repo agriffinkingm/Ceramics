@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-09-23-0047-0",
-  "image": "pool-2026-09-23-0047-0.jpg",
-  "headline": "More than 151 , 000 plants seized in Lassen County illegal marijuana grow crackdown",
-  "url": "https://foxreno.com/news/local/more-than-151000-plants-seized-in-lassen-county-illegal-marijuana-grow-crackdown",
-  "outlet": "foxreno.com",
-  "t": "2026-09-23T04:47:02+00:00",
-  "vista": 9.0,
-  "hash": 3605639262588674
- },
- {
-  "id": "2026-09-23-0047-1",
-  "image": "pool-2026-09-23-0047-1.jpg",
-  "headline": "Saudi Arabia and Vi\u1ec7t Nam : growing relations and new horizons for joint cooperation",
-  "url": "https://vietnamnews.vn/opinion/1800314/saudi-arabia-and-viet-nam-growing-relations-and-new-horizons-for-joint-cooperation.html",
-  "outlet": "vietnamnews.vn",
-  "t": "2026-09-23T04:47:02+00:00",
-  "vista": 9.0,
-  "hash": 3467771715507978239
- },
- {
   "id": "2026-09-23",
   "image": "pool-2026-09-23.jpg",
   "headline": "Flood destroys equipment , pushing back Siddhababa tunnel opening",
@@ -172,5 +152,25 @@
   "t": "2026-09-24T21:36:42+00:00",
   "vista": 9.0,
   "hash": 13312720895
+ },
+ {
+  "id": "2026-09-25-0059-0",
+  "image": "pool-2026-09-25-0059-0.jpg",
+  "headline": "Met Office names three areas facing thunderstorms on Saturday as heavy rain sweeps united kingdom",
+  "url": "https://www.mirror.co.uk/news/uk-news/met-office-storms-weather-forecast-37700113",
+  "outlet": "mirror.co.uk",
+  "t": "2026-09-25T04:59:49+00:00",
+  "vista": 8.0,
+  "hash": 53311231164415
+ },
+ {
+  "id": "2026-09-25-0059-1",
+  "image": "pool-2026-09-25-0059-1.jpg",
+  "headline": "This JPL satellite mission is burning through its funding . One reason : the Eaton fire",
+  "url": "https://www.spokesman.com/stories/2026/sep/24/this-jpl-satellite-mission-is-burning-through-its-/",
+  "outlet": "spokesman.com",
+  "t": "2026-09-25T04:59:49+00:00",
+  "vista": 8.0,
+  "hash": 859040672764748065
  }
 ]
