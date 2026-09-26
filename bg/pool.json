@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-09-23-0803-0",
-  "image": "pool-2026-09-23-0803-0.jpg",
-  "headline": "El Ni\u00f1o transforms Atacama desert as thousands of hectares burst into bloom",
-  "url": "https://www.euronews.com/2026/09/23/el-nino-transforms-atacama-desert-as-thousands-of-hectares-burst-into-bloom",
-  "outlet": "euronews.com",
-  "t": "2026-09-23T12:03:50+00:00",
-  "vista": 9.0,
-  "hash": 2179318907670676479
- },
- {
-  "id": "2026-09-24-0048-0",
-  "image": "pool-2026-09-24-0048-0.jpg",
-  "headline": "New sheriff drone aids response to 22 - car train derailment in Marlin",
-  "url": "https://www.kxxv.com/news/local-news/new-sheriffs-drone-aids-response-to-22-car-train-derailment-in-marlin",
-  "outlet": "kxxv.com",
-  "t": "2026-09-24T04:48:04+00:00",
-  "vista": 8.0,
-  "hash": 1167121938808509211
- },
- {
-  "id": "2026-09-24",
-  "image": "pool-2026-09-24.jpg",
-  "headline": "Kashmir Faces Potential  Great  Earthquake as Accumulated Strain , Vulnerable Geology and Unsafe Construction Combine : Study | Kashmir Life",
-  "url": "https://kashmirlife.net/kashmir-faces-potential-great-earthquake-as-accumulated-strain-vulnerable-geology-and-unsafe-construction-combine-study-452152/",
-  "outlet": "kashmirlife.net",
-  "t": "2026-09-24T11:45:36+00:00",
-  "hash": 18428667857839851399
- },
- {
   "id": "2026-09-24-b",
   "image": "pool-2026-09-24-b.jpg",
   "headline": "Ukrainian Council of Churches and Religious Organizations , WCC appeal for end to humanitarian catastrophe in Oleshky",
@@ -172,5 +143,35 @@
   "outlet": "scmp.com",
   "t": "2026-09-25T11:51:05+00:00",
   "hash": 9277690397080162079
+ },
+ {
+  "id": "2026-09-26-0058-0",
+  "image": "pool-2026-09-26-0058-0.jpg",
+  "headline": "Mexico , Hawaii fortify as storms churn in Pacific | The Arkansas Democrat - Gazette",
+  "url": "https://www.arkansasonline.com/news/2026/sep/25/mexico-hawaii-fortify-as-storms-churn-in-pacific/",
+  "outlet": "arkansasonline.com",
+  "t": "2026-09-26T04:58:53+00:00",
+  "vista": 10.0,
+  "hash": 9509266542588690817
+ },
+ {
+  "id": "2026-09-26-0058-1",
+  "image": "pool-2026-09-26-0058-1.jpg",
+  "headline": "Peak Bird Migration Reveals Gaps In Northwest Weather Radar",
+  "url": "https://wattsupwiththat.com/2026/09/24/peak-bird-migration-reveals-gaps-in-northwest-weather-radar/",
+  "outlet": "wattsupwiththat.com",
+  "t": "2026-09-26T04:58:53+00:00",
+  "vista": 9.0,
+  "hash": 4755823455444016898
+ },
+ {
+  "id": "2026-09-26-0058-2",
+  "image": "pool-2026-09-26-0058-2.jpg",
+  "headline": "Chicago dug 60 miles of freight tunnels under the Loop in 1899 and forgot them ; in 1992 , a damaged wall let the river in , and losses topped $1 billion",
+  "url": "https://economictimes.indiatimes.com/news/international/us/chicago-dug-60-miles-of-freight-tunnels-under-the-loop-in-1899-and-forgot-them-in-1992-a-damaged-wall-let-the-river-in-and-losses-topped-1-billion/articleshow/134455157.cms",
+  "outlet": "economictimes.indiatimes.com",
+  "t": "2026-09-26T04:58:53+00:00",
+  "vista": 7.0,
+  "hash": 8142013603852452611
  }
 ]
