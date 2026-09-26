@@ -61,5 +61,12 @@
   "url": "https://science.nasa.gov/earth/earth-observatory/explosive-intensification-for-hurricane-polo/",
   "outlet": "science.nasa.gov",
   "method": "outpaint"
+ },
+ {
+  "id": "2026-09-26",
+  "headline": "Governments Back Global Ocean Observation at UN Assembly",
+  "url": "https://www.miragenews.com/governments-back-global-ocean-observation-at-un-1750355/",
+  "outlet": "miragenews.com",
+  "method": "crop"
  }
 ]

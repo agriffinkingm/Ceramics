@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-09-24-b",
-  "image": "pool-2026-09-24-b.jpg",
-  "headline": "Ukrainian Council of Churches and Religious Organizations , WCC appeal for end to humanitarian catastrophe in Oleshky",
-  "url": "https://www.oikoumene.org/news/ukrainian-council-of-churches-and-religious-organizations-wcc-appeal-for-end-to-humanitarian-catastrophe-in-oleshky",
-  "outlet": "oikoumene.org",
-  "t": "2026-09-24T11:45:36+00:00",
-  "hash": 7881368457395774
- },
- {
-  "id": "2026-09-24-c",
-  "image": "pool-2026-09-24-c.jpg",
-  "headline": "US releases additional $267m to combat Ebola outbreak",
-  "url": "https://punchng.com/us-releases-additional-267m-to-combat-ebola-outbreak/",
-  "outlet": "punchng.com",
-  "t": "2026-09-24T11:45:36+00:00",
-  "hash": 9657413078269655160
- },
- {
-  "id": "2026-09-24-0812-0",
-  "image": "pool-2026-09-24-0812-0.jpg",
-  "headline": "Russian Missile and Drone Attack on Kyiv Kills Two , Damages Maternity Hospital",
-  "url": "http://www.econotimes.com/Russian-Missile-and-Drone-Attack-on-Kyiv-Kills-Two-Damages-Maternity-Hospital-1752912",
-  "outlet": "econotimes.com",
-  "t": "2026-09-24T12:12:44+00:00",
-  "vista": 9.0,
-  "hash": 3492814707191984128
- },
- {
   "id": "2026-09-24-0812-1",
   "image": "pool-2026-09-24-0812-1.jpg",
   "headline": "Patriot vs Iron Dome : Which system offers stronger protection against modern aerial threats ?",
@@ -173,5 +145,32 @@
   "t": "2026-09-26T04:58:53+00:00",
   "vista": 7.0,
   "hash": 8142013603852452611
+ },
+ {
+  "id": "2026-09-26",
+  "image": "pool-2026-09-26.jpg",
+  "headline": "Governments Back Global Ocean Observation at UN Assembly",
+  "url": "https://www.miragenews.com/governments-back-global-ocean-observation-at-un-1750355/",
+  "outlet": "miragenews.com",
+  "t": "2026-09-26T11:22:30+00:00",
+  "hash": 505250933202747391
+ },
+ {
+  "id": "2026-09-26-b",
+  "image": "pool-2026-09-26-b.jpg",
+  "headline": "23 Himveers battle weeks of gruelling Himalayan climbing to reach 24 , 131 - ft Mt Abi Gamin & unfurl Tricolour",
+  "url": "https://timesofindia.indiatimes.com/india/23-himveers-battle-weeks-of-gruelling-himalayan-climbing-to-reach-24131-ft-mt-abi-gamin-unfurl-tricolour/articleshow/134480195.cms",
+  "outlet": "timesofindia.indiatimes.com",
+  "t": "2026-09-26T11:22:30+00:00",
+  "hash": 432913055020467199
+ },
+ {
+  "id": "2026-09-26-c",
+  "image": "pool-2026-09-26-c.jpg",
+  "headline": "FAO Launches Livestock Vaccination Drive Amid Conflict",
+  "url": "https://www.miragenews.com/fao-launches-livestock-vaccination-drive-amid-1750367/",
+  "outlet": "miragenews.com",
+  "t": "2026-09-26T11:22:30+00:00",
+  "hash": 18195569876811551
  }
 ]
