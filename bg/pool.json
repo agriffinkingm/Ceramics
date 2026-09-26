@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-09-24-0812-1",
-  "image": "pool-2026-09-24-0812-1.jpg",
-  "headline": "Patriot vs Iron Dome : Which system offers stronger protection against modern aerial threats ?",
-  "url": "https://www.moneycontrol.com/defence/patriot-vs-iron-dome-which-system-offers-stronger-protection-against-modern-aerial-threats-article-14037229.html",
-  "outlet": "moneycontrol.com",
-  "t": "2026-09-24T12:12:45+00:00",
-  "vista": 8.0,
-  "hash": 4179128377607194624
- },
- {
-  "id": "2026-09-24-0812-2",
-  "image": "pool-2026-09-24-0812-2.jpg",
-  "headline": "Germany Olympic hosts : Munich or Cologne - Rhine - Ruhr ?",
-  "url": "https://www.dw.com/en/munich-and-cologne-rhine-ruhr-germanys-two-remaining-olympic-candidates/a-79386915",
-  "outlet": "dw.com",
-  "t": "2026-09-24T12:12:45+00:00",
-  "vista": 8.0,
-  "hash": 1610612607
- },
- {
   "id": "2026-09-24-0900-0",
   "image": "pool-2026-09-24-0900-0.jpg",
   "headline": "Different sort of record - breaking hurricane season ; longest stretch into a year without one",
@@ -172,5 +152,25 @@
   "outlet": "miragenews.com",
   "t": "2026-09-26T11:22:30+00:00",
   "hash": 18195569876811551
+ },
+ {
+  "id": "2026-09-26-1713-0",
+  "image": "pool-2026-09-26-1713-0.jpg",
+  "headline": "France to Send Troops to Saudi Red Sea Oil Port",
+  "url": "https://www.riotimesonline.com/france-troops-saudi-red-sea-oil-port-2026/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-09-26T21:13:18+00:00",
+  "vista": 9.0,
+  "hash": 2250742600791030008
+ },
+ {
+  "id": "2026-09-26-1713-1",
+  "image": "pool-2026-09-26-1713-1.jpg",
+  "headline": "Bridge Washed Away In Alluri District , Connectivity To Several Villages Hit",
+  "url": "https://www.deccanchronicle.com/southern-states/andhra-pradesh/bridge-washed-away-in-alluri-district-connectivity-to-several-villages-hit-1990459",
+  "outlet": "deccanchronicle.com",
+  "t": "2026-09-26T21:13:18+00:00",
+  "vista": 8.0,
+  "hash": 4575656121897811967
  }
 ]
