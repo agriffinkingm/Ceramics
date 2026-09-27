@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-09-25",
-  "image": "pool-2026-09-25.jpg",
-  "headline": "Explosive Intensification for Hurricane Polo",
-  "url": "https://science.nasa.gov/earth/earth-observatory/explosive-intensification-for-hurricane-polo/",
-  "outlet": "science.nasa.gov",
-  "t": "2026-09-25T11:51:05+00:00",
-  "hash": 233692668800932392
- },
- {
   "id": "2026-09-25-b",
   "image": "pool-2026-09-25-b.jpg",
   "headline": "How AI powered autonomous drones are reshaping aerial combat",
@@ -169,5 +160,15 @@
   "t": "2026-09-27T12:25:01+00:00",
   "vista": 8.0,
   "hash": 38157444990925920
+ },
+ {
+  "id": "2026-09-27-0922-0",
+  "image": "pool-2026-09-27-0922-0.jpg",
+  "headline": "Floods and landslides kill at least 56 people in India , 12 in Nepal",
+  "url": "https://www.aljazeera.com/news/2026/9/27/floods-and-landslides-kill-at-least-56-people-in-india-12-in-nepal",
+  "outlet": "aljazeera.com",
+  "t": "2026-09-27T13:22:27+00:00",
+  "vista": 9.0,
+  "hash": 15634449296186642431
  }
 ]
