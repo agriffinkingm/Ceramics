@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-09-25-b",
-  "image": "pool-2026-09-25-b.jpg",
-  "headline": "How AI powered autonomous drones are reshaping aerial combat",
-  "url": "https://timesofindia.indiatimes.com/defence/international/how-ai-powered-autonomous-drones-are-reshaping-aerial-combat/articleshow/134480023.cms",
-  "outlet": "timesofindia.indiatimes.com",
-  "t": "2026-09-25T11:51:05+00:00",
-  "hash": 18446743041239678976
- },
- {
   "id": "2026-09-25-c",
   "image": "pool-2026-09-25-c.jpg",
   "headline": "3 injured after explosion causes building collapse in Athens",
@@ -170,5 +161,15 @@
   "t": "2026-09-27T13:22:27+00:00",
   "vista": 9.0,
   "hash": 15634449296186642431
+ },
+ {
+  "id": "2026-09-27-1303-0",
+  "image": "pool-2026-09-27-1303-0.jpg",
+  "headline": "One in Four Montanans Says There Too Much Federal Land",
+  "url": "https://www.montanaoutdoor.com/2026/09/one-in-four-montanans-says-theres-too-much-federal-land/",
+  "outlet": "montanaoutdoor.com",
+  "t": "2026-09-27T17:03:33+00:00",
+  "vista": 8.0,
+  "hash": 1279262719
  }
 ]
