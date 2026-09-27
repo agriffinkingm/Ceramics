@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-09-24-0900-0",
-  "image": "pool-2026-09-24-0900-0.jpg",
-  "headline": "Different sort of record - breaking hurricane season ; longest stretch into a year without one",
-  "url": "https://www.publicradioeast.org/2026-09-24/different-sort-of-record-breaking-hurricane-season-longest-stretch-into-a-year-without-one",
-  "outlet": "publicradioeast.org",
-  "t": "2026-09-24T13:00:05+00:00",
-  "vista": 10.0,
-  "hash": 4361210703060480
- },
- {
   "id": "2026-09-24-0900-1",
   "image": "pool-2026-09-24-0900-1.jpg",
   "headline": "Bulgaria battery storage boom pays off as summer drought hits power plants",
@@ -172,5 +162,15 @@
   "t": "2026-09-26T21:13:18+00:00",
   "vista": 8.0,
   "hash": 4575656121897811967
+ },
+ {
+  "id": "2026-09-27-0123-0",
+  "image": "pool-2026-09-27-0123-0.jpg",
+  "headline": "37 Funny Memes From This Instagram Account That Entertains Its 2M Followers Daily",
+  "url": "https://www.boredpanda.com/relatable-funny-memes-hoodreels/?cexp_id=161963&_f=homepage_featured&cexp_var=6",
+  "outlet": "boredpanda.com",
+  "t": "2026-09-27T05:23:05+00:00",
+  "vista": 8.0,
+  "hash": 17361641481139388415
  }
 ]
