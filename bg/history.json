@@ -68,5 +68,12 @@
   "url": "https://www.miragenews.com/governments-back-global-ocean-observation-at-un-1750355/",
   "outlet": "miragenews.com",
   "method": "crop"
+ },
+ {
+  "id": "2026-09-27",
+  "headline": "Long Island swimmer vanishes in ocean off Fire Island during deadly noreaster as officials launch search",
+  "url": "https://nypost.com/2026/09/27/us-news/long-island-swimmer-vanishes-in-ocean-off-fire-island-during-deadly-noreaster-as-officials-launch-search/",
+  "outlet": "nypost.com",
+  "method": "crop-flat"
  }
 ]

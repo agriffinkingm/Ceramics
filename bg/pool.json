@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-09-24-0900-1",
-  "image": "pool-2026-09-24-0900-1.jpg",
-  "headline": "Bulgaria battery storage boom pays off as summer drought hits power plants",
-  "url": "https://www.euronews.com/2026/09/24/bulgarias-battery-storage-boom-pays-off-as-summer-drought-hits-power-plants",
-  "outlet": "euronews.com",
-  "t": "2026-09-24T13:00:05+00:00",
-  "vista": 8.0,
-  "hash": 7988463469467508534
- },
- {
-  "id": "2026-09-24-1315-0",
-  "image": "pool-2026-09-24-1315-0.jpg",
-  "headline": "Noreaster Threat Grows For New York , Including Hudson Valley",
-  "url": "https://wpdh.com/ixp/854/p/noreaster-threat-grows-for-hudson-valley-with-wind-heavy-rain/",
-  "outlet": "wpdh.com",
-  "t": "2026-09-24T17:15:38+00:00",
-  "vista": 9.0,
-  "hash": 291745506235685888
- },
- {
-  "id": "2026-09-24-1736-0",
-  "image": "pool-2026-09-24-1736-0.jpg",
-  "headline": "Very intense  cyclone expected to hit Oregon North Coast ; top expert wonders why no warning from NWS",
-  "url": "http://www.chronline.com/stories/very-intense-cyclone-expected-to-hit-oregons-north-coast-top-expert-wonders-why-no-warning-from,408800",
-  "outlet": "chronline.com",
-  "t": "2026-09-24T21:36:42+00:00",
-  "vista": 9.0,
-  "hash": 14682584487670595736
- },
- {
   "id": "2026-09-24-1736-1",
   "image": "pool-2026-09-24-1736-1.jpg",
   "headline": "Inside the 12 - guest voyage to Scoresby Sund in East Greenland | Newcastle Herald",
@@ -172,5 +142,32 @@
   "t": "2026-09-27T05:23:05+00:00",
   "vista": 8.0,
   "hash": 17361641481139388415
+ },
+ {
+  "id": "2026-09-27",
+  "image": "pool-2026-09-27.jpg",
+  "headline": "Long Island swimmer vanishes in ocean off Fire Island during deadly noreaster as officials launch search",
+  "url": "https://nypost.com/2026/09/27/us-news/long-island-swimmer-vanishes-in-ocean-off-fire-island-during-deadly-noreaster-as-officials-launch-search/",
+  "outlet": "nypost.com",
+  "t": "2026-09-27T12:01:30+00:00",
+  "hash": 1763297792448282623
+ },
+ {
+  "id": "2026-09-27-b",
+  "image": "pool-2026-09-27-b.jpg",
+  "headline": "Russian strikes kill 2 in Ukraine after Moscow rejects German calls to de - escalate",
+  "url": "https://www.wral.com/news/ap/f91ac-russian-strikes-kill-2-in-ukraine-after-moscow-rejects-german-calls-to-de-escalate/",
+  "outlet": "wral.com",
+  "t": "2026-09-27T12:01:30+00:00",
+  "hash": 56054726463
+ },
+ {
+  "id": "2026-09-27-c",
+  "image": "pool-2026-09-27-c.jpg",
+  "headline": "Russian , Ukrainian strikes leave 10 dead as Trump calls on Zelenskyy to  settle with Putin",
+  "url": "https://www.koreatimes.co.kr/world/20260927/russian-ukrainian-strikes-leave-10-dead-as-trump-calls-on-zelenskyy-to-settle-with-putin",
+  "outlet": "koreatimes.co.kr",
+  "t": "2026-09-27T12:01:30+00:00",
+  "hash": 2319353913128680319
  }
 ]
