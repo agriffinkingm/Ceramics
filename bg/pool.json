@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-09-24-1736-1",
-  "image": "pool-2026-09-24-1736-1.jpg",
-  "headline": "Inside the 12 - guest voyage to Scoresby Sund in East Greenland | Newcastle Herald",
-  "url": "https://www.newcastleherald.com.au/story/9347730/inside-the-12-guest-voyage-to-scoresby-sund-in-east-greenland/",
-  "outlet": "newcastleherald.com.au",
-  "t": "2026-09-24T21:36:42+00:00",
-  "vista": 9.0,
-  "hash": 13312720895
- },
- {
-  "id": "2026-09-25-0059-0",
-  "image": "pool-2026-09-25-0059-0.jpg",
-  "headline": "Met Office names three areas facing thunderstorms on Saturday as heavy rain sweeps united kingdom",
-  "url": "https://www.mirror.co.uk/news/uk-news/met-office-storms-weather-forecast-37700113",
-  "outlet": "mirror.co.uk",
-  "t": "2026-09-25T04:59:49+00:00",
-  "vista": 8.0,
-  "hash": 53311231164415
- },
- {
-  "id": "2026-09-25-0059-1",
-  "image": "pool-2026-09-25-0059-1.jpg",
-  "headline": "This JPL satellite mission is burning through its funding . One reason : the Eaton fire",
-  "url": "https://www.spokesman.com/stories/2026/sep/24/this-jpl-satellite-mission-is-burning-through-its-/",
-  "outlet": "spokesman.com",
-  "t": "2026-09-25T04:59:49+00:00",
-  "vista": 8.0,
-  "hash": 859040672764748065
- },
- {
   "id": "2026-09-25",
   "image": "pool-2026-09-25.jpg",
   "headline": "Explosive Intensification for Hurricane Polo",
@@ -169,5 +139,35 @@
   "outlet": "koreatimes.co.kr",
   "t": "2026-09-27T12:01:30+00:00",
   "hash": 2319353913128680319
+ },
+ {
+  "id": "2026-09-27-0825-0",
+  "image": "pool-2026-09-27-0825-0.jpg",
+  "headline": "Wrightwood residents fight a quarry they never saw coming",
+  "url": "https://www.latimes.com/california/story/2026-09-27/wrightwood-fights-century-long-mine-it-never-saw-coming",
+  "outlet": "latimes.com",
+  "t": "2026-09-27T12:25:01+00:00",
+  "vista": 9.0,
+  "hash": 8174944133232783608
+ },
+ {
+  "id": "2026-09-27-0825-1",
+  "image": "pool-2026-09-27-0825-1.jpg",
+  "headline": "Lagos Goods Diversion : Nigeria Police Arrest Six Suspects",
+  "url": "https://www.riotimesonline.com/lagos-police-bust-n20bn-goods-diversion-syndicate-2026/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-09-27T12:25:01+00:00",
+  "vista": 9.0,
+  "hash": 5174509857730774024
+ },
+ {
+  "id": "2026-09-27-0825-2",
+  "image": "pool-2026-09-27-0825-2.jpg",
+  "headline": "US - Iran conflict : Concerns grow in Washington over drone warfare toll",
+  "url": "https://www.bankingnews.gr/diethni/articles/900764/us-iran-conflict-concerns-grow-in-washington-over-drone-warfare-toll%20title=",
+  "outlet": "bankingnews.gr",
+  "t": "2026-09-27T12:25:01+00:00",
+  "vista": 8.0,
+  "hash": 38157444990925920
  }
 ]
