@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-09-26-b",
-  "image": "pool-2026-09-26-b.jpg",
-  "headline": "23 Himveers battle weeks of gruelling Himalayan climbing to reach 24 , 131 - ft Mt Abi Gamin & unfurl Tricolour",
-  "url": "https://timesofindia.indiatimes.com/india/23-himveers-battle-weeks-of-gruelling-himalayan-climbing-to-reach-24131-ft-mt-abi-gamin-unfurl-tricolour/articleshow/134480195.cms",
-  "outlet": "timesofindia.indiatimes.com",
-  "t": "2026-09-26T11:22:30+00:00",
-  "hash": 432913055020467199
- },
- {
   "id": "2026-09-26-c",
   "image": "pool-2026-09-26-c.jpg",
   "headline": "FAO Launches Livestock Vaccination Drive Amid Conflict",
@@ -170,5 +161,15 @@
   "outlet": "claimsjournal.com",
   "t": "2026-09-28T13:52:35+00:00",
   "hash": 545030015
+ },
+ {
+  "id": "2026-09-28-1158-0",
+  "image": "pool-2026-09-28-1158-0.jpg",
+  "headline": "Frozen Head State Park to Host 45th Annual Heritage Day in October",
+  "url": "https://www.wivk.com/2026/09/28/frozen-head-state-park-to-host-45th-annual-heritage-day-in-october/",
+  "outlet": "wivk.com",
+  "t": "2026-09-28T15:58:39+00:00",
+  "vista": 8.0,
+  "hash": 4294934393
  }
 ]
