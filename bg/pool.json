@@ -1,24 +1,5 @@
 [
  {
-  "id": "2026-09-25-c",
-  "image": "pool-2026-09-25-c.jpg",
-  "headline": "3 injured after explosion causes building collapse in Athens",
-  "url": "https://www.scmp.com/news/world/europe/article/3368808/3-injured-after-explosion-causes-building-collapse-athens-tourist-centre",
-  "outlet": "scmp.com",
-  "t": "2026-09-25T11:51:05+00:00",
-  "hash": 9277690397080162079
- },
- {
-  "id": "2026-09-26-0058-0",
-  "image": "pool-2026-09-26-0058-0.jpg",
-  "headline": "Mexico , Hawaii fortify as storms churn in Pacific | The Arkansas Democrat - Gazette",
-  "url": "https://www.arkansasonline.com/news/2026/sep/25/mexico-hawaii-fortify-as-storms-churn-in-pacific/",
-  "outlet": "arkansasonline.com",
-  "t": "2026-09-26T04:58:53+00:00",
-  "vista": 10.0,
-  "hash": 9509266542588690817
- },
- {
   "id": "2026-09-26-0058-1",
   "image": "pool-2026-09-26-0058-1.jpg",
   "headline": "Peak Bird Migration Reveals Gaps In Northwest Weather Radar",
@@ -171,5 +152,25 @@
   "t": "2026-09-27T17:03:33+00:00",
   "vista": 8.0,
   "hash": 1279262719
+ },
+ {
+  "id": "2026-09-28-0124-0",
+  "image": "pool-2026-09-28-0124-0.jpg",
+  "headline": "ITCZ brings rain in Visayas , Mindanao amid Typhoon Surigae",
+  "url": "https://bworldonline.com/the-nation/2026/09/28/782472/itcz-brings-rain-in-visayas-mindanao-amid-typhoon-surigae/",
+  "outlet": "bworldonline.com",
+  "t": "2026-09-28T05:24:42+00:00",
+  "vista": 9.0,
+  "hash": 4613919680625713975
+ },
+ {
+  "id": "2026-09-28-0124-1",
+  "image": "pool-2026-09-28-0124-1.jpg",
+  "headline": "Between Portsmouth And Poole Is A Quaint Coastal Town With A Historic Market , Tasty Eats , And A Scenic Castle",
+  "url": "https://www.islands.com/2268289/lymington-united-kingdom-between-portsmouth-poole-quaint-coastal-town-with-historic-market-tasty-eats-scenic-castle/",
+  "outlet": "islands.com",
+  "t": "2026-09-28T05:24:42+00:00",
+  "vista": 9.0,
+  "hash": 150307637580267519
  }
 ]
