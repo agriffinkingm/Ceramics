@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-09-26-0058-1",
-  "image": "pool-2026-09-26-0058-1.jpg",
-  "headline": "Peak Bird Migration Reveals Gaps In Northwest Weather Radar",
-  "url": "https://wattsupwiththat.com/2026/09/24/peak-bird-migration-reveals-gaps-in-northwest-weather-radar/",
-  "outlet": "wattsupwiththat.com",
-  "t": "2026-09-26T04:58:53+00:00",
-  "vista": 9.0,
-  "hash": 4755823455444016898
- },
- {
-  "id": "2026-09-26-0058-2",
-  "image": "pool-2026-09-26-0058-2.jpg",
-  "headline": "Chicago dug 60 miles of freight tunnels under the Loop in 1899 and forgot them ; in 1992 , a damaged wall let the river in , and losses topped $1 billion",
-  "url": "https://economictimes.indiatimes.com/news/international/us/chicago-dug-60-miles-of-freight-tunnels-under-the-loop-in-1899-and-forgot-them-in-1992-a-damaged-wall-let-the-river-in-and-losses-topped-1-billion/articleshow/134455157.cms",
-  "outlet": "economictimes.indiatimes.com",
-  "t": "2026-09-26T04:58:53+00:00",
-  "vista": 7.0,
-  "hash": 8142013603852452611
- },
- {
-  "id": "2026-09-26",
-  "image": "pool-2026-09-26.jpg",
-  "headline": "Governments Back Global Ocean Observation at UN Assembly",
-  "url": "https://www.miragenews.com/governments-back-global-ocean-observation-at-un-1750355/",
-  "outlet": "miragenews.com",
-  "t": "2026-09-26T11:22:30+00:00",
-  "hash": 505250933202747391
- },
- {
   "id": "2026-09-26-b",
   "image": "pool-2026-09-26-b.jpg",
   "headline": "23 Himveers battle weeks of gruelling Himalayan climbing to reach 24 , 131 - ft Mt Abi Gamin & unfurl Tricolour",
@@ -172,5 +143,32 @@
   "t": "2026-09-28T05:24:42+00:00",
   "vista": 9.0,
   "hash": 150307637580267519
+ },
+ {
+  "id": "2026-09-28",
+  "image": "pool-2026-09-28.jpg",
+  "headline": "Volcanic ash eruption closes airspace with travel chaos to Sicily",
+  "url": "https://www.dailyrecord.co.uk/news/uk-world-news/volcanic-ash-eruption-closes-airspace-37709709",
+  "outlet": "dailyrecord.co.uk",
+  "t": "2026-09-28T13:52:35+00:00",
+  "hash": 72057600681705464
+ },
+ {
+  "id": "2026-09-28-b",
+  "image": "pool-2026-09-28-b.jpg",
+  "headline": "The growth of the Middle East most important new energy corridor",
+  "url": "http://www.jpost.com/middle-east/article-909969",
+  "outlet": "jpost.com",
+  "t": "2026-09-28T13:52:35+00:00",
+  "hash": 1082331758591
+ },
+ {
+  "id": "2026-09-28-c",
+  "image": "pool-2026-09-28-c.jpg",
+  "headline": "California El Ni\u00f1o Emergency Begins Now as Beaches Erode",
+  "url": "https://www.claimsjournal.com/news/national/2026/09/28/340400.htm",
+  "outlet": "claimsjournal.com",
+  "t": "2026-09-28T13:52:35+00:00",
+  "hash": 545030015
  }
 ]

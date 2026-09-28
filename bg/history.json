@@ -75,5 +75,12 @@
   "url": "https://nypost.com/2026/09/27/us-news/long-island-swimmer-vanishes-in-ocean-off-fire-island-during-deadly-noreaster-as-officials-launch-search/",
   "outlet": "nypost.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-09-28",
+  "headline": "Volcanic ash eruption closes airspace with travel chaos to Sicily",
+  "url": "https://www.dailyrecord.co.uk/news/uk-world-news/volcanic-ash-eruption-closes-airspace-37709709",
+  "outlet": "dailyrecord.co.uk",
+  "method": "crop"
  }
 ]
