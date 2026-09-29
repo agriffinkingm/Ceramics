@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-09-26-c",
-  "image": "pool-2026-09-26-c.jpg",
-  "headline": "FAO Launches Livestock Vaccination Drive Amid Conflict",
-  "url": "https://www.miragenews.com/fao-launches-livestock-vaccination-drive-amid-1750367/",
-  "outlet": "miragenews.com",
-  "t": "2026-09-26T11:22:30+00:00",
-  "hash": 18195569876811551
- },
- {
   "id": "2026-09-26-1713-0",
   "image": "pool-2026-09-26-1713-0.jpg",
   "headline": "France to Send Troops to Saudi Red Sea Oil Port",
@@ -171,5 +162,15 @@
   "t": "2026-09-28T15:58:39+00:00",
   "vista": 8.0,
   "hash": 4294934393
+ },
+ {
+  "id": "2026-09-29-0145-0",
+  "image": "pool-2026-09-29-0145-0.jpg",
+  "headline": "Super  El Ni\u00f1o is coming . What should you expect ? : Short Wave",
+  "url": "https://www.npr.org/transcripts/nx-s1-5953022",
+  "outlet": "npr.org",
+  "t": "2026-09-29T05:45:38+00:00",
+  "vista": 9.0,
+  "hash": 584408280519679000
  }
 ]
