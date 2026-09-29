@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-09-26-1713-0",
-  "image": "pool-2026-09-26-1713-0.jpg",
-  "headline": "France to Send Troops to Saudi Red Sea Oil Port",
-  "url": "https://www.riotimesonline.com/france-troops-saudi-red-sea-oil-port-2026/",
-  "outlet": "riotimesonline.com",
-  "t": "2026-09-26T21:13:18+00:00",
-  "vista": 9.0,
-  "hash": 2250742600791030008
- },
- {
-  "id": "2026-09-26-1713-1",
-  "image": "pool-2026-09-26-1713-1.jpg",
-  "headline": "Bridge Washed Away In Alluri District , Connectivity To Several Villages Hit",
-  "url": "https://www.deccanchronicle.com/southern-states/andhra-pradesh/bridge-washed-away-in-alluri-district-connectivity-to-several-villages-hit-1990459",
-  "outlet": "deccanchronicle.com",
-  "t": "2026-09-26T21:13:18+00:00",
-  "vista": 8.0,
-  "hash": 4575656121897811967
- },
- {
-  "id": "2026-09-27-0123-0",
-  "image": "pool-2026-09-27-0123-0.jpg",
-  "headline": "37 Funny Memes From This Instagram Account That Entertains Its 2M Followers Daily",
-  "url": "https://www.boredpanda.com/relatable-funny-memes-hoodreels/?cexp_id=161963&_f=homepage_featured&cexp_var=6",
-  "outlet": "boredpanda.com",
-  "t": "2026-09-27T05:23:05+00:00",
-  "vista": 8.0,
-  "hash": 17361641481139388415
- },
- {
   "id": "2026-09-27",
   "image": "pool-2026-09-27.jpg",
   "headline": "Long Island swimmer vanishes in ocean off Fire Island during deadly noreaster as officials launch search",
@@ -172,5 +142,32 @@
   "t": "2026-09-29T05:45:38+00:00",
   "vista": 9.0,
   "hash": 584408280519679000
+ },
+ {
+  "id": "2026-09-29",
+  "image": "pool-2026-09-29.jpg",
+  "headline": "Crop Watch : OSR hit by flea beetle and lack of moisture",
+  "url": "https://www.fwi.co.uk/arable/crop-watch/crop-watch-osr-hit-by-flea-beetle-and-lack-of-moisture",
+  "outlet": "fwi.co.uk",
+  "t": "2026-09-29T12:51:46+00:00",
+  "hash": 276007764361020
+ },
+ {
+  "id": "2026-09-29-b",
+  "image": "pool-2026-09-29-b.jpg",
+  "headline": "The Steps : A Memoir  review : Sly Stallone details the road to  Rocky",
+  "url": "https://www.latimes.com/entertainment-arts/books/story/2026-09-29/steps-memoir-review-sly-stallone-rocky",
+  "outlet": "latimes.com",
+  "t": "2026-09-29T12:51:46+00:00",
+  "hash": 220464449212687368
+ },
+ {
+  "id": "2026-09-29-c",
+  "image": "pool-2026-09-29-c.jpg",
+  "headline": "NHL predictions : Will the Flyers return to the playoffs in 2026 - 27 ?",
+  "url": "https://www.inquirer.com/flyers/nhl-predictions-playoffs-porter-martone-stanley-cup-matvei-michkov-20260929.html",
+  "outlet": "inquirer.com",
+  "t": "2026-09-29T12:51:46+00:00",
+  "hash": 15096611306429616128
  }
 ]

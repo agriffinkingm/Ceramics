@@ -82,5 +82,12 @@
   "url": "https://www.dailyrecord.co.uk/news/uk-world-news/volcanic-ash-eruption-closes-airspace-37709709",
   "outlet": "dailyrecord.co.uk",
   "method": "crop"
+ },
+ {
+  "id": "2026-09-29",
+  "headline": "Crop Watch : OSR hit by flea beetle and lack of moisture",
+  "url": "https://www.fwi.co.uk/arable/crop-watch/crop-watch-osr-hit-by-flea-beetle-and-lack-of-moisture",
+  "outlet": "fwi.co.uk",
+  "method": "crop"
  }
 ]
