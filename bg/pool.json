@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-09-27",
-  "image": "pool-2026-09-27.jpg",
-  "headline": "Long Island swimmer vanishes in ocean off Fire Island during deadly noreaster as officials launch search",
-  "url": "https://nypost.com/2026/09/27/us-news/long-island-swimmer-vanishes-in-ocean-off-fire-island-during-deadly-noreaster-as-officials-launch-search/",
-  "outlet": "nypost.com",
-  "t": "2026-09-27T12:01:30+00:00",
-  "hash": 1763297792448282623
- },
- {
   "id": "2026-09-27-b",
   "image": "pool-2026-09-27-b.jpg",
   "headline": "Russian strikes kill 2 in Ukraine after Moscow rejects German calls to de - escalate",
@@ -169,5 +160,15 @@
   "outlet": "inquirer.com",
   "t": "2026-09-29T12:51:46+00:00",
   "hash": 15096611306429616128
+ },
+ {
+  "id": "2026-09-29-1025-0",
+  "image": "pool-2026-09-29-1025-0.jpg",
+  "headline": "The Last First : Winter K2 | Movie review \u2013 The Upcoming",
+  "url": "https://www.theupcoming.co.uk/2026/09/29/the-last-first-winter-k2-movie-review/",
+  "outlet": "theupcoming.co.uk",
+  "t": "2026-09-29T14:25:11+00:00",
+  "vista": 9.0,
+  "hash": 16701321055133810895
  }
 ]
