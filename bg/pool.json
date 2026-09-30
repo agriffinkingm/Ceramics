@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-09-27-1303-0",
-  "image": "pool-2026-09-27-1303-0.jpg",
-  "headline": "One in Four Montanans Says There Too Much Federal Land",
-  "url": "https://www.montanaoutdoor.com/2026/09/one-in-four-montanans-says-theres-too-much-federal-land/",
-  "outlet": "montanaoutdoor.com",
-  "t": "2026-09-27T17:03:33+00:00",
-  "vista": 8.0,
-  "hash": 1279262719
- },
- {
   "id": "2026-09-28-0124-0",
   "image": "pool-2026-09-28-0124-0.jpg",
   "headline": "ITCZ brings rain in Visayas , Mindanao amid Typhoon Surigae",
@@ -169,5 +159,15 @@
   "outlet": "euronews.com",
   "t": "2026-09-30T12:34:42+00:00",
   "hash": 10341531964068331519
+ },
+ {
+  "id": "2026-09-30-0901-0",
+  "image": "pool-2026-09-30-0901-0.jpg",
+  "headline": "Arab News | Israeli drones and fighter jets violate Lebanese airspace 143 times in 3 days , UN peacekeepers say",
+  "url": "https://www.arabnews.com/middle-east/israeli-drones-and-fighter-jets-violate-lebanese-airspace-143-times-in-3-days-un-peacekeepers-say-3003617",
+  "outlet": "arabnews.com",
+  "t": "2026-09-30T13:01:00+00:00",
+  "vista": 7.0,
+  "hash": 9285269179267839
  }
 ]
