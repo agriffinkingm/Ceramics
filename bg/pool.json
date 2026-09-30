@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-09-28-0124-0",
-  "image": "pool-2026-09-28-0124-0.jpg",
-  "headline": "ITCZ brings rain in Visayas , Mindanao amid Typhoon Surigae",
-  "url": "https://bworldonline.com/the-nation/2026/09/28/782472/itcz-brings-rain-in-visayas-mindanao-amid-typhoon-surigae/",
-  "outlet": "bworldonline.com",
-  "t": "2026-09-28T05:24:42+00:00",
-  "vista": 9.0,
-  "hash": 4613919680625713975
- },
- {
-  "id": "2026-09-28-0124-1",
-  "image": "pool-2026-09-28-0124-1.jpg",
-  "headline": "Between Portsmouth And Poole Is A Quaint Coastal Town With A Historic Market , Tasty Eats , And A Scenic Castle",
-  "url": "https://www.islands.com/2268289/lymington-united-kingdom-between-portsmouth-poole-quaint-coastal-town-with-historic-market-tasty-eats-scenic-castle/",
-  "outlet": "islands.com",
-  "t": "2026-09-28T05:24:42+00:00",
-  "vista": 9.0,
-  "hash": 150307637580267519
- },
- {
   "id": "2026-09-28",
   "image": "pool-2026-09-28.jpg",
   "headline": "Volcanic ash eruption closes airspace with travel chaos to Sicily",
@@ -169,5 +149,25 @@
   "t": "2026-09-30T13:01:00+00:00",
   "vista": 7.0,
   "hash": 9285269179267839
+ },
+ {
+  "id": "2026-09-30-1017-0",
+  "image": "pool-2026-09-30-1017-0.jpg",
+  "headline": "Breaking National News - 92 . 7 - FM TheDRIVE - Keeler in the Morning , Genesee Joe Afternoons !",
+  "url": "https://927thedrive.net/news/breaking-national-news/9a72d2517a40413c08b53328a8b72e2c",
+  "outlet": "927thedrive.net",
+  "t": "2026-09-30T14:17:31+00:00",
+  "vista": 10.0,
+  "hash": 504685737271009020
+ },
+ {
+  "id": "2026-09-30-1017-1",
+  "image": "pool-2026-09-30-1017-1.jpg",
+  "headline": "How a nomadic tent network opened the untamed  Mountains of Heaven  to hikers",
+  "url": "https://abc17news.com/entertainment/cnn-style/2026/09/30/how-a-nomadic-tent-network-opened-the-untamed-mountains-of-heaven-to-hikers/",
+  "outlet": "abc17news.com",
+  "t": "2026-09-30T14:17:31+00:00",
+  "vista": 8.0,
+  "hash": 4502773374844958
  }
 ]
