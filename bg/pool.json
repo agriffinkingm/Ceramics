@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-09-27-0825-1",
-  "image": "pool-2026-09-27-0825-1.jpg",
-  "headline": "Lagos Goods Diversion : Nigeria Police Arrest Six Suspects",
-  "url": "https://www.riotimesonline.com/lagos-police-bust-n20bn-goods-diversion-syndicate-2026/",
-  "outlet": "riotimesonline.com",
-  "t": "2026-09-27T12:25:01+00:00",
-  "vista": 9.0,
-  "hash": 5174509857730774024
- },
- {
-  "id": "2026-09-27-0825-2",
-  "image": "pool-2026-09-27-0825-2.jpg",
-  "headline": "US - Iran conflict : Concerns grow in Washington over drone warfare toll",
-  "url": "https://www.bankingnews.gr/diethni/articles/900764/us-iran-conflict-concerns-grow-in-washington-over-drone-warfare-toll%20title=",
-  "outlet": "bankingnews.gr",
-  "t": "2026-09-27T12:25:01+00:00",
-  "vista": 8.0,
-  "hash": 38157444990925920
- },
- {
-  "id": "2026-09-27-0922-0",
-  "image": "pool-2026-09-27-0922-0.jpg",
-  "headline": "Floods and landslides kill at least 56 people in India , 12 in Nepal",
-  "url": "https://www.aljazeera.com/news/2026/9/27/floods-and-landslides-kill-at-least-56-people-in-india-12-in-nepal",
-  "outlet": "aljazeera.com",
-  "t": "2026-09-27T13:22:27+00:00",
-  "vista": 9.0,
-  "hash": 15634449296186642431
- },
- {
   "id": "2026-09-27-1303-0",
   "image": "pool-2026-09-27-1303-0.jpg",
   "headline": "One in Four Montanans Says There Too Much Federal Land",
@@ -172,5 +142,32 @@
   "t": "2026-09-30T05:35:19+00:00",
   "vista": 8.0,
   "hash": 2268417965827231503
+ },
+ {
+  "id": "2026-09-30",
+  "image": "pool-2026-09-30.jpg",
+  "headline": "MoI allows drone use in designated areas during approved hours",
+  "url": "https://www.qatarliving.com/en/article/moi-allows-drone-use-in-designated-areas-during-approved-hours",
+  "outlet": "qatarliving.com",
+  "t": "2026-09-30T12:34:42+00:00",
+  "hash": 9346821914623
+ },
+ {
+  "id": "2026-09-30-b",
+  "image": "pool-2026-09-30-b.jpg",
+  "headline": "Blazing apartment fire forces evacuations overnight",
+  "url": "https://www.wsbtv.com/news/local/blazing-apartment-fire-forces-evacuations-overnight/3RFIR4A255BMHKMS7NE7UACSSI/",
+  "outlet": "wsbtv.com",
+  "t": "2026-09-30T12:34:42+00:00",
+  "hash": 17861233655132780552
+ },
+ {
+  "id": "2026-09-30-c",
+  "image": "pool-2026-09-30-c.jpg",
+  "headline": "EU to expand Mediterranean naval mission to target Russia shadow fleet",
+  "url": "https://www.euronews.com/2026/09/30/eu-to-expand-mediterranean-naval-mission-to-target-russias-shadow-fleet",
+  "outlet": "euronews.com",
+  "t": "2026-09-30T12:34:42+00:00",
+  "hash": 10341531964068331519
  }
 ]

@@ -89,5 +89,12 @@
   "url": "https://www.fwi.co.uk/arable/crop-watch/crop-watch-osr-hit-by-flea-beetle-and-lack-of-moisture",
   "outlet": "fwi.co.uk",
   "method": "crop"
+ },
+ {
+  "id": "2026-09-30",
+  "headline": "MoI allows drone use in designated areas during approved hours",
+  "url": "https://www.qatarliving.com/en/article/moi-allows-drone-use-in-designated-areas-during-approved-hours",
+  "outlet": "qatarliving.com",
+  "method": "crop-flat"
  }
 ]
