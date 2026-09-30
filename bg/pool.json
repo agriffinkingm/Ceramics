@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-09-27-b",
-  "image": "pool-2026-09-27-b.jpg",
-  "headline": "Russian strikes kill 2 in Ukraine after Moscow rejects German calls to de - escalate",
-  "url": "https://www.wral.com/news/ap/f91ac-russian-strikes-kill-2-in-ukraine-after-moscow-rejects-german-calls-to-de-escalate/",
-  "outlet": "wral.com",
-  "t": "2026-09-27T12:01:30+00:00",
-  "hash": 56054726463
- },
- {
-  "id": "2026-09-27-c",
-  "image": "pool-2026-09-27-c.jpg",
-  "headline": "Russian , Ukrainian strikes leave 10 dead as Trump calls on Zelenskyy to  settle with Putin",
-  "url": "https://www.koreatimes.co.kr/world/20260927/russian-ukrainian-strikes-leave-10-dead-as-trump-calls-on-zelenskyy-to-settle-with-putin",
-  "outlet": "koreatimes.co.kr",
-  "t": "2026-09-27T12:01:30+00:00",
-  "hash": 2319353913128680319
- },
- {
-  "id": "2026-09-27-0825-0",
-  "image": "pool-2026-09-27-0825-0.jpg",
-  "headline": "Wrightwood residents fight a quarry they never saw coming",
-  "url": "https://www.latimes.com/california/story/2026-09-27/wrightwood-fights-century-long-mine-it-never-saw-coming",
-  "outlet": "latimes.com",
-  "t": "2026-09-27T12:25:01+00:00",
-  "vista": 9.0,
-  "hash": 8174944133232783608
- },
- {
   "id": "2026-09-27-0825-1",
   "image": "pool-2026-09-27-0825-1.jpg",
   "headline": "Lagos Goods Diversion : Nigeria Police Arrest Six Suspects",
@@ -170,5 +142,35 @@
   "t": "2026-09-29T14:25:11+00:00",
   "vista": 9.0,
   "hash": 16701321055133810895
+ },
+ {
+  "id": "2026-09-30-0135-0",
+  "image": "pool-2026-09-30-0135-0.jpg",
+  "headline": "Antarctic blind spot emerges as major sea - level threat",
+  "url": "https://www.standard.net.au/story/9359929/antarctic-blind-spot-emerges-as-major-sea-level-threat/",
+  "outlet": "standard.net.au",
+  "t": "2026-09-30T05:35:18+00:00",
+  "vista": 10.0,
+  "hash": 13033638086213894143
+ },
+ {
+  "id": "2026-09-30-0135-1",
+  "image": "pool-2026-09-30-0135-1.jpg",
+  "headline": "Tropical Storm Polo is expected to impact the U . S . after slamming into Mexico . See its path .",
+  "url": "https://www.cbsnews.com/news/tropical-storm-polo-path-tracking-forecast/",
+  "outlet": "cbsnews.com",
+  "t": "2026-09-30T05:35:18+00:00",
+  "vista": 9.0,
+  "hash": 868137264510012671
+ },
+ {
+  "id": "2026-09-30-0135-2",
+  "image": "pool-2026-09-30-0135-2.jpg",
+  "headline": "Climate Change - NASA Science",
+  "url": "https://science.nasa.gov/climate-change/",
+  "outlet": "science.nasa.gov",
+  "t": "2026-09-30T05:35:19+00:00",
+  "vista": 8.0,
+  "hash": 2268417965827231503
  }
 ]
