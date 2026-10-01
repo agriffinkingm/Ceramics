@@ -231,9 +231,9 @@
     <button id="next">Next piece</button>
   </div>
   <div id="hangform">
-    <p>Who actually made it? Voters can look this up after they vote.</p>
+    <p>Who actually made it? Name and a link are both required — voters can look them up after they vote.</p>
     <input id="artist" type="text" placeholder="Artist's name" autocomplete="off" maxlength="120">
-    <input id="link" type="url" placeholder="Link about them (optional)" autocomplete="off" spellcheck="false">
+    <input id="link" type="url" placeholder="Link about them / the piece" autocomplete="off" spellcheck="false">
     <div class="btns"><button id="hang-no" type="button">Cancel</button><button id="hang-go" type="button">Add it</button></div>
   </div>
 </div>
@@ -241,7 +241,7 @@
 <div id="toast"></div>
 
 <script type="module">
-const BUILD = "2026-09-29a";
+const BUILD = "2026-10-01a";
 const DB = "https://griffgraff-baa46-default-rtdb.firebaseio.com";
 const firebaseConfig = {
   apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I",
@@ -499,15 +499,16 @@ $("#hang-go").addEventListener("click", async () => {
   const name = artistEl.value.trim();
   if (!name) { toast("Who made it? Add the artist's name"); artistEl.focus(); return; }
   let link = linkEl.value.trim();
-  if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
-  if (link && !/^https?:\/\/[^\s]+\.[^\s]+/i.test(link)) { toast("That link doesn't look right"); linkEl.focus(); return; }
+  if (!link) { toast("Add a link to the artist or the piece"); linkEl.focus(); return; }
+  if (!/^https?:\/\//i.test(link)) link = "https://" + link;
+  if (!/^https?:\/\/[^\s]+\.[^\s]+/i.test(link)) { toast("That link doesn't look right"); linkEl.focus(); return; }
   const { img, dataUrl } = pending;
   $("#hang-go").disabled = true; toast("Adding…", 60000);
   try {
     const r = fb.push(fb.ref(fb.db, "polls/art"));
     const rec = { img: dataUrl, w: img.naturalWidth, h: img.naturalHeight, t: Date.now() };
     rec.artist = name;
-    if (link) rec.link = link;
+    rec.link = link;
     await fb.set(r, rec);
     keys.push(r.key);
     closeHang(); toast("Added.");
