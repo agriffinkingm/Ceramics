@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-09-28-1158-0",
-  "image": "pool-2026-09-28-1158-0.jpg",
-  "headline": "Frozen Head State Park to Host 45th Annual Heritage Day in October",
-  "url": "https://www.wivk.com/2026/09/28/frozen-head-state-park-to-host-45th-annual-heritage-day-in-october/",
-  "outlet": "wivk.com",
-  "t": "2026-09-28T15:58:39+00:00",
-  "vista": 8.0,
-  "hash": 4294934393
- },
- {
-  "id": "2026-09-29-0145-0",
-  "image": "pool-2026-09-29-0145-0.jpg",
-  "headline": "Super  El Ni\u00f1o is coming . What should you expect ? : Short Wave",
-  "url": "https://www.npr.org/transcripts/nx-s1-5953022",
-  "outlet": "npr.org",
-  "t": "2026-09-29T05:45:38+00:00",
-  "vista": 9.0,
-  "hash": 584408280519679000
- },
- {
-  "id": "2026-09-29",
-  "image": "pool-2026-09-29.jpg",
-  "headline": "Crop Watch : OSR hit by flea beetle and lack of moisture",
-  "url": "https://www.fwi.co.uk/arable/crop-watch/crop-watch-osr-hit-by-flea-beetle-and-lack-of-moisture",
-  "outlet": "fwi.co.uk",
-  "t": "2026-09-29T12:51:46+00:00",
-  "hash": 276007764361020
- },
- {
   "id": "2026-09-29-b",
   "image": "pool-2026-09-29-b.jpg",
   "headline": "The Steps : A Memoir  review : Sly Stallone details the road to  Rocky",
@@ -172,5 +143,32 @@
   "t": "2026-10-01T05:52:35+00:00",
   "vista": 7.0,
   "hash": 17329703449563893760
+ },
+ {
+  "id": "2026-10-01",
+  "image": "pool-2026-10-01.jpg",
+  "headline": "Passengers recount chaos on Tel Aviv flight . And , FBI probes employee - data hack",
+  "url": "https://www.ksut.org/2026-10-01/passengers-recount-chaos-on-tel-aviv-flight-and-fbi-probes-employee-data-hack",
+  "outlet": "ksut.org",
+  "t": "2026-10-01T13:10:28+00:00",
+  "hash": 16777215
+ },
+ {
+  "id": "2026-10-01-b",
+  "image": "pool-2026-10-01-b.jpg",
+  "headline": "Malnutrition killed Wyoming pronghorn in peak summer as vegetation withered",
+  "url": "https://www.wyomingnews.com/laramieboomerang/laramieboomerang/news/malnutrition-killed-wyoming-pronghorn-in-peak-summer-as-vegetation-withered/article_41828a88-8dff-485a-b8d1-adff8715acf4.html",
+  "outlet": "wyomingnews.com",
+  "t": "2026-10-01T13:10:28+00:00",
+  "hash": 4194303999
+ },
+ {
+  "id": "2026-10-01-c",
+  "image": "pool-2026-10-01-c.jpg",
+  "headline": "San Diego County voters split on Ballot Measure A , poll shows",
+  "url": "https://www.10news.com/americavotes/poll-san-diego-county-voters-back-ethics-reforms-but-balk-at-extending-supervisor-term-limits",
+  "outlet": "10news.com",
+  "t": "2026-10-01T13:10:28+00:00",
+  "hash": 2240329004247190210
  }
 ]
