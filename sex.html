@@ -139,8 +139,34 @@
   }
   #next:hover { background: var(--charcoal); }
 
-  /* hang a piece */
+  /* header actions */
+  header .acts { display: flex; gap: 1.1rem; }
   #hang { font-size: .85rem; letter-spacing: .08em; }
+
+  /* grid view */
+  #grid {
+    position: fixed; left: 0; right: 0; bottom: 0; top: 3.4rem;
+    background: var(--plaster); overflow-y: auto; display: none;
+    padding: 1rem 1.4rem 2rem;
+  }
+  #grid.shown { display: block; }
+  #grid .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .9rem; }
+  #grid .tile {
+    position: relative; aspect-ratio: 1; padding: 0; border: 0; cursor: pointer;
+    background: var(--plaster-deep); overflow: hidden;
+    box-shadow: 0 8px 20px -12px rgba(44,40,32,.5);
+    transition: transform .2s;
+  }
+  #grid .tile:hover, #grid .tile:focus-visible { transform: translateY(-2px); outline: 2px solid var(--terracotta); outline-offset: 2px; }
+  #grid .tile img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity .4s; }
+  #grid .tile img.shown { opacity: 1; }
+  #grid .tile.seen::after { /* you've voted on this one */
+    content: ''; position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--terracotta); box-shadow: 0 0 0 2px var(--ivory);
+  }
+  #grid .gnote { font-size: .8rem; color: var(--clay-dark); margin-bottom: .8rem; letter-spacing: .04em; }
+  body.grid #wall, body.grid #label { visibility: hidden; }
+  @media (max-width: 560px) { #grid .tiles { grid-template-columns: repeat(3, 1fr); gap: .5rem; } #grid { padding: .8rem .8rem 2rem; } }
   #file { display: none; }
   #toast {
     position: fixed; left: 50%; top: 3.6rem; transform: translateX(-50%);
@@ -155,7 +181,7 @@
     .choices button { font-size: .82rem; padding: .55rem .2rem; }
   }
   @media (prefers-reduced-motion: reduce) {
-    #art, .row .bar i, #toast { transition: none; }
+    #art, .row .bar i, #toast, #grid .tile, #grid .tile img { transition: none; }
   }
 </style>
 </head>
@@ -163,7 +189,7 @@
 <header>
   <a href="index.html">← griffin</a>
   <span class="title">sex?</span>
-  <label id="hang"><a href="#" id="hang-a">hang a piece</a><input type="file" id="file" accept="image/*"></label>
+  <span class="acts"><a href="#" id="grid-a">see all</a><label id="hang"><a href="#" id="hang-a">add an image</a><input type="file" id="file" accept="image/*"></label></span>
 </header>
 
 <div id="wall">
@@ -208,13 +234,14 @@
     <p>Who actually made it? Voters can look this up after they vote.</p>
     <input id="artist" type="text" placeholder="Artist's name" autocomplete="off" maxlength="120">
     <input id="link" type="url" placeholder="Link about them (optional)" autocomplete="off" spellcheck="false">
-    <div class="btns"><button id="hang-no" type="button">Cancel</button><button id="hang-go" type="button">Hang it</button></div>
+    <div class="btns"><button id="hang-no" type="button">Cancel</button><button id="hang-go" type="button">Add it</button></div>
   </div>
 </div>
+<div id="grid"><div class="gnote"></div><div class="tiles"></div></div>
 <div id="toast"></div>
 
 <script type="module">
-const BUILD = "2026-09-10a";
+const BUILD = "2026-09-29a";
 const DB = "https://griffgraff-baa46-default-rtdb.firebaseio.com";
 const firebaseConfig = {
   apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I",
@@ -241,6 +268,12 @@ let cur = null;         // current key
 let hist = [];          // keys already shown this session (for ← back)
 let unsubs = [];        // onValue unsubscribes for the tallies
 let toastT;
+const recs = {};        // key -> Promise<record>, shared by the single view and the grid
+function getRec(k) {
+  if (!recs[k]) recs[k] = fetch(`${DB}/polls/art/${k}.json`).then(r => r.ok ? r.json() : null).catch(() => null)
+    .then(a => { if (!a) delete recs[k]; return a; });
+  return recs[k];
+}
 
 function toast(msg, ms = 2500) {
   toastEl.textContent = msg; toastEl.classList.add("shown");
@@ -283,7 +316,9 @@ async function fetchKeys() {
   const r = await fetch(`${DB}/polls/art.json?shallow=true`);
   if (!r.ok) throw new Error("keys " + r.status);
   const j = await r.json();
-  keys = j ? Object.keys(j) : [];
+  let hidden = {};        // polls/hidden/<key>: true — taken down (kept in the DB, just not shown)
+  try { const h = await fetch(`${DB}/polls/hidden.json`); if (h.ok) hidden = (await h.json()) || {}; } catch {}
+  keys = j ? Object.keys(j).filter(k => !hidden[k]) : [];
 }
 function pickKey() {
   const voted = myVotes();
@@ -300,8 +335,8 @@ async function show(key, back) {
   artEl.classList.remove("shown");
   pollsEl.style.display = "";
   resetPolls();
-  const snap = await fb.get(fb.ref(fb.db, `polls/art/${key}`));
-  const a = snap.val();
+  const a = await getRec(key);
+  if (cur !== key) return;
   if (!a || !a.img) { keys = keys.filter(k => k !== key); return next(); }
   setWho(a.artist, a.link);
   await new Promise(res => { artEl.onload = res; artEl.onerror = res; artEl.src = a.img; });
@@ -317,9 +352,9 @@ function peek() {
 }
 peekEl.querySelector("button").addEventListener("click", peek);
 function next() {
-  if (!keys.length) return showEmpty("Nothing on the wall yet — hang a piece.");
+  if (!keys.length) return showEmpty("Nothing here yet — add an image.");
   const k = pickKey();
-  if (!k) return showEmpty("Nothing on the wall yet — hang a piece.");
+  if (!k) return showEmpty("Nothing here yet — add an image.");
   show(k);
 }
 
@@ -374,6 +409,8 @@ function prev() {
 nextBtn.addEventListener("click", next);
 window.addEventListener("keydown", e => {
   if (e.target.tagName === "INPUT" || pending) return;
+  if (gridOpen()) { if (e.key === "Escape" || e.key === "g") { e.preventDefault(); closeGrid(); } return; }
+  if (e.key === "g") { e.preventDefault(); openGrid(); return; }
   if (e.key === "ArrowRight") { e.preventDefault(); next(); }        // skip without voting
   if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
   if (e.key === " " && afterEl.classList.contains("shown")) { e.preventDefault(); next(); }
@@ -382,12 +419,61 @@ window.addEventListener("keydown", e => {
   if (e.key === "0" && !peekEl.classList.contains("hidden")) peek();
 });
 
-/* ---------- hanging ---------- */
+/* ---------- grid of everything ---------- */
+const gridEl = $("#grid"), tilesEl = gridEl.querySelector(".tiles"), gridA = $("#grid-a");
+const gridOpen = () => gridEl.classList.contains("shown");
+const tileIO = new IntersectionObserver(ents => {
+  for (const en of ents) if (en.isIntersecting) { tileIO.unobserve(en.target); fillTile(en.target); }
+}, { root: gridEl, rootMargin: "400px 0px" });
+async function fillTile(t) {
+  const a = await getRec(t.dataset.k);
+  if (!a || !a.img) { t.remove(); return; }
+  const im = t.querySelector("img");
+  im.onload = () => im.classList.add("shown");
+  im.src = a.img;
+}
+function buildGrid() {
+  const have = new Set([...tilesEl.children].map(t => t.dataset.k));
+  const mine = myVotes();
+  for (const k of [...keys].sort().reverse()) {      // push ids sort by time: newest first
+    if (have.has(k)) continue;
+    const t = document.createElement("button");
+    t.type = "button"; t.className = "tile"; t.dataset.k = k;
+    t.innerHTML = '<img alt="an artwork" draggable="false">';
+    tilesEl.appendChild(t);
+    tileIO.observe(t);
+  }
+  const order = [...keys].sort().reverse();
+  [...tilesEl.children].sort((a, b) => order.indexOf(a.dataset.k) - order.indexOf(b.dataset.k)).forEach(t => tilesEl.appendChild(t));
+  for (const t of tilesEl.children) { const v = mine[t.dataset.k]; t.classList.toggle("seen", !!(v && (v.sex || v.or))); }
+  const n = keys.length;
+  gridEl.querySelector(".gnote").textContent = n ? `${n} ${n === 1 ? "piece" : "pieces"} · tap one to vote on it` : "Nothing here yet — add an image.";
+}
+function openGrid() {
+  if (pending) return;
+  buildGrid();
+  gridEl.classList.add("shown"); document.body.classList.add("grid");
+  gridA.textContent = "one at a time";
+}
+function closeGrid() {
+  gridEl.classList.remove("shown"); document.body.classList.remove("grid");
+  gridA.textContent = "see all";
+}
+gridA.addEventListener("click", e => { e.preventDefault(); gridOpen() ? closeGrid() : openGrid(); });
+tilesEl.addEventListener("click", e => {
+  const t = e.target.closest(".tile");
+  if (!t) return;
+  closeGrid();
+  if (t.dataset.k !== cur) show(t.dataset.k);
+});
+
+/* ---------- adding ---------- */
 $("#hang-a").addEventListener("click", e => { e.preventDefault(); fileEl.click(); });
 fileEl.addEventListener("change", async () => {
   const f = fileEl.files[0]; fileEl.value = "";
   if (!f) return;
-  if (!fb) return toast("Not connected — can't hang anything right now");
+  if (!fb) return toast("Not connected — can't add anything right now");
+  closeGrid();
   try {
     const img = await loadFile(f);
     pending = { img, dataUrl: shrink(img) };
@@ -396,7 +482,7 @@ fileEl.addEventListener("change", async () => {
     artEl.classList.remove("shown");
     await new Promise(res => { artEl.onload = res; artEl.onerror = res; artEl.src = pending.dataUrl; });
     artEl.classList.add("shown");
-    qEl.textContent = "Hang this?";
+    qEl.textContent = "Add this?";
     pollsEl.style.display = "none"; afterEl.classList.remove("shown");
     linkEl.value = ""; artistEl.value = ""; hangForm.classList.add("shown"); artistEl.focus();
   } catch (err) {
@@ -416,7 +502,7 @@ $("#hang-go").addEventListener("click", async () => {
   if (link && !/^https?:\/\//i.test(link)) link = "https://" + link;
   if (link && !/^https?:\/\/[^\s]+\.[^\s]+/i.test(link)) { toast("That link doesn't look right"); linkEl.focus(); return; }
   const { img, dataUrl } = pending;
-  $("#hang-go").disabled = true; toast("Hanging…", 60000);
+  $("#hang-go").disabled = true; toast("Adding…", 60000);
   try {
     const r = fb.push(fb.ref(fb.db, "polls/art"));
     const rec = { img: dataUrl, w: img.naturalWidth, h: img.naturalHeight, t: Date.now() };
@@ -424,11 +510,11 @@ $("#hang-go").addEventListener("click", async () => {
     if (link) rec.link = link;
     await fb.set(r, rec);
     keys.push(r.key);
-    closeHang(); toast("Hung.");
+    closeHang(); toast("Added.");
     show(r.key);
   } catch (err) {
     console.error(err);
-    toast("Couldn't hang that one — " + (err.message || "try again"));
+    toast("Couldn't add that one — " + (err.message || "try again"));
   }
   $("#hang-go").disabled = false;
 });
