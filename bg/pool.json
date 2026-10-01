@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-09-29-b",
-  "image": "pool-2026-09-29-b.jpg",
-  "headline": "The Steps : A Memoir  review : Sly Stallone details the road to  Rocky",
-  "url": "https://www.latimes.com/entertainment-arts/books/story/2026-09-29/steps-memoir-review-sly-stallone-rocky",
-  "outlet": "latimes.com",
-  "t": "2026-09-29T12:51:46+00:00",
-  "hash": 220464449212687368
- },
- {
   "id": "2026-09-29-c",
   "image": "pool-2026-09-29-c.jpg",
   "headline": "NHL predictions : Will the Flyers return to the playoffs in 2026 - 27 ?",
@@ -170,5 +161,15 @@
   "outlet": "10news.com",
   "t": "2026-10-01T13:10:28+00:00",
   "hash": 2240329004247190210
+ },
+ {
+  "id": "2026-10-01-0948-0",
+  "image": "pool-2026-10-01-0948-0.jpg",
+  "headline": "Greece vanishing lake Koroneia exposes rapid climate impact : report",
+  "url": "https://www.thenews.com.pk/latest/1418343-greeces-vanishing-lake-koroneia-exposes-rapid-climate-impact-report",
+  "outlet": "thenews.com.pk",
+  "t": "2026-10-01T13:48:54+00:00",
+  "vista": 9.0,
+  "hash": 1098878305320304640
  }
 ]
