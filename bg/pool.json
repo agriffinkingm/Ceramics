@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-09-29-1025-0",
-  "image": "pool-2026-09-29-1025-0.jpg",
-  "headline": "The Last First : Winter K2 | Movie review \u2013 The Upcoming",
-  "url": "https://www.theupcoming.co.uk/2026/09/29/the-last-first-winter-k2-movie-review/",
-  "outlet": "theupcoming.co.uk",
-  "t": "2026-09-29T14:25:11+00:00",
-  "vista": 9.0,
-  "hash": 16701321055133810895
- },
- {
-  "id": "2026-09-30-0135-0",
-  "image": "pool-2026-09-30-0135-0.jpg",
-  "headline": "Antarctic blind spot emerges as major sea - level threat",
-  "url": "https://www.standard.net.au/story/9359929/antarctic-blind-spot-emerges-as-major-sea-level-threat/",
-  "outlet": "standard.net.au",
-  "t": "2026-09-30T05:35:18+00:00",
-  "vista": 10.0,
-  "hash": 13033638086213894143
- },
- {
-  "id": "2026-09-30-0135-1",
-  "image": "pool-2026-09-30-0135-1.jpg",
-  "headline": "Tropical Storm Polo is expected to impact the U . S . after slamming into Mexico . See its path .",
-  "url": "https://www.cbsnews.com/news/tropical-storm-polo-path-tracking-forecast/",
-  "outlet": "cbsnews.com",
-  "t": "2026-09-30T05:35:18+00:00",
-  "vista": 9.0,
-  "hash": 868137264510012671
- },
- {
   "id": "2026-09-30-0135-2",
   "image": "pool-2026-09-30-0135-2.jpg",
   "headline": "Climate Change - NASA Science",
@@ -172,5 +142,32 @@
   "t": "2026-10-02T05:36:30+00:00",
   "vista": 9.0,
   "hash": 9295850879129165599
+ },
+ {
+  "id": "2026-10-02",
+  "image": "pool-2026-10-02.jpg",
+  "headline": "Namibia FMD outbreak puts Ngamiland beef corridor at risk",
+  "url": "https://www.sundaystandard.info/namibia-fmd-outbreak-puts-ngamiland-beef-corridor-at-risk/",
+  "outlet": "sundaystandard.info",
+  "t": "2026-10-02T12:31:07+00:00",
+  "hash": 4541602097303495539
+ },
+ {
+  "id": "2026-10-02-b",
+  "image": "pool-2026-10-02-b.jpg",
+  "headline": "City Hall Launches Day 2 of  Operation Okoa Maisha  El Ni\u00f1o Emergency Simulation \u2013 Capital FM Kenya",
+  "url": "https://capitalfm.africa/city-hall-launches-day-2-of-operation-okoa-maisha-el-nino-emergency-simulation/",
+  "outlet": "capitalfm.africa",
+  "t": "2026-10-02T12:31:07+00:00",
+  "hash": 220825916459966351
+ },
+ {
+  "id": "2026-10-02-c",
+  "image": "pool-2026-10-02-c.jpg",
+  "headline": "Germany : Merz collapses , AfD soars , hospitals go to war - The nuclear bunker awakens",
+  "url": "https://www.bankingnews.gr/diethni/articles/902875/germany-merz-collapses-afd-soars-hospitals-go-to-war-the-nuclear-bunker-awakens",
+  "outlet": "bankingnews.gr",
+  "t": "2026-10-02T12:31:07+00:00",
+  "hash": 9732082917997837319
  }
 ]

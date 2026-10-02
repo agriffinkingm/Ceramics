@@ -103,5 +103,12 @@
   "url": "https://www.ksut.org/2026-10-01/passengers-recount-chaos-on-tel-aviv-flight-and-fbi-probes-employee-data-hack",
   "outlet": "ksut.org",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-02",
+  "headline": "Namibia FMD outbreak puts Ngamiland beef corridor at risk",
+  "url": "https://www.sundaystandard.info/namibia-fmd-outbreak-puts-ngamiland-beef-corridor-at-risk/",
+  "outlet": "sundaystandard.info",
+  "method": "outpaint"
  }
 ]
