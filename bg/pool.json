@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-09-30",
-  "image": "pool-2026-09-30.jpg",
-  "headline": "MoI allows drone use in designated areas during approved hours",
-  "url": "https://www.qatarliving.com/en/article/moi-allows-drone-use-in-designated-areas-during-approved-hours",
-  "outlet": "qatarliving.com",
-  "t": "2026-09-30T12:34:42+00:00",
-  "hash": 9346821914623
- },
- {
-  "id": "2026-09-30-b",
-  "image": "pool-2026-09-30-b.jpg",
-  "headline": "Blazing apartment fire forces evacuations overnight",
-  "url": "https://www.wsbtv.com/news/local/blazing-apartment-fire-forces-evacuations-overnight/3RFIR4A255BMHKMS7NE7UACSSI/",
-  "outlet": "wsbtv.com",
-  "t": "2026-09-30T12:34:42+00:00",
-  "hash": 17861233655132780552
- },
- {
   "id": "2026-09-30-c",
   "image": "pool-2026-09-30-c.jpg",
   "headline": "EU to expand Mediterranean naval mission to target Russia shadow fleet",
@@ -169,5 +151,25 @@
   "t": "2026-10-02T13:05:34+00:00",
   "vista": 7.0,
   "hash": 6949089546994712575
+ },
+ {
+  "id": "2026-10-02-1815-0",
+  "image": "pool-2026-10-02-1815-0.jpg",
+  "headline": "Nigeria Plans US$289 Million Cassava Ethanol Plant",
+  "url": "https://www.riotimesonline.com/nigeria-cassava-bioethanol-industry-2026/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-10-02T22:15:29+00:00",
+  "vista": 9.0,
+  "hash": 5174509857730774024
+ },
+ {
+  "id": "2026-10-02-1815-1",
+  "image": "pool-2026-10-02-1815-1.jpg",
+  "headline": "Eritrea cuts ties with Ethiopia over Asmara embassy closure",
+  "url": "https://www.cnbcafrica.com/2026/eritrea-cuts-ties-with-ethiopia-over-asmara-embassy-closure",
+  "outlet": "cnbcafrica.com",
+  "t": "2026-10-02T22:15:29+00:00",
+  "vista": 7.0,
+  "hash": 2310399593578789116
  }
 ]
