@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-09-29-c",
-  "image": "pool-2026-09-29-c.jpg",
-  "headline": "NHL predictions : Will the Flyers return to the playoffs in 2026 - 27 ?",
-  "url": "https://www.inquirer.com/flyers/nhl-predictions-playoffs-porter-martone-stanley-cup-matvei-michkov-20260929.html",
-  "outlet": "inquirer.com",
-  "t": "2026-09-29T12:51:46+00:00",
-  "hash": 15096611306429616128
- },
- {
   "id": "2026-09-29-1025-0",
   "image": "pool-2026-09-29-1025-0.jpg",
   "headline": "The Last First : Winter K2 | Movie review \u2013 The Upcoming",
@@ -171,5 +162,15 @@
   "t": "2026-10-01T13:48:54+00:00",
   "vista": 9.0,
   "hash": 1098878305320304640
+ },
+ {
+  "id": "2026-10-02-0136-0",
+  "image": "pool-2026-10-02-0136-0.jpg",
+  "headline": "\u0110\u1eafk L\u1eafk urges flood , landslide prevention amid heavy rain",
+  "url": "https://vietnamnews.vn/society/1800424/dak-lak-urges-flood-landslide-prevention-amid-heavy-rain.html",
+  "outlet": "vietnamnews.vn",
+  "t": "2026-10-02T05:36:30+00:00",
+  "vista": 9.0,
+  "hash": 9295850879129165599
  }
 ]
