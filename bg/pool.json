@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-09-30-0135-2",
-  "image": "pool-2026-09-30-0135-2.jpg",
-  "headline": "Climate Change - NASA Science",
-  "url": "https://science.nasa.gov/climate-change/",
-  "outlet": "science.nasa.gov",
-  "t": "2026-09-30T05:35:19+00:00",
-  "vista": 8.0,
-  "hash": 2268417965827231503
- },
- {
   "id": "2026-09-30",
   "image": "pool-2026-09-30.jpg",
   "headline": "MoI allows drone use in designated areas during approved hours",
@@ -169,5 +159,15 @@
   "outlet": "bankingnews.gr",
   "t": "2026-10-02T12:31:07+00:00",
   "hash": 9732082917997837319
+ },
+ {
+  "id": "2026-10-02-0905-0",
+  "image": "pool-2026-10-02-0905-0.jpg",
+  "headline": "US Reinforcing Military Presence In Middle East As Iran Tensions Rise",
+  "url": "http://www.orlandoecho.com/news/279347225/us-reinforcing-military-presence-in-middle-east-as-iran-tensions-rise",
+  "outlet": "orlandoecho.com",
+  "t": "2026-10-02T13:05:34+00:00",
+  "vista": 7.0,
+  "hash": 6949089546994712575
  }
 ]
