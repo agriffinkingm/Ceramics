@@ -110,5 +110,12 @@
   "url": "https://www.sundaystandard.info/namibia-fmd-outbreak-puts-ngamiland-beef-corridor-at-risk/",
   "outlet": "sundaystandard.info",
   "method": "outpaint"
+ },
+ {
+  "id": "2026-10-03",
+  "headline": "Congo Ebola death toll hits 4 , 000 as violence hampers response",
+  "url": "https://www.dailysabah.com/world/africa/congo-ebola-death-toll-hits-4000-as-violence-hampers-response",
+  "outlet": "dailysabah.com",
+  "method": "crop"
  }
 ]
