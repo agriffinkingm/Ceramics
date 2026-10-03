@@ -204,6 +204,55 @@
   .fx-empty { align-self:center; font-size:0.72rem; color:rgba(250,248,245,0.4); letter-spacing:0.08em; }
   .ms.fx.on { background:var(--terracotta); color:var(--ink); border-color:var(--terracotta); }
 
+  /* ---------- session / sharing / inspector ---------- */
+  .tbtn.sm { height:26px; font-size:0.62rem; padding:0 0.45rem; }
+  #recOpts .tbtn.on, #btnCountIn.on, #btnOverdub.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
+  #masterStrip { gap:0.4rem; } #masterStrip input { width:80px; height:14px; }
+  #btnShare.on { background:#4f7a8a; border-color:#4f7a8a; color:var(--ivory); }
+  .vbtn { font-size:0.62rem; letter-spacing:0.16em; text-transform:uppercase; color:rgba(250,248,245,0.4); padding:0 0.4rem; height:100%; }
+  .vbtn.on { color:var(--ivory); text-decoration:underline; text-underline-offset:3px; text-decoration-color:var(--terracotta); }
+  #corner { padding:0 0.2rem; gap:0.1rem; }
+  #session { display:none; flex:1; min-height:0; flex-direction:column; }
+  body.sessview #arr { display:none; } body.sessview #session { display:flex; }
+  #sessHead { flex:none; display:flex; align-items:center; gap:0.6rem; padding:0 0.8rem; height:32px; border-bottom:1px solid var(--line2); font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(250,248,245,0.55); background:rgba(20,17,12,0.5); }
+  #sessHead .sp { flex:1; } #sessHead select { height:24px; font-size:0.75rem; }
+  #sessScroll { flex:1; overflow:auto; padding:0.6rem; scrollbar-width:thin; scrollbar-color:var(--clay-dark) transparent; }
+  #sessGrid { display:grid; gap:4px; align-content:start; }
+  .sh { height:34px; display:flex; align-items:center; gap:0.35rem; padding:0 0.5rem; font-size:0.74rem; border-bottom:1px solid var(--line2); white-space:nowrap; overflow:hidden; }
+  .sh .n { flex:1; overflow:hidden; text-overflow:ellipsis; } .sh .dot { width:8px; height:8px; border-radius:50%; flex:none; } .sh .kind { font-size:0.52rem; letter-spacing:0.12em; text-transform:uppercase; color:rgba(250,248,245,0.4); border:1px solid var(--line2); padding:0 3px; border-radius:2px; }
+  .sh.corner { border:0; }
+  .scene { height:38px; border:1px solid var(--line2); border-radius:3px; font-size:0.8rem; color:rgba(250,248,245,0.6); } .scene:hover { border-color:var(--terracotta); color:var(--ivory); }
+  .stopc { height:30px; border:1px solid var(--line2); border-radius:3px; font-size:0.7rem; color:rgba(250,248,245,0.5); } .stopc:hover { color:var(--ivory); border-color:var(--terracotta); }
+  .slot { position:relative; height:38px; border:1px dashed var(--line2); border-radius:3px; display:flex; align-items:center; gap:0.35rem; padding:0 0.35rem; font-size:0.72rem; cursor:pointer; overflow:hidden; user-select:none; }
+  .slot.sel { outline:1px solid var(--ivory); }
+  .slot.over { background:rgba(250,248,245,0.05); }
+  .slot .stop { opacity:0; font-size:0.7rem; color:rgba(250,248,245,0.6); } .slot:hover .stop { opacity:1; }
+  .slot.filled { border:1px solid rgba(0,0,0,0.4); background:var(--c, #6b5a4a); color:var(--ivory); }
+  .slot.filled .n { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:relative; }
+  .slot .go { width:22px; height:22px; border-radius:2px; background:rgba(0,0,0,0.3); font-size:0.7rem; flex:none; position:relative; } .slot .go:hover { background:rgba(0,0,0,0.5); }
+  .slot.playing { box-shadow:inset 0 0 0 2px #7fb77a; } .slot.playing .go { background:#7fb77a; color:var(--ink); }
+  .slot.playing::before { content:''; position:absolute; left:0; top:0; bottom:0; width:var(--prog, 0%); background:rgba(255,255,255,0.14); pointer-events:none; }
+  .slot.queued .go { animation:blink 0.5s infinite; } .slot.stopping .go { animation:blink 0.25s infinite; }
+  @keyframes blink { 50% { opacity:0.3; } }
+  #insp { display:flex; flex:none; align-items:center; gap:0.8rem; padding:0 1.6rem; height:34px; overflow:hidden; border-bottom:1px solid var(--line2); background:rgba(20,17,12,0.35); white-space:nowrap; }
+  #insp > * { visibility:hidden; } #insp.on > * { visibility:visible; }
+  #insp::before { content:'no clip selected'; position:absolute; font-size:0.62rem; letter-spacing:0.16em; text-transform:uppercase; color:rgba(250,248,245,0.3); } #insp.on::before { display:none; }
+  #insp { position:relative; }
+  #insp .iname { font:inherit; font-size:0.85rem; color:var(--ivory); background:rgba(0,0,0,0.3); border:1px solid var(--line2); border-radius:3px; height:26px; padding:0 0.4rem; width:9rem; }
+  #insp input[type=range] { width:80px; height:12px; } #insp input[type=number] { width:3.4rem; height:26px; }
+  #insp .field span { min-width:2.4em; letter-spacing:0; color:rgba(250,248,245,0.7); }
+  #insp #iCount { font-size:0.62rem; color:rgba(250,248,245,0.4); letter-spacing:0.1em; }
+  #iMute.on, #iLoop.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
+  .clip.mutedclip { opacity:0.35; }
+  #peers { position:absolute; left:0; top:0; height:100%; pointer-events:none; z-index:4; }
+  .peerph { position:absolute; top:0; width:2px; height:100%; opacity:0.85; } .peerph span { position:absolute; left:3px; top:2px; font-size:0.58rem; letter-spacing:0.06em; padding:1px 4px; border-radius:2px; color:var(--ink); white-space:nowrap; }
+  .clip.peer { box-shadow:inset 0 0 0 2px var(--pc), 0 0 0 1px rgba(0,0,0,0.4); }
+  .hdr .dot { cursor:pointer; }
+  #trayHead .row2 { display:flex; gap:0.3rem; } #trayHead .row2 .tbtn { flex:1; }
+  .key.scale { background:#f3eee5; } .key.b.scale { background:#5a4f44; } .key.root { color:var(--terracotta); font-weight:500; }
+  @media (max-width:980px) { #masterStrip, #recOpts { display:none; } #insp #iFiRow, #insp #iFoRow, #insp #iCount { display:none; } }
+  @media (max-width:760px) { #insp { padding:0 0.8rem; gap:0.4rem; } #insp .iname { width:6rem; } #insp #iTrRow { display:none; } }
+
   @media (max-width:760px) {
     :root { --hdr-w:124px; --lane-h:64px; }
     nav { padding:0.6rem 1rem 0.4rem; }
@@ -267,22 +316,60 @@
   <div class="tgroup">
     <button class="tbtn" id="btnZoomOut" title="Zoom out (−)">−</button>
     <button class="tbtn" id="btnZoomIn" title="Zoom in (+)">+</button>
-    <button class="tbtn" id="btnExport" title="Render the arrangement to a WAV file">export</button>
+    <button class="tbtn" id="btnExport" title="Render the arrangement to a WAV file (⇧-click: loop region only)">export</button>
+  </div>
+  <div class="tsep"></div>
+  <div class="tgroup" id="recOpts">
+    <button class="tbtn sm" id="btnCountIn" title="1-bar count-in before recording">1234</button>
+    <button class="tbtn sm" id="btnOverdub" title="Loop-record MIDI into one clip instead of a new take per pass">ovr</button>
+  </div>
+  <div class="tsep"></div>
+  <div class="tgroup" id="masterStrip" title="master">
+    <span class="field">master</span><input type="range" id="masterGain" min="0" max="1.2" step="0.01" value="0.9"><button class="ms fx" id="masterFx" title="master effects">fx</button>
+  </div>
+  <div class="tsep"></div>
+  <div class="tgroup">
+    <button class="tbtn" id="btnShare" title="Share this project live (creates a room link)">share</button>
+    <button class="tbtn sm" id="btnCopy" title="Copy the room link" style="display:none">link</button>
+    <button class="tbtn sm" id="btnKeep" title="Copy the room into your personal project" style="display:none">keep</button>
+    <button class="tbtn sm" id="btnLeave" title="Leave the room — back to your personal project" style="display:none">leave</button>
   </div>
   <div id="spacer"></div>
-  <div id="hint">dbl-click a midi clip to edit · drag in the roll to box-select · Q quantizes · keys: A–L play, Z/X octave</div>
+  <div id="hint">tab = session view · dbl-click a midi clip to edit · Q quantizes · ⌘D duplicates clip/track · share → live room</div>
 </div>
 
+<div id="insp">
+  <span class="field">clip</span><input id="iName" class="iname" spellcheck="false">
+  <label class="field">gain <input type="range" id="iGain" min="0" max="2" step="0.01"><span id="iGainV"></span></label>
+  <label class="field" id="iTrRow">transpose <input type="number" id="iTr" min="-24" max="24" step="1"><span>st</span></label>
+  <label class="field" id="iFiRow">fade in <input type="range" id="iFi" min="0" max="4" step="0.01"><span id="iFiV"></span></label>
+  <label class="field" id="iFoRow">fade out <input type="range" id="iFo" min="0" max="4" step="0.01"><span id="iFoV"></span></label>
+  <button class="tbtn sm" id="iMute" title="mute clip">mute</button>
+  <button class="tbtn sm" id="iLoop" title="loop clip">↻ loop</button>
+  <button class="tbtn sm" id="iSess" title="send a copy to the session view">→ session</button>
+  <span id="iCount"></span>
+</div>
 <div id="arr">
-  <div id="corner">arrangement</div>
+  <div id="corner"><button class="vbtn on" id="viewArr">arrangement</button><button class="vbtn" id="viewSess">session</button></div>
   <div id="rulerWrap"><div id="ruler"><canvas id="rulerCv"></canvas><div id="loopBar"></div><div id="rph"></div></div></div>
   <div id="hdrs"><div id="hdrsInner"></div></div>
   <div id="lanesWrap"><div id="lanes"><canvas id="grid"></canvas><div id="laneList"></div><div id="ghost"></div><div id="playhead"></div></div></div>
 </div>
 
+<div id="session">
+  <div id="sessHead"><span>session</span>
+    <label class="field">launch <select id="launchQ"><option value="4" selected>bar</option><option value="1">beat</option><option value="0">now</option></select></label>
+    <button class="tbtn sm" id="sessCapture" title="Copy the playing clips into the arrangement at the playhead">→ arrangement</button>
+    <button class="tbtn sm" id="sessAddScene">+ scene</button>
+    <span class="sp"></span>
+    <button class="tbtn sm" id="sessStopAll">■ stop all</button>
+  </div>
+  <div id="sessScroll"><div id="sessGrid"></div></div>
+</div>
 <div id="roll">
   <div id="rollHead"><span>piano roll</span><b id="rollName"></b><span class="sp"></span>
     <label class="field">vel <input type="range" id="vel" min="0.05" max="1" step="0.05" value="0.8"></label>
+    <label class="field" title="highlight a scale in the roll">scale <select id="scaleRoot"><option>C</option><option>C#</option><option>D</option><option>D#</option><option>E</option><option>F</option><option>F#</option><option>G</option><option>G#</option><option>A</option><option>A#</option><option>B</option></select><select id="scaleMode"><option value="">off</option><option value="0,2,4,5,7,9,11">major</option><option value="0,2,3,5,7,8,10">minor</option><option value="0,2,3,5,7,9,10">dorian</option><option value="0,2,4,5,7,9,10">mixolydian</option><option value="0,2,4,7,9">pentatonic</option><option value="0,3,5,7,10">minor pent</option><option value="0,3,5,6,7,10">blues</option></select></label>
     <span class="qbox">
       <label class="field">q <select id="qGrid"><option value="1">1/4</option><option value="0.5">1/8</option><option value="0.3333">1/8T</option><option value="0.25" selected>1/16</option><option value="0.1667">1/16T</option><option value="0.125">1/32</option></select></label>
       <label class="field" title="how far each note moves toward the grid">str <input type="range" id="qStr" min="10" max="100" step="10" value="100"><span id="qStrV">100%</span></label>
@@ -307,6 +394,8 @@
     <div class="t">samples</div>
     <button class="tbtn" id="btnFile">+ audio file</button>
     <button class="tbtn" id="btnDemo">demo beat</button>
+    <span class="row2"><button class="tbtn sm" id="btnSaveProj" title="Download the whole project (with samples) as a .json file">save</button><button class="tbtn sm" id="btnOpenProj" title="Open a saved project file">open</button></span>
+    <input type="file" id="projIn" accept=".json,application/json" hidden>
     <input type="file" id="fileIn" accept="audio/*,.wav,.mp3,.ogg,.flac,.m4a,.aif,.aiff" multiple hidden>
   </div>
   <div id="samples"><div id="emptyTray">loading…</div></div>
@@ -314,7 +403,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03f";
+const BUILD = "2026-10-03g";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -323,7 +412,7 @@ const COLORS = ["#8a5a44", "#5a7a6a", "#7a6a8a", "#8a7a3a", "#4f7a8a", "#8a4f6a"
 // ---------- project state (everything the ops touch) ----------
 // This is the shape that will be shared through Firebase later: tracks + clips keyed by id,
 // edits expressed as ops (commit()), replayable in any order per entity.
-const proj = { bpm: 120, loop: { on: false, a: 0, b: 16 }, tracks: {}, clips: {} };
+const proj = { bpm: 120, loop: { on: false, a: 0, b: 16 }, tracks: {}, clips: {}, scenes: 8, master: { gain: 0.9, fx: [] } };
 const audios = {};             // id -> { name, buf, peaks, dur }  (not shared; local decode cache)
 let selected = new Set();      // clip ids
 let selTrack = null;
@@ -350,7 +439,7 @@ function applyOp(op) {
 function setPath(o, k, v) { const p = k.split("."); for (let i = 0; i < p.length - 1; i++) o = o[p[i]]; o[p[p.length - 1]] = v; }
 function getPath(o, k) { for (const s of k.split(".")) o = o[s]; return o; }
 function inverseOf(op) {
-  if (op.t === "set") return { t: "set", k: op.k, v: getPath(proj, op.k) };
+  if (op.t === "set") { const v = getPath(proj, op.k); return { t: "set", k: op.k, v: v && typeof v === "object" ? JSON.parse(JSON.stringify(v)) : v }; }
   const col = op.t === "track" ? proj.tracks : proj.clips;
   const cur = col[op.id];
   if (op.del) {
@@ -368,16 +457,19 @@ function commit(ops, { undoable = true } = {}) {
   const inv = ops.map(inverseOf).flat().reverse();
   for (const op of ops) applyOp(op);
   if (undoable) { undoStack.push({ ops, inv }); redoStack.length = 0; if (undoStack.length > 200) undoStack.shift(); }
-  afterChange(ops);
+  afterChange(ops); netSend(ops);
 }
-function undo() { const e = undoStack.pop(); if (!e) return; for (const op of e.inv) applyOp(op); redoStack.push(e); afterChange(e.inv); banner("undo"); }
-function redo() { const e = redoStack.pop(); if (!e) return; for (const op of e.ops) applyOp(op); undoStack.push(e); afterChange(e.ops); banner("redo"); }
+function undo() { const e = undoStack.pop(); if (!e) return; for (const op of e.inv) applyOp(op); redoStack.push(e); afterChange(e.inv); netSend(e.inv); banner("undo"); }
+function redo() { const e = redoStack.pop(); if (!e) return; for (const op of e.ops) applyOp(op); undoStack.push(e); afterChange(e.ops); netSend(e.ops); banner("redo"); }
 function afterChange(ops) {
   for (const id of [...selected]) if (!proj.clips[id]) selected.delete(id);
   if (ops.some(o => o.t === "set" && o.k === "bpm")) $("#bpm").value = proj.bpm;
-  render(); if (rollClip) renderRoll(); if (fxTrack) renderFx();
+  render(); if (rollClip) renderRoll(); if (fxTrack) renderFx(); renderSession(); renderInsp();
+  if (ops.some(o => o.t === "set" && o.k === "master")) { engine.refreshMaster(); $("#masterGain").value = proj.master.gain; }
+  if (ops.some(o => o.t === "clip" && (o.del || "scene" in o))) for (const tid in sess) if (!proj.clips[sess[tid].clip]) delete sess[tid];
   if (ops.some(o => o.t === "track" && "fx" in o)) engine.refreshFx(o => ops.some(p => p.id === o));
-  if (ops.some(o => o.t === "set" && o.k === "bpm")) engine.refreshFx();
+  if (ops.some(o => o.t === "set" && o.k === "bpm")) { engine.refreshFx(); engine.refreshMaster(); }
+  if (ops.some(o => o.t === "set" && o.k === "scenes")) renderSession();
   if (ops.some(o => o.t === "clip" || (o.t === "track" && o.del) || (o.t === "set" && (o.k === "bpm" || o.k.startsWith("loop"))))) engine.reschedule();
   engine.refreshMix();
   saveSoon();
@@ -497,6 +589,13 @@ function* midiEvents(c, fromB = -Infinity, toB = Infinity) {
   }
 }
 
+// Audio clip playback pieces, with clip looping: {b (abs beat), off (s), d (beats)}
+function* audioEvents(c, fromB = -Infinity, toB = Infinity) {
+  const cEnd = clipEnd(c), lp = c.loop && c.lp > 0 ? c.lp : null;
+  if (!lp) { if (cEnd > fromB && c.start < toB) yield { b: c.start, off: c.off || 0, d: c.len }; return; }
+  for (let b = c.start; b < cEnd && b < toB; b += lp) { if (b + lp <= fromB) continue; yield { b, off: c.off || 0, d: Math.min(lp, cEnd - b) }; }
+}
+const playableClips = () => Object.values(proj.clips).filter(c => c.scene == null && !c.mute).concat(typeof sessionClips === "function" ? sessionClips() : []);
 // ---------- audio engine ----------
 const engine = (() => {
   let ctx = null, master, playing = false, segs = [], scheduled = new Set(), live = [], timer = null;
@@ -506,8 +605,21 @@ const engine = (() => {
   function ensure() {
     if (ctx) { if (ctx.state === "suspended") ctx.resume(); return ctx; }
     ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: "interactive" });
-    master = ctx.createGain(); master.connect(ctx.destination);
+    master = ctx.createGain(); masterOut = ctx.createGain(); limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.value = -1; limiter.knee.value = 0; limiter.ratio.value = 20; limiter.attack.value = 0.002; limiter.release.value = 0.08;
+    masterOut.connect(limiter); limiter.connect(ctx.destination);
+    masterChain = buildChain(ctx, proj.master?.fx, master, masterOut); masterOut.gain.value = proj.master?.gain ?? 0.9;
     return ctx;
+  }
+  let masterOut, limiter, masterChain = [];
+  function refreshMaster() {
+    if (!ctx) return; master.disconnect(); for (const c of masterChain) { try { c.x.output.disconnect(); } catch (e) { } }
+    masterChain = buildChain(ctx, proj.master?.fx, master, masterOut); masterOut.gain.setTargetAtTime(proj.master?.gain ?? 0.9, ctx.currentTime, 0.01);
+  }
+  function setMasterGain(v) { if (masterOut) masterOut.gain.setTargetAtTime(v, ctx.currentTime, 0.01); }
+  function cutAt(clipId, beat) {
+    if (!ctx || !playing) return; const seg = segNow(); if (!seg) return; const t = Math.max(ctx.currentTime, ctxOf(seg, beat));
+    for (const s of live) if (s.clip === clipId && s.end > t) { try { s.src.stop(t); } catch (e) { } s.end = t; }
   }
   function nodesFor(tid) {
     let n = trackNodes[tid];
@@ -525,7 +637,7 @@ const engine = (() => {
     if (!ctx) return;
     for (const tid in trackNodes) { if (pred && !pred(tid)) continue; const n = trackNodes[tid]; n.gain.disconnect(); for (const c of n.chain) { try { c.x.output.disconnect(); } catch (e) { } } n.chain = buildChain(ctx, proj.tracks[tid]?.fx, n.gain, n.pan || n.an); }
   }
-  function setFxParam(tid, fxId, params) { const n = trackNodes[tid]; if (!n) return; const c = n.chain.find(c => c.id === fxId); if (c) c.x.set(params); }
+  function setFxParam(tid, fxId, params) { const chain = tid === "master" ? masterChain : trackNodes[tid]?.chain; if (!chain) return; const c = chain.find(c => c.id === fxId); if (c) c.x.set(params); }
   function refreshMix() {
     if (!ctx) return;
     const anySolo = Object.values(proj.tracks).some(t => t.solo);
@@ -578,21 +690,25 @@ const engine = (() => {
     live = live.filter(s => s.end > now - 0.2);
     for (let si = 0; si < segs.length; si++) {
       const seg = segs[si], key = seg.ctx0.toFixed(3);
-      for (const c of Object.values(proj.clips)) {
+      for (const c of playableClips()) {
         if (c.kind === "m") { scheduleMidi(c, seg, key, now, horizon); continue; }
         const a = audios[c.src]; if (!a) continue;
-        const ps = Math.max(c.start, seg.startBeat), pe = Math.min(clipEnd(c), seg.endBeat);
-        if (ps >= pe) continue;
-        const t0 = ctxOf(seg, ps);
-        if (t0 >= horizon) continue;
-        const k = c.id + "@" + key; if (scheduled.has(k)) continue; scheduled.add(k);
-        let off = c.off + (ps - c.start) * spb(), dur = (pe - ps) * spb(), at = t0;
-        if (at < now) { off += now - at; dur -= now - at; at = now; }
-        if (dur <= 0.001 || off >= a.buf.duration) continue;
-        const src = ctx.createBufferSource(); src.buffer = a.buf;
-        const g = ctx.createGain(); g.gain.value = c.gain; src.connect(g); g.connect(nodesFor(c.track).gain);
-        src.start(at, off, dur);
-        live.push({ src, gain: g, clip: c.id, end: at + dur });
+        const cEnd = clipEnd(c);
+        for (const ev of audioEvents(c, seg.startBeat, seg.endBeat)) {
+          const ps = Math.max(ev.b, seg.startBeat), pe = Math.min(ev.b + ev.d, cEnd, seg.endBeat);
+          if (ps >= pe) continue;
+          const t0 = ctxOf(seg, ps); if (t0 >= horizon) continue;
+          const k = c.id + ":" + ev.b.toFixed(4) + "@" + key; if (scheduled.has(k)) continue; scheduled.add(k);
+          let off = ev.off + (ps - ev.b) * spb(), dur = (pe - ps) * spb(), at = t0;
+          if (at < now) { off += now - at; dur -= now - at; at = now; }
+          if (dur <= 0.001 || off >= a.buf.duration) continue;
+          const src = ctx.createBufferSource(); src.buffer = a.buf;
+          if (c.tr) src.playbackRate.value = Math.pow(2, c.tr / 12);
+          const g = ctx.createGain(); applyFades(g.gain, c, ctxOf(seg, ev.b), ctxOf(seg, Math.min(ev.b + ev.d, cEnd)), now);
+          src.connect(g); g.connect(nodesFor(c.track).gain);
+          src.start(at, off, dur);
+          live.push({ src, gain: g, clip: c.id, end: at + dur });
+        }
       }
       if (clickOn) {
         const b0 = Math.ceil(seg.startBeat - 1e-6);
@@ -608,6 +724,13 @@ const engine = (() => {
       }
     }
   }
+  // fade in/out (seconds) and clip gain as gain automation on the clip's event
+  function applyFades(param, c, tb, te, now) {
+    const g = c.gain ?? 1, fi = c.fi || 0, fo = c.fo || 0;
+    param.setValueAtTime(fi ? 0 : g, Math.min(tb, now));
+    if (fi) param.linearRampToValueAtTime(g, tb + fi);
+    if (fo && te - fo > tb) { param.setValueAtTime(g, te - fo); param.linearRampToValueAtTime(0, te); }
+  }
   function scheduleMidi(c, seg, key, now, horizon) {
     const tr = proj.tracks[c.track]; if (!tr) return;
     const inst = instOf(tr), dest = nodesFor(tr.id).gain, cEnd = clipEnd(c);
@@ -616,7 +739,7 @@ const engine = (() => {
       const k = c.id + ":" + i + "@" + key; if (scheduled.has(k)) continue; scheduled.add(k);
       if (t0 < now - 0.03) continue;                      // started before we got here — skip, don't smear
       const endB = Math.min(b + d, cEnd, seg.endBeat), t1 = ctxOf(seg, endB);
-      const v = inst.play(ctx, dest, n.p, n.v, Math.max(t0, now)); if (!v) continue;
+      const v = inst.play(ctx, dest, n.p + (c.tr || 0), n.v * (c.gain ?? 1), Math.max(t0, now)); if (!v) continue;
       v.stop(t1);
       live.push({ src: v, kill: () => v.kill(), clip: c.id, end: t1 + 2 });
     }
@@ -648,7 +771,7 @@ const engine = (() => {
     return out;
   }
   return {
-    ensure, startFrom, stop, reschedule, refreshMix, refreshFx, setFxParam, beatNow, preview, meters, noteOn, noteOff, allOff, nodesFor, ctxOf, segNow,
+    ensure, startFrom, stop, reschedule, refreshMix, refreshFx, setFxParam, refreshMaster, setMasterGain, cutAt, beatNow, preview, meters, noteOn, noteOff, allOff, nodesFor, ctxOf, segNow,
     get playing() { return playing; }, get ctx() { return ctx; },
     get click() { return clickOn; }, set click(v) { clickOn = v; },
     decode: ab => ensure().decodeAudioData(ab),
@@ -656,28 +779,39 @@ const engine = (() => {
 })();
 
 // ---------- offline render (export) ----------
-async function renderWav() {
-  const clips = Object.values(proj.clips).filter(c => c.kind === "m" ? c.notes.length : audios[c.src]);
+async function renderWav(loopOnly) {
+  const clips = Object.values(proj.clips).filter(c => c.scene == null && !c.mute && (c.kind === "m" ? c.notes.length : audios[c.src]));
   if (!clips.length) return banner("nothing to export");
-  const endSec = Math.max(...clips.map(c => clipEnd(c) * spb())) + 2;
+  const fromB = loopOnly && proj.loop.on ? proj.loop.a : 0, toB = loopOnly && proj.loop.on ? proj.loop.b : Math.max(...clips.map(clipEnd));
+  const endSec = (toB - fromB) * spb() + (loopOnly ? 0 : 2), t0 = fromB * spb();
   const sr = engine.ensure().sampleRate, oc = new OfflineAudioContext(2, Math.ceil(endSec * sr), sr);
   const anySolo = Object.values(proj.tracks).some(t => t.solo);
+  const mOut = oc.createGain(); mOut.gain.value = proj.master?.gain ?? 0.9; const lim = oc.createDynamicsCompressor(); lim.threshold.value = -1; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.08; mOut.connect(lim); lim.connect(oc.destination);
+  const mIn = oc.createGain(); buildChain(oc, proj.master?.fx, mIn, mOut);
   const tn = {};
   for (const t of tracksSorted()) {
     const g = oc.createGain(); g.gain.value = (!t.mute && (!anySolo || t.solo)) ? t.gain : 0;
-    const p = oc.createStereoPanner ? oc.createStereoPanner() : null; if (p) { p.pan.value = t.pan; p.connect(oc.destination); }
-    buildChain(oc, t.fx, g, p || oc.destination);
+    const p = oc.createStereoPanner ? oc.createStereoPanner() : null; if (p) { p.pan.value = t.pan; p.connect(mIn); }
+    buildChain(oc, t.fx, g, p || mIn);
     tn[t.id] = g;
   }
+  const T = b => (b - fromB) * spb();
   for (const c of clips) {
+    const dest = tn[c.track] || mIn, cEnd = clipEnd(c);
     if (c.kind === "m") {
-      const inst = instOf(proj.tracks[c.track]), dest = tn[c.track] || oc.destination, cEnd = clipEnd(c);
-      for (const { n, b, d } of midiEvents(c)) { const v = inst.play(oc, dest, n.p, n.v, b * spb()); if (v) v.stop(Math.min(b + d, cEnd) * spb()); }
+      const inst = instOf(proj.tracks[c.track]);
+      for (const { n, b, d } of midiEvents(c, fromB, toB)) { if (b < fromB) continue; const v = inst.play(oc, dest, n.p + (c.tr || 0), n.v * (c.gain ?? 1), T(b)); if (v) v.stop(T(Math.min(b + d, cEnd, toB))); }
       continue;
     }
-    const s = oc.createBufferSource(); s.buffer = audios[c.src].buf; const g = oc.createGain(); g.gain.value = c.gain; s.connect(g); g.connect(tn[c.track] || oc.destination);
-    const dur = Math.min(c.len * spb(), s.buffer.duration - c.off); if (dur <= 0) continue;
-    s.start(c.start * spb(), c.off, dur);
+    for (const ev of audioEvents(c, fromB, toB)) {
+      const ps = Math.max(ev.b, fromB), pe = Math.min(ev.b + ev.d, cEnd, toB); if (ps >= pe) continue;
+      const s = oc.createBufferSource(); s.buffer = audios[c.src].buf; if (c.tr) s.playbackRate.value = Math.pow(2, c.tr / 12);
+      const g = oc.createGain(); const tb = T(ev.b), te = T(Math.min(ev.b + ev.d, cEnd)), gg = c.gain ?? 1, fi = c.fi || 0, fo = c.fo || 0;
+      g.gain.setValueAtTime(fi ? 0 : gg, Math.max(0, tb)); if (fi) g.gain.linearRampToValueAtTime(gg, tb + fi); if (fo && te - fo > tb) { g.gain.setValueAtTime(gg, te - fo); g.gain.linearRampToValueAtTime(0, te); }
+      s.connect(g); g.connect(dest);
+      const off = ev.off + (ps - ev.b) * spb(), dur = Math.min((pe - ps) * spb(), s.buffer.duration - off); if (dur <= 0) continue;
+      s.start(T(ps), off, dur);
+    }
   }
   const buf = await oc.startRendering();
   const blob = new Blob([encodeWav(buf)], { type: "audio/wav" });
@@ -786,11 +920,12 @@ const idbGet = (store, k) => idb().then(d => new Promise((res, rej) => { const q
 const idbAll = store => idb().then(d => new Promise((res, rej) => { const q = d.transaction(store).objectStore(store).getAll(); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }));
 const idbDel = (store, k) => idb().then(d => new Promise((res, rej) => { const q = d.transaction(store, "readwrite").objectStore(store).delete(k); q.onsuccess = () => res(); q.onerror = () => rej(q.error); }));
 let saveT = null;
-function saveSoon() { clearTimeout(saveT); saveT = setTimeout(() => idbPut("kv", { ...proj, pxPerBeat, playhead }, "proj").catch(() => { }), 400); }
+function saveSoon() { if (inRoom()) return; clearTimeout(saveT); saveT = setTimeout(() => idbPut("kv", { ...proj, pxPerBeat, playhead }, "proj").catch(() => { }), 400); }
 async function restore() {
   try {
     const p = await idbGet("kv", "proj");
-    if (p) { Object.assign(proj, { bpm: p.bpm, loop: p.loop, tracks: p.tracks, clips: p.clips }); pxPerBeat = p.pxPerBeat || pxPerBeat; playhead = p.playhead || 0; $("#bpm").value = proj.bpm; }
+    if (p) { Object.assign(proj, { bpm: p.bpm, loop: p.loop, tracks: p.tracks, clips: p.clips, scenes: p.scenes || 8, master: p.master || { gain: 0.9, fx: [] } }); pxPerBeat = p.pxPerBeat || pxPerBeat; playhead = p.playhead || 0; $("#bpm").value = proj.bpm; $("#masterGain").value = proj.master.gain; }
+    for (const c of Object.values(proj.clips)) if (c.kind === "m" && !c.notes) c.notes = [];
     for (const a of await idbAll("audio")) await addAudio(a.name, a.blob, { id: a.id });
     for (const t of Object.values(proj.tracks)) if (t.fx) t.fx = t.fx.map(f => ["lowpass", "highpass", "bandpass", "notch"].includes(f.type) ? { ...f, mode: f.type, type: "filter" } : f);
   } catch (e) { console.warn("restore failed", e); }
@@ -830,14 +965,14 @@ function render() {
   // clips
   const cs = new Set();
   for (const c of Object.values(proj.clips)) {
-    if (!laneEls[c.track]) continue;
+    if (!laneEls[c.track] || c.scene != null) continue;
     cs.add(c.id);
     let e = clipEls[c.id]; if (!e) e = clipEls[c.id] = buildClip(c);
     const t = proj.tracks[c.track];
     e.style.left = beatToPx(c.start) + "px"; e.style.width = Math.max(3, beatToPx(c.len)) + "px"; e.style.setProperty("--c", t.color);
     e.classList.toggle("sel", selected.has(c.id));
     e.classList.toggle("midi", c.kind === "m");
-    e.classList.toggle("muted", !!t.mute);
+    e.classList.toggle("muted", !!t.mute); e.classList.toggle("mutedclip", !!c.mute);
     e.querySelector(".lbl").textContent = (c.loop ? "↻ " : "") + c.name;
     if (e.parentNode !== laneEls[c.track].lane) laneEls[c.track].lane.appendChild(e);
     drawClip(e, c);
@@ -847,6 +982,8 @@ function render() {
   $("#btnLoop").classList.toggle("on", proj.loop.on);
   loopBar.style.display = "block"; loopBar.classList.toggle("on", proj.loop.on);
   loopBar.style.left = beatToPx(proj.loop.a) + "px"; loopBar.style.width = beatToPx(proj.loop.b - proj.loop.a) + "px";
+  if (typeof renderPeers === "function" && Object.keys(peers).length) renderPeers();
+  if (typeof renderInsp === "function") renderInsp();
   $("#btnUndo").disabled = !undoStack.length; $("#btnRedo").disabled = !redoStack.length;
   $("#btnUndo").style.opacity = undoStack.length ? 1 : 0.4; $("#btnRedo").style.opacity = redoStack.length ? 1 : 0.4;
 }
@@ -862,6 +999,8 @@ function buildHdr(t) {
   h.querySelector(".fx").onclick = e => { e.stopPropagation(); openFx(t.id); };
   const name = h.querySelector(".name");
   h.addEventListener("pointerdown", () => { selTrack = t.id; render(); });
+  h.querySelector(".dot").addEventListener("click", e => { e.stopPropagation(); const i = COLORS.indexOf(proj.tracks[t.id].color); commit({ t: "track", id: t.id, color: COLORS[(i + 1) % COLORS.length] }); });
+  h.querySelector(".dot").title = "click to change colour";
   name.addEventListener("dblclick", () => { name.contentEditable = "true"; name.focus(); document.execCommand("selectAll", false, null); });
   name.addEventListener("blur", () => { name.contentEditable = "false"; const v = name.textContent.trim() || t.name; if (v !== proj.tracks[t.id]?.name) commit({ t: "track", id: t.id, name: v }); });
   name.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); name.blur(); } e.stopPropagation(); });
@@ -987,7 +1126,7 @@ function frame() {
     ph.style.transform = "translateX(" + x + "px)"; rph.style.transform = "translateX(" + x + "px)"; $("#pos").textContent = fmtPos(b);
     if (engine.playing) { const vw = lanesWrap.clientWidth, sl = lanesWrap.scrollLeft; if (x > sl + vw - 40 || x < sl) lanesWrap.scrollLeft = Math.max(0, x - 40); }
   }
-  recTick();
+  recTick(); sessTick();
   if (rollClip) { const c = proj.clips[rollClip]; if (c) { const rb = b - c.start + (c.offb || 0); rollPh.style.display = rb >= 0 && rb <= c.len ? "block" : "none"; rollPh.style.transform = "translateX(" + beatToPxR(rb) + "px)"; } }
   const m = engine.meters();
   if (m) for (const tid in m) { const h = laneEls[tid]?.hdr?.querySelector(".meter i"); if (h) h.style.height = Math.min(100, m[tid] * 100) + "%"; }
@@ -1009,7 +1148,7 @@ $("#snap").addEventListener("change", e => { snapBeats = +e.target.value; if (ro
 $("#btnUndo").onclick = undo; $("#btnRedo").onclick = redo;
 $("#btnDel").onclick = deleteSel; $("#btnSplit").onclick = splitAtPlayhead;
 $("#btnZoomIn").onclick = () => zoom(1.25); $("#btnZoomOut").onclick = () => zoom(0.8);
-$("#btnExport").onclick = () => renderWav();
+$("#btnExport").onclick = e => renderWav(e.shiftKey);
 $("#btnFile").onclick = () => $("#fileIn").click();
 $("#fileIn").addEventListener("change", e => { addFiles([...e.target.files]); e.target.value = ""; });
 $("#btnDemo").onclick = demoBeat;
@@ -1019,8 +1158,14 @@ function zoom(f, anchorPx) {
   pxPerBeat = clamp(pxPerBeat * f, 2, 400); render(); lanesWrap.scrollLeft = beatToPx(ab) - (ax - sl); lastBeat = -1; saveSoon();
 }
 function deleteSel() { if (!selected.size) return; commit([...selected].map(id => ({ t: "clip", id, del: true }))); }
+function duplicateTrack(tid) {
+  const t = proj.tracks[tid]; if (!t) return; const nid = uid(), ops = [{ t: "track", ...t, id: nid, name: t.name + " copy", order: t.order + 0.5 }];
+  for (const c of clipsOf(tid)) ops.push({ t: "clip", ...c, id: uid(), track: nid });
+  tracksSorted().forEach((x, i) => { if (x.id !== tid && x.order > t.order) ops.push({ t: "track", id: x.id, order: x.order + 1 }); });
+  ops[0].order = t.order + 1; commit(ops); selTrack = nid; render(); banner("duplicated " + t.name);
+}
 function duplicateSel() {
-  if (!selected.size) return;
+  if (!selected.size) { if (selTrack) duplicateTrack(selTrack); return; }
   const cs = [...selected].map(id => proj.clips[id]), end = Math.max(...cs.map(clipEnd)), start = Math.min(...cs.map(c => c.start)), span = snapB(end - start) || end - start;
   const ops = cs.map(c => ({ t: "clip", ...c, id: uid(), start: c.start + span }));
   commit(ops); selected = new Set(ops.map(o => o.id)); render();
@@ -1114,6 +1259,7 @@ function onSampleDown(e, aid) {
   e.preventDefault(); const x0 = e.clientX, y0 = e.clientY; let moved = false; const a = audios[aid];
   const mv = ev => {
     if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 6) return; moved = true;
+    if (viewMode === "sess") { document.querySelectorAll(".slot.over").forEach(x => x.classList.remove("over")); const sl = slotAt(ev.clientX, ev.clientY); if (sl) sl.el.classList.add("over"); return; }
     const tid = laneAt(ev.clientY);
     for (const id in laneEls) laneEls[id].lane.classList.toggle("over", id === tid);
     if (tid) { ghost.style.display = "block"; ghost.style.left = beatToPx(Math.max(0, snapB(pxToBeat(lanesX(ev.clientX)), ev.shiftKey))) + "px"; ghost.style.width = beatToPx(a.dur / spb()) + "px"; ghost.style.top = (laneEls[tid].lane.offsetTop + 4) + "px"; } else ghost.style.display = "none";
@@ -1122,6 +1268,7 @@ function onSampleDown(e, aid) {
     window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up);
     ghost.style.display = "none"; for (const id in laneEls) laneEls[id].lane.classList.remove("over");
     if (!moved) { engine.preview(aid); return; }
+    if (viewMode === "sess") { document.querySelectorAll(".slot.over").forEach(x => x.classList.remove("over")); const sl = slotAt(ev.clientX, ev.clientY); if (sl) placeInSlot(aid, sl); return; }
     const tid = laneAt(ev.clientY); if (!tid) return;
     placeClip(aid, tid, snapB(pxToBeat(lanesX(ev.clientX)), ev.shiftKey));
   };
@@ -1157,6 +1304,9 @@ window.addEventListener("keydown", e => {
   if ((k === "delete" || k === "backspace") && rollClip && rollFocus) { e.preventDefault(); deleteNotes(); return; }
   if (k === "escape" && rollClip && !selected.size) { closeRoll(); return; }
   if (k === "k" && e.shiftKey && !mod) { $("#btnKbd").click(); return; }
+  if (k === "tab") { e.preventDefault(); setView(viewMode === "arr" ? "sess" : "arr"); return; }
+  if (viewMode === "sess" && (k === "delete" || k === "backspace")) { e.preventDefault(); if (sessSel) { const c = slotClip(sessSel.track, sessSel.scene); if (c) commit({ t: "clip", id: c.id, del: true }); } return; }
+  if (viewMode === "sess" && k === "enter") { e.preventDefault(); if (sessSel) { const c = slotClip(sessSel.track, sessSel.scene); if (c) launchClip(c); } return; }
   if (k === "q" && !mod) { e.preventDefault(); if (!((rollClip && rollFocus) ? quantizeRoll() : quantizeSelectedClips() || quantizeRoll())) banner("select a midi clip (or open one) to quantize"); return; }
   else if (k === "enter") { e.preventDefault(); setPlayhead(proj.loop.on ? proj.loop.a : 0); }
   else if (k === "home") setPlayhead(0);
@@ -1382,11 +1532,11 @@ window.addEventListener("blur", () => { for (const k in kbdHeld) { liveNoteOff(k
 // ---------- record ----------
 // ● arms the selected track. While the transport runs, a MIDI track captures live notes into a new clip;
 // an audio track captures the microphone through an AudioWorklet and lands it as a sample + clip.
-let recArmed = false, rec = null, micStream = null, recNode = null, recSrc = null, recCount = 0, workletReady = false;
+let lastTake = null, recArmed = false, rec = null, micStream = null, recNode = null, recSrc = null, recCount = 0, workletReady = false;
 $("#btnRec").onclick = toggleRec;
 function toggleRec() {
-  recArmed = !recArmed; $("#btnRec").classList.toggle("on", recArmed);
-  if (recArmed) { if (!engine.playing) togglePlay(); else startRec(); } else finishRec();
+  recArmed = !recArmed; $("#btnRec").classList.toggle("on", recArmed); if (recArmed && !overdub) lastTake = null;
+  if (recArmed) { if (!engine.playing) { if (countIn) playCountIn(() => { if (recArmed && !engine.playing) togglePlay(); }); else togglePlay(); } else startRec(); } else finishRec();
   updateRecUi();
 }
 function updateRecUi() { $("#btnRec").classList.toggle("live", !!rec); }
@@ -1394,7 +1544,7 @@ async function startRec() {
   if (!recArmed || rec || !engine.playing) return;
   const tr = proj.tracks[selTrack] || tracksSorted()[0]; if (!tr) return;
   const startBeat = engine.beatNow();
-  if (isMidi(tr)) { rec = { kind: "m", track: tr.id, startBeat, notes: [], held: {} }; banner("recording midi → " + tr.name); }
+  if (isMidi(tr)) { rec = { kind: "m", track: tr.id, startBeat, notes: [], held: {}, into: overdub && lastTake && lastTake.track === tr.id && proj.clips[lastTake.id] && proj.loop.on ? lastTake.id : null }; banner((rec.into ? "overdubbing → " : "recording midi → ") + tr.name); }
   else {
     try {
       const ctx = engine.ensure();
@@ -1426,7 +1576,8 @@ async function finishRec(restartAt) {
     const s0 = Math.floor(r.startBeat / (snapBeats || 0.25)) * (snapBeats || 0.25), len = Math.max(1, Math.ceil((Math.max(endBeat, ...r.notes.map(n => n.s + n.d)) - s0) / 4) * 4);
     let notes = r.notes.map(n => ({ p: n.p, s: Math.max(0, +(n.s - s0).toFixed(4)), d: +n.d.toFixed(4), v: n.v }));
     const qr = $("#qRec").checked; if (qr) notes = quantizeNotes(notes, qSettings());
-    placeMidiClip(r.track, s0, len, notes, "take " + (++recCount)); banner("midi take " + recCount + " — " + notes.length + " notes" + (qr ? ", quantized to " + qSettings().name : ""));
+    if (overdub && r.into && proj.clips[r.into]) { const c = proj.clips[r.into]; commit({ t: "clip", id: c.id, notes: c.notes.concat(notes.map(n => ({ ...n, s: n.s + (s0 - c.start) }))) }); banner("overdub +" + notes.length + " notes"); return; }
+    const id = placeMidiClip(r.track, s0, len, notes, "take " + (++recCount)); lastTake = { id, track: r.track }; banner("midi take " + recCount + " — " + notes.length + " notes" + (qr ? ", quantized to " + qSettings().name : ""));
   } else {
     try { recSrc.disconnect(); recNode.disconnect(); } catch (e) { } recNode = recSrc = null;
     const total = r.chunks.reduce((a, c) => a + c.length, 0); if (total < r.sr * 0.1) return banner("take too short");
@@ -1497,13 +1648,15 @@ const fxEl = $("#fxPanel"), fxList = $("#fxList");
 function openFx(tid) { if (fxTrack === tid && fxEl.classList.contains("open")) return closeFx(); closeRoll(); fxTrack = tid; fxEl.classList.add("open"); renderFx(); }
 function closeFx() { fxTrack = null; fxEl.classList.remove("open"); }
 $("#fxClose").onclick = closeFx;
-$("#fxAdd").addEventListener("change", e => { const type = e.target.value; e.target.value = ""; if (!type || !fxTrack) return; const t = proj.tracks[fxTrack]; if (FX_DEFS[type].stub) return banner(FX_DEFS[type].name + ": " + FX_DEFS[type].stub); commit({ t: "track", id: fxTrack, fx: (t.fx || []).concat([fxDefaults(type)]) }); });
+$("#fxAdd").addEventListener("change", e => { const type = e.target.value; e.target.value = ""; if (!type || !fxTrack) return; const t = fxOwner(fxTrack); if (FX_DEFS[type].stub) return banner(FX_DEFS[type].name + ": " + FX_DEFS[type].stub); commitFxList(fxTrack, (t.fx || []).concat([fxDefaults(type)])); });
 $("#fxAdd").addEventListener("keydown", e => e.stopPropagation());
 (function () { const s = $("#fxAdd"); for (const k in FX_DEFS) { const o = document.createElement("option"); o.value = k; o.textContent = "+ " + FX_DEFS[k].name; s.appendChild(o); } })();
 const fmtVal = (p, v) => p.opts ? v : (v >= 1000 ? (v / 1000).toFixed(1) + "k" : v >= 10 ? Math.round(v) : v >= 1 ? v.toFixed(1) : v.toFixed(3).replace(/0+$/, "")) + (p.unit || "");
+const fxOwner = id => id === "master" ? proj.master : proj.tracks[id];
+function commitFxList(id, fx) { if (id === "master") commit({ t: "set", k: "master", v: { ...proj.master, fx } }); else commit({ t: "track", id, fx }); }
 function renderFx() {
-  const t = proj.tracks[fxTrack]; if (!t) return closeFx();
-  $("#fxName").textContent = t.name;
+  const t = fxOwner(fxTrack); if (!t) return closeFx();
+  $("#fxName").textContent = fxTrack === "master" ? "master" : t.name;
   fxList.innerHTML = "";
   if (!(t.fx || []).length) { fxList.appendChild(el("div", "fx-empty", "no effects — add one on the right")); }
   (t.fx || []).forEach((f, idx) => {
@@ -1511,8 +1664,8 @@ function renderFx() {
     const card = el("div", "fxc" + (f.on === false ? " off" : "")); card.dataset.id = f.id;
     const head = el("div", "fxh"); const on = el("button", "ms" + (f.on === false ? "" : " on") + " p", "●"); on.title = "bypass"; on.onclick = () => commitFx(idx, { on: f.on === false }); head.appendChild(on);
     head.appendChild(el("span", "fxt", D.name));
-    const mv = el("button", "x", "‹"); mv.title = "move earlier"; mv.onclick = () => { if (idx === 0) return; const fx = t.fx.slice(); [fx[idx - 1], fx[idx]] = [fx[idx], fx[idx - 1]]; commit({ t: "track", id: t.id, fx }); }; head.appendChild(mv);
-    const x = el("button", "x", "×"); x.onclick = () => commit({ t: "track", id: t.id, fx: t.fx.filter((_, j) => j !== idx) }); head.appendChild(x);
+    const mv = el("button", "x", "‹"); mv.title = "move earlier"; mv.onclick = () => { if (idx === 0) return; const fx = t.fx.slice(); [fx[idx - 1], fx[idx]] = [fx[idx], fx[idx - 1]]; commitFxList(fxTrack, fx); }; head.appendChild(mv);
+    const x = el("button", "x", "×"); x.onclick = () => commitFxList(fxTrack, t.fx.filter((_, j) => j !== idx)); head.appendChild(x);
     card.appendChild(head);
     for (const k in D.params) {
       const P = D.params[k], row = el("label", "fxr"); row.appendChild(el("span", "l", P.label || k)); const val = el("span", "v", fmtVal(P, f[k]));
@@ -1521,7 +1674,7 @@ function renderFx() {
         const r = document.createElement("input"); r.type = "range"; r.min = 0; r.max = 1000; r.step = 1;
         const toV = x => P.log ? P.min * Math.pow(P.max / P.min, x / 1000) : P.min + (P.max - P.min) * x / 1000, toX = v => P.log ? 1000 * Math.log(v / P.min) / Math.log(P.max / P.min) : 1000 * (v - P.min) / (P.max - P.min);
         r.value = toX(f[k]);
-        r.addEventListener("input", () => { const v = toV(+r.value); val.textContent = fmtVal(P, v); engine.setFxParam(t.id, f.id, { ...proj.tracks[t.id].fx[idx], [k]: v }); });
+        r.addEventListener("input", () => { const v = toV(+r.value); val.textContent = fmtVal(P, v); engine.setFxParam(fxTrack, f.id, { ...fxOwner(fxTrack).fx[idx], [k]: v }); });
         r.addEventListener("change", () => commitFx(idx, { [k]: toV(+r.value) }));
         r.addEventListener("dblclick", () => commitFx(idx, { [k]: P.def }));
         r.addEventListener("keydown", e => e.stopPropagation());
@@ -1531,8 +1684,361 @@ function renderFx() {
     }
     fxList.appendChild(card);
   });
-  function commitFx(idx, patch) { const tt = proj.tracks[fxTrack]; const fx = tt.fx.map((g, j) => j === idx ? { ...g, ...patch } : g); commit({ t: "track", id: tt.id, fx }); }
+  function commitFx(idx, patch) { const tt = fxOwner(fxTrack); const fx = tt.fx.map((g, j) => j === idx ? { ...g, ...patch } : g); commitFxList(fxTrack, fx); }
 }
+
+// ---------- sharing (Firebase rooms) ----------
+// Personal mode: the project lives in this browser (IndexedDB). A room (#room=name) mirrors tracks/clips/meta/audio
+// under daw/rooms/<name> on the wall's Firebase project; every committed op is written per entity, remote changes are
+// applied directly (no undo entry). Playback stays local; other people's playheads and selections are shown.
+const firebaseConfig = { apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I", authDomain: "griffgraff-baa46.firebaseapp.com", databaseURL: "https://griffgraff-baa46-default-rtdb.firebaseio.com", projectId: "griffgraff-baa46", storageBucket: "griffgraff-baa46.firebasestorage.app", messagingSenderId: "354313176929", appId: "1:354313176929:web:65aa8467f9aad220026720" };
+let fb = null, room = null, roomRef = null, unsub = [], peers = {}, presRef = null, presTimer = null, joining = false;
+const uidSelf = (() => { try { let u = sessionStorage.getItem("agkm-daw-uid"); if (!u) { u = uid(); sessionStorage.setItem("agkm-daw-uid", u); } return u; } catch (e) { return uid(); } })();
+let myName = (() => { try { return localStorage.getItem("agkm-daw-name") || ""; } catch (e) { return ""; } })();
+const myColor = COLORS[Math.abs([...uidSelf].reduce((a, c) => a + c.charCodeAt(0), 0)) % COLORS.length];
+const inRoom = () => !!room;
+async function loadFirebase() {
+  if (fb) return fb;
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+  const d = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
+  const app = initializeApp(firebaseConfig); const db = d.getDatabase(app);
+  return fb = { db, ...d };
+}
+const stable = v => Array.isArray(v) ? "[" + v.map(stable).join(",") + "]" : v && typeof v === "object" ? "{" + Object.keys(v).sort().map(k => v[k] === undefined ? "" : JSON.stringify(k) + ":" + stable(v[k])).join(",") + "}" : JSON.stringify(v);
+const deepEq = (a, b) => stable(a) === stable(b);
+function cleanForNet(o) { const r = {}; for (const k in o) if (o[k] !== undefined && k !== "t") r[k] = o[k]; return r; }
+// outgoing: called by commit()/undo()/redo() with the ops just applied
+function netSend(ops) {
+  if (!room || !fb) return;
+  for (const op of ops) {
+    if (op.t === "set") { if (op.k === "bpm") fb.set(fb.child(roomRef, "meta/bpm"), op.v); else if (op.k === "loop") fb.set(fb.child(roomRef, "meta/loop"), op.v); else if (op.k === "loop.on") fb.set(fb.child(roomRef, "meta/loop/on"), op.v); else if (op.k === "scenes") fb.set(fb.child(roomRef, "meta/scenes"), op.v); else if (op.k === "master") fb.set(fb.child(roomRef, "meta/master"), op.v); continue; }
+    const path = (op.t === "track" ? "tracks/" : "clips/") + op.id;
+    if (op.del) { fb.remove(fb.child(roomRef, path)); if (op.t === "track") for (const c of Object.values(proj.clips)) if (c.track === op.id) fb.remove(fb.child(roomRef, "clips/" + c.id)); continue; }
+    const cur = (op.t === "track" ? proj.tracks : proj.clips)[op.id];
+    if (!cur) continue;
+    const fields = cleanForNet(op); delete fields.id;
+    // a merge onto an entity the room doesn't have yet must carry the whole entity
+    if (!netKnown.has(path)) fb.set(fb.child(roomRef, path), cleanForNet(cur)); else fb.update(fb.child(roomRef, path), fields);
+    netKnown.add(path);
+    if (op.t === "clip" && cur.src && audios[cur.src] && audios[cur.src].persist && !audios[cur.src].shared) shareAudio(cur.src);
+  }
+}
+const netKnown = new Set();
+function applyRemote(kind, id, val) {
+  const col = kind === "track" ? proj.tracks : proj.clips;
+  if (val == null) { if (!col[id]) return; applyOp({ t: kind, id, del: true }); afterChange([{ t: kind, id, del: true }]); return; }
+  const cur = col[id]; if (cur && deepEq(cleanForNet(cur), val)) return;   // our own echo
+  if (kind === "clip" && !val.notes && val.kind === "m") val.notes = [];
+  col[id] = { id, ...val };
+  for (const k in cur || {}) if (!(k in val) && k !== "id") delete col[id][k];
+  if (kind === "clip" && val.src && !audios[val.src] && !val.kind) requestAudio(val.src);
+  afterChange([{ t: kind, id }]);
+}
+async function joinRoom(name) {
+  if (joining) return; joining = true;
+  try {
+    await loadFirebase();
+    leaveRoomListeners();
+    room = name; roomRef = fb.ref(fb.db, "daw/rooms/" + name); netKnown.clear();
+    const metaSnap = await fb.get(fb.child(roomRef, "meta"));
+    if (!metaSnap.exists()) {
+      // first in: seed the room with this project
+      const seed = { meta: { bpm: proj.bpm, loop: proj.loop, scenes: proj.scenes || 8, master: proj.master || { gain: 0.9, fx: [] }, created: Date.now() }, tracks: {}, clips: {} };
+      for (const t of Object.values(proj.tracks)) { seed.tracks[t.id] = cleanForNet(t); netKnown.add("tracks/" + t.id); }
+      for (const c of Object.values(proj.clips)) { seed.clips[c.id] = cleanForNet(c); netKnown.add("clips/" + c.id); }
+      await fb.set(roomRef, seed);
+      for (const c of Object.values(proj.clips)) if (c.src && audios[c.src]?.persist) shareAudio(c.src);
+      banner("room “" + name + "” created from your project — share the link");
+    } else {
+      // the room wins: replace the local project, keep local samples in memory
+      proj.tracks = {}; proj.clips = {}; selected.clear(); undoStack.length = 0; redoStack.length = 0; closeRoll(); closeFx();
+      const m = metaSnap.val(); proj.bpm = m.bpm || 120; proj.loop = m.loop || { on: false, a: 0, b: 16 }; proj.scenes = m.scenes || 8; proj.master = m.master || proj.master; $("#bpm").value = proj.bpm;
+      banner("joined room “" + name + "”");
+    }
+    const tr = fb.child(roomRef, "tracks"), cr = fb.child(roomRef, "clips"), ar = fb.child(roomRef, "audio");
+    const onT = s => { netKnown.add("tracks/" + s.key); applyRemote("track", s.key, s.val()); }, onC = s => { netKnown.add("clips/" + s.key); applyRemote("clip", s.key, s.val()); };
+    unsub.push(fb.onChildAdded(tr, onT), fb.onChildChanged(tr, onT), fb.onChildRemoved(tr, s => { netKnown.delete("tracks/" + s.key); applyRemote("track", s.key, null); }));
+    unsub.push(fb.onChildAdded(cr, onC), fb.onChildChanged(cr, onC), fb.onChildRemoved(cr, s => { netKnown.delete("clips/" + s.key); applyRemote("clip", s.key, null); }));
+    unsub.push(fb.onValue(fb.child(roomRef, "meta/bpm"), s => { const v = s.val(); if (v && v !== proj.bpm) { proj.bpm = v; afterChange([{ t: "set", k: "bpm" }]); } }));
+    unsub.push(fb.onValue(fb.child(roomRef, "meta/loop"), s => { const v = s.val(); if (v && !deepEq(v, proj.loop)) { proj.loop = v; afterChange([{ t: "set", k: "loop" }]); } }));
+    unsub.push(fb.onValue(fb.child(roomRef, "meta/master"), s => { const v = s.val(); if (v && !deepEq(v, proj.master)) { proj.master = v; afterChange([{ t: "set", k: "master" }]); } }));
+    unsub.push(fb.onValue(fb.child(roomRef, "meta/scenes"), s => { const v = s.val(); if (v && v !== proj.scenes) { proj.scenes = v; afterChange([{ t: "set", k: "scenes" }]); } }));
+    unsub.push(fb.onChildAdded(ar, s => receiveAudio(s.key, s.val())));
+    // presence
+    presRef = fb.child(roomRef, "presence/" + uidSelf);
+    fb.onDisconnect(presRef).remove();
+    const pr = fb.child(roomRef, "presence");
+    const onP = s => { if (s.key === uidSelf) return; peers[s.key] = s.val(); renderPeers(); };
+    unsub.push(fb.onChildAdded(pr, onP), fb.onChildChanged(pr, onP), fb.onChildRemoved(pr, s => { delete peers[s.key]; renderPeers(); }));
+    sendPresence(true); presTimer = setInterval(() => sendPresence(), 700);
+  } catch (e) { console.warn(e); banner("couldn't join room: " + (e.message || e)); room = null; roomRef = null; }
+  joining = false; updateShareUi(); render();
+}
+function leaveRoomListeners() { for (const u of unsub) { try { u(); } catch (e) { } } unsub = []; if (presTimer) clearInterval(presTimer); presTimer = null; if (presRef) { try { fb.remove(presRef); } catch (e) { } } presRef = null; peers = {}; renderPeers(); }
+async function leaveRoom() {
+  leaveRoomListeners(); room = null; roomRef = null; netKnown.clear();
+  // back to the personal project
+  proj.tracks = {}; proj.clips = {}; selected.clear(); undoStack.length = 0; redoStack.length = 0; closeRoll(); closeFx();
+  for (const id in audios) if (audios[id].fromRoom) delete audios[id];
+  await restore(); if (!tracksSorted().length) commit([0, 1].map(i => ({ t: "track", id: uid(), name: "audio " + (i + 1), kind: "audio", gain: 0.8, pan: 0, mute: false, solo: false, order: i, color: COLORS[i] })), { undoable: false });
+  selTrack = tracksSorted()[0]?.id || null; renderTray(); render(); updateShareUi(); banner("back to your personal project");
+}
+let lastPres = "";
+function sendPresence(force) {
+  if (!presRef || !fb) return;
+  const p = { name: myName || "someone", color: myColor, beat: +engine.beatNow().toFixed(3), playing: engine.playing, sel: [...selected].slice(0, 20), view: viewMode, t: fb.serverTimestamp() };
+  const key = p.beat + "|" + p.playing + "|" + p.sel.join() + "|" + p.view;
+  if (!force && key === lastPres) return; lastPres = key;
+  fb.set(presRef, p);
+}
+function renderPeers() {
+  let layer = $("#peers"); if (!layer) { layer = el("div"); layer.id = "peers"; lanes.appendChild(layer); }
+  layer.innerHTML = "";
+  document.querySelectorAll(".clip.peer").forEach(e => { e.classList.remove("peer"); e.style.removeProperty("--pc"); });
+  for (const id in peers) {
+    const p = peers[id]; if (!p) continue;
+    const l = el("div", "peerph"); l.style.left = beatToPx(p.beat || 0) + "px"; l.style.background = p.color; l.innerHTML = `<span style="background:${p.color}">${esc(p.name)}${p.playing ? " ▶" : ""}</span>`; layer.appendChild(l);
+    for (const cid of p.sel || []) { const e = clipEls[cid]; if (e) { e.classList.add("peer"); e.style.setProperty("--pc", p.color); } }
+  }
+  const n = Object.keys(peers).length; const b = $("#btnShare"); if (b && room) b.textContent = "⬡ " + room + (n ? " · " + (n + 1) : "");
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// audio samples: opus (MediaRecorder, real-time) as a data URL under audio/<id>; wav fallback when unsupported
+async function shareAudio(id) {
+  const a = audios[id]; if (!a || a.shared || a.sharing || !room || !fb) return; a.sharing = true;
+  try {
+    let blob = null, mime = "";
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported("audio/webm;codecs=opus") && a.dur < 180) {
+      banner("sharing " + a.name + " (" + Math.ceil(a.dur) + "s)…");
+      blob = await encodeOpus(a.buf); mime = "audio/webm";
+    }
+    if (!blob) { const b = downmix(a.buf, 22050); blob = new Blob([encodeWav(b)], { type: "audio/wav" }); mime = "audio/wav"; }
+    if (blob.size > 9.5e6) { banner(a.name + " is too big to share (" + (blob.size / 1e6).toFixed(1) + "MB)"); a.sharing = false; return; }
+    const data = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); });
+    await fb.set(fb.child(roomRef, "audio/" + id), { name: a.name, mime, data, dur: a.dur, by: uidSelf });
+    a.shared = true; banner("shared " + a.name);
+  } catch (e) { console.warn(e); banner("couldn't share " + a.name); }
+  a.sharing = false;
+}
+function encodeOpus(buf) {
+  return new Promise((res, rej) => {
+    const ctx = engine.ensure(), dst = ctx.createMediaStreamDestination(), src = ctx.createBufferSource(); src.buffer = buf; src.connect(dst);
+    const rec = new MediaRecorder(dst.stream, { mimeType: "audio/webm;codecs=opus", audioBitsPerSecond: 96000 }), chunks = [];
+    rec.ondataavailable = e => e.data.size && chunks.push(e.data); rec.onstop = () => res(new Blob(chunks, { type: "audio/webm" })); rec.onerror = rej;
+    rec.start(250); src.start(); src.onended = () => setTimeout(() => rec.stop(), 150);
+  });
+}
+function downmix(buf, sr) {
+  const n = Math.ceil(buf.duration * sr), out = engine.ensure().createBuffer(1, n, sr), d = out.getChannelData(0), ch = buf.numberOfChannels, r = buf.sampleRate / sr;
+  for (let i = 0; i < n; i++) { const j = Math.min(buf.length - 1, Math.floor(i * r)); let v = 0; for (let c = 0; c < ch; c++) v += buf.getChannelData(c)[j]; d[i] = v / ch; }
+  return out;
+}
+const audioWanted = new Set();
+function requestAudio(id) { audioWanted.add(id); }
+async function receiveAudio(id, v) {
+  if (!v || audios[id]) { if (audios[id]) audios[id].shared = true; return; }
+  try { const blob = await (await fetch(v.data)).blob(); await addAudio(v.name + (v.mime === "audio/wav" ? ".wav" : ".webm"), blob, { id, persist: false }); audios[id].fromRoom = true; audios[id].shared = true; audios[id].name = v.name; renderTray(); render(); } catch (e) { console.warn("audio receive failed", e); }
+}
+// UI
+function updateShareUi() {
+  const b = $("#btnShare"), lv = $("#btnLeave"), cp = $("#btnCopy"), kp = $("#btnKeep");
+  b.classList.toggle("on", !!room); b.textContent = room ? "⬡ " + room : "share";
+  for (const x of [lv, cp, kp]) x.style.display = room ? "" : "none";
+  document.body.classList.toggle("shared", !!room);
+}
+$("#btnShare").onclick = async () => {
+  if (room) { navigator.clipboard?.writeText(location.href).then(() => banner("link copied — anyone with it edits live"), () => banner(location.href)); return; }
+  if (!myName) { const n = prompt("your name (shown to others in the room)", ""); if (n) { myName = n.trim().slice(0, 24); try { localStorage.setItem("agkm-daw-name", myName); } catch (e) { } } }
+  const name = (prompt("room name (letters/numbers) — leave blank for a random one", "") || "").trim().replace(/[^a-z0-9_-]/gi, "").toLowerCase() || Math.random().toString(36).slice(2, 8);
+  location.hash = "#room=" + name;
+};
+$("#btnCopy").onclick = () => navigator.clipboard?.writeText(location.href).then(() => banner("link copied"), () => banner(location.href));
+$("#btnLeave").onclick = () => { location.hash = ""; };
+$("#btnKeep").onclick = async () => {
+  if (!room) return; if (!confirm("Copy this room into your personal project? Your current personal project will be replaced.")) return;
+  const snap = { bpm: proj.bpm, loop: proj.loop, tracks: proj.tracks, clips: proj.clips, scenes: proj.scenes, master: proj.master, pxPerBeat, playhead };
+  await idbPut("kv", snap, "proj");
+  for (const c of Object.values(proj.clips)) { const a = c.src && audios[c.src]; if (a && !a.persist) { const blob = new Blob([encodeWav(a.buf)], { type: "audio/wav" }); await idbPut("audio", { id: a.id, name: a.name + ".wav", blob }); a.persist = true; } }
+  banner("saved a copy to your personal project");
+};
+function hashRoom() { const m = location.hash.match(/room=([a-z0-9_-]+)/i); return m ? m[1].toLowerCase() : null; }
+window.addEventListener("hashchange", () => { const r = hashRoom(); if (r && r !== room) joinRoom(r); else if (!r && room) leaveRoom(); });
+
+// ---------- session view (clip launcher) ----------
+// A clip with a `scene` number lives in a slot (track column × scene row) instead of the timeline. Launching plays it
+// looping from the next launch-quantize boundary until it is stopped or another clip on the track is launched.
+let viewMode = "arr", launchQ = 4, sessSel = null;    // sessSel = { track, scene }
+const sess = {};                                        // tid -> { clip, launch, stopAt }
+const sessEl = $("#session"), sessGrid = $("#sessGrid");
+function sceneCount() { return proj.scenes || 8; }
+function slotClip(tid, sc) { return Object.values(proj.clips).find(c => c.track === tid && c.scene === sc); }
+function nextQ(b) { if (!launchQ) return b; return Math.ceil(b / launchQ - 1e-6) * launchQ; }
+function launchClip(c) {
+  if (!c) return;
+  engine.ensure();
+  if (!engine.playing) { engine.startFrom(playhead); $("#playIcon").setAttribute("d", "M3 3h10v10H3z"); $("#btnPlay").classList.add("on"); }
+  const b = engine.beatNow(), at = engine.playing && launchQ ? nextQ(b) : b;
+  const cur = sess[c.track];
+  if (cur && cur.clip === c.id && !cur.stopAt) { stopTrack(c.track); return; }
+  sess[c.track] = { clip: c.id, launch: at, stopAt: null, prev: cur && !cur.stopAt ? cur.clip : null };
+  if (cur) engine.cutAt(cur.clip, at);
+  renderSession();
+}
+function stopTrack(tid) { const s = sess[tid]; if (!s) return; const at = engine.playing && launchQ ? nextQ(engine.beatNow()) : engine.beatNow(); s.stopAt = at; engine.cutAt(s.clip, at); renderSession(); }
+function stopAllSlots() { for (const tid in sess) stopTrack(tid); }
+function launchScene(sc) { for (const t of tracksSorted()) { const c = slotClip(t.id, sc); if (c) launchClip(c); else stopTrack(t.id); } }
+function sessTick() {
+  let changed = false;
+  for (const tid in sess) { const s = sess[tid]; if (!proj.clips[s.clip] || (s.stopAt != null && engine.beatNow() >= s.stopAt)) { delete sess[tid]; changed = true; } }
+  if (!engine.playing && Object.keys(sess).length) { for (const k in sess) delete sess[k]; changed = true; }
+  if (changed) renderSession();
+  if (viewMode === "sess") document.querySelectorAll(".slot.playing").forEach(e => { const s = sess[e.dataset.track]; if (!s) return; const c = proj.clips[s.clip]; const L = c.loop && c.lp > 0 ? c.lp : c.len; const q = ((engine.beatNow() - s.launch) % L + L) % L; e.style.setProperty("--prog", (q / L * 100).toFixed(1) + "%"); });
+}
+// what the scheduler sees: a looping virtual clip starting at the launch beat
+function sessionClips() {
+  const out = [];
+  for (const tid in sess) { const s = sess[tid], c = proj.clips[s.clip]; if (!c) continue; out.push({ ...c, id: c.id, start: s.launch, len: s.stopAt != null ? Math.max(0, s.stopAt - s.launch) : 1e6, loop: true, lp: c.loop && c.lp > 0 ? c.lp : c.len, scene: undefined, _sess: true }); }
+  return out;
+}
+function setView(v) {
+  viewMode = v; document.body.classList.toggle("sessview", v === "sess");
+  $("#viewArr").classList.toggle("on", v === "arr"); $("#viewSess").classList.toggle("on", v === "sess");
+  if (v === "sess") renderSession(); else { render(); lastBeat = -1; }
+}
+$("#viewArr").onclick = () => setView("arr"); $("#viewSess").onclick = () => setView("sess");
+$("#launchQ").addEventListener("change", e => launchQ = +e.target.value);
+$("#launchQ").addEventListener("keydown", e => e.stopPropagation());
+$("#sessStopAll").onclick = stopAllSlots;
+$("#sessCapture").onclick = captureToArr;
+$("#sessAddScene").onclick = () => commit({ t: "set", k: "scenes", v: sceneCount() + 1 });
+function captureToArr() {
+  const playing = Object.values(sess).filter(s => !s.stopAt); if (!playing.length) return banner("launch some clips first");
+  const b = Math.floor(engine.beatNow() / 4) * 4, ops = [];
+  for (const s of playing) { const c = proj.clips[s.clip]; const L = c.loop && c.lp > 0 ? c.lp : c.len; ops.push({ t: "clip", ...c, id: uid(), scene: null, start: b, len: Math.max(L, 4), loop: true, lp: L }); }
+  commit(ops); banner("captured " + ops.length + " clip" + (ops.length > 1 ? "s" : "") + " into the arrangement at bar " + (b / 4 + 1) + " — drag their edges to extend");
+}
+function renderSession() {
+  if (viewMode !== "sess") return;
+  const ts = tracksSorted(), N = sceneCount();
+  sessGrid.style.gridTemplateColumns = "44px repeat(" + ts.length + ", minmax(110px, 1fr))";
+  sessGrid.innerHTML = "";
+  // header row
+  sessGrid.appendChild(el("div", "sh corner"));
+  for (const t of ts) { const h = el("div", "sh"); h.innerHTML = `<span class="dot" style="background:${t.color}"></span><span class="n"></span><span class="kind">${isMidi(t) ? "midi" : "audio"}</span>`; h.querySelector(".n").textContent = t.name; h.onclick = () => { selTrack = t.id; }; sessGrid.appendChild(h); }
+  for (let sc = 0; sc < N; sc++) {
+    const launch = el("button", "scene", "▶"); launch.title = "launch scene " + (sc + 1); launch.onclick = () => launchScene(sc); sessGrid.appendChild(launch);
+    for (const t of ts) {
+      const c = slotClip(t.id, sc), d = el("div", "slot" + (c ? " filled" : "") + (sessSel && sessSel.track === t.id && sessSel.scene === sc ? " sel" : "")); d.dataset.track = t.id; d.dataset.scene = sc;
+      if (c) {
+        const s = sess[t.id]; const st = s && s.clip === c.id ? (s.stopAt != null ? " stopping" : (engine.beatNow() < s.launch ? " queued" : " playing")) : "";
+        d.className += st; d.style.setProperty("--c", t.color);
+        d.innerHTML = `<button class="go" title="launch">▶</button><span class="n"></span>`; d.querySelector(".n").textContent = c.name;
+        d.querySelector(".go").onclick = e => { e.stopPropagation(); launchClip(c); };
+        d.ondblclick = () => { if (c.kind === "m") openRoll(c.id); };
+        d.onclick = () => { sessSel = { track: t.id, scene: sc }; selected = new Set([c.id]); selTrack = t.id; renderSession(); };
+        d.oncontextmenu = e => { e.preventDefault(); commit({ t: "clip", id: c.id, del: true }); };
+      } else {
+        d.innerHTML = `<button class="stop" title="stop track">■</button>`;
+        d.querySelector(".stop").onclick = e => { e.stopPropagation(); stopTrack(t.id); };
+        d.onclick = () => { sessSel = { track: t.id, scene: sc }; selected.clear(); selTrack = t.id; renderSession(); };
+        d.ondblclick = () => { if (isMidi(t)) { const id = placeMidiClip(t.id, 0, 4, [], t.name + " " + (sc + 1)); commit({ t: "clip", id, scene: sc, loop: true, lp: 4 }); openRoll(id); } else banner("drop a sample from the tray onto this slot"); };
+      }
+      d.addEventListener("pointerover", () => d.classList.add("over")); d.addEventListener("pointerout", () => d.classList.remove("over"));
+      sessGrid.appendChild(d);
+    }
+  }
+  // stop-all row
+  sessGrid.appendChild(el("div", "sh corner"));
+  for (const t of ts) { const b = el("button", "stopc", "■"); b.title = "stop " + t.name; b.onclick = () => stopTrack(t.id); sessGrid.appendChild(b); }
+}
+function slotAt(clientX, clientY) { const e = document.elementFromPoint(clientX, clientY)?.closest(".slot"); return e ? { track: e.dataset.track, scene: +e.dataset.scene, el: e } : null; }
+// drop a tray sample into a slot (used by onSampleDown when the session view is open)
+function placeInSlot(aid, slot) {
+  const a = audios[aid], t = proj.tracks[slot.track]; if (!a || !t) return;
+  if (isMidi(t)) return banner("that's a midi track — use an audio track for samples");
+  const old = slotClip(slot.track, slot.scene); const ops = [];
+  if (old) ops.push({ t: "clip", id: old.id, del: true });
+  const len = a.dur / spb();
+  ops.push({ t: "clip", id: uid(), track: slot.track, src: aid, name: a.name, start: 0, len, off: 0, gain: 1, scene: slot.scene, loop: true, lp: Math.max(0.25, Math.round(len * 4) / 4) });
+  commit(ops);
+}
+
+
+// ---------- clip inspector ----------
+const inspEl = $("#insp");
+function selClips() { return [...selected].map(id => proj.clips[id]).filter(Boolean); }
+function renderInsp() {
+  const cs = selClips(); inspEl.classList.toggle("on", cs.length > 0); if (!cs.length) return;
+  const c = cs[0], midi = cs.every(x => x.kind === "m"), audio = cs.every(x => x.kind !== "m");
+  if (document.activeElement !== $("#iName")) $("#iName").value = cs.length === 1 ? c.name : cs.length + " clips";
+  $("#iName").disabled = cs.length !== 1;
+  $("#iGain").value = c.gain ?? 1; $("#iGainV").textContent = (20 * Math.log10(c.gain || 0.0001)).toFixed(1) + "dB";
+  $("#iTrRow").style.display = midi || audio ? "" : "none"; $("#iTr").value = c.tr || 0;
+  $("#iFiRow").style.display = audio ? "" : "none"; $("#iFoRow").style.display = audio ? "" : "none";
+  $("#iFi").value = c.fi || 0; $("#iFiV").textContent = (c.fi || 0).toFixed(2) + "s"; $("#iFo").value = c.fo || 0; $("#iFoV").textContent = (c.fo || 0).toFixed(2) + "s";
+  $("#iMute").classList.toggle("on", cs.every(x => x.mute)); $("#iLoop").classList.toggle("on", cs.every(x => x.loop));
+  $("#iSess").style.display = cs.every(x => x.scene == null) ? "" : "none";
+  $("#iCount").textContent = cs.length > 1 ? cs.length + " selected" : (c.kind === "m" ? c.notes.length + " notes" : (audios[c.src]?.dur || 0).toFixed(2) + "s");
+}
+function inspCommit(patchFn) { const cs = selClips(); if (!cs.length) return; commit(cs.map(c => ({ t: "clip", id: c.id, ...patchFn(c) }))); }
+$("#iName").addEventListener("change", () => inspCommit(() => ({ name: $("#iName").value.trim() || "clip" })));
+$("#iName").addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") $("#iName").blur(); });
+let iGain0 = null;
+$("#iGain").addEventListener("input", () => { const v = +$("#iGain").value; $("#iGainV").textContent = (20 * Math.log10(v || 0.0001)).toFixed(1) + "dB"; for (const c of selClips()) { if (iGain0 === null) iGain0 = c.gain; c.gain = v; } engine.refreshMix(); });
+$("#iGain").addEventListener("change", () => { const v = +$("#iGain").value, cs = selClips(); for (const c of cs) c.gain = iGain0 ?? 1; iGain0 = null; commit(cs.map(c => ({ t: "clip", id: c.id, gain: v }))); });
+$("#iGain").addEventListener("dblclick", () => inspCommit(() => ({ gain: 1 })));
+$("#iTr").addEventListener("change", () => inspCommit(() => ({ tr: clamp(Math.round(+$("#iTr").value) || 0, -24, 24) })));
+$("#iFi").addEventListener("change", () => inspCommit(() => ({ fi: +$("#iFi").value }))); $("#iFi").addEventListener("input", () => $("#iFiV").textContent = (+$("#iFi").value).toFixed(2) + "s");
+$("#iFo").addEventListener("change", () => inspCommit(() => ({ fo: +$("#iFo").value }))); $("#iFo").addEventListener("input", () => $("#iFoV").textContent = (+$("#iFo").value).toFixed(2) + "s");
+$("#iMute").onclick = () => { const all = selClips().every(c => c.mute); inspCommit(() => ({ mute: !all })); };
+$("#iLoop").onclick = () => { const all = selClips().every(c => c.loop); inspCommit(c => all ? { loop: false } : { loop: true, lp: c.lp > 0 ? c.lp : Math.max(0.25, c.len) }); };
+$("#iSess").onclick = () => { const cs = selClips(); const ops = []; for (const c of cs) { let sc = 0; while (slotClip(c.track, sc)) sc++; ops.push({ t: "clip", ...c, id: uid(), scene: sc, start: 0, loop: true, lp: c.loop && c.lp > 0 ? c.lp : c.len }); } if (sc_over(ops)) commit({ t: "set", k: "scenes", v: Math.max(...ops.map(o => o.scene)) + 1 }); commit(ops); banner("copied to the session view"); };
+const sc_over = ops => ops.some(o => o.scene >= sceneCount());
+for (const id of ["#iTr", "#iGain", "#iFi", "#iFo"]) $(id).addEventListener("keydown", e => e.stopPropagation());
+// ---------- master ----------
+let mg0 = null;
+$("#masterGain").addEventListener("input", () => { if (mg0 === null) mg0 = proj.master.gain; engine.setMasterGain(+$("#masterGain").value); });
+$("#masterGain").addEventListener("change", () => { const v = +$("#masterGain").value; const m = { ...proj.master, gain: v }; proj.master = { ...proj.master, gain: mg0 ?? v }; mg0 = null; commit({ t: "set", k: "master", v: m }); });
+$("#masterGain").addEventListener("keydown", e => e.stopPropagation());
+$("#masterFx").onclick = () => openFx("master");
+// ---------- count-in + overdub ----------
+let countIn = false, overdub = false;
+$("#btnCountIn").onclick = () => { countIn = !countIn; $("#btnCountIn").classList.toggle("on", countIn); };
+$("#btnOverdub").onclick = () => { overdub = !overdub; $("#btnOverdub").classList.toggle("on", overdub); };
+function playCountIn(done) {
+  const ctx = engine.ensure(), t = ctx.currentTime + 0.05;
+  for (let i = 0; i < 4; i++) { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = i === 0 ? 1600 : 1100; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.3, t + i * spb()); g.gain.exponentialRampToValueAtTime(0.001, t + i * spb() + 0.05); o.start(t + i * spb()); o.stop(t + i * spb() + 0.06); }
+  banner("count-in…"); setTimeout(done, 4 * spb() * 1000 + 50);
+}
+// ---------- scale highlight ----------
+function applyScale() {
+  const root = $("#scaleRoot").selectedIndex, mode = $("#scaleMode").value; const set = mode ? new Set(mode.split(",").map(Number)) : null;
+  keysInner.querySelectorAll(".key").forEach(k => { const p = +k.dataset.p, d = ((p - root) % 12 + 12) % 12; k.classList.toggle("scale", !!set && set.has(d)); k.classList.toggle("root", !!set && d === 0); });
+  try { localStorage.setItem("agkm-daw-scale", root + "|" + mode); } catch (e) { }
+}
+$("#scaleRoot").addEventListener("change", applyScale); $("#scaleMode").addEventListener("change", applyScale);
+for (const id of ["#scaleRoot", "#scaleMode"]) $(id).addEventListener("keydown", e => e.stopPropagation());
+try { const v = (localStorage.getItem("agkm-daw-scale") || "").split("|"); if (v.length === 2) { $("#scaleRoot").selectedIndex = +v[0]; $("#scaleMode").value = v[1]; } } catch (e) { } applyScale();
+// ---------- project file save / open ----------
+$("#btnSaveProj").onclick = async () => {
+  const out = { v: 1, bpm: proj.bpm, loop: proj.loop, scenes: proj.scenes, master: proj.master, tracks: proj.tracks, clips: proj.clips, audio: {} };
+  const used = new Set(Object.values(proj.clips).map(c => c.src).concat(Object.values(proj.tracks).map(t => (t.inst || "").startsWith("smp:") ? t.inst.slice(4) : null)));
+  for (const id of used) { const a = audios[id]; if (!a || !a.persist && !a.fromRoom) continue; out.audio[id] = { name: a.name, data: await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(new Blob([encodeWav(a.buf)], { type: "audio/wav" })); }) }; }
+  const blob = new Blob([JSON.stringify(out)], { type: "application/json" }), a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (room ? "room-" + room : "project") + ".agkm.json"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  banner("project saved (" + (blob.size / 1e6).toFixed(1) + "MB)");
+};
+$("#btnOpenProj").onclick = () => $("#projIn").click();
+$("#projIn").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const o = JSON.parse(await f.text()); if (!o.tracks) throw new Error("not a project file");
+    for (const id in o.audio || {}) if (!audios[id]) await addAudio(o.audio[id].name + ".wav", await (await fetch(o.audio[id].data)).blob(), { id });
+    const ops = [{ t: "set", k: "bpm", v: o.bpm || 120 }, { t: "set", k: "loop", v: o.loop || { on: false, a: 0, b: 16 } }, { t: "set", k: "scenes", v: o.scenes || 8 }, { t: "set", k: "master", v: o.master || { gain: 0.9, fx: [] } }];
+    for (const id in proj.clips) ops.push({ t: "clip", id, del: true }); for (const id in proj.tracks) ops.push({ t: "track", id, del: true });
+    for (const t of Object.values(o.tracks)) ops.push({ t: "track", ...t }); for (const c of Object.values(o.clips)) ops.push({ t: "clip", ...c });
+    commit(ops); selTrack = tracksSorted()[0]?.id || null; banner("opened " + f.name);
+  } catch (err) { banner("couldn't open: " + err.message); }
+});
 
 // ---------- banner ----------
 let bannerT;
@@ -1546,13 +2052,14 @@ function banner(msg) { const b = $("#banner"); b.textContent = msg; b.classList.
   await restore();
   if (!tracksSorted().length) { commit([0, 1].map(i => ({ t: "track", id: uid(), name: "track " + (i + 1), gain: 0.8, pan: 0, mute: false, solo: false, order: i, color: COLORS[i] })), { undoable: false }); undoStack.length = 0; }
   selTrack = tracksSorted()[0]?.id || null;
-  render(); lastBeat = -1; requestAnimationFrame(frame);
+  render(); lastBeat = -1; requestAnimationFrame(frame); updateShareUi();
+  const r0 = hashRoom(); if (r0) joinRoom(r0);
   // unlock audio on first gesture
   const unlock = () => { engine.ensure(); window.removeEventListener("pointerdown", unlock); window.removeEventListener("keydown", unlock); };
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { midiEvents, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
