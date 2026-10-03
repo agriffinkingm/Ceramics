@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-09-30-c",
-  "image": "pool-2026-09-30-c.jpg",
-  "headline": "EU to expand Mediterranean naval mission to target Russia shadow fleet",
-  "url": "https://www.euronews.com/2026/09/30/eu-to-expand-mediterranean-naval-mission-to-target-russias-shadow-fleet",
-  "outlet": "euronews.com",
-  "t": "2026-09-30T12:34:42+00:00",
-  "hash": 10341531964068331519
- },
- {
   "id": "2026-09-30-0901-0",
   "image": "pool-2026-09-30-0901-0.jpg",
   "headline": "Arab News | Israeli drones and fighter jets violate Lebanese airspace 143 times in 3 days , UN peacekeepers say",
@@ -171,5 +162,15 @@
   "t": "2026-10-02T22:15:29+00:00",
   "vista": 7.0,
   "hash": 2310399593578789116
+ },
+ {
+  "id": "2026-10-03-0118-0",
+  "image": "pool-2026-10-03-0118-0.jpg",
+  "headline": "Pakistan says militant camps destroyed in air and drone strikes in Afghanistan",
+  "url": "https://www.pakistantimes.com/pakistan-says-militant-camps-destroyed-in-air-and-drone-strikes-in-afghanistan-15315/",
+  "outlet": "pakistantimes.com",
+  "t": "2026-10-03T05:18:29+00:00",
+  "vista": 8.0,
+  "hash": 17834537103254470143
  }
 ]
