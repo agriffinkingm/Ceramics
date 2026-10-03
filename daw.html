@@ -164,8 +164,17 @@
   .note { position:absolute; height:calc(var(--row-h, 12px) - 1px); background:var(--terracotta); border-radius:2px; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.4); cursor:grab; touch-action:none; }
   .note.sel { background:var(--ivory); }
   .note .h { position:absolute; right:0; top:0; bottom:0; width:6px; cursor:ew-resize; }
+  #marquee { position:absolute; display:none; border:1px solid var(--ivory); background:rgba(250,248,245,0.12); pointer-events:none; z-index:3; }
   #rollPh { position:absolute; top:0; width:1px; height:100%; background:var(--ivory); pointer-events:none; opacity:0.8; }
   #vel { width:70px; height:14px; }
+  .qbox { display:inline-flex; align-items:center; gap:0.5rem; padding:0 0.5rem; border-left:1px solid var(--line2); border-right:1px solid var(--line2); }
+  .qbox .field { font-size:0.62rem; }
+  .qbox select { height:22px; font-size:0.7rem; padding:0 0.2rem; }
+  .qbox input[type=range] { width:60px; height:12px; }
+  .qbox #qStrV { min-width:2.4em; color:rgba(250,248,245,0.75); letter-spacing:0; }
+  .field.chk { gap:0.2rem; cursor:pointer; } .field.chk input { accent-color:var(--terracotta); }
+  @media (max-width:980px) { .qbox .field.chk, .qbox #qStrV { display:none; } }
+
 
   /* ---------- fx rack ---------- */
   #fxPanel { flex:none; height:0; border-top:1px solid var(--line2); background:rgba(14,12,9,0.75); display:flex; flex-direction:column; overflow:hidden; transition:height .15s; }
@@ -195,6 +204,7 @@
     .hdr .pan { display:none; }
     .field.snapf { display:none; }
     #tray { max-height:100px; }
+    .qbox { display:none; }
     #roll.open { height:40vh; }
     .nav-content { flex-direction:column; align-items:flex-start; gap:0.4rem; }
     .logo { font-size:0.95rem; }
@@ -251,7 +261,7 @@
     <button class="tbtn" id="btnExport" title="Render the arrangement to a WAV file">export</button>
   </div>
   <div id="spacer"></div>
-  <div id="hint">dbl-click a midi clip to edit · ● records the selected track · keys: A–L play, Z/X octave</div>
+  <div id="hint">dbl-click a midi clip to edit · drag in the roll to box-select · Q quantizes · keys: A–L play, Z/X octave</div>
 </div>
 
 <div id="arr">
@@ -264,7 +274,13 @@
 <div id="roll">
   <div id="rollHead"><span>piano roll</span><b id="rollName"></b><span class="sp"></span>
     <label class="field">vel <input type="range" id="vel" min="0.05" max="1" step="0.05" value="0.8"></label>
-    <button class="tbtn" id="rollQuant" title="Snap every note start to the grid">quantize</button>
+    <span class="qbox">
+      <label class="field">q <select id="qGrid"><option value="1">1/4</option><option value="0.5">1/8</option><option value="0.3333">1/8T</option><option value="0.25" selected>1/16</option><option value="0.1667">1/16T</option><option value="0.125">1/32</option></select></label>
+      <label class="field" title="how far each note moves toward the grid">str <input type="range" id="qStr" min="10" max="100" step="10" value="100"><span id="qStrV">100%</span></label>
+      <label class="field chk" title="also quantize note ends"><input type="checkbox" id="qEnds"> ends</label>
+      <label class="field chk" title="quantize recorded takes as they land"><input type="checkbox" id="qRec"> on rec</label>
+      <button class="tbtn" id="rollQuant" title="Quantize selected notes, or all if none selected (Q)">quantize</button>
+    </span>
     <button class="tbtn" id="rollDbl" title="Double the clip length, repeating its notes">×2</button>
     <button class="tbtn" id="rollClose">✕</button></div>
   <div id="keys"><div id="keysInner"></div></div>
@@ -286,7 +302,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03b";
+const BUILD = "2026-10-03d";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -1115,6 +1131,7 @@ window.addEventListener("keydown", e => {
   if ((k === "delete" || k === "backspace") && rollClip && rollFocus) { e.preventDefault(); deleteNotes(); return; }
   if (k === "escape" && rollClip && !selected.size) { closeRoll(); return; }
   if (k === "k" && e.shiftKey && !mod) { $("#btnKbd").click(); return; }
+  if (k === "q" && !mod) { e.preventDefault(); if (!((rollClip && rollFocus) ? quantizeRoll() : quantizeSelectedClips() || quantizeRoll())) banner("select a midi clip (or open one) to quantize"); return; }
   else if (k === "enter") { e.preventDefault(); setPlayhead(proj.loop.on ? proj.loop.a : 0); }
   else if (k === "home") setPlayhead(0);
   else if (k === "delete" || k === "backspace") { e.preventDefault(); deleteSel(); }
@@ -1157,7 +1174,32 @@ function openRoll(id) {
 }
 function closeRoll() { rollClip = null; rollEl.classList.remove("open"); noteSel.clear(); }
 $("#rollClose").onclick = closeRoll;
-$("#rollQuant").onclick = () => { if (!rollClip) return; const q = snapBeats || 0.25; commitNotes(proj.clips[rollClip].notes.map(n => ({ ...n, s: Math.round(n.s / q) * q }))); banner("quantized to " + (q === 4 ? "bars" : q === 1 ? "beats" : "1/" + (4 / q))); };
+// quantize: grid (incl. triplets), strength, optional note ends; works on the roll selection, a whole clip, or selected clips
+const Q_NAMES = { "1": "1/4", "0.5": "1/8", "0.3333": "1/8T", "0.25": "1/16", "0.1667": "1/16T", "0.125": "1/32" };
+function qSettings() { const g = $("#qGrid").value, grid = g === "0.3333" ? 1 / 3 : g === "0.1667" ? 1 / 6 : +g; return { grid, name: Q_NAMES[g], str: +$("#qStr").value / 100, ends: $("#qEnds").checked }; }
+function quantizeNotes(notes, { grid, str, ends }, only) {
+  return notes.map((n, i) => {
+    if (only && !only.has(i)) return n;
+    const s = n.s + (Math.round(n.s / grid) * grid - n.s) * str;
+    let d = n.d; if (ends) { const e = n.s + n.d, qe = Math.round(e / grid) * grid; d = Math.max(grid * 0.5, (e + (qe - e) * str) - s); }
+    return { ...n, s: +Math.max(0, s).toFixed(5), d: +d.toFixed(5) };
+  });
+}
+function quantizeRoll() {
+  if (!rollClip) return false; const c = proj.clips[rollClip], Q = qSettings();
+  commitNotes(quantizeNotes(c.notes, Q, noteSel.size ? noteSel : null));
+  banner("quantized " + (noteSel.size ? noteSel.size + " notes" : "clip") + " to " + Q.name + (Q.str < 1 ? " at " + Math.round(Q.str * 100) + "%" : "") + (Q.ends ? " (+ends)" : "")); return true;
+}
+function quantizeSelectedClips() {
+  const cs = [...selected].map(id => proj.clips[id]).filter(c => c && c.kind === "m"); if (!cs.length) return false;
+  const Q = qSettings(); commit(cs.map(c => ({ t: "clip", id: c.id, notes: quantizeNotes(c.notes, Q) })));
+  banner("quantized " + cs.length + " clip" + (cs.length > 1 ? "s" : "") + " to " + Q.name); return true;
+}
+$("#rollQuant").onclick = quantizeRoll;
+$("#qStr").addEventListener("input", () => $("#qStrV").textContent = $("#qStr").value + "%");
+for (const id of ["#qGrid", "#qStr"]) $(id).addEventListener("keydown", e => e.stopPropagation());
+for (const id of ["#qGrid", "#qStr", "#qEnds", "#qRec"]) $(id).addEventListener("change", () => { try { localStorage.setItem("agkm-daw-q", JSON.stringify({ g: $("#qGrid").value, s: $("#qStr").value, e: $("#qEnds").checked, r: $("#qRec").checked })); } catch (e) { } });
+try { const q = JSON.parse(localStorage.getItem("agkm-daw-q") || "null"); if (q) { $("#qGrid").value = q.g; $("#qStr").value = q.s; $("#qStrV").textContent = q.s + "%"; $("#qEnds").checked = !!q.e; $("#qRec").checked = !!q.r; } } catch (e) { }
 $("#rollDbl").onclick = () => { if (!rollClip) return; const c = proj.clips[rollClip], L = c.len; commit({ t: "clip", id: c.id, len: L * 2, notes: c.notes.concat(c.notes.filter(n => n.s < L).map(n => ({ ...n, s: n.s + L }))) }); };
 function commitNotes(notes) { if (!rollClip) return; commit({ t: "clip", id: rollClip, notes }); }
 function renderRoll() {
@@ -1189,15 +1231,32 @@ let ndrag = null;
 rollGrid.addEventListener("pointerdown", e => {
   if (e.target.closest(".note") || !rollClip) return;
   e.preventDefault(); rollFocus = true;
-  const c = proj.clips[rollClip], s = Math.max(0, snapB(pxToBeatR(rollX(e.clientX)))), p = clamp(yToPitch(rollY(e.clientY)), P_LO, P_HI);
-  if (e.altKey) { noteSel.clear(); renderRoll(); return; }
-  if (s >= c.len) return;
-  const n = { p, s, d: snapBeats || 0.25, v: velNow };
-  const notes = c.notes.concat([n]); commitNotes(notes); noteSel = new Set([notes.length - 1]); renderRoll();
-  engine.noteOn(c.track, p, velNow); setTimeout(() => engine.noteOff(c.track, p), 250);
-  // drag straight from creation to set length
-  startNoteDrag(e, notes.length - 1, "len");
+  const c = proj.clips[rollClip], x0 = rollX(e.clientX), y0 = rollY(e.clientY), add = e.shiftKey || e.metaKey || e.ctrlKey, base = add ? new Set(noteSel) : new Set();
+  let moved = false;
+  const mv = ev => {
+    const x1 = rollX(ev.clientX), y1 = rollY(ev.clientY);
+    if (!moved && Math.hypot(x1 - x0, y1 - y0) < 4) return; moved = true;
+    const l = Math.min(x0, x1), r = Math.max(x0, x1), t = Math.min(y0, y1), b = Math.max(y0, y1);
+    marquee.style.display = "block"; marquee.style.left = l + "px"; marquee.style.top = t + "px"; marquee.style.width = (r - l) + "px"; marquee.style.height = (b - t) + "px";
+    const bl = pxToBeatR(l), br = pxToBeatR(r), pTop = yToPitch(t), pBot = yToPitch(b);
+    noteSel = new Set(base);
+    c.notes.forEach((n, i) => { if (n.s < br && n.s + n.d > bl && n.p <= pTop && n.p >= pBot) noteSel.add(i); });
+    noteList.querySelectorAll(".note").forEach(d => d.classList.toggle("sel", noteSel.has(+d.dataset.i)));
+  };
+  const up = () => {
+    window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); marquee.style.display = "none";
+    if (moved) { renderRoll(); return; }
+    if (add) { noteSel.clear(); renderRoll(); return; }
+    // plain click: add a note at the grid cell
+    const sB = Math.max(0, snapB(pxToBeatR(x0))), p = clamp(yToPitch(y0), P_LO, P_HI);
+    if (sB >= c.len) { noteSel.clear(); renderRoll(); return; }
+    const n = { p, s: sB, d: snapBeats || 0.25, v: velNow }, notes = c.notes.concat([n]);
+    commitNotes(notes); noteSel = new Set([notes.length - 1]); renderRoll();
+    engine.noteOn(c.track, p, velNow); setTimeout(() => engine.noteOff(c.track, p), 250);
+  };
+  window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
 });
+const marquee = el("div", ""); marquee.id = "marquee"; rollGrid.appendChild(marquee);
 function onNoteDown(e) {
   e.stopPropagation(); e.preventDefault(); rollFocus = true;
   const i = +e.currentTarget.dataset.i, c = proj.clips[rollClip];
@@ -1314,8 +1373,9 @@ async function finishRec(restartAt) {
     for (const p in r.held) { const h = r.held[p]; r.notes.push({ p: +p, s: h.s, d: Math.max(0.0625, endBeat - h.s), v: h.v }); }
     if (!r.notes.length) return;
     const s0 = Math.floor(r.startBeat / (snapBeats || 0.25)) * (snapBeats || 0.25), len = Math.max(1, Math.ceil((Math.max(endBeat, ...r.notes.map(n => n.s + n.d)) - s0) / 4) * 4);
-    const notes = r.notes.map(n => ({ p: n.p, s: Math.max(0, +(n.s - s0).toFixed(4)), d: +n.d.toFixed(4), v: n.v }));
-    placeMidiClip(r.track, s0, len, notes, "take " + (++recCount)); banner("midi take " + recCount + " — " + notes.length + " notes");
+    let notes = r.notes.map(n => ({ p: n.p, s: Math.max(0, +(n.s - s0).toFixed(4)), d: +n.d.toFixed(4), v: n.v }));
+    const qr = $("#qRec").checked; if (qr) notes = quantizeNotes(notes, qSettings());
+    placeMidiClip(r.track, s0, len, notes, "take " + (++recCount)); banner("midi take " + recCount + " — " + notes.length + " notes" + (qr ? ", quantized to " + qSettings().name : ""));
   } else {
     try { recSrc.disconnect(); recNode.disconnect(); } catch (e) { } recNode = recSrc = null;
     const total = r.chunks.reduce((a, c) => a + c.length, 0); if (total < r.sr * 0.1) return banner("take too short");
@@ -1441,7 +1501,7 @@ function banner(msg) { const b = $("#banner"); b.textContent = msg; b.classList.
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
