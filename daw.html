@@ -146,7 +146,11 @@
   .clip.rec { border:1px dashed rgba(250,248,245,0.7); background:rgba(178,74,58,0.4); pointer-events:none; }
 
   /* ---------- piano roll ---------- */
-  #roll { flex:none; height:0; border-top:1px solid var(--line2); background:rgba(14,12,9,0.75); display:grid; grid-template-columns:var(--hdr-w) 1fr; grid-template-rows:30px 1fr; overflow:hidden; transition:height .15s; }
+  #roll { flex:none; height:0; border-top:1px solid var(--line2); background:rgba(14,12,9,0.75); display:grid; grid-template-columns:var(--hdr-w) 1fr; grid-template-rows:30px 16px 1fr; overflow:hidden; transition:height .15s; }
+  #rollCorner { border-right:1px solid var(--line2); border-bottom:1px solid var(--line2); font-size:0.56rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(250,248,245,0.4); padding:0 0.7rem; line-height:16px; }
+  #rollRulerWrap { position:relative; overflow:hidden; border-bottom:1px solid var(--line2); cursor:ew-resize; }
+  #rollRuler { position:absolute; left:0; top:0; height:16px; }
+  #rollRuler canvas { position:absolute; left:0; top:0; height:16px; }
   #roll.open { height:min(300px, 42vh); }
   #rollHead { grid-column:1 / 3; display:flex; align-items:center; gap:0.6rem; padding:0 0.8rem; border-bottom:1px solid var(--line2); font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(250,248,245,0.55); }
   #rollHead b { color:var(--ivory); font-weight:400; letter-spacing:0.04em; text-transform:none; font-size:0.85rem; }
@@ -164,6 +168,11 @@
   .note { position:absolute; height:calc(var(--row-h, 12px) - 1px); background:var(--terracotta); border-radius:2px; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.4); cursor:grab; touch-action:none; }
   .note.sel { background:var(--ivory); }
   .note .h { position:absolute; right:0; top:0; bottom:0; width:6px; cursor:ew-resize; }
+  #rollLoopBar { position:absolute; top:0; left:0; height:16px; background:rgba(198,123,92,0.35); border-right:2px solid var(--terracotta); display:none; }
+  #rollLoopBar.on { display:block; }
+  #rollLoopEnd { position:absolute; right:-9px; top:0; width:18px; height:16px; cursor:ew-resize; }
+  #rollLoopEnd::after { content:''; position:absolute; left:4px; top:3px; border:5px solid transparent; border-top:8px solid var(--terracotta); }
+  #rollLoop.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
   #marquee { position:absolute; display:none; border:1px solid var(--ivory); background:rgba(250,248,245,0.12); pointer-events:none; z-index:3; }
   #rollPh { position:absolute; top:0; width:1px; height:100%; background:var(--ivory); pointer-events:none; opacity:0.8; }
   #vel { width:70px; height:14px; }
@@ -281,8 +290,11 @@
       <label class="field chk" title="quantize recorded takes as they land"><input type="checkbox" id="qRec"> on rec</label>
       <button class="tbtn" id="rollQuant" title="Quantize selected notes, or all if none selected (Q)">quantize</button>
     </span>
+    <button class="tbtn" id="rollLoop" title="Loop the clip: notes inside the loop length repeat for the clip's whole length — then drag the clip's right edge out in the arrangement">↻ loop</button>
     <button class="tbtn" id="rollDbl" title="Double the clip length, repeating its notes">×2</button>
     <button class="tbtn" id="rollClose">✕</button></div>
+  <div id="rollCorner">drag ruler = loop</div>
+  <div id="rollRulerWrap"><div id="rollRuler"><canvas id="rollRulerCv"></canvas><div id="rollLoopBar"><div id="rollLoopEnd"></div></div></div></div>
   <div id="keys"><div id="keysInner"></div></div>
   <div id="rollScroll"><div id="rollGrid"><canvas id="rollCv"></canvas><div id="noteList"></div><div id="rollPh"></div></div></div>
 </div>
@@ -302,7 +314,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03d";
+const BUILD = "2026-10-03f";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -470,6 +482,20 @@ function instOf(track) {
 const isMidi = t => t && t.kind === "midi";
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const noteName = p => NOTE_NAMES[p % 12] + (Math.floor(p / 12) - 1);
+// Every sounding note of a MIDI clip between two absolute beats, with clip looping applied.
+// A looping clip repeats notes [0, lp) every lp beats for its whole length; notes crossing the loop end are cut there.
+// Returns { i (note index), k (repeat), n, b (absolute start beat), d (duration) }.
+function* midiEvents(c, fromB = -Infinity, toB = Infinity) {
+  const offb = c.offb || 0, cEnd = clipEnd(c), lp = c.loop && c.lp > 0 ? c.lp : null;
+  for (let i = 0; i < c.notes.length; i++) {
+    const n = c.notes[i];
+    if (!lp) { const b = c.start + n.s - offb; if (b >= c.start - 1e-6 && b < cEnd && b >= fromB - 1e-6 && b < toB) yield { i, k: 0, n, b, d: n.d }; continue; }
+    if (n.s >= lp) continue;
+    const d = Math.min(n.d, lp - n.s);
+    let k = Math.max(0, Math.ceil((offb - n.s - 1e-6) / lp)), b = c.start - offb + n.s + k * lp;
+    for (; b < cEnd && b < toB; k++, b += lp) { if (b >= c.start - 1e-6 && b >= fromB - 1e-6) yield { i: i + ":" + k, k, n, b, d }; }
+  }
+}
 
 // ---------- audio engine ----------
 const engine = (() => {
@@ -584,14 +610,12 @@ const engine = (() => {
   }
   function scheduleMidi(c, seg, key, now, horizon) {
     const tr = proj.tracks[c.track]; if (!tr) return;
-    const inst = instOf(tr), dest = nodesFor(tr.id).gain, offb = c.offb || 0, cEnd = clipEnd(c);
-    for (let i = 0; i < c.notes.length; i++) {
-      const n = c.notes[i], b = c.start + n.s - offb;
-      if (b < c.start - 1e-6 || b >= cEnd || b < seg.startBeat - 1e-6 || b >= seg.endBeat) continue;
+    const inst = instOf(tr), dest = nodesFor(tr.id).gain, cEnd = clipEnd(c);
+    for (const { i, n, b, d } of midiEvents(c, seg.startBeat, seg.endBeat)) {
       const t0 = ctxOf(seg, b); if (t0 >= horizon) continue;
       const k = c.id + ":" + i + "@" + key; if (scheduled.has(k)) continue; scheduled.add(k);
       if (t0 < now - 0.03) continue;                      // started before we got here — skip, don't smear
-      const endB = Math.min(b + n.d, cEnd, seg.endBeat), t1 = ctxOf(seg, endB);
+      const endB = Math.min(b + d, cEnd, seg.endBeat), t1 = ctxOf(seg, endB);
       const v = inst.play(ctx, dest, n.p, n.v, Math.max(t0, now)); if (!v) continue;
       v.stop(t1);
       live.push({ src: v, kill: () => v.kill(), clip: c.id, end: t1 + 2 });
@@ -647,8 +671,8 @@ async function renderWav() {
   }
   for (const c of clips) {
     if (c.kind === "m") {
-      const inst = instOf(proj.tracks[c.track]), dest = tn[c.track] || oc.destination, offb = c.offb || 0, cEnd = clipEnd(c);
-      for (const n of c.notes) { const b = c.start + n.s - offb; if (b < c.start || b >= cEnd) continue; const v = inst.play(oc, dest, n.p, n.v, b * spb()); if (v) v.stop(Math.min(b + n.d, cEnd) * spb()); }
+      const inst = instOf(proj.tracks[c.track]), dest = tn[c.track] || oc.destination, cEnd = clipEnd(c);
+      for (const { n, b, d } of midiEvents(c)) { const v = inst.play(oc, dest, n.p, n.v, b * spb()); if (v) v.stop(Math.min(b + d, cEnd) * spb()); }
       continue;
     }
     const s = oc.createBufferSource(); s.buffer = audios[c.src].buf; const g = oc.createGain(); g.gain.value = c.gain; s.connect(g); g.connect(tn[c.track] || oc.destination);
@@ -768,6 +792,7 @@ async function restore() {
     const p = await idbGet("kv", "proj");
     if (p) { Object.assign(proj, { bpm: p.bpm, loop: p.loop, tracks: p.tracks, clips: p.clips }); pxPerBeat = p.pxPerBeat || pxPerBeat; playhead = p.playhead || 0; $("#bpm").value = proj.bpm; }
     for (const a of await idbAll("audio")) await addAudio(a.name, a.blob, { id: a.id });
+    for (const t of Object.values(proj.tracks)) if (t.fx) t.fx = t.fx.map(f => ["lowpass", "highpass", "bandpass", "notch"].includes(f.type) ? { ...f, mode: f.type, type: "filter" } : f);
   } catch (e) { console.warn("restore failed", e); }
 }
 
@@ -813,7 +838,7 @@ function render() {
     e.classList.toggle("sel", selected.has(c.id));
     e.classList.toggle("midi", c.kind === "m");
     e.classList.toggle("muted", !!t.mute);
-    e.querySelector(".lbl").textContent = c.name;
+    e.querySelector(".lbl").textContent = (c.loop ? "↻ " : "") + c.name;
     if (e.parentNode !== laneEls[c.track].lane) laneEls[c.track].lane.appendChild(e);
     drawClip(e, c);
   }
@@ -877,7 +902,7 @@ function buildClip(c) {
 }
 function drawMidiClip(e, c) {
   const cv = e.querySelector("canvas"), w = Math.min(4000, Math.max(1, Math.round(beatToPx(c.len)))), h = 50;
-  const k = "m:" + c.len + ":" + (c.offb || 0) + ":" + c.notes.length + ":" + c.notes.reduce((a, n) => a + n.p * 7 + n.s * 13 + n.d, 0).toFixed(3);
+  const k = "m:" + c.len + ":" + (c.offb || 0) + ":" + (c.loop ? c.lp : "-") + ":" + c.notes.length + ":" + c.notes.reduce((a, n) => a + n.p * 7 + n.s * 13 + n.d, 0).toFixed(3);
   if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } else if (cv.dataset.k === k) return;
   cv.dataset.k = k;
   const g = cv.getContext("2d"); g.clearRect(0, 0, w, h);
@@ -885,8 +910,9 @@ function drawMidiClip(e, c) {
   let lo = 127, hi = 0; for (const n of c.notes) { if (n.p < lo) lo = n.p; if (n.p > hi) hi = n.p; }
   lo = Math.min(lo, hi - 11); const span = hi - lo + 1, rh = Math.max(2, Math.min(6, (h - 4) / span));
   g.fillStyle = "rgba(250,248,245,0.92)";
-  for (const n of c.notes) { const x = beatToPx(n.s - (c.offb || 0)); if (x + beatToPx(n.d) < 0 || x > w) continue; g.globalAlpha = 0.4 + 0.6 * n.v; g.fillRect(x, h - 2 - (n.p - lo + 1) * rh, Math.max(2, beatToPx(n.d) - 1), rh - 1); }
+  for (const { n, b, d } of midiEvents(c)) { const x = beatToPx(b - c.start); if (x > w) break; g.globalAlpha = 0.4 + 0.6 * n.v; g.fillRect(x, h - 2 - (n.p - lo + 1) * rh, Math.max(2, beatToPx(d) - 1), rh - 1); }
   g.globalAlpha = 1;
+  if (c.loop && c.lp > 0) { g.fillStyle = "rgba(0,0,0,0.35)"; for (let q = c.lp - (c.offb || 0) % c.lp; q < c.len; q += c.lp) g.fillRect(Math.round(beatToPx(q)), 0, 1, h); }
 }
 function drawClip(e, c) {
   if (c.kind === "m") return drawMidiClip(e, c);
@@ -1174,6 +1200,13 @@ function openRoll(id) {
 }
 function closeRoll() { rollClip = null; rollEl.classList.remove("open"); noteSel.clear(); }
 $("#rollClose").onclick = closeRoll;
+$("#rollLoop").onclick = () => { if (!rollClip) return; const c = proj.clips[rollClip]; if (c.loop) commit({ t: "clip", id: c.id, loop: false }); else { const lp = c.lp > 0 ? c.lp : Math.max(snapBeats || 0.25, c.len); commit({ t: "clip", id: c.id, loop: true, lp }); banner("looping every " + lp + " beats — drag the clip's right edge out to repeat"); } };
+$("#rollLoopEnd").addEventListener("pointerdown", e => {
+  e.preventDefault(); e.stopPropagation(); const c = proj.clips[rollClip]; if (!c) return; const lp0 = c.lp;
+  const mv = ev => { c.lp = Math.max(snapBeats || 0.25, snapB(pxToBeatR(rollX(ev.clientX)), ev.shiftKey)); renderRoll(); drawClip(clipEls[c.id], c); };
+  const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); const lp = c.lp; c.lp = lp0; if (lp !== lp0) commit({ t: "clip", id: c.id, lp }); };
+  window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
+});
 // quantize: grid (incl. triplets), strength, optional note ends; works on the roll selection, a whole clip, or selected clips
 const Q_NAMES = { "1": "1/4", "0.5": "1/8", "0.3333": "1/8T", "0.25": "1/16", "0.1667": "1/16T", "0.125": "1/32" };
 function qSettings() { const g = $("#qGrid").value, grid = g === "0.3333" ? 1 / 3 : g === "0.1667" ? 1 / 6 : +g; return { grid, name: Q_NAMES[g], str: +$("#qStr").value / 100, ends: $("#qEnds").checked }; }
@@ -1200,23 +1233,27 @@ $("#qStr").addEventListener("input", () => $("#qStrV").textContent = $("#qStr").
 for (const id of ["#qGrid", "#qStr"]) $(id).addEventListener("keydown", e => e.stopPropagation());
 for (const id of ["#qGrid", "#qStr", "#qEnds", "#qRec"]) $(id).addEventListener("change", () => { try { localStorage.setItem("agkm-daw-q", JSON.stringify({ g: $("#qGrid").value, s: $("#qStr").value, e: $("#qEnds").checked, r: $("#qRec").checked })); } catch (e) { } });
 try { const q = JSON.parse(localStorage.getItem("agkm-daw-q") || "null"); if (q) { $("#qGrid").value = q.g; $("#qStr").value = q.s; $("#qStrV").textContent = q.s + "%"; $("#qEnds").checked = !!q.e; $("#qRec").checked = !!q.r; } } catch (e) { }
-$("#rollDbl").onclick = () => { if (!rollClip) return; const c = proj.clips[rollClip], L = c.len; commit({ t: "clip", id: c.id, len: L * 2, notes: c.notes.concat(c.notes.filter(n => n.s < L).map(n => ({ ...n, s: n.s + L }))) }); };
+$("#rollDbl").onclick = () => { if (!rollClip) return; const c = proj.clips[rollClip]; if (c.loop && c.lp > 0) { const L = c.lp; commit({ t: "clip", id: c.id, lp: L * 2, len: Math.max(c.len, L * 2), notes: c.notes.concat(c.notes.filter(n => n.s < L).map(n => ({ ...n, s: n.s + L }))) }); return; } const L = c.len; commit({ t: "clip", id: c.id, len: L * 2, notes: c.notes.concat(c.notes.filter(n => n.s < L).map(n => ({ ...n, s: n.s + L }))) }); };
 function commitNotes(notes) { if (!rollClip) return; commit({ t: "clip", id: rollClip, notes }); }
 function renderRoll() {
   if (!rollClip) return; const c = proj.clips[rollClip]; if (!c) return closeRoll();
   $("#rollName").textContent = c.name + " · " + (proj.tracks[c.track]?.name || "");
-  const W = Math.max(rollScroll.clientWidth, beatToPxR(c.len) + 40), H = N_ROWS * ROW;
+  const W = Math.max(rollScroll.clientWidth, beatToPxR(Math.max(c.len, c.loop ? c.lp || 0 : 0)) + 40), H = N_ROWS * ROW;
   rollGrid.style.width = W + "px"; rollGrid.style.height = H + "px";
   rollCv.width = W; rollCv.height = H;
   const g = rollCv.getContext("2d"); g.clearRect(0, 0, W, H);
   for (let p = P_HI; p >= P_LO; p--) { const y = pitchToY(p); g.fillStyle = [1, 3, 6, 8, 10].includes(p % 12) ? "rgba(0,0,0,0.22)" : "rgba(250,248,245,0.03)"; g.fillRect(0, y, W, ROW); if (p % 12 === 0) { g.fillStyle = "rgba(250,248,245,0.12)"; g.fillRect(0, y + ROW - 1, W, 1); } }
   const step = snapBeats || 0.25;
   for (let b = 0; b <= c.len + 1e-6; b += step) { const x = Math.round(beatToPxR(b)) + 0.5; g.strokeStyle = b % 4 === 0 ? "rgba(250,248,245,0.25)" : b % 1 === 0 ? "rgba(250,248,245,0.12)" : "rgba(250,248,245,0.05)"; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
-  g.fillStyle = "rgba(0,0,0,0.35)"; g.fillRect(beatToPxR(c.len), 0, W, H);
+  const lp = c.loop && c.lp > 0 ? c.lp : null, lim = lp || c.len;
+  g.fillStyle = "rgba(0,0,0,0.35)"; g.fillRect(beatToPxR(lim), 0, W, H);
+  if (lp) { g.fillStyle = "rgba(250,248,245,0.8)"; for (const { n, b, d } of midiEvents(c)) { const q = b - c.start + (c.offb || 0); if (q < lp) continue; g.globalAlpha = 0.18; g.fillRect(beatToPxR(q), pitchToY(n.p), Math.max(3, beatToPxR(d) - 1), ROW - 1); } g.globalAlpha = 1; }
+  $("#rollLoop").classList.toggle("on", !!c.loop); $("#rollLoopBar").classList.toggle("on", !!lp); if (lp) $("#rollLoopBar").style.width = beatToPxR(lp) + "px";
+  drawRollRuler(c, W);
   noteList.innerHTML = "";
   c.notes.forEach((n, i) => {
     const d = el("div", "note" + (noteSel.has(i) ? " sel" : "")); d.dataset.i = i;
-    d.style.left = beatToPxR(n.s) + "px"; d.style.top = pitchToY(n.p) + "px"; d.style.width = Math.max(4, beatToPxR(n.d) - 1) + "px"; d.style.opacity = 0.45 + 0.55 * n.v;
+    d.style.left = beatToPxR(n.s) + "px"; d.style.top = pitchToY(n.p) + "px"; d.style.width = Math.max(4, beatToPxR(lp ? Math.min(n.d, Math.max(0.05, lp - n.s)) : n.d) - 1) + "px"; d.style.opacity = (n.s >= lim ? 0.25 : 1) * (0.45 + 0.55 * n.v);
     d.title = noteName(n.p); d.innerHTML = '<div class="h"></div>';
     d.addEventListener("pointerdown", onNoteDown); d.addEventListener("contextmenu", e => { e.preventDefault(); commitNotes(c.notes.filter((_, j) => j !== i)); });
     noteList.appendChild(d);
@@ -1224,7 +1261,21 @@ function renderRoll() {
 }
 const beatToPxR = b => b * rollPx, pxToBeatR = x => x / rollPx;
 const rollX = cx => cx - rollGrid.getBoundingClientRect().left, rollY = cy => cy - rollGrid.getBoundingClientRect().top;
-rollScroll.addEventListener("scroll", () => keysInner.style.transform = "translateY(" + -rollScroll.scrollTop + "px)");
+rollScroll.addEventListener("scroll", () => { keysInner.style.transform = "translateY(" + -rollScroll.scrollTop + "px)"; $("#rollRuler").style.transform = "translateX(" + -rollScroll.scrollLeft + "px)"; });
+function drawRollRuler(c, W) {
+  const cv = $("#rollRulerCv"); $("#rollRuler").style.width = W + "px"; cv.width = W; cv.height = 16; cv.style.width = W + "px";
+  const g = cv.getContext("2d"); g.clearRect(0, 0, W, 16); g.font = "10px Karla, sans-serif"; g.fillStyle = "rgba(250,248,245,0.55)"; g.strokeStyle = "rgba(250,248,245,0.3)";
+  const lim = Math.max(c.len, c.loop ? c.lp || 0 : 0);
+  for (let b = 0; b <= lim + 4; b++) { const x = Math.round(beatToPxR(b)) + 0.5; g.beginPath(); g.moveTo(x, b % 4 ? 11 : 6); g.lineTo(x, 16); g.stroke(); if (b % 4 === 0 && rollPx >= 10) g.fillText(b / 4 + 1, x + 3, 10); }
+}
+// drag anywhere on the roll ruler to set the loop length (turns looping on)
+$("#rollRulerWrap").addEventListener("pointerdown", e => {
+  if (e.target.id === "rollLoopEnd" || !rollClip) return; e.preventDefault();
+  const c = proj.clips[rollClip], o = { loop: c.loop, lp: c.lp }; let moved = false;
+  const mv = ev => { moved = true; c.loop = true; c.lp = Math.max(snapBeats || 0.25, snapB(pxToBeatR(rollX(ev.clientX)), ev.shiftKey)); renderRoll(); drawClip(clipEls[c.id], c); };
+  const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); if (!moved) return; const v = { loop: c.loop, lp: c.lp }; Object.assign(c, o); commit({ t: "clip", id: c.id, ...v }); };
+  window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
+});
 rollScroll.addEventListener("wheel", e => { if (e.ctrlKey || e.metaKey) { e.preventDefault(); rollPx = clamp(rollPx * (e.deltaY < 0 ? 1.12 : 0.9), 8, 300); renderRoll(); } }, { passive: false });
 rollScroll.addEventListener("pointerenter", () => rollFocus = true); rollScroll.addEventListener("pointerleave", () => rollFocus = false);
 let ndrag = null;
@@ -1249,7 +1300,7 @@ rollGrid.addEventListener("pointerdown", e => {
     if (add) { noteSel.clear(); renderRoll(); return; }
     // plain click: add a note at the grid cell
     const sB = Math.max(0, snapB(pxToBeatR(x0))), p = clamp(yToPitch(y0), P_LO, P_HI);
-    if (sB >= c.len) { noteSel.clear(); renderRoll(); return; }
+    if (sB >= (c.loop && c.lp > 0 ? c.lp : c.len)) { noteSel.clear(); renderRoll(); return; }
     const n = { p, s: sB, d: snapBeats || 0.25, v: velNow }, notes = c.notes.concat([n]);
     commitNotes(notes); noteSel = new Set([notes.length - 1]); renderRoll();
     engine.noteOn(c.track, p, velNow); setTimeout(() => engine.noteOff(c.track, p), 250);
@@ -1399,7 +1450,7 @@ function recTick() {
 // track.fx = [{ id, type, on, ...params }]. The engine builds gain → fx1 → fx2 … → pan → analyser per track and the
 // offline renderer builds the same chain, so export matches what you hear.
 const FX_DEFS = {
-  filter: { name: "filter", params: { type: { opts: ["lowpass", "highpass", "bandpass", "notch"], def: "lowpass" }, freq: { label: "cutoff", min: 20, max: 18000, def: 1200, log: true, unit: "Hz" }, q: { label: "res", min: 0.1, max: 18, def: 1, log: true } } },
+  filter: { name: "filter", params: { mode: { label: "mode", opts: ["lowpass", "highpass", "bandpass", "notch"], def: "lowpass" }, freq: { label: "cutoff", min: 20, max: 18000, def: 1200, log: true, unit: "Hz" }, q: { label: "res", min: 0.1, max: 18, def: 1, log: true } } },
   delay: { name: "delay", params: { time: { label: "time", opts: ["1/16", "1/8", "1/8.", "1/4", "1/4.", "1/2", "1"], def: "1/8." }, fb: { label: "feedback", min: 0, max: 0.95, def: 0.4 }, tone: { label: "tone", min: 300, max: 16000, def: 4000, log: true, unit: "Hz" }, mix: { label: "mix", min: 0, max: 1, def: 0.35 } } },
   reverb: { name: "reverb", params: { size: { label: "size", min: 0.1, max: 6, def: 1.8, unit: "s" }, damp: { label: "damp", min: 500, max: 16000, def: 5000, log: true, unit: "Hz" }, mix: { label: "mix", min: 0, max: 1, def: 0.3 } } },
   comp: { name: "compressor", params: { th: { label: "threshold", min: -60, max: 0, def: -18, unit: "dB" }, ratio: { label: "ratio", min: 1, max: 20, def: 4 }, att: { label: "attack", min: 0.001, max: 0.3, def: 0.01, log: true, unit: "s" }, rel: { label: "release", min: 0.02, max: 1.5, def: 0.2, log: true, unit: "s" }, gain: { label: "makeup", min: 0, max: 24, def: 4, unit: "dB" } } },
@@ -1423,7 +1474,7 @@ function makeFx(ctx, f) {
   input.connect(dry); dry.connect(output); wet.connect(output);
   const mix = v => { dry.gain.value = 1 - v; wet.gain.value = v; };
   let set; const T = f.type;
-  if (T === "filter") { const b = ctx.createBiquadFilter(); input.connect(b); b.connect(wet); mix(1); set = p => { b.type = p.type; b.frequency.value = p.freq; b.Q.value = p.q; }; }
+  if (T === "filter") { const b = ctx.createBiquadFilter(); input.connect(b); b.connect(wet); mix(1); set = p => { b.type = p.mode || "lowpass"; b.frequency.value = p.freq; b.Q.value = p.q; }; }
   else if (T === "delay") { const d = ctx.createDelay(5), fb = ctx.createGain(), tone = ctx.createBiquadFilter(); tone.type = "lowpass"; input.connect(d); d.connect(tone); tone.connect(fb); fb.connect(d); tone.connect(wet); set = p => { d.delayTime.value = Math.min(5, (DELAY_BEATS[p.time] || 0.75) * spb()); fb.gain.value = p.fb; tone.frequency.value = p.tone; mix(p.mix); }; }
   else if (T === "reverb") { const c = ctx.createConvolver(); input.connect(c); c.connect(wet); let last = ""; set = p => { const k = p.size + ":" + p.damp; if (k !== last) { last = k; c.buffer = makeIR(ctx, p.size, p.damp); } mix(p.mix); }; }
   else if (T === "comp") { const c = ctx.createDynamicsCompressor(), g = ctx.createGain(); input.connect(c); c.connect(g); g.connect(wet); mix(1); set = p => { c.threshold.value = p.th; c.ratio.value = p.ratio; c.attack.value = p.att; c.release.value = p.rel; c.knee.value = 6; g.gain.value = Math.pow(10, p.gain / 20); }; }
@@ -1501,7 +1552,7 @@ function banner(msg) { const b = $("#banner"); b.textContent = msg; b.classList.
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { midiEvents, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
