@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-10-01-0152-0",
-  "image": "pool-2026-10-01-0152-0.jpg",
-  "headline": "PCG Files Criminal Complaint Against Master of Burned - Out Ferry",
-  "url": "https://maritime-executive.com/article/pcg-files-criminal-complaint-against-master-of-burned-out-ferry",
-  "outlet": "maritime-executive.com",
-  "t": "2026-10-01T05:52:34+00:00",
-  "vista": 7.0,
-  "hash": 9261515761667539192
- },
- {
-  "id": "2026-10-01-0152-1",
-  "image": "pool-2026-10-01-0152-1.jpg",
-  "headline": "Palm Springs Aerial Tramway to start annual snow - guessing contest",
-  "url": "https://kesq.com/news/2026/09/30/palm-springs-aerial-tramway-to-start-annual-snow-guessing-contest/",
-  "outlet": "kesq.com",
-  "t": "2026-10-01T05:52:35+00:00",
-  "vista": 7.0,
-  "hash": 2238010851246267646
- },
- {
-  "id": "2026-10-01-0152-2",
-  "image": "pool-2026-10-01-0152-2.jpg",
-  "headline": "Swiss glaciers lose more than 5 % in ice volume in 2026",
-  "url": "https://www.dw.com/en/swiss-glaciers-lose-more-than-5-in-ice-volume-in-2026/a-79495965",
-  "outlet": "dw.com",
-  "t": "2026-10-01T05:52:35+00:00",
-  "vista": 7.0,
-  "hash": 17329703449563893760
- },
- {
   "id": "2026-10-01",
   "image": "pool-2026-10-01.jpg",
   "headline": "Passengers recount chaos on Tel Aviv flight . And , FBI probes employee - data hack",
@@ -169,5 +139,35 @@
   "outlet": "yasstribune.com.au",
   "t": "2026-10-03T11:39:47+00:00",
   "hash": 12727349270864115960
+ },
+ {
+  "id": "2026-10-03-0759-0",
+  "image": "pool-2026-10-03-0759-0.jpg",
+  "headline": "How Switzerland lost 20 percent of its ice in five years",
+  "url": "https://www.aljazeera.com/news/2026/10/2/how-switzerland-lost-20-percent-of-its-ice-in-five-years",
+  "outlet": "aljazeera.com",
+  "t": "2026-10-03T11:59:52+00:00",
+  "vista": 9.0,
+  "hash": 9223213585923047696
+ },
+ {
+  "id": "2026-10-03-0759-1",
+  "image": "pool-2026-10-03-0759-1.jpg",
+  "headline": "Turkish Aerospace Industries prepares to integrate homegrown engines into aerial platforms",
+  "url": "https://aa.com.tr/en/turkiye/turkish-aerospace-industries-prepares-to-integrate-homegrown-engines-into-aerial-platforms/4075188",
+  "outlet": "aa.com.tr",
+  "t": "2026-10-03T11:59:52+00:00",
+  "vista": 8.0,
+  "hash": 324848679495308765
+ },
+ {
+  "id": "2026-10-03-0759-2",
+  "image": "pool-2026-10-03-0759-2.jpg",
+  "headline": "Hurricane Rachel strengthens to Category 1 off Mexico Pacific coast",
+  "url": "https://aa.com.tr/en/americas/hurricane-rachel-strengthens-to-category-1-off-mexicos-pacific-coast/4074295",
+  "outlet": "aa.com.tr",
+  "t": "2026-10-03T11:59:52+00:00",
+  "vista": 8.0,
+  "hash": 29219050471352
  }
 ]
