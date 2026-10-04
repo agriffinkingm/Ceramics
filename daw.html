@@ -369,7 +369,7 @@
     <button class="tbtn sm" id="btnLeave" title="Leave the room — back to your personal project" style="display:none">leave</button>
   </div>
   <div id="spacer"></div>
-  <div id="hint">tab = session view · ● on a track arms it, transport ● records · Q quantizes · new room / join room</div>
+  <div id="hint">● on a track arms it, transport ● records · dbl-click a midi clip to edit · Q quantizes · new room / join room</div>
 </div>
 
 <div id="insp">
@@ -384,7 +384,7 @@
   <span id="iCount"></span>
 </div>
 <div id="arr">
-  <div id="corner"><button class="vbtn on" id="viewArr">arrangement</button><button class="vbtn" id="viewSess">session</button></div>
+  <div id="corner"><button class="vbtn on" id="viewArr">arrangement</button><button class="vbtn" id="viewSess" style="display:none">session</button></div>
   <div id="rulerWrap"><div id="ruler"><canvas id="rulerCv"></canvas><div id="loopBar"></div><div id="rph"></div></div></div>
   <div id="hdrs"><div id="hdrsInner"></div></div>
   <div id="lanesWrap"><div id="lanes"><canvas id="grid"></canvas><div id="laneList"></div><div id="ghost"></div><div id="playhead"></div></div></div>
@@ -455,7 +455,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03p";
+const BUILD = "2026-10-03q";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -1396,7 +1396,7 @@ window.addEventListener("keydown", e => {
   if ((k === "delete" || k === "backspace") && rollClip && rollFocus) { e.preventDefault(); deleteNotes(); return; }
   if (k === "escape" && rollClip && !selected.size) { closeRoll(); return; }
   if (k === "k" && e.shiftKey && !mod) { $("#btnKbd").click(); return; }
-  if (k === "tab") { e.preventDefault(); setView(viewMode === "arr" ? "sess" : "arr"); return; }
+  if (k === "tab") { e.preventDefault(); return; }   // session view parked for now
   if (viewMode === "sess" && (k === "delete" || k === "backspace")) { e.preventDefault(); if (sessSel) { const c = slotClip(sessSel.track, sessSel.scene); if (c) commit({ t: "clip", id: c.id, del: true }); } return; }
   if (viewMode === "sess" && k === "enter") { e.preventDefault(); if (sessSel) { const c = slotClip(sessSel.track, sessSel.scene); if (c) launchClip(c); } return; }
   if (k === "q" && !mod) { e.preventDefault(); if (!((rollClip && rollFocus) ? quantizeRoll() : quantizeSelectedClips() || quantizeRoll())) banner("select a midi clip (or open one) to quantize"); return; }
@@ -1592,7 +1592,10 @@ function deleteNotes() { if (!rollClip || !noteSel.size) return false; const c =
 // ---------- MIDI input + QWERTY keys ----------
 let midiAccess = null, kbdOn = false, kbdOct = 0; const kbdHeld = {};
 const KBD = { a: 60, w: 61, s: 62, e: 63, d: 64, f: 65, t: 66, g: 67, y: 68, h: 69, u: 70, j: 71, k: 72, o: 73, l: 74, p: 75, ";": 76, "'": 77 };
-function inputTrack() { const c = rollClip && proj.clips[rollClip]; if (c && isMidi(proj.tracks[c.track])) return c.track; if (isMidi(proj.tracks[selTrack])) return selTrack; for (const t of armed) if (isMidi(proj.tracks[t])) return t; return tracksSorted().find(isMidi)?.id || null; }
+function inputTrack() {
+  for (const t in recs) if (recs[t].kind === "m") return t;                        // recording → the take gets the notes
+  for (const t of armed) if (isMidi(proj.tracks[t])) return t;                     // armed → play through it
+  const c = rollClip && proj.clips[rollClip]; if (c && isMidi(proj.tracks[c.track])) return c.track; if (isMidi(proj.tracks[selTrack])) return selTrack; return tracksSorted().find(isMidi)?.id || null; }
 function liveNoteOn(pitch, vel) {
   const tid = inputTrack(); if (!tid) { banner("select a midi track first"); return; }
   engine.noteOn(tid, pitch, vel);
@@ -1675,7 +1678,7 @@ async function finishOne(tid, restartAt) {
   const endBeat = restartAt != null ? restartAt : engine.beatNow();
   if (r.kind === "m") {
     for (const p in r.held) { const h = r.held[p]; r.notes.push({ p: +p, s: h.s, d: Math.max(0.0625, endBeat - h.s), v: h.v }); }
-    if (!r.notes.length) return;
+    if (!r.notes.length) { banner("no notes played on " + (proj.tracks[r.track]?.name || "track") + " — nothing recorded"); return; }
     const s0 = Math.floor(r.startBeat / (snapBeats || 0.25)) * (snapBeats || 0.25), len = Math.max(1, Math.ceil((Math.max(endBeat, ...r.notes.map(n => n.s + n.d)) - s0) / 4) * 4);
     let notes = r.notes.map(n => ({ p: n.p, s: Math.max(0, +(n.s - s0).toFixed(4)), d: +n.d.toFixed(4), v: n.v }));
     const qr = $("#qRec").checked; if (qr) notes = quantizeNotes(notes, qSettings());
@@ -2142,7 +2145,7 @@ function renderInsp() {
   $("#iFiRow").style.display = audio ? "" : "none"; $("#iFoRow").style.display = audio ? "" : "none";
   $("#iFi").value = c.fi || 0; $("#iFiV").textContent = (c.fi || 0).toFixed(2) + "s"; $("#iFo").value = c.fo || 0; $("#iFoV").textContent = (c.fo || 0).toFixed(2) + "s";
   $("#iMute").classList.toggle("on", cs.every(x => x.mute)); $("#iLoop").classList.toggle("on", cs.every(x => x.loop));
-  $("#iSess").style.display = cs.every(x => x.scene == null) ? "" : "none";
+  $("#iSess").style.display = "none";
   $("#iCount").textContent = cs.length > 1 ? cs.length + " selected" : (c.kind === "m" ? c.notes.length + " notes" : (audios[c.src]?.dur || 0).toFixed(2) + "s");
 }
 function inspCommit(patchFn) { const cs = selClips(); if (!cs.length) return; commit(cs.map(c => ({ t: "clip", id: c.id, ...patchFn(c) }))); }
