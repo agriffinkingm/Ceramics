@@ -210,6 +210,7 @@
   .tbtn.sm { height:26px; font-size:0.62rem; padding:0 0.45rem; }
   #recOpts .tbtn.on, #btnCountIn.on, #btnOverdub.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
   #masterStrip { gap:0.4rem; } #masterStrip input { width:80px; height:14px; }
+  #btnMidi.rx { background:#7fb77a; border-color:#7fb77a; color:var(--ink); }
   #btnShare.on { background:#4f7a8a; border-color:#4f7a8a; color:var(--ivory); }
   .vbtn { font-size:0.62rem; letter-spacing:0.16em; text-transform:uppercase; color:rgba(250,248,245,0.4); padding:0 0.4rem; height:100%; }
   .vbtn.on { color:var(--ivory); text-decoration:underline; text-underline-offset:3px; text-decoration-color:var(--terracotta); }
@@ -508,7 +509,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-04a";
+const BUILD = "2026-10-04b";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -608,7 +609,7 @@ function synthInst(preset) {
       amp.gain.setValueAtTime(0, t0); amp.gain.linearRampToValueAtTime(1, t0 + P.a); amp.gain.setTargetAtTime(P.s, t0 + P.a, P.d / 3);
       let stopped = false;
       const stop = t => { if (stopped) return; stopped = true; t = Math.max(t, t0 + P.a + 0.01); amp.gain.cancelScheduledValues(t); amp.gain.setValueAtTime(Math.max(0.001, amp.gain.value), t); amp.gain.setTargetAtTime(0, t, P.r / 3); for (const o of oscs) o.stop(t + P.r + 0.1); };
-      return { stop, kill() { stopped = true; try { for (const o of oscs) o.stop(); } catch (e) { } }, pitch };
+      return { stop, kill() { stopped = true; try { for (const o of oscs) o.stop(); } catch (e) { } }, pitch, bend(semi) { oscs.forEach((o, i) => { o.frequency.setTargetAtTime(mtof(pitch + P.o[i][1] + semi), ctx.currentTime, 0.01); }); } };
     }
   };
 }
@@ -968,6 +969,8 @@ const engine = (() => {
   }
   function noteOff(tid, pitch) { const h = held[pitch]; if (!h) return; delete held[pitch]; h.v.stop(ctx.currentTime); setTimeout(() => h.v.kill && h.v.kill(), 3000); }
   function allOff() { for (const k in held) noteOff(held[k].tid, +k); }
+  let bendSemi = 0;
+  function bend(semi) { bendSemi = semi; for (const k in held) if (held[k].v.bend) held[k].v.bend(semi); }
   function preview(id) {
     const a = audios[id]; if (!a) return; ensure();
     const src = ctx.createBufferSource(); src.buffer = a.buf; const g = ctx.createGain(); g.gain.value = 0.9; src.connect(g); g.connect(master);
@@ -984,7 +987,7 @@ const engine = (() => {
     return out;
   }
   return {
-    ensure, startFrom, stop, reschedule, refreshMix, refreshFx, setFxParam, refreshMaster, setMasterGain, cutAt, beatNow, modValueNow: (t, key) => modValue(t, key, beatNow(), ctx ? ctx.currentTime : 0), preview, meters, noteOn, noteOff, allOff, nodesFor, ctxOf, segNow,
+    ensure, startFrom, stop, reschedule, refreshMix, refreshFx, setFxParam, refreshMaster, setMasterGain, cutAt, bend, beatNow, modValueNow: (t, key) => modValue(t, key, beatNow(), ctx ? ctx.currentTime : 0), preview, meters, noteOn, noteOff, allOff, nodesFor, ctxOf, segNow,
     get playing() { return playing; }, get ctx() { return ctx; },
     get click() { return clickOn; }, set click(v) { clickOn = v; },
     decode: ab => ensure().decodeAudioData(ab),
@@ -1802,22 +1805,43 @@ function inputTrack() {
   for (const t of armed) if (isMidi(proj.tracks[t])) return t;                     // armed → play through it
   const c = rollClip && proj.clips[rollClip]; if (c && isMidi(proj.tracks[c.track])) return c.track; if (isMidi(proj.tracks[selTrack])) return selTrack; return tracksSorted().find(isMidi)?.id || null; }
 function liveNoteOn(pitch, vel) {
-  const tid = inputTrack(); if (!tid) { banner("select a midi track first"); return; }
+  let tid = inputTrack(); if (!tid) { tid = addTrack(null, "midi"); selTrack = tid; render(); banner("made a midi track for your keyboard — arm it (●) to record"); }
   engine.noteOn(tid, pitch, vel);
   const r = recs[tid]; if (r && r.kind === "m") r.held[pitch] = { s: engine.beatNow(), v: vel };
   const k = keysInner.querySelector(`.key[data-p="${pitch}"]`); if (k) k.classList.add("down");
 }
 function liveNoteOff(pitch) {
+  if (sustain) { sustained.add(pitch); return; }
   const tid = inputTrack(); if (tid) engine.noteOff(tid, pitch);
   for (const r of Object.values(recs)) if (r.kind === "m" && r.held[pitch]) { const h = r.held[pitch]; delete r.held[pitch]; r.notes.push({ p: pitch, s: h.s, d: Math.max(0.0625, engine.beatNow() - h.s), v: h.v }); }
   const k = keysInner.querySelector(`.key[data-p="${pitch}"]`); if (k) k.classList.remove("down");
 }
+let midiLast = 0, midiPorts = [];
 async function connectMidi() {
   if (!navigator.requestMIDIAccess) return banner("this browser has no Web MIDI (try Chrome)");
-  try { midiAccess = await navigator.requestMIDIAccess(); } catch (e) { return banner("midi access refused"); }
-  const hook = () => { let n = 0; for (const inp of midiAccess.inputs.values()) { n++; inp.onmidimessage = m => { const [st, d1, d2] = m.data, cmd = st & 0xf0; if (cmd === 0x90 && d2 > 0) liveNoteOn(d1, d2 / 127); else if (cmd === 0x80 || (cmd === 0x90 && d2 === 0)) liveNoteOff(d1); }; } $("#btnMidi").classList.toggle("on", n > 0); banner(n ? n + " midi input" + (n > 1 ? "s" : "") + " connected" : "no midi inputs found — plug one in"); };
+  try { midiAccess = await navigator.requestMIDIAccess({ sysex: false }); } catch (e) { return banner("midi access refused — allow it in the address-bar prompt or chrome://settings/content/midiDevices", 6000); }
+  const onMsg = inp => m => {
+    const d = m.data; if (!d || !d.length) return; const st = d[0], cmd = st & 0xf0, ch = (st & 0x0f) + 1;
+    if (cmd >= 0x80 && cmd <= 0xe0) { midiLast = performance.now(); $("#btnMidi").classList.add("rx"); clearTimeout(midiRxT); midiRxT = setTimeout(() => $("#btnMidi").classList.remove("rx"), 120); }
+    if (cmd === 0x90 && d[2] > 0) { liveNoteOn(d[1], d[2] / 127); midiMon("note " + noteName(d[1]) + " vel " + d[2] + " · " + inp.name + " ch" + ch); }
+    else if (cmd === 0x80 || (cmd === 0x90 && d[2] === 0)) liveNoteOff(d[1]);
+    else if (cmd === 0xb0) { if (d[1] === 123 || d[1] === 120) engine.allOff(); else if (d[1] === 64) { sustainPedal(d[2] >= 64); } midiMon("cc " + d[1] + " = " + d[2] + " · " + inp.name); }
+    else if (cmd === 0xe0) { pitchBend(((d[2] << 7) | d[1]) - 8192); }
+  };
+  const hook = () => {
+    midiPorts = []; let n = 0;
+    for (const inp of midiAccess.inputs.values()) { n++; midiPorts.push(inp.name + " (" + inp.state + "/" + inp.connection + ")"); inp.onmidimessage = onMsg(inp); if (inp.open) inp.open().catch(() => { }); }
+    $("#btnMidi").classList.toggle("on", n > 0); $("#btnMidi").title = n ? "midi inputs:\n" + midiPorts.join("\n") + "\n(the button blinks when anything arrives)" : "no midi inputs";
+    banner(n ? n + " midi input" + (n > 1 ? "s" : "") + " connected — play a key; the midi button blinks when notes arrive" : "no midi inputs found — plug one in", 4000);
+  };
   midiAccess.onstatechange = hook; hook();
 }
+let midiRxT = null, monT = null;
+function midiMon(text) { const h = $("#hint"); h.dataset.orig = h.dataset.orig || h.textContent; h.textContent = "midi: " + text; clearTimeout(monT); monT = setTimeout(() => { h.textContent = h.dataset.orig; }, 2500); }
+// sustain pedal: hold note-offs until released
+let sustain = false; const sustained = new Set();
+function sustainPedal(on) { sustain = on; if (!on) { for (const p of sustained) liveNoteOff(p); sustained.clear(); } }
+function pitchBend(v) { engine.bend(v / 8192 * 2); }   // ±2 semitones
 $("#btnMidi").onclick = connectMidi;
 $("#btnKbd").onclick = () => { kbdOn = !kbdOn; $("#btnKbd").classList.toggle("on", kbdOn); banner(kbdOn ? "keys on — A–L play, W/E/T… sharps, Z/X octave" : "keys off"); if (!kbdOn) for (const k in kbdHeld) { liveNoteOff(kbdHeld[k]); delete kbdHeld[k]; } };
 function kbdDown(e) {
