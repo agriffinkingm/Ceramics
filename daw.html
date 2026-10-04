@@ -23,6 +23,10 @@
   }
   button { font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
   input[type=range] { accent-color:var(--terracotta); }
+  /* native dropdown lists render on the OS's light panel — force dark text there so options stay readable */
+  select { color-scheme:light; }
+  select option { color:#1C1812; background:#FAF8F5; }
+  select option:checked { color:#1C1812; background:#E8DDD3; }
 
   /* ---------- nav ---------- */
   nav { padding:0.9rem 1.6rem 0.6rem; flex:none; }
@@ -299,7 +303,7 @@
   .am.en { background:var(--terracotta); }
   #aePh { position:absolute; top:0; bottom:0; width:1px; background:var(--ivory); opacity:0.8; pointer-events:none; display:none; }
   /* ---------- automation ---------- */
-  .hdr .m3 select.auto { font:inherit; font-size:0.6rem; color:rgba(250,248,245,0.7); background:rgba(0,0,0,0.25); border:1px solid var(--line); border-radius:2px; height:16px; padding:0 2px; max-width:100%; flex:1; min-width:0; }
+  .hdr .m3 select.auto { font:inherit; font-size:0.6rem; color:var(--ivory); background:rgba(0,0,0,0.25); border:1px solid var(--line); border-radius:2px; height:16px; padding:0 2px; max-width:100%; flex:1; min-width:0; }
   .hdr { gap:0.2rem; }
   .alane { position:absolute; left:0; right:0; bottom:0; height:44px; border-top:1px dashed var(--line2); cursor:crosshair; touch-action:none; }
   .alane canvas { position:absolute; left:0; top:0; height:44px; pointer-events:none; }
@@ -504,7 +508,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03w";
+const BUILD = "2026-10-04a";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
