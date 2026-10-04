@@ -343,7 +343,9 @@
   </div>
   <div class="tsep"></div>
   <div class="tgroup">
-    <button class="tbtn" id="btnShare" title="Share this project live (creates a room link)">share</button>
+    <button class="tbtn sm" id="btnNewRoom" title="Start a new live room from this project (optional password)">new room</button>
+    <button class="tbtn sm" id="btnJoinRoom" title="Join a room by name or link">join room</button>
+    <button class="tbtn" id="btnShare" title="Copy the room link" style="display:none">share</button>
     <button class="tbtn sm" id="btnCopy" title="Copy the room link" style="display:none">link</button>
     <button class="tbtn sm" id="btnKeep" title="Copy the room into your personal project" style="display:none">keep</button>
     <button class="tbtn sm" id="btnLeave" title="Leave the room — back to your personal project" style="display:none">leave</button>
@@ -419,7 +421,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03i";
+const BUILD = "2026-10-03j";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -1780,10 +1782,16 @@ async function joinRoom(name) {
     leaveRoomListeners();
     const locked = (await fb.get(fb.ref(fb.db, "daw/locks/" + name))).exists();
     let key = name, pw = pendingPw ?? pwMem.get(name); pendingPw = null;
+    if (locked && pendingNew) { banner("“" + name + "” already exists and is locked — join it instead, or pick another name"); pendingNew = false; pendingPw = null; joining = false; location.hash = ""; return; }
     if (locked && !pw) { pw = prompt("room “" + name + "” is locked — password?", "") || ""; if (!pw) { joining = false; location.hash = ""; banner("not joined"); return; } }
     if (pw) { key = name + "-" + await roomHash(name, pw); if (locked) { const ok = (await fb.get(fb.ref(fb.db, "daw/rooms/" + key + "/meta/created"))).exists(); if (!ok) { joining = false; location.hash = ""; banner("wrong password for “" + name + "”"); return; } } pwMem.set(name, pw); }
     room = name; roomKey = key; roomRef = fb.ref(fb.db, "daw/rooms/" + key); netKnown.clear();
     const metaSnap = await fb.get(fb.child(roomRef, "meta"));
+    if (!metaSnap.exists() && !pendingNew && !pendingNewHash) {
+      const mk = confirm("No room called “" + name + "” yet. Create it from your personal project?");
+      if (!mk) { room = null; roomKey = null; roomRef = null; joining = false; location.hash = ""; updateShareUi(); return; }
+    }
+    pendingNew = false;
     if (!metaSnap.exists()) {
       if (pw) await fb.set(fb.ref(fb.db, "daw/locks/" + name), true);
       // first in: seed the room with this project
@@ -1887,18 +1895,30 @@ async function receiveAudio(id, v) {
 // UI
 function updateShareUi() {
   const b = $("#btnShare"), lv = $("#btnLeave"), cp = $("#btnCopy"), kp = $("#btnKeep");
-  b.classList.toggle("on", !!room); b.textContent = room ? (roomKey !== room ? "🔒 " : "⬡ ") + room : "share";
-  for (const x of [lv, cp, kp]) x.style.display = room ? "" : "none";
+  b.classList.toggle("on", !!room); b.textContent = room ? (roomKey !== room ? "🔒 " : "⬡ ") + room : "share"; b.style.display = room ? "" : "none";
+  $("#btnJoinRoom").style.display = room ? "none" : ""; $("#btnNewRoom").textContent = room ? "new" : "new room";
+  for (const x of [lv, cp, kp]) x.style.display = room ? "" : "none"; cp.style.display = "none";
   document.body.classList.toggle("shared", !!room);
 }
-$("#btnShare").onclick = async () => {
-  if (room) { navigator.clipboard?.writeText(location.href).then(() => banner("link copied — anyone with it edits live"), () => banner(location.href)); return; }
-  if (!myName) { const n = prompt("your name (shown to others in the room)", ""); if (n) { myName = n.trim().slice(0, 24); try { localStorage.setItem("agkm-daw-name", myName); } catch (e) { } } }
-  const name = (prompt("room name (letters/numbers) — leave blank for a random one", "") || "").trim().replace(/[^a-z0-9_-]/gi, "").toLowerCase() || Math.random().toString(36).slice(2, 8);
-  const pw = prompt("password for the room (leave blank for an open room)", "") || "";
-  pendingPw = pw.trim();
+function askName() { if (!myName) { const n = prompt("your name (shown to others in the room)", ""); if (n) { myName = n.trim().slice(0, 24); try { localStorage.setItem("agkm-daw-name", myName); } catch (e) { } } } }
+$("#btnShare").onclick = () => { if (room) navigator.clipboard?.writeText(location.href).then(() => banner("link copied — " + (roomKey !== room ? "they'll need the password" : "anyone with it edits live")), () => banner(location.href)); };
+$("#btnNewRoom").onclick = () => {
+  if (room && !confirm("Leave “" + room + "” and start a new room from your personal project?")) return;
+  askName();
+  const name = (prompt("new room name (letters/numbers) — leave blank for a random one", "") || "").trim().replace(/[^a-z0-9_-]/gi, "").toLowerCase() || Math.random().toString(36).slice(2, 8);
+  const pw = (prompt("password for the room (leave blank for an open room)", "") || "").trim();
+  pendingPw = pw; pendingNew = true;
+  if (room) { leaveRoom().then(() => { location.hash = "#room=" + name; }); } else location.hash = "#room=" + name;
+};
+$("#btnJoinRoom").onclick = () => {
+  askName();
+  const raw = (prompt("room name or link", "") || "").trim(); if (!raw) return;
+  const m = raw.match(/room=([a-z0-9_-]+)/i); const name = (m ? m[1] : raw).replace(/[^a-z0-9_-]/gi, "").toLowerCase(); if (!name) return banner("that doesn't look like a room");
+  pendingNew = false;
+  if (name === room) return banner("you're already in “" + name + "”");
   location.hash = "#room=" + name;
 };
+let pendingNew = false, pendingNewHash = false;
 $("#btnCopy").onclick = () => navigator.clipboard?.writeText(location.href).then(() => banner("link copied"), () => banner(location.href));
 $("#btnLeave").onclick = () => { location.hash = ""; };
 $("#btnKeep").onclick = async () => {
