@@ -258,6 +258,23 @@
   .pad canvas { width:100%; height:22px; opacity:0.8; }
   .pad .x { position:absolute; right:3px; top:1px; background:rgba(20,17,12,0.9); border-radius:2px; padding:0 3px; opacity:0.35; font-size:0.85rem; line-height:1; } .pad .x:hover { opacity:1; }
   .pad .empty { font-size:0.62rem; color:rgba(250,248,245,0.3); letter-spacing:0.08em; margin:auto; text-align:center; }
+
+  #padPanel.open { height:min(330px, 48vh); }
+  #padBody { flex:1; display:grid; grid-template-rows:1fr auto; min-height:0; }
+  #padGrid { overflow-y:auto; }
+  #padEdit { display:none; grid-template-columns:minmax(220px, 1fr) 2fr; gap:0.8rem; padding:0.5rem 0.8rem; border-top:1px solid var(--line2); background:rgba(0,0,0,0.25); }
+  #padEdit.on { display:grid; }
+  #padWaveWrap { position:relative; height:118px; background:rgba(0,0,0,0.3); border:1px solid var(--line2); border-radius:3px; overflow:hidden; touch-action:none; }
+  #padWave { position:absolute; inset:0; width:100%; height:100%; }
+  #padEditName { position:absolute; left:6px; top:3px; font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color:rgba(250,248,245,0.5); pointer-events:none; }
+  .pm { position:absolute; top:0; bottom:0; width:2px; cursor:ew-resize; }
+  .pm::after { content:''; position:absolute; left:-6px; top:0; width:14px; height:100%; }
+  .pm.st, .pm.en { background:var(--ivory); } .pm.ls, .pm.le { background:#7fb77a; display:none; } #padWaveWrap.loop .pm.ls, #padWaveWrap.loop .pm.le { display:block; }
+  #padKnobs { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:0.25rem 0.8rem; align-content:start; }
+  .pk { display:grid; grid-template-columns:48px 1fr 44px; align-items:center; gap:0.3rem; font-size:0.62rem; letter-spacing:0.06em; color:rgba(250,248,245,0.6); }
+  .pk input[type=range] { height:12px; min-width:0; width:100%; } .pk span { text-align:right; color:rgba(250,248,245,0.8); font-variant-numeric:tabular-nums; }
+  .pk.modes { grid-column:1 / -1; display:flex; gap:0.3rem; } .pk.modes .tbtn.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
+  @media (max-width:760px) { #padEdit { grid-template-columns:1fr; } #padWaveWrap { height:80px; } }
   #padRec.on { background:#b24a3a; border-color:#b24a3a; color:var(--ivory); animation:pulse 1s infinite; }
 
   @media (max-width:760px) { #insp { padding:0 0.8rem; gap:0.4rem; } #insp .iname { width:6rem; } #insp #iTrRow { display:none; } }
@@ -409,7 +426,23 @@
     <button class="tbtn sm" id="padRec" title="Record the mic into the selected pad (plays for 4 beats)">● rec pad</button>
     <button class="tbtn sm" id="padClear">clear all</button>
     <button class="tbtn" id="padClose">✕</button></div>
-  <div id="padGrid"></div>
+  <div id="padBody">
+    <div id="padGrid"></div>
+    <div id="padEdit">
+      <div id="padWaveWrap"><canvas id="padWave"></canvas><div class="pm st" id="pmStart"></div><div class="pm en" id="pmEnd"></div><div class="pm ls" id="pmLs"></div><div class="pm le" id="pmLe"></div><div id="padEditName"></div></div>
+      <div id="padKnobs">
+        <div class="pk modes"><button class="tbtn sm" data-mode="classic" title="plays while the note is held, then releases">classic</button><button class="tbtn sm" data-mode="oneshot" title="plays the whole region every hit">one-shot</button><button class="tbtn sm" id="pkLoop" title="loop the region while held">loop</button><button class="tbtn sm" id="pkRev">reverse</button></div>
+        <label class="pk">gain<input type="range" data-k="gain" min="0" max="2" step="0.01"><span></span></label>
+        <label class="pk">tune<input type="range" data-k="tune" min="-24" max="24" step="1"><span></span></label>
+        <label class="pk">attack<input type="range" data-k="att" min="0" max="2" step="0.005"><span></span></label>
+        <label class="pk">decay<input type="range" data-k="dec" min="0.01" max="4" step="0.01"><span></span></label>
+        <label class="pk">sustain<input type="range" data-k="sus" min="0" max="1" step="0.01"><span></span></label>
+        <label class="pk">release<input type="range" data-k="rel" min="0.005" max="4" step="0.005"><span></span></label>
+        <label class="pk">cutoff<input type="range" data-k="cut" min="0" max="1000" step="1"><span></span></label>
+        <label class="pk">res<input type="range" data-k="res" min="0" max="20" step="0.1"><span></span></label>
+      </div>
+    </div>
+  </div>
 </div>
 <div id="fxPanel">
   <div id="fxHead"><span>effects</span><b id="fxName"></b><span class="sp"></span><select id="fxAdd" class="tbtn"><option value="">add effect…</option></select><button class="tbtn" id="fxClose">✕</button></div>
@@ -422,7 +455,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03m";
+const BUILD = "2026-10-03n";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -588,19 +621,41 @@ const INST_LIST = () => [
 // sampler: track.pads = { "<pitch>": { src, gain } } starting at C3 (48). An unmapped pitch plays the nearest
 // mapped pad below it chromatically when the track has a single pad, so one sample can be played as a keyboard.
 const PAD0 = 48;
+const PAD_DEF = { start: 0, end: 1, loop: false, ls: 0, le: 1, mode: "classic", gain: 1, tune: 0, att: 0, dec: 0.6, sus: 1, rel: 0.05, cut: 20000, res: 0, rev: false };
+const padP = p => ({ ...PAD_DEF, ...p });
 function padsInst(track) {
   const pads = track.pads || {};
   return {
-    kind: "pads", oneShot: true,
+    kind: "pads",
     play(ctx, dest, pitch, vel, t0) {
-      let p = pads[pitch], rate = 1;
-      if (!p) { const keys = Object.keys(pads).map(Number); if (keys.length === 1) { p = pads[keys[0]]; rate = Math.pow(2, (pitch - keys[0]) / 12); } else return null; }
-      const a = audios[p.src]; if (!a) return null;
-      const s = ctx.createBufferSource(); s.buffer = a.buf; s.playbackRate.value = rate * (p.rate || 1);
-      const g = ctx.createGain(); g.gain.value = (0.3 + 0.7 * vel) * (p.gain ?? 1); s.connect(g); g.connect(dest); s.start(t0);
-      return { stop(t) { if (p.hold) { g.gain.setTargetAtTime(0, t, 0.02); s.stop(t + 0.15); } }, kill() { try { s.stop(); } catch (e) { } }, pitch };
+      let raw = pads[pitch], rate = 1;
+      if (!raw) { const keys = Object.keys(pads).map(Number); if (keys.length === 1) { raw = pads[keys[0]]; rate = Math.pow(2, (pitch - keys[0]) / 12); } else return null; }
+      const a = audios[raw.src]; if (!a) return null;
+      const p = padP(raw), dur = a.buf.duration;
+      let buf = a.buf; if (p.rev) buf = reversed(ctx, a);
+      const s = ctx.createBufferSource(); s.buffer = buf; s.playbackRate.value = rate * Math.pow(2, p.tune / 12);
+      const st = Math.min(p.start, p.end - 0.001) * dur, en = Math.max(p.end, p.start + 0.001) * dur;
+      if (p.loop) { s.loop = true; s.loopStart = Math.max(st, Math.min(p.ls, p.le - 0.001) * dur); s.loopEnd = Math.min(en, Math.max(p.le, p.ls + 0.001) * dur); }
+      const f = ctx.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = p.cut; f.Q.value = p.res;
+      const amp = ctx.createGain(), out = ctx.createGain(); out.gain.value = (0.3 + 0.7 * vel) * p.gain;
+      s.connect(f); f.connect(amp); amp.connect(out); out.connect(dest);
+      const peak = 1, A = Math.max(0.001, p.att), D = Math.max(0.001, p.dec), S = p.sus, R = Math.max(0.005, p.rel);
+      amp.gain.setValueAtTime(0, t0); amp.gain.linearRampToValueAtTime(peak, t0 + A); amp.gain.setTargetAtTime(S * peak, t0 + A, D / 3);
+      const natural = t0 + (en - st) / s.playbackRate.value;
+      if (p.loop) s.start(t0, st); else s.start(t0, st, en - st);
+      let stopped = false;
+      const release = t => { if (stopped) return; stopped = true; t = Math.max(t, t0 + 0.005); amp.gain.cancelScheduledValues(t); amp.gain.setValueAtTime(Math.max(0.0001, amp.gain.value), t); amp.gain.setTargetAtTime(0, t, R / 3); try { s.stop(t + R + 0.05); } catch (e) { } };
+      if (p.mode === "oneshot" && !p.loop) release(natural - R);     // one-shot: play the region, release at its end regardless of note-off
+      return { stop(t) { if (p.mode === "classic") release(t); }, kill() { stopped = true; try { s.stop(); } catch (e) { } }, pitch };
     }
   };
+}
+const revCache = {};
+function reversed(ctx, a) {
+  const k = a.id + ":" + ctx.sampleRate; if (revCache[k]) return revCache[k];
+  const b = ctx.createBuffer(a.buf.numberOfChannels, a.buf.length, a.buf.sampleRate);
+  for (let c = 0; c < b.numberOfChannels; c++) { const d = b.getChannelData(c), src = a.buf.getChannelData(c); for (let i = 0; i < d.length; i++) d[i] = src[d.length - 1 - i]; }
+  return revCache[k] = b;
 }
 const instCache = {};
 function instOf(track) {
@@ -612,7 +667,7 @@ function instOf(track) {
 const isPads = t => isMidi(t) && t.inst === "pads";
 function addSamplerTrack() {
   const n = tracksSorted().length, pads = {};
-  [["kit-kick", "kick"], ["kit-snare", "snare"], ["kit-hat", "hat"], ["kit-clap", "clap"], ["kit-bass", "bass"]].forEach(([id], i) => { if (audios[id]) pads[PAD0 + i] = { src: id, gain: 1 }; });
+  [["kit-kick", "kick"], ["kit-snare", "snare"], ["kit-hat", "hat"], ["kit-clap", "clap"], ["kit-bass", "bass"]].forEach(([id], i) => { if (audios[id]) pads[PAD0 + i] = { src: id, gain: 1, mode: "oneshot" }; });
   const t = { t: "track", id: uid(), name: "sampler " + (n + 1), kind: "midi", inst: "pads", pads, gain: 0.8, pan: 0, mute: false, solo: false, order: n, color: COLORS[n % COLORS.length] };
   commit(t); return t.id;
 }
@@ -1856,7 +1911,7 @@ async function joinRoom(name) {
     const onP = s => { if (s.key === uidSelf) return; peers[s.key] = s.val(); renderPeers(); };
     unsub.push(fb.onChildAdded(pr, onP), fb.onChildChanged(pr, onP), fb.onChildRemoved(pr, s => { delete peers[s.key]; renderPeers(); }));
     sendPresence(true); presTimer = setInterval(() => sendPresence(), 700);
-  } catch (e) { console.warn(e); banner("couldn't join room “" + name + "”: " + (e.code || e.message || e), 6000); room = null; roomKey = null; roomRef = null; location.hash = ""; }
+  } catch (e) { console.warn(e); banner("couldn't join room “" + name + "”: " + (e.message || e.code || e) + " — check the database rules allow daw/", 8000); room = null; roomKey = null; roomRef = null; location.hash = ""; }
   joining = false; pendingBlank = false; updateShareUi(); render();
 }
 function leaveRoomListeners() { for (const u of unsub) { try { u(); } catch (e) { } } unsub = []; if (presTimer) clearInterval(presTimer); presTimer = null; if (presRef) { try { fb.remove(presRef); } catch (e) { } } presRef = null; peers = {}; renderPeers(); }
@@ -2167,18 +2222,60 @@ function renderPads() {
     const pd = pads[p], a = pd && audios[pd.src], d = el("div", "pad" + (pd ? " filled" : "") + (padSel === p ? " sel" : "")); d.dataset.p = p;
     d.innerHTML = `<div class="k"><span>${noteName(p)}</span><span class="dur">${pd ? (a ? a.dur.toFixed(2) + "s" : "…") : ""}</span></div>` + (pd ? `<div class="n"></div><canvas width="100" height="22"></canvas><button class="x" title="clear pad">×</button>` : `<div class="empty">drop audio<br>or + files</div>`);
     if (pd) { d.querySelector(".n").textContent = a ? a.name : "(missing)"; if (a) drawPeaks(d.querySelector("canvas"), a.peaks); d.querySelector(".x").onclick = e => { e.stopPropagation(); setPad(padTrack, p, null); }; }
-    d.addEventListener("pointerdown", e => { if (e.target.classList.contains("x")) return; e.preventDefault(); padSel = p; padGrid.querySelectorAll(".pad.sel").forEach(x => x.classList.remove("sel")); d.classList.add("sel"); if (pd) { d.classList.add("hit"); liveNoteOn(p, velNow); const up = () => { liveNoteOff(p); d.classList.remove("hit"); window.removeEventListener("pointerup", up); }; window.addEventListener("pointerup", up); if (a) startPadDrag(e, pd.src); } });
+    d.addEventListener("pointerdown", e => { if (e.target.classList.contains("x")) return; e.preventDefault(); padSel = p; padGrid.querySelectorAll(".pad.sel").forEach(x => x.classList.remove("sel")); d.classList.add("sel"); renderPadEdit(); if (pd) { d.classList.add("hit"); liveNoteOn(p, velNow); const up = () => { liveNoteOff(p); d.classList.remove("hit"); window.removeEventListener("pointerup", up); }; window.addEventListener("pointerup", up); if (a) startPadDrag(e, pd.src); } });
     d.addEventListener("dragover", e => { e.preventDefault(); d.classList.add("over"); }); d.addEventListener("dragleave", () => d.classList.remove("over"));
     d.addEventListener("drop", async e => { e.preventDefault(); e.stopPropagation(); d.classList.remove("over"); document.body.classList.remove("dropping"); dropDepth = 0; const fs = [...e.dataTransfer.files]; let q = p; for (const f of fs) { const id = await addAudio(f.name, f); if (id) setPad(padTrack, q++, { src: id, gain: 1 }); } });
     padGrid.appendChild(d);
   }
 }
+// ---- pad editor (Simpler-style) ----
+const padEditEl = $("#padEdit"), padWave = $("#padWave"), padWaveWrap = $("#padWaveWrap");
+const PK_FMT = { gain: v => (20 * Math.log10(v || 0.0001)).toFixed(1) + "dB", tune: v => (v > 0 ? "+" : "") + v + "st", att: v => v.toFixed(3) + "s", dec: v => v.toFixed(2) + "s", sus: v => Math.round(v * 100) + "%", rel: v => v.toFixed(3) + "s", cut: v => v >= 1000 ? (v / 1000).toFixed(1) + "k" : Math.round(v) + "Hz", res: v => v.toFixed(1) };
+const cutToX = v => 1000 * Math.log(v / 20) / Math.log(1000), xToCut = x => 20 * Math.pow(1000, x / 1000);
+function curPad() { const t = proj.tracks[padTrack]; const pd = t && t.pads && t.pads[padSel]; return pd ? padP(pd) : null; }
+function renderPadEdit() {
+  const pd = curPad(); padEditEl.classList.toggle("on", !!pd); if (!pd) return;
+  const a = audios[pd.src]; $("#padEditName").textContent = noteName(padSel) + " · " + (a ? a.name : "…");
+  for (const inp of padEditEl.querySelectorAll("input[data-k]")) { const k = inp.dataset.k; if (document.activeElement === inp) continue; inp.value = k === "cut" ? cutToX(pd.cut) : pd[k]; inp.nextElementSibling.textContent = PK_FMT[k](pd[k]); }
+  for (const b of padEditEl.querySelectorAll("[data-mode]")) b.classList.toggle("on", pd.mode === b.dataset.mode);
+  $("#pkLoop").classList.toggle("on", !!pd.loop); $("#pkRev").classList.toggle("on", !!pd.rev); padWaveWrap.classList.toggle("loop", !!pd.loop);
+  const W = padWaveWrap.clientWidth || 300, H = padWaveWrap.clientHeight || 118; padWave.width = W; padWave.height = H;
+  const g = padWave.getContext("2d"); g.clearRect(0, 0, W, H);
+  if (a) { const pk = a.peaks; g.fillStyle = "rgba(198,123,92,0.9)"; for (let x = 0; x < W; x++) { let i0 = Math.floor(x / W * pk.length), i1 = Math.floor((x + 1) / W * pk.length); if (pd.rev) { const t = i0; i0 = pk.length - 1 - i1; i1 = pk.length - 1 - t; } let m = 0; for (let i = Math.max(0, i0); i <= i1 && i < pk.length; i++) if (pk[i] > m) m = pk[i]; const hh = Math.max(1, m * (H - 8)); g.fillRect(x, (H - hh) / 2, 1, hh); } }
+  g.fillStyle = "rgba(0,0,0,0.55)"; g.fillRect(0, 0, pd.start * W, H); g.fillRect(pd.end * W, 0, W - pd.end * W, H);
+  if (pd.loop) { g.fillStyle = "rgba(127,183,122,0.15)"; g.fillRect(pd.ls * W, 0, (pd.le - pd.ls) * W, H); }
+  $("#pmStart").style.left = pd.start * W + "px"; $("#pmEnd").style.left = pd.end * W - 2 + "px"; $("#pmLs").style.left = pd.ls * W + "px"; $("#pmLe").style.left = pd.le * W - 2 + "px";
+}
+function padPatch(patch) { const t = proj.tracks[padTrack]; const pd = t && t.pads && t.pads[padSel]; if (!pd) return; setPad(padTrack, padSel, { ...pd, ...patch }); }
+for (const inp of padEditEl.querySelectorAll("input[data-k]")) {
+  const k = inp.dataset.k, val = () => k === "cut" ? xToCut(+inp.value) : +inp.value;
+  inp.addEventListener("input", () => { inp.nextElementSibling.textContent = PK_FMT[k](val()); const t = proj.tracks[padTrack]; if (t && t.pads && t.pads[padSel]) { t.pads[padSel][k] = val(); } });   // live preview without an op
+  inp.addEventListener("change", () => { const t = proj.tracks[padTrack]; if (t && t.pads && t.pads[padSel]) { const v = val(); delete t.pads[padSel][k]; padPatch({ [k]: v }); } });
+  inp.addEventListener("dblclick", () => padPatch({ [k]: PAD_DEF[k] }));
+  inp.addEventListener("keydown", e => e.stopPropagation());
+}
+for (const b of padEditEl.querySelectorAll("[data-mode]")) b.onclick = () => padPatch({ mode: b.dataset.mode });
+$("#pkLoop").onclick = () => { const pd = curPad(); if (pd) padPatch({ loop: !pd.loop, ls: pd.loop ? pd.ls : Math.max(pd.ls, pd.start), le: pd.loop ? pd.le : Math.min(pd.le, pd.end) }); };
+$("#pkRev").onclick = () => { const pd = curPad(); if (pd) padPatch({ rev: !pd.rev }); };
+// drag the markers (start/end white, loop green); click elsewhere on the wave sets the start
+padWaveWrap.addEventListener("pointerdown", e => {
+  const pd = curPad(); if (!pd) return; e.preventDefault();
+  const W = padWaveWrap.clientWidth, x0 = e.clientX - padWaveWrap.getBoundingClientRect().left, frac = x => clamp((e2x(x)) / W, 0, 1), e2x = x => x - padWaveWrap.getBoundingClientRect().left;
+  const marks = [["start", pd.start], ["end", pd.end]].concat(pd.loop ? [["ls", pd.ls], ["le", pd.le]] : []);
+  let key = null, best = 9; for (const [k, v] of marks) { const d = Math.abs(v * W - x0); if (d < best) { best = d; key = k; } }
+  if (!key) { key = "start"; }
+  const t = proj.tracks[padTrack], raw = t.pads[padSel], orig = { ...raw };
+  const mv = ev => { const f = frac(ev.clientX); const p = padP(raw); if (key === "start") raw.start = Math.min(f, p.end - 0.002); else if (key === "end") raw.end = Math.max(f, p.start + 0.002); else if (key === "ls") raw.ls = clamp(Math.min(f, p.le - 0.002), p.start, p.end); else raw.le = clamp(Math.max(f, p.ls + 0.002), p.start, p.end); renderPadEdit(); };
+  mv(e);
+  const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); const now = { ...raw }; for (const k of Object.keys(raw)) if (!(k in orig)) delete raw[k]; Object.assign(raw, orig); setPad(padTrack, padSel, now); liveNoteOn(padSel, 0.8); setTimeout(() => liveNoteOff(padSel), 400); };
+  window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
+});
 function drawPeaks(cv, peaks) { const g = cv.getContext("2d"); g.fillStyle = "#C67B5C"; for (let x = 0; x < cv.width; x++) { const i0 = Math.floor(x / cv.width * peaks.length), i1 = Math.floor((x + 1) / cv.width * peaks.length); let m = 0; for (let i = i0; i <= i1 && i < peaks.length; i++) if (peaks[i] > m) m = peaks[i]; const hh = Math.max(1, m * cv.height); g.fillRect(x, (cv.height - hh) / 2, 1, hh); } }
 // dragging a pad out drops its sample on an audio lane / session slot (reuses the old tray drag)
 function startPadDrag(e, aid) { const x0 = e.clientX, y0 = e.clientY; const chk = ev => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) { window.removeEventListener("pointermove", chk); onSampleDown(ev, aid, true); } }; window.addEventListener("pointermove", chk); window.addEventListener("pointerup", () => window.removeEventListener("pointermove", chk), { once: true }); }
 $("#padAdd").onclick = () => $("#padIn").click();
 $("#padIn").addEventListener("change", async e => { const fs = [...e.target.files]; e.target.value = ""; if (!padTrack) return; let p = freePad(padTrack); for (const f of fs) { const id = await addAudio(f.name, f); if (id) { setPad(padTrack, p, { src: id, gain: 1 }); p = freePad(padTrack); } } });
-$("#padKit").onclick = () => { if (!padTrack) return; const pads = { ...padsOf(padTrack) }; let p = freePad(padTrack); for (const id of ["kit-kick", "kit-snare", "kit-hat", "kit-clap", "kit-bass"]) { if (Object.values(pads).some(v => v.src === id)) continue; while (pads[p]) p++; pads[p] = { src: id, gain: 1 }; } commit({ t: "track", id: padTrack, pads }); };
+$("#padKit").onclick = () => { if (!padTrack) return; const pads = { ...padsOf(padTrack) }; let p = freePad(padTrack); for (const id of ["kit-kick", "kit-snare", "kit-hat", "kit-clap", "kit-bass"]) { if (Object.values(pads).some(v => v.src === id)) continue; while (pads[p]) p++; pads[p] = { src: id, gain: 1, mode: "oneshot" }; } commit({ t: "track", id: padTrack, pads }); };
 $("#padClear").onclick = () => { if (padTrack && confirm("Clear every pad on this track?")) commit({ t: "track", id: padTrack, pads: {} }); };
 // record the mic straight into a pad (4 beats)
 $("#padRec").onclick = async () => {
@@ -2211,7 +2308,7 @@ function banner(msg, ms = 2200) { const b = $("#banner"); b.textContent = msg; b
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
