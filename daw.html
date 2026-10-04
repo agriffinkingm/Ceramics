@@ -410,7 +410,7 @@
     <button class="tbtn sm" id="btnLeave" title="Leave the room — back to your personal project" style="display:none">leave</button>
   </div>
   <div id="spacer"></div>
-  <div id="hint">● arms · dbl-click a clip to edit / loop · auto ▾ opens an automation lane · lfo lives in the fx rack · Q quantizes · new room / join room</div>
+  <div id="hint">● arms one track · dbl-click a clip to edit / loop · auto ▾ opens an automation lane · lfo lives in the fx rack · Q quantizes · new room / join room</div>
 </div>
 
 <div id="insp">
@@ -509,7 +509,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-04b";
+const BUILD = "2026-10-04c";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -1224,7 +1224,7 @@ function buildHdr(t) {
   if (sel) { sel.addEventListener("pointerdown", e => e.stopPropagation()); sel.addEventListener("keydown", e => e.stopPropagation()); sel.addEventListener("change", () => { const op = { t: "track", id: t.id, inst: sel.value }; if (sel.value === "pads" && !proj.tracks[t.id].pads) op.pads = {}; commit(op); if (sel.value === "pads") openPads(t.id); }); }
   h.querySelector(".fx").onclick = e => { e.stopPropagation(); openFx(t.id); };
   const name = h.querySelector(".name");
-  h.addEventListener("pointerdown", () => { selTrack = t.id; render(); });
+  h.addEventListener("pointerdown", () => { selTrack = t.id; if (armed.size && !rec.any && isMidi(t) && !armed.has(t.id) && [...armed].every(a => isMidi(proj.tracks[a]))) { armed.clear(); armed.add(t.id); } render(); });
   h.querySelector(".dot").addEventListener("click", e => { e.stopPropagation(); const i = COLORS.indexOf(proj.tracks[t.id].color); commit({ t: "track", id: t.id, color: COLORS[(i + 1) % COLORS.length] }); });
   h.querySelector(".dot").title = "click to change colour";
   name.addEventListener("dblclick", () => { name.contentEditable = "true"; name.focus(); document.execCommand("selectAll", false, null); });
@@ -1863,11 +1863,16 @@ window.addEventListener("blur", () => { for (const k in kbdHeld) { liveNoteOff(k
 let lastTake = null, recArmed = false, recs = {}, micStream = null, recCount = 0, workletReady = false;
 const armed = new Set();
 const rec = { get kind() { const r = Object.values(recs)[0]; return r && r.kind; }, get track() { return Object.values(recs)[0]?.track; }, get chunks() { return Object.values(recs).find(r => r.kind === "a")?.chunks; }, get held() { return Object.values(recs).find(r => r.kind === "m")?.held; }, get notes() { return Object.values(recs).find(r => r.kind === "m")?.notes; }, get any() { return Object.keys(recs).length > 0; } };
-function toggleArm(tid) { if (armed.has(tid)) { armed.delete(tid); if (recs[tid]) finishOne(tid); } else armed.add(tid); render(); }
+// one armed track at a time (audio or midi) — arming a track disarms the others
+function toggleArm(tid) {
+  if (armed.has(tid)) { armed.delete(tid); if (recs[tid]) finishOne(tid); }
+  else { for (const o of [...armed]) { armed.delete(o); if (recs[o]) finishOne(o); } armed.add(tid); }
+  render();
+}
 $("#btnRec").onclick = toggleRec;
 function toggleRec() {
   recArmed = !recArmed; $("#btnRec").classList.toggle("on", recArmed); if (recArmed && !overdub) lastTake = null;
-  if (recArmed && !armed.size) { const t = proj.tracks[selTrack] || tracksSorted()[0]; if (t) { armed.add(t.id); render(); banner("armed " + t.name + " — use the ● on each track to arm more"); } }
+  if (recArmed && !armed.size) { const t = proj.tracks[selTrack] || tracksSorted()[0]; if (t) { armed.add(t.id); render(); banner("armed " + t.name); } }
   if (recArmed) { if (!engine.playing) { if (countIn) playCountIn(() => { if (recArmed && !engine.playing) togglePlay(); }); else togglePlay(); } else startRec(); } else finishRec();
   updateRecUi();
 }
