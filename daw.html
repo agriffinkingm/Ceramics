@@ -419,7 +419,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03h";
+const BUILD = "2026-10-03i";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -961,7 +961,7 @@ const idbGet = (store, k) => idb().then(d => new Promise((res, rej) => { const q
 const idbAll = store => idb().then(d => new Promise((res, rej) => { const q = d.transaction(store).objectStore(store).getAll(); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }));
 const idbDel = (store, k) => idb().then(d => new Promise((res, rej) => { const q = d.transaction(store, "readwrite").objectStore(store).delete(k); q.onsuccess = () => res(); q.onerror = () => rej(q.error); }));
 let saveT = null;
-function saveSoon() { if (inRoom()) return; clearTimeout(saveT); saveT = setTimeout(() => idbPut("kv", { ...proj, pxPerBeat, playhead }, "proj").catch(() => { }), 400); }
+function saveSoon() { if (inRoom()) return; clearTimeout(saveT); saveT = setTimeout(() => { if (inRoom()) return; idbPut("kv", { ...proj, pxPerBeat, playhead }, "proj").catch(() => { }); }, 400); }
 async function restore() {
   try {
     const p = await idbGet("kv", "proj");
@@ -1722,13 +1722,14 @@ function renderFx() {
 // under daw/rooms/<name> on the wall's Firebase project; every committed op is written per entity, remote changes are
 // applied directly (no undo entry). Playback stays local; other people's playheads and selections are shown.
 const firebaseConfig = { apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I", authDomain: "griffgraff-baa46.firebaseapp.com", databaseURL: "https://griffgraff-baa46-default-rtdb.firebaseio.com", projectId: "griffgraff-baa46", storageBucket: "griffgraff-baa46.firebasestorage.app", messagingSenderId: "354313176929", appId: "1:354313176929:web:65aa8467f9aad220026720" };
-let fb = null, room = null, roomRef = null, unsub = [], peers = {}, presRef = null, presTimer = null, joining = false;
+let fb = null, room = null, roomKey = null, roomRef = null, unsub = [], peers = {}, presRef = null, presTimer = null, joining = false;
 const uidSelf = (() => { try { let u = sessionStorage.getItem("agkm-daw-uid"); if (!u) { u = uid(); sessionStorage.setItem("agkm-daw-uid", u); } return u; } catch (e) { return uid(); } })();
 let myName = (() => { try { return localStorage.getItem("agkm-daw-name") || ""; } catch (e) { return ""; } })();
 const myColor = COLORS[Math.abs([...uidSelf].reduce((a, c) => a + c.charCodeAt(0), 0)) % COLORS.length];
 const inRoom = () => !!room;
 async function loadFirebase() {
   if (fb) return fb;
+  if (window.__fakeFb) return fb = window.__fakeFb();   // offline test harness
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
   const d = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
   const app = initializeApp(firebaseConfig); const db = d.getDatabase(app);
@@ -1765,14 +1766,26 @@ function applyRemote(kind, id, val) {
   if (kind === "clip" && val.src && !audios[val.src] && !val.kind) requestAudio(val.src);
   afterChange([{ t: kind, id }]);
 }
+// password: a locked room is stored at rooms/<name>-<hash>, where hash = sha256(name:password). Without the password
+// the path can't be found, so the lock holds even though the database rules are open. daw/locks/<name> just marks that a
+// password is needed so joiners are asked instead of accidentally creating a new open room with the same name.
+async function roomHash(name, pw) { const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(name + ":" + pw)); return [...new Uint8Array(d)].slice(0, 12).map(b => b.toString(16).padStart(2, "0")).join(""); }
+const pwMem = { get: n => { try { return sessionStorage.getItem("agkm-daw-pw:" + n) || ""; } catch (e) { return ""; } }, set: (n, v) => { try { sessionStorage.setItem("agkm-daw-pw:" + n, v); } catch (e) { } } };
+let pendingPw = null;   // password chosen when creating a room via the share button
 async function joinRoom(name) {
   if (joining) return; joining = true;
+  if (saveT) { clearTimeout(saveT); saveT = null; if (!inRoom()) await idbPut("kv", { ...proj, pxPerBeat, playhead }, "proj").catch(() => { }); }
   try {
     await loadFirebase();
     leaveRoomListeners();
-    room = name; roomRef = fb.ref(fb.db, "daw/rooms/" + name); netKnown.clear();
+    const locked = (await fb.get(fb.ref(fb.db, "daw/locks/" + name))).exists();
+    let key = name, pw = pendingPw ?? pwMem.get(name); pendingPw = null;
+    if (locked && !pw) { pw = prompt("room “" + name + "” is locked — password?", "") || ""; if (!pw) { joining = false; location.hash = ""; banner("not joined"); return; } }
+    if (pw) { key = name + "-" + await roomHash(name, pw); if (locked) { const ok = (await fb.get(fb.ref(fb.db, "daw/rooms/" + key + "/meta/created"))).exists(); if (!ok) { joining = false; location.hash = ""; banner("wrong password for “" + name + "”"); return; } } pwMem.set(name, pw); }
+    room = name; roomKey = key; roomRef = fb.ref(fb.db, "daw/rooms/" + key); netKnown.clear();
     const metaSnap = await fb.get(fb.child(roomRef, "meta"));
     if (!metaSnap.exists()) {
+      if (pw) await fb.set(fb.ref(fb.db, "daw/locks/" + name), true);
       // first in: seed the room with this project
       const seed = { meta: { bpm: proj.bpm, loop: proj.loop, scenes: proj.scenes || 8, master: proj.master || { gain: 0.9, fx: [] }, created: Date.now() }, tracks: {}, clips: {} };
       for (const t of Object.values(proj.tracks)) { seed.tracks[t.id] = cleanForNet(t); netKnown.add("tracks/" + t.id); }
@@ -1780,7 +1793,7 @@ async function joinRoom(name) {
       await fb.set(roomRef, seed);
       for (const c of Object.values(proj.clips)) if (c.src && audios[c.src]?.persist) shareAudio(c.src);
       for (const t of Object.values(proj.tracks)) for (const pd of Object.values(t.pads || {})) if (audios[pd.src]?.persist) shareAudio(pd.src);
-      banner("room “" + name + "” created from your project — share the link");
+      banner("room “" + name + "” created from your project" + (pw ? " (locked)" : "") + " — share the link");
     } else {
       // the room wins: replace the local project, keep local samples in memory
       proj.tracks = {}; proj.clips = {}; selected.clear(); undoStack.length = 0; redoStack.length = 0; closeRoll(); closeFx();
@@ -1808,7 +1821,7 @@ async function joinRoom(name) {
 }
 function leaveRoomListeners() { for (const u of unsub) { try { u(); } catch (e) { } } unsub = []; if (presTimer) clearInterval(presTimer); presTimer = null; if (presRef) { try { fb.remove(presRef); } catch (e) { } } presRef = null; peers = {}; renderPeers(); }
 async function leaveRoom() {
-  leaveRoomListeners(); room = null; roomRef = null; netKnown.clear();
+  leaveRoomListeners(); room = null; roomKey = null; roomRef = null; netKnown.clear();
   // back to the personal project
   proj.tracks = {}; proj.clips = {}; selected.clear(); undoStack.length = 0; redoStack.length = 0; closeRoll(); closeFx();
   for (const id in audios) if (audios[id].fromRoom) delete audios[id];
@@ -1832,7 +1845,7 @@ function renderPeers() {
     const l = el("div", "peerph"); l.style.left = beatToPx(p.beat || 0) + "px"; l.style.background = p.color; l.innerHTML = `<span style="background:${p.color}">${esc(p.name)}${p.playing ? " ▶" : ""}</span>`; layer.appendChild(l);
     for (const cid of p.sel || []) { const e = clipEls[cid]; if (e) { e.classList.add("peer"); e.style.setProperty("--pc", p.color); } }
   }
-  const n = Object.keys(peers).length; const b = $("#btnShare"); if (b && room) b.textContent = "⬡ " + room + (n ? " · " + (n + 1) : "");
+  const n = Object.keys(peers).length; const b = $("#btnShare"); if (b && room) b.textContent = (roomKey !== room ? "🔒 " : "⬡ ") + room + (n ? " · " + (n + 1) : "");
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 // audio samples: opus (MediaRecorder, real-time) as a data URL under audio/<id>; wav fallback when unsupported
@@ -1874,7 +1887,7 @@ async function receiveAudio(id, v) {
 // UI
 function updateShareUi() {
   const b = $("#btnShare"), lv = $("#btnLeave"), cp = $("#btnCopy"), kp = $("#btnKeep");
-  b.classList.toggle("on", !!room); b.textContent = room ? "⬡ " + room : "share";
+  b.classList.toggle("on", !!room); b.textContent = room ? (roomKey !== room ? "🔒 " : "⬡ ") + room : "share";
   for (const x of [lv, cp, kp]) x.style.display = room ? "" : "none";
   document.body.classList.toggle("shared", !!room);
 }
@@ -1882,6 +1895,8 @@ $("#btnShare").onclick = async () => {
   if (room) { navigator.clipboard?.writeText(location.href).then(() => banner("link copied — anyone with it edits live"), () => banner(location.href)); return; }
   if (!myName) { const n = prompt("your name (shown to others in the room)", ""); if (n) { myName = n.trim().slice(0, 24); try { localStorage.setItem("agkm-daw-name", myName); } catch (e) { } } }
   const name = (prompt("room name (letters/numbers) — leave blank for a random one", "") || "").trim().replace(/[^a-z0-9_-]/gi, "").toLowerCase() || Math.random().toString(36).slice(2, 8);
+  const pw = prompt("password for the room (leave blank for an open room)", "") || "";
+  pendingPw = pw.trim();
   location.hash = "#room=" + name;
 };
 $("#btnCopy").onclick = () => navigator.clipboard?.writeText(location.href).then(() => banner("link copied"), () => banner(location.href));
@@ -2137,7 +2152,7 @@ function banner(msg) { const b = $("#banner"); b.textContent = msg; b.classList.
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
