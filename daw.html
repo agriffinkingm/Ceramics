@@ -422,7 +422,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03l";
+const BUILD = "2026-10-03m";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -1810,7 +1810,8 @@ async function joinRoom(name) {
   try {
     await loadFirebase();
     leaveRoomListeners();
-    const locked = (await fb.get(fb.ref(fb.db, "daw/locks/" + name))).exists();
+    let locked = false;
+    try { locked = (await fb.get(fb.ref(fb.db, "daw/rooms/" + name + "/locked"))).exists() || (await fb.get(fb.ref(fb.db, "daw/locks/" + name))).exists(); } catch (e) { console.warn("lock check", e); }
     let key = name, pw = pendingPw ?? pwMem.get(name); pendingPw = null;
     if (locked && pendingNew) { banner("“" + name + "” already exists and is locked — join it instead, or pick another name"); pendingNew = false; pendingPw = null; joining = false; location.hash = ""; return; }
     if (locked && !pw) { pw = prompt("room “" + name + "” is locked — password?", "") || ""; if (!pw) { joining = false; location.hash = ""; banner("not joined"); return; } }
@@ -1823,8 +1824,9 @@ async function joinRoom(name) {
     }
     pendingNew = false;
     if (!metaSnap.exists()) {
-      if (pw) await fb.set(fb.ref(fb.db, "daw/locks/" + name), true);
-      // first in: seed the room with this project
+      if (pendingBlank) { blankProject(); selTrack = tracksSorted()[0]?.id || null; } pendingBlank = false;
+      if (pw) { await fb.set(fb.ref(fb.db, "daw/locks/" + name), true).catch(() => { }); await fb.set(fb.ref(fb.db, "daw/rooms/" + name + "/locked"), true).catch(() => { }); }
+      // first in: seed the room with this project (blank for “new room”)
       const seed = { meta: { bpm: proj.bpm, loop: proj.loop, scenes: proj.scenes || 8, master: proj.master || { gain: 0.9, fx: [] }, created: Date.now() }, tracks: {}, clips: {} };
       for (const t of Object.values(proj.tracks)) { seed.tracks[t.id] = cleanForNet(t); netKnown.add("tracks/" + t.id); }
       for (const c of Object.values(proj.clips)) { seed.clips[c.id] = cleanForNet(c); netKnown.add("clips/" + c.id); }
@@ -1836,7 +1838,7 @@ async function joinRoom(name) {
       // the room wins: replace the local project, keep local samples in memory
       proj.tracks = {}; proj.clips = {}; selected.clear(); undoStack.length = 0; redoStack.length = 0; closeRoll(); closeFx();
       const m = metaSnap.val(); proj.bpm = m.bpm || 120; proj.loop = m.loop || { on: false, a: 0, b: 16 }; proj.scenes = m.scenes || 8; proj.master = m.master || proj.master; $("#bpm").value = proj.bpm;
-      banner("joined room “" + name + "”");
+      setTimeout(() => banner("joined “" + name + "” — " + tracksSorted().length + " tracks, " + Object.keys(proj.clips).length + " clips" + (Object.keys(peers).length ? ", " + Object.keys(peers).length + " other" + (Object.keys(peers).length > 1 ? "s" : "") + " here" : ""), 4000), 1500);
     }
     const tr = fb.child(roomRef, "tracks"), cr = fb.child(roomRef, "clips"), ar = fb.child(roomRef, "audio");
     const onT = s => { netKnown.add("tracks/" + s.key); applyRemote("track", s.key, s.val()); }, onC = s => { netKnown.add("clips/" + s.key); applyRemote("clip", s.key, s.val()); };
@@ -1854,8 +1856,8 @@ async function joinRoom(name) {
     const onP = s => { if (s.key === uidSelf) return; peers[s.key] = s.val(); renderPeers(); };
     unsub.push(fb.onChildAdded(pr, onP), fb.onChildChanged(pr, onP), fb.onChildRemoved(pr, s => { delete peers[s.key]; renderPeers(); }));
     sendPresence(true); presTimer = setInterval(() => sendPresence(), 700);
-  } catch (e) { console.warn(e); banner("couldn't join room: " + (e.message || e)); room = null; roomRef = null; }
-  joining = false; updateShareUi(); render();
+  } catch (e) { console.warn(e); banner("couldn't join room “" + name + "”: " + (e.code || e.message || e), 6000); room = null; roomKey = null; roomRef = null; location.hash = ""; }
+  joining = false; pendingBlank = false; updateShareUi(); render();
 }
 function leaveRoomListeners() { for (const u of unsub) { try { u(); } catch (e) { } } unsub = []; if (presTimer) clearInterval(presTimer); presTimer = null; if (presRef) { try { fb.remove(presRef); } catch (e) { } } presRef = null; peers = {}; renderPeers(); }
 async function leaveRoom() {
@@ -1891,7 +1893,7 @@ async function shareAudio(id) {
   const a = audios[id]; if (!a || a.shared || a.sharing || !room || !fb) return; a.sharing = true;
   try {
     let blob = null, mime = "";
-    if (window.MediaRecorder && MediaRecorder.isTypeSupported("audio/webm;codecs=opus") && a.dur < 180) {
+    if (a.dur > 40 && window.MediaRecorder && MediaRecorder.isTypeSupported("audio/webm;codecs=opus") && a.dur < 180) {
       banner("sharing " + a.name + " (" + Math.ceil(a.dur) + "s)…");
       blob = await encodeOpus(a.buf); mime = "audio/webm";
     }
@@ -1937,9 +1939,16 @@ $("#btnNewRoom").onclick = () => {
   askName();
   const name = (prompt("new room name (letters/numbers) — leave blank for a random one", "") || "").trim().replace(/[^a-z0-9_-]/gi, "").toLowerCase() || Math.random().toString(36).slice(2, 8);
   const pw = (prompt("password for the room (leave blank for an open room)", "") || "").trim();
-  pendingPw = pw; pendingNew = true;
+  pendingPw = pw; pendingNew = true; pendingBlank = true;
   if (room) { leaveRoom().then(() => { location.hash = "#room=" + name; }); } else location.hash = "#room=" + name;
 };
+let pendingBlank = false;
+function blankProject() {
+  proj.tracks = {}; proj.clips = {}; proj.bpm = 120; proj.loop = { on: false, a: 0, b: 16 }; proj.scenes = 8; proj.master = { gain: 0.9, fx: [] };
+  [0, 1].forEach(i => { const id = uid(); proj.tracks[id] = { id, name: "audio " + (i + 1), kind: "audio", gain: 0.8, pan: 0, mute: false, solo: false, order: i, color: COLORS[i] }; });
+  const m = uid(); proj.tracks[m] = { id: m, name: "midi 3", kind: "midi", inst: "synth:keys", gain: 0.8, pan: 0, mute: false, solo: false, order: 2, color: COLORS[2] };
+  selected.clear(); undoStack.length = 0; redoStack.length = 0; closeRoll(); closeFx(); if (padTrack) closePads(); for (const k in sess) delete sess[k]; $("#bpm").value = proj.bpm; $("#masterGain").value = proj.master.gain;
+}
 $("#btnJoinRoom").onclick = () => {
   askName();
   const raw = (prompt("room name or link", "") || "").trim(); if (!raw) return;
@@ -1960,7 +1969,7 @@ $("#btnKeep").onclick = async () => {
   banner("saved a copy to your personal project");
 };
 function hashRoom() { const m = location.hash.match(/room=([a-z0-9_-]+)/i); return m ? m[1].toLowerCase() : null; }
-window.addEventListener("hashchange", () => { const r = hashRoom(); if (r && r !== room) joinRoom(r); else if (!r && room) leaveRoom(); });
+window.addEventListener("hashchange", () => { const r = hashRoom(); if (joining) { setTimeout(() => window.dispatchEvent(new Event("hashchange")), 300); return; } if (r && r !== room) joinRoom(r); else if (!r && room) leaveRoom(); });
 
 // ---------- session view (clip launcher) ----------
 // A clip with a `scene` number lives in a slot (track column × scene row) instead of the timeline. Launching plays it
@@ -2185,7 +2194,7 @@ $("#padRec").onclick = async () => {
 
 // ---------- banner ----------
 let bannerT;
-function banner(msg) { const b = $("#banner"); b.textContent = msg; b.classList.add("show"); clearTimeout(bannerT); bannerT = setTimeout(() => b.classList.remove("show"), 2200); }
+function banner(msg, ms = 2200) { const b = $("#banner"); b.textContent = msg; b.classList.add("show"); clearTimeout(bannerT); bannerT = setTimeout(() => b.classList.remove("show"), ms); }
 
 // ---------- boot ----------
 (async () => {
