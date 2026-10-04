@@ -160,6 +160,7 @@
   #rollLoopBar.on { display:block; }
   #rollLoopEnd { position:absolute; right:-9px; top:0; width:18px; height:16px; cursor:ew-resize; }
   #rollLoopEnd::after { content:''; position:absolute; left:4px; top:3px; border:5px solid transparent; border-top:8px solid var(--terracotta); }
+  #rollFold.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
   #rollLoop.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
   #marquee { position:absolute; display:none; border:1px solid var(--ivory); background:rgba(250,248,245,0.12); pointer-events:none; z-index:3; }
   #rollPh { position:absolute; top:0; width:1px; height:100%; background:var(--ivory); pointer-events:none; opacity:0.8; }
@@ -429,6 +430,7 @@
       <label class="field chk" title="quantize recorded takes as they land"><input type="checkbox" id="qRec"> on rec</label>
       <button class="tbtn" id="rollQuant" title="Quantize selected notes, or all if none selected (Q)">quantize</button>
     </span>
+    <button class="tbtn" id="rollFold" title="Fold: show only the pitches this clip uses (F)">fold</button>
     <button class="tbtn" id="rollLoop" title="Loop the clip: notes inside the loop length repeat for the clip's whole length — then drag the clip's right edge out in the arrangement">↻ loop</button>
     <button class="tbtn" id="rollDbl" title="Double the clip length, repeating its notes">×2</button>
     <button class="tbtn" id="rollClose">✕</button></div>
@@ -485,7 +487,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03r";
+const BUILD = "2026-10-03s";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -1432,6 +1434,7 @@ window.addEventListener("keydown", e => {
   if (k === "escape" && rollClip && !selected.size) { closeRoll(); return; }
   if (k === "escape" && aeClip && !selected.size) { closeAudioEd(); return; }
   if (k === "k" && e.shiftKey && !mod) { $("#btnKbd").click(); return; }
+  if (k === "f" && !mod && rollClip) { toggleFold(); return; }
   if (k === "tab") { e.preventDefault(); return; }   // session view parked for now
   if (viewMode === "sess" && (k === "delete" || k === "backspace")) { e.preventDefault(); if (sessSel) { const c = slotClip(sessSel.track, sessSel.scene); if (c) commit({ t: "clip", id: c.id, del: true }); } return; }
   if (viewMode === "sess" && k === "enter") { e.preventDefault(); if (sessSel) { const c = slotClip(sessSel.track, sessSel.scene); if (c) launchClip(c); } return; }
@@ -1460,16 +1463,34 @@ const ROW = 12, P_LO = 24, P_HI = 108, N_ROWS = P_HI - P_LO + 1;   // C1..C8
 let rollClip = null, rollPx = 48, noteSel = new Set(), rollFocus = false;
 const rollEl = $("#roll"), rollScroll = $("#rollScroll"), rollGrid = $("#rollGrid"), rollCv = $("#rollCv"), noteList = $("#noteList"), keysInner = $("#keysInner"), rollPh = $("#rollPh");
 rollEl.style.setProperty("--row-h", ROW + "px");
-const pitchToY = p => (P_HI - p) * ROW, yToPitch = y => P_HI - Math.floor(y / ROW);
+// rows: the pitches shown top→bottom. Unfolded = every pitch C8..C1; folded = only pitches the clip uses (plus pads).
+let rollFold = false, rows = [], rowOf = {}, rowsFrozen = false;
+function computeRows() {
+  if (rowsFrozen && rows.length) return;   // keep rows stable mid-drag
+  rows = []; rowOf = {};
+  if (rollFold && rollClip && proj.clips[rollClip]) {
+    const c = proj.clips[rollClip], tr = proj.tracks[c.track], used = new Set(c.notes.map(n => n.p));
+    if (isPads(tr)) for (const k of Object.keys(tr.pads || {})) used.add(+k);
+    rows = [...used].filter(p => p >= P_LO && p <= P_HI).sort((a, b) => b - a);
+  }
+  if (!rows.length) { rollFold = false; for (let p = P_HI; p >= P_LO; p--) rows.push(p); $("#rollFold").classList.remove("on"); }
+  rows.forEach((p, i) => rowOf[p] = i);
+}
+const pitchToY = p => (p in rowOf ? rowOf[p] : -1000) * ROW, yToPitch = y => rows[clamp(Math.floor(y / ROW), 0, rows.length - 1)];
+const shiftPitch = (p, dRows) => rows[clamp((rowOf[p] ?? 0) - dRows, 0, rows.length - 1)];   // move by visible rows
 let velNow = 0.8; $("#vel").addEventListener("input", e => { velNow = +e.target.value; if (noteSel.size && rollClip) commitNotes(proj.clips[rollClip].notes.map((n, i) => noteSel.has(i) ? { ...n, v: velNow } : n)); });
 $("#vel").addEventListener("keydown", e => e.stopPropagation());
-(function buildKeys() {
-  for (let p = P_HI; p >= P_LO; p--) {
-    const k = el("div", "key" + ([1, 3, 6, 8, 10].includes(p % 12) ? " b" : "") + (p % 12 === 0 ? " c" : ""), p % 12 === 0 ? noteName(p) : ""); k.dataset.p = p;
+let keysKey = "";
+function buildKeys() {
+  const kk = rows.join(","); if (kk === keysKey) return; keysKey = kk; keysInner.innerHTML = "";
+  for (const p of rows) {
+    const k = el("div", "key" + ([1, 3, 6, 8, 10].includes(p % 12) ? " b" : "") + (p % 12 === 0 ? " c" : ""), p % 12 === 0 || rollFold ? noteName(p) : ""); k.dataset.p = p;
     k.addEventListener("pointerdown", e => { e.preventDefault(); const tid = rollClip ? proj.clips[rollClip]?.track : selTrack; engine.noteOn(tid, p, velNow); k.classList.add("down"); const up = () => { engine.noteOff(tid, p); k.classList.remove("down"); window.removeEventListener("pointerup", up); }; window.addEventListener("pointerup", up); });
     keysInner.appendChild(k);
   }
-})();
+  applyScale();
+}
+computeRows(); buildKeys();
 function openRoll(id) {
   closeFx(); if (padTrack) closePads(); closeAudioEd(); rollClip = id; noteSel.clear(); rollEl.classList.add("open");
   renderRoll();
@@ -1478,6 +1499,9 @@ function openRoll(id) {
 }
 function closeRoll() { rollClip = null; rollEl.classList.remove("open"); noteSel.clear(); }
 $("#rollClose").onclick = closeRoll;
+function toggleFold() { if (!rollClip) return; rollFold = !rollFold; $("#rollFold").classList.toggle("on", rollFold); keysKey = ""; renderRoll(); if (!rollFold) { const c = proj.clips[rollClip]; const mid = c.notes.length ? c.notes.reduce((a, n) => a + n.p, 0) / c.notes.length : 60; rollScroll.scrollTop = Math.max(0, pitchToY(mid | 0) - rollScroll.clientHeight / 2); } else rollScroll.scrollTop = 0; try { localStorage.setItem("agkm-daw-fold", rollFold ? "1" : ""); } catch (e) { } }
+$("#rollFold").onclick = toggleFold;
+try { rollFold = localStorage.getItem("agkm-daw-fold") === "1"; $("#rollFold").classList.toggle("on", rollFold); } catch (e) { }
 $("#rollLoop").onclick = () => { if (!rollClip) return; const c = proj.clips[rollClip]; if (c.loop) commit({ t: "clip", id: c.id, loop: false }); else { const lp = c.lp > 0 ? c.lp : Math.max(snapBeats || 0.25, c.len); commit({ t: "clip", id: c.id, loop: true, lp }); banner("looping every " + lp + " beats — drag the clip's right edge out to repeat"); } };
 $("#rollLoopEnd").addEventListener("pointerdown", e => {
   e.preventDefault(); e.stopPropagation(); const c = proj.clips[rollClip]; if (!c) return; const lp0 = c.lp;
@@ -1516,12 +1540,13 @@ function commitNotes(notes) { if (!rollClip) return; commit({ t: "clip", id: rol
 function renderRoll() {
   if (!rollClip) return; const c = proj.clips[rollClip]; if (!c) return closeRoll();
   $("#rollName").textContent = c.name + " · " + (proj.tracks[c.track]?.name || "");
-  { const tr = proj.tracks[c.track], pads = isPads(tr) ? tr.pads || {} : null; keysInner.querySelectorAll(".key").forEach(k => { const p = +k.dataset.p; const pd = pads && pads[p]; k.textContent = pd ? (audios[pd.src]?.name || "pad") : (p % 12 === 0 ? noteName(p) : ""); k.classList.toggle("padkey", !!pd); }); }
-  const W = Math.max(rollScroll.clientWidth, beatToPxR(Math.max(c.len, c.loop ? c.lp || 0 : 0)) + 40), H = N_ROWS * ROW;
+  computeRows(); buildKeys();
+  { const tr = proj.tracks[c.track], pads = isPads(tr) ? tr.pads || {} : null; keysInner.querySelectorAll(".key").forEach(k => { const p = +k.dataset.p; const pd = pads && pads[p]; k.textContent = pd ? (audios[pd.src]?.name || "pad") : (p % 12 === 0 || rollFold ? noteName(p) : ""); k.classList.toggle("padkey", !!pd); }); }
+  const W = Math.max(rollScroll.clientWidth, beatToPxR(Math.max(c.len, c.loop ? c.lp || 0 : 0)) + 40), H = Math.max(rows.length * ROW, rollScroll.clientHeight);
   rollGrid.style.width = W + "px"; rollGrid.style.height = H + "px";
   rollCv.width = W; rollCv.height = H;
   const g = rollCv.getContext("2d"); g.clearRect(0, 0, W, H);
-  for (let p = P_HI; p >= P_LO; p--) { const y = pitchToY(p); g.fillStyle = [1, 3, 6, 8, 10].includes(p % 12) ? "rgba(0,0,0,0.22)" : "rgba(250,248,245,0.03)"; g.fillRect(0, y, W, ROW); if (p % 12 === 0) { g.fillStyle = "rgba(250,248,245,0.12)"; g.fillRect(0, y + ROW - 1, W, 1); } }
+  for (const p of rows) { const y = pitchToY(p); g.fillStyle = [1, 3, 6, 8, 10].includes(p % 12) ? "rgba(0,0,0,0.22)" : "rgba(250,248,245,0.03)"; g.fillRect(0, y, W, ROW); if (p % 12 === 0) { g.fillStyle = "rgba(250,248,245,0.12)"; g.fillRect(0, y + ROW - 1, W, 1); } }
   const step = snapBeats || 0.25;
   for (let b = 0; b <= c.len + 1e-6; b += step) { const x = Math.round(beatToPxR(b)) + 0.5; g.strokeStyle = b % 4 === 0 ? "rgba(250,248,245,0.25)" : b % 1 === 0 ? "rgba(250,248,245,0.12)" : "rgba(250,248,245,0.05)"; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
   const lp = c.loop && c.lp > 0 ? c.lp : null, lim = lp || c.len;
@@ -1568,9 +1593,9 @@ rollGrid.addEventListener("pointerdown", e => {
     if (!moved && Math.hypot(x1 - x0, y1 - y0) < 4) return; moved = true;
     const l = Math.min(x0, x1), r = Math.max(x0, x1), t = Math.min(y0, y1), b = Math.max(y0, y1);
     marquee.style.display = "block"; marquee.style.left = l + "px"; marquee.style.top = t + "px"; marquee.style.width = (r - l) + "px"; marquee.style.height = (b - t) + "px";
-    const bl = pxToBeatR(l), br = pxToBeatR(r), pTop = yToPitch(t), pBot = yToPitch(b);
+    const bl = pxToBeatR(l), br = pxToBeatR(r), rTop = Math.floor(t / ROW), rBot = Math.floor(b / ROW);
     noteSel = new Set(base);
-    c.notes.forEach((n, i) => { if (n.s < br && n.s + n.d > bl && n.p <= pTop && n.p >= pBot) noteSel.add(i); });
+    c.notes.forEach((n, i) => { const ri = rowOf[n.p]; if (ri === undefined) return; if (n.s < br && n.s + n.d > bl && ri >= rTop && ri <= rBot) noteSel.add(i); });
     noteList.querySelectorAll(".note").forEach(d => d.classList.toggle("sel", noteSel.has(+d.dataset.i)));
   };
   const up = () => {
@@ -1601,15 +1626,16 @@ function onNoteDown(e) {
 }
 function startNoteDrag(e, i, kind) {
   const c = proj.clips[rollClip];
-  ndrag = { i, kind, x0: e.clientX, y0: e.clientY, orig: c.notes.map(n => ({ ...n })), sel: new Set(noteSel.size ? noteSel : [i]), moved: false, lastP: null };
+  ndrag = { i, kind, x0: e.clientX, y0: e.clientY, orig: c.notes.map(n => ({ ...n })), sel: new Set(noteSel.size ? noteSel : [i]), moved: false, lastP: null }; rowsFrozen = true;
   const mv = ev => {
+    if (!ndrag) return;
     const dx = ev.clientX - ndrag.x0, dy = ev.clientY - ndrag.y0; if (!ndrag.moved && Math.abs(dx) < 3 && Math.abs(dy) < 3) return; ndrag.moved = true;
     const db = pxToBeatR(dx), dp = -Math.round(dy / ROW), o = ndrag.orig[ndrag.i], force = ev.shiftKey;
     const notes = ndrag.orig.map(n => ({ ...n }));
     if (ndrag.kind === "move") {
       const ns = Math.max(0, snapB(o.s + db, force)), ds = ns - o.s;
-      for (const j of ndrag.sel) { notes[j].s = Math.max(0, ndrag.orig[j].s + ds); notes[j].p = clamp(ndrag.orig[j].p + dp, P_LO, P_HI); }
-      if (dp !== ndrag.lastP) { ndrag.lastP = dp; engine.noteOn(c.track, notes[ndrag.i].p, notes[ndrag.i].v); setTimeout(() => engine.noteOff(c.track, notes[ndrag.i].p), 150); }
+      for (const j of ndrag.sel) { notes[j].s = Math.max(0, ndrag.orig[j].s + ds); notes[j].p = rollFold ? shiftPitch(ndrag.orig[j].p, dp) : clamp(ndrag.orig[j].p + dp, P_LO, P_HI); }
+      if (dp !== ndrag.lastP) { ndrag.lastP = dp; const pp = notes[ndrag.i].p; engine.noteOn(c.track, pp, notes[ndrag.i].v); setTimeout(() => engine.noteOff(c.track, pp), 150); }
     } else {
       const nd = Math.max(snapBeats || 0.125, snapB(o.s + o.d + db, force) - o.s), dd = nd - o.d;
       for (const j of ndrag.sel) notes[j].d = Math.max(0.0625, ndrag.orig[j].d + dd);
@@ -1618,7 +1644,7 @@ function startNoteDrag(e, i, kind) {
   };
   const up = () => {
     window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up);
-    if (!ndrag) return; const d = ndrag; ndrag = null;
+    rowsFrozen = false; if (!ndrag) return; const d = ndrag; ndrag = null;
     if (d.moved) { const notes = c.notes; c.notes = d.orig; commitNotes(notes); } else renderRoll();
   };
   window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
@@ -2407,7 +2433,7 @@ function banner(msg, ms = 2200) { const b = $("#banner"); b.textContent = msg; b
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { openAudioEd, get aeClip() { return aeClip; }, padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { toggleFold, get rows() { return rows; }, openAudioEd, get aeClip() { return aeClip; }, padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
