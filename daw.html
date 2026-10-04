@@ -87,6 +87,7 @@
   .ms { width:22px; height:20px; font-size:0.64rem; border:1px solid var(--line2); border-radius:2px; color:rgba(250,248,245,0.6); }
   .ms.on.m { background:#8a6a3a; color:var(--ivory); border-color:#8a6a3a; }
   .ms.on.s { background:#4f7a8a; color:var(--ivory); border-color:#4f7a8a; }
+  .ms.arm { color:rgba(250,248,245,0.4); font-size:0.7rem; } .ms.arm.on { background:#b24a3a; border-color:#b24a3a; color:var(--ivory); } .ms.arm.live { animation:pulse 1s infinite; }
   .hdr input[type=range] { height:14px; min-width:0; }
   .hdr .vol { flex:1; }
   .hdr .pan { width:46px; }
@@ -351,7 +352,7 @@
     <button class="tbtn sm" id="btnLeave" title="Leave the room — back to your personal project" style="display:none">leave</button>
   </div>
   <div id="spacer"></div>
-  <div id="hint">tab = session view · + sampler track = pads · dbl-click a midi clip to edit · Q quantizes · share → live room</div>
+  <div id="hint">tab = session view · ● on a track arms it, transport ● records · Q quantizes · new room / join room</div>
 </div>
 
 <div id="insp">
@@ -421,7 +422,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03j";
+const BUILD = "2026-10-03k";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -485,6 +486,7 @@ function afterChange(ops) {
   render(); if (rollClip) renderRoll(); if (fxTrack) renderFx(); if (padTrack) renderPads(); renderSession(); renderInsp();
   if (ops.some(o => o.t === "set" && o.k === "master")) { engine.refreshMaster(); $("#masterGain").value = proj.master.gain; }
   if (ops.some(o => o.t === "clip" && (o.del || "scene" in o))) for (const tid in sess) if (!proj.clips[sess[tid].clip]) delete sess[tid];
+  for (const tid of [...armed]) if (!proj.tracks[tid]) { armed.delete(tid); delete recs[tid]; }
   if (ops.some(o => o.t === "track" && "fx" in o)) engine.refreshFx(o => ops.some(p => p.id === o));
   if (ops.some(o => o.t === "set" && o.k === "bpm")) { engine.refreshFx(); engine.refreshMaster(); }
   if (ops.some(o => o.t === "set" && o.k === "scenes")) renderSession();
@@ -1035,7 +1037,7 @@ function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.
 function buildHdr(t) {
   const h = el("div", "hdr"); h.dataset.track = t.id;
   h.innerHTML = `<div class="top"><span class="dot"></span><span class="name" contenteditable="false" spellcheck="false"></span><span class="kind"></span><button class="x" title="delete track">×</button></div>
-  <div class="mix"><button class="ms m">M</button><button class="ms s">S</button><input class="vol" type="range" min="0" max="1.2" step="0.01" title="volume"><input class="pan" type="range" min="-1" max="1" step="0.05" title="pan"><button class="ms fx" title="effects">fx</button></div>
+  <div class="mix"><button class="ms arm" title="arm for recording">●</button><button class="ms m">M</button><button class="ms s">S</button><input class="vol" type="range" min="0" max="1.2" step="0.01" title="volume"><input class="pan" type="range" min="-1" max="1" step="0.05" title="pan"><button class="ms fx" title="effects">fx</button></div>
   <div class="mix m2"><select class="inst" title="instrument"></select></div><div class="meter"><i></i></div>`;
   if (!isMidi(t)) { h.querySelector(".m2").remove(); } else { h.classList.add("midi"); const pb = el("button", "ms pads", "pads"); pb.title = "open the sampler pads"; pb.onclick = e => { e.stopPropagation(); openPads(t.id); }; h.querySelector(".m2").appendChild(pb); }
   const sel = h.querySelector(".inst");
@@ -1049,6 +1051,7 @@ function buildHdr(t) {
   name.addEventListener("blur", () => { name.contentEditable = "false"; const v = name.textContent.trim() || t.name; if (v !== proj.tracks[t.id]?.name) commit({ t: "track", id: t.id, name: v }); });
   name.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); name.blur(); } e.stopPropagation(); });
   h.querySelector(".x").onclick = e => { e.stopPropagation(); commit({ t: "track", id: t.id, del: true }); banner("track deleted — undo to restore"); };
+  h.querySelector(".arm").onclick = e => { e.stopPropagation(); toggleArm(t.id); };
   h.querySelector(".m").onclick = e => { e.stopPropagation(); commit({ t: "track", id: t.id, mute: !proj.tracks[t.id].mute }); };
   h.querySelector(".s").onclick = e => { e.stopPropagation(); commit({ t: "track", id: t.id, solo: !proj.tracks[t.id].solo }); };
   const vol = h.querySelector(".vol"), pan = h.querySelector(".pan");
@@ -1074,6 +1077,7 @@ function updateHdr(h, t) {
   if (sel) { const list = INST_LIST(), want = list.map(l => l[0]).join("|"); if (sel.dataset.k !== want) { sel.dataset.k = want; sel.innerHTML = ""; for (const [v, l] of list) { const o = document.createElement("option"); o.value = v; o.textContent = l; sel.appendChild(o); } } if (sel.value !== (t.inst || "synth:keys")) sel.value = t.inst || "synth:keys"; }
   const n = h.querySelector(".name"); if (n.contentEditable !== "true") n.textContent = t.name;
   h.querySelector(".m").classList.toggle("on", !!t.mute); h.querySelector(".s").classList.toggle("on", !!t.solo);
+  h.querySelector(".arm").classList.toggle("on", armed.has(t.id)); h.querySelector(".arm").classList.toggle("live", !!recs[t.id]);
   const vol = h.querySelector(".vol"), pan = h.querySelector(".pan");
   if (document.activeElement !== vol) vol.value = t.gain; if (document.activeElement !== pan) pan.value = t.pan;
 }
@@ -1529,16 +1533,16 @@ function deleteNotes() { if (!rollClip || !noteSel.size) return false; const c =
 // ---------- MIDI input + QWERTY keys ----------
 let midiAccess = null, kbdOn = false, kbdOct = 0; const kbdHeld = {};
 const KBD = { a: 60, w: 61, s: 62, e: 63, d: 64, f: 65, t: 66, g: 67, y: 68, h: 69, u: 70, j: 71, k: 72, o: 73, l: 74, p: 75, ";": 76, "'": 77 };
-function inputTrack() { const c = rollClip && proj.clips[rollClip]; if (c && isMidi(proj.tracks[c.track])) return c.track; if (isMidi(proj.tracks[selTrack])) return selTrack; return tracksSorted().find(isMidi)?.id || null; }
+function inputTrack() { const c = rollClip && proj.clips[rollClip]; if (c && isMidi(proj.tracks[c.track])) return c.track; if (isMidi(proj.tracks[selTrack])) return selTrack; for (const t of armed) if (isMidi(proj.tracks[t])) return t; return tracksSorted().find(isMidi)?.id || null; }
 function liveNoteOn(pitch, vel) {
   const tid = inputTrack(); if (!tid) { banner("select a midi track first"); return; }
   engine.noteOn(tid, pitch, vel);
-  if (rec && rec.kind === "m" && rec.track === tid) rec.held[pitch] = { s: engine.beatNow(), v: vel };
+  const r = recs[tid]; if (r && r.kind === "m") r.held[pitch] = { s: engine.beatNow(), v: vel };
   const k = keysInner.querySelector(`.key[data-p="${pitch}"]`); if (k) k.classList.add("down");
 }
 function liveNoteOff(pitch) {
   const tid = inputTrack(); if (tid) engine.noteOff(tid, pitch);
-  if (rec && rec.kind === "m" && rec.held[pitch]) { const h = rec.held[pitch]; delete rec.held[pitch]; rec.notes.push({ p: pitch, s: h.s, d: Math.max(0.0625, engine.beatNow() - h.s), v: h.v }); }
+  for (const r of Object.values(recs)) if (r.kind === "m" && r.held[pitch]) { const h = r.held[pitch]; delete r.held[pitch]; r.notes.push({ p: pitch, s: h.s, d: Math.max(0.0625, engine.beatNow() - h.s), v: h.v }); }
   const k = keysInner.querySelector(`.key[data-p="${pitch}"]`); if (k) k.classList.remove("down");
 }
 async function connectMidi() {
@@ -1562,45 +1566,53 @@ window.addEventListener("keyup", e => { const k = e.key.toLowerCase(); if (k in 
 window.addEventListener("blur", () => { for (const k in kbdHeld) { liveNoteOff(kbdHeld[k]); delete kbdHeld[k]; } engine.allOff(); });
 
 // ---------- record ----------
-// ● arms the selected track. While the transport runs, a MIDI track captures live notes into a new clip;
-// an audio track captures the microphone through an AudioWorklet and lands it as a sample + clip.
-let lastTake = null, recArmed = false, rec = null, micStream = null, recNode = null, recSrc = null, recCount = 0, workletReady = false;
+// Tracks are armed with the ● in their header (any number, local to this browser). The transport ● starts recording on
+// every armed track (arming the selected one if nothing is armed): MIDI tracks capture live notes into a clip, audio
+// tracks capture the mic through an AudioWorklet and land a sample + clip. Each armed track gets its own take.
+let lastTake = null, recArmed = false, recs = {}, micStream = null, recCount = 0, workletReady = false;
+const armed = new Set();
+const rec = { get kind() { const r = Object.values(recs)[0]; return r && r.kind; }, get track() { return Object.values(recs)[0]?.track; }, get chunks() { return Object.values(recs).find(r => r.kind === "a")?.chunks; }, get held() { return Object.values(recs).find(r => r.kind === "m")?.held; }, get notes() { return Object.values(recs).find(r => r.kind === "m")?.notes; }, get any() { return Object.keys(recs).length > 0; } };
+function toggleArm(tid) { if (armed.has(tid)) { armed.delete(tid); if (recs[tid]) finishOne(tid); } else armed.add(tid); render(); }
 $("#btnRec").onclick = toggleRec;
 function toggleRec() {
   recArmed = !recArmed; $("#btnRec").classList.toggle("on", recArmed); if (recArmed && !overdub) lastTake = null;
+  if (recArmed && !armed.size) { const t = proj.tracks[selTrack] || tracksSorted()[0]; if (t) { armed.add(t.id); render(); banner("armed " + t.name + " — use the ● on each track to arm more"); } }
   if (recArmed) { if (!engine.playing) { if (countIn) playCountIn(() => { if (recArmed && !engine.playing) togglePlay(); }); else togglePlay(); } else startRec(); } else finishRec();
   updateRecUi();
 }
-function updateRecUi() { $("#btnRec").classList.toggle("live", !!rec); }
+function updateRecUi() { $("#btnRec").classList.toggle("live", rec.any); for (const tid in laneEls) laneEls[tid].hdr.querySelector(".arm")?.classList.toggle("live", !!recs[tid]); }
 async function startRec() {
-  if (!recArmed || rec || !engine.playing) return;
-  const tr = proj.tracks[selTrack] || tracksSorted()[0]; if (!tr) return;
-  const startBeat = engine.beatNow();
-  if (isMidi(tr)) { rec = { kind: "m", track: tr.id, startBeat, notes: [], held: {}, into: overdub && lastTake && lastTake.track === tr.id && proj.clips[lastTake.id] && proj.loop.on ? lastTake.id : null }; banner((rec.into ? "overdubbing → " : "recording midi → ") + tr.name); }
-  else {
-    try {
-      const ctx = engine.ensure();
-      if (!micStream) micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
-      if (!workletReady) {
-        const code = `class R extends AudioWorkletProcessor{process(i){const c=i[0]&&i[0][0];if(c)this.port.postMessage(c.slice());return true}}registerProcessor("agkm-rec",R)`;
-        await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([code], { type: "application/javascript" }))); workletReady = true;
-      }
-      recSrc = ctx.createMediaStreamSource(micStream); recNode = new AudioWorkletNode(ctx, "agkm-rec", { numberOfOutputs: 0 });
-      const chunks = []; recNode.port.onmessage = m => chunks.push(m.data); recSrc.connect(recNode);
-      rec = { kind: "a", track: tr.id, startBeat, startCtx: ctx.currentTime, chunks, sr: ctx.sampleRate, latency: (ctx.baseLatency || 0) + (ctx.outputLatency || 0) };
-      banner("recording mic → " + tr.name);
-    } catch (e) { console.warn(e); banner("mic unavailable: " + (e.message || e)); recArmed = false; $("#btnRec").classList.remove("on"); }
-  }
+  if (!recArmed || !engine.playing) return;
+  for (const tid of armed) if (!recs[tid] && proj.tracks[tid]) await startOne(tid);
   updateRecUi(); showRecGhost();
 }
-function showRecGhost() {
-  let g = $("#recGhost"); if (!rec) { if (g) g.remove(); return; }
-  if (!g) { g = el("div", "clip rec"); g.id = "recGhost"; g.innerHTML = '<div class="lbl">● recording</div>'; }
-  const lane = laneEls[rec.track]?.lane; if (lane && g.parentNode !== lane) lane.appendChild(g);
-  g.style.left = beatToPx(rec.startBeat) + "px"; g.style.width = Math.max(4, beatToPx(engine.beatNow() - rec.startBeat)) + "px";
+async function startOne(tid) {
+  const tr = proj.tracks[tid], startBeat = engine.beatNow();
+  if (isMidi(tr)) { recs[tid] = { kind: "m", track: tid, startBeat, notes: [], held: {}, into: overdub && lastTake && lastTake.track === tid && proj.clips[lastTake.id] && proj.loop.on ? lastTake.id : null }; banner((recs[tid].into ? "overdubbing → " : "recording midi → ") + tr.name); return; }
+  try {
+    const ctx = engine.ensure();
+    if (!micStream) micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    if (!workletReady) {
+      const code = `class R extends AudioWorkletProcessor{process(i){const c=i[0]&&i[0][0];if(c)this.port.postMessage(c.slice());return true}}registerProcessor("agkm-rec",R)`;
+      await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([code], { type: "application/javascript" }))); workletReady = true;
+    }
+    const src = ctx.createMediaStreamSource(micStream), node = new AudioWorkletNode(ctx, "agkm-rec", { numberOfOutputs: 0 });
+    const chunks = []; node.port.onmessage = m => chunks.push(m.data); src.connect(node);
+    recs[tid] = { kind: "a", track: tid, startBeat, src, node, chunks, sr: ctx.sampleRate, latency: (ctx.baseLatency || 0) + (ctx.outputLatency || 0) };
+    banner("recording mic → " + tr.name);
+  } catch (e) { console.warn(e); banner("mic unavailable: " + (e.message || e)); armed.delete(tid); render(); }
 }
-async function finishRec(restartAt) {
-  const r = rec; if (!r) return; rec = null; updateRecUi(); showRecGhost();
+function showRecGhost() {
+  document.querySelectorAll(".clip.rec").forEach(g => { if (!recs[g.dataset.track]) g.remove(); });
+  for (const tid in recs) {
+    const r = recs[tid]; let g = laneEls[tid]?.lane.querySelector(".clip.rec");
+    if (!g) { const lane = laneEls[tid]?.lane; if (!lane) continue; g = el("div", "clip rec"); g.dataset.track = tid; g.innerHTML = '<div class="lbl">● recording</div>'; lane.appendChild(g); }
+    g.style.left = beatToPx(r.startBeat) + "px"; g.style.width = Math.max(4, beatToPx(engine.beatNow() - r.startBeat)) + "px";
+  }
+}
+async function finishRec(restartAt) { for (const tid of Object.keys(recs)) await finishOne(tid, restartAt); }
+async function finishOne(tid, restartAt) {
+  const r = recs[tid]; if (!r) return; delete recs[tid]; updateRecUi(); showRecGhost();
   const endBeat = restartAt != null ? restartAt : engine.beatNow();
   if (r.kind === "m") {
     for (const p in r.held) { const h = r.held[p]; r.notes.push({ p: +p, s: h.s, d: Math.max(0.0625, endBeat - h.s), v: h.v }); }
@@ -1611,7 +1623,7 @@ async function finishRec(restartAt) {
     if (overdub && r.into && proj.clips[r.into]) { const c = proj.clips[r.into]; commit({ t: "clip", id: c.id, notes: c.notes.concat(notes.map(n => ({ ...n, s: n.s + (s0 - c.start) }))) }); banner("overdub +" + notes.length + " notes"); return; }
     const id = placeMidiClip(r.track, s0, len, notes, "take " + (++recCount)); lastTake = { id, track: r.track }; banner("midi take " + recCount + " — " + notes.length + " notes" + (qr ? ", quantized to " + qSettings().name : ""));
   } else {
-    try { recSrc.disconnect(); recNode.disconnect(); } catch (e) { } recNode = recSrc = null;
+    try { r.src.disconnect(); r.node.disconnect(); } catch (e) { }
     const total = r.chunks.reduce((a, c) => a + c.length, 0); if (total < r.sr * 0.1) return banner("take too short");
     const skip = Math.round(r.latency * r.sr), data = new Float32Array(total); let o = 0; for (const c of r.chunks) { data.set(c, o); o += c.length; }
     const buf = engine.ctx.createBuffer(1, Math.max(1, total - skip), r.sr); buf.getChannelData(0).set(data.subarray(skip));
@@ -1620,12 +1632,12 @@ async function finishRec(restartAt) {
     placeClip(id, r.track, r.startBeat); banner("audio take " + recCount + " (" + buf.duration.toFixed(1) + "s)");
   }
 }
-// loop wrap while recording: close the take at the loop end and start a fresh one at loop.a
+// loop wrap while recording: close the takes at the loop end and start fresh ones at loop.a
 let recLastBeat = 0;
 function recTick() {
-  if (!rec) { recLastBeat = engine.beatNow(); return; }
+  if (!rec.any) { recLastBeat = engine.beatNow(); return; }
   const b = engine.beatNow();
-  if (b < recLastBeat - 1 && proj.loop.on) { finishRec(proj.loop.b); if (recArmed && engine.playing) startRec(); }
+  if (b < recLastBeat - 1 && proj.loop.on) { finishRec(proj.loop.b).then(() => { if (recArmed && engine.playing) startRec(); }); }
   recLastBeat = b; showRecGhost();
 }
 
@@ -1992,7 +2004,7 @@ function renderSession() {
   sessGrid.innerHTML = "";
   // header row
   sessGrid.appendChild(el("div", "sh corner"));
-  for (const t of ts) { const h = el("div", "sh"); h.innerHTML = `<span class="dot" style="background:${t.color}"></span><span class="n"></span><span class="kind">${isMidi(t) ? "midi" : "audio"}</span>`; h.querySelector(".n").textContent = t.name; h.onclick = () => { selTrack = t.id; }; sessGrid.appendChild(h); }
+  for (const t of ts) { const h = el("div", "sh"); h.innerHTML = `<button class="ms arm${armed.has(t.id) ? " on" : ""}${recs[t.id] ? " live" : ""}" title="arm">●</button><span class="dot" style="background:${t.color}"></span><span class="n"></span><span class="kind">${isMidi(t) ? "midi" : "audio"}</span>`; h.querySelector(".n").textContent = t.name; h.querySelector(".arm").onclick = e => { e.stopPropagation(); toggleArm(t.id); renderSession(); }; h.onclick = () => { selTrack = t.id; }; sessGrid.appendChild(h); }
   for (let sc = 0; sc < N; sc++) {
     const launch = el("button", "scene", "▶"); launch.title = "launch scene " + (sc + 1); launch.onclick = () => launchScene(sc); sessGrid.appendChild(launch);
     for (const t of ts) {
@@ -2172,7 +2184,7 @@ function banner(msg) { const b = $("#banner"); b.textContent = msg; b.classList.
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
