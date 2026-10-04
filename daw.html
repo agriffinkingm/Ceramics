@@ -113,21 +113,8 @@
   #ghost { position:absolute; top:4px; height:calc(var(--lane-h) - 9px); border:1px dashed var(--ivory); border-radius:4px; pointer-events:none; display:none; z-index:6; }
 
   /* ---------- browser / tray ---------- */
-  #tray { flex:none; border-top:1px solid var(--line2); background:rgba(20,17,12,0.55); display:flex; align-items:stretch; max-height:124px; }
-  #trayHead { flex:none; width:var(--hdr-w); padding:0.55rem 0.7rem; border-right:1px solid var(--line2); display:flex; flex-direction:column; gap:0.35rem; }
-  #trayHead .t { font-size:0.62rem; letter-spacing:0.18em; text-transform:uppercase; color:rgba(250,248,245,0.45); }
-  #trayHead .tbtn { height:30px; font-size:0.7rem; }
-  #samples { flex:1; display:flex; touch-action:pan-x; gap:0.5rem; padding:0.55rem 0.8rem; overflow-x:auto; overflow-y:hidden; scrollbar-width:thin; scrollbar-color:var(--clay-dark) transparent; }
-  .smp { flex:none; width:118px; height:88px; border:1px solid var(--line2); border-radius:4px; padding:0.4rem 0.5rem; display:flex; flex-direction:column; gap:0.2rem; cursor:grab; background:rgba(0,0,0,0.25); touch-action:none; position:relative; }
-  .smp:hover { border-color:var(--terracotta); }
-  .smp .n { font-size:0.72rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .smp .d { font-size:0.62rem; color:rgba(250,248,245,0.45); letter-spacing:0.06em; }
-  .smp canvas { width:100%; height:34px; opacity:0.8; }
-  .smp .x { position:absolute; right:2px; top:1px; opacity:0.35; font-size:0.85rem; line-height:1; }
-  .smp .x:hover { opacity:1; }
-  #emptyTray { align-self:center; font-size:0.72rem; letter-spacing:0.08em; color:rgba(250,248,245,0.4); padding:0 0.6rem; }
 
-  #banner { position:fixed; left:50%; bottom:140px; transform:translateX(-50%); background:rgba(20,17,12,0.92); border:1px solid var(--line2); padding:0.5rem 0.9rem; font-size:0.78rem; letter-spacing:0.04em; border-radius:4px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:50; max-width:80vw; text-align:center; }
+  #banner { position:fixed; left:50%; bottom:40px; transform:translateX(-50%); background:rgba(20,17,12,0.92); border:1px solid var(--line2); padding:0.5rem 0.9rem; font-size:0.78rem; letter-spacing:0.04em; border-radius:4px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:50; max-width:80vw; text-align:center; }
   #banner.show { opacity:1; }
   body.dropping::after { content:'drop audio to add it'; position:fixed; inset:0; background:rgba(198,123,92,0.18); border:3px dashed var(--terracotta); display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond', serif; font-size:2.2rem; pointer-events:none; z-index:60; }
 
@@ -139,8 +126,8 @@
   .hdr select.inst { font:inherit; font-size:0.66rem; color:var(--ivory); background:rgba(0,0,0,0.35); border:1px solid var(--line2); border-radius:2px; height:20px; padding:0 2px; max-width:100%; flex:1; min-width:0; }
   .hdr .mix.m2 { margin-top:-2px; }
   .hdr.midi .vol { flex:1; }
-  #addTrack, #addMidi { height:calc(var(--lane-h) / 2); width:100%; font-size:0.66rem; letter-spacing:0.16em; text-transform:uppercase; color:rgba(250,248,245,0.5); border-bottom:1px solid var(--line); }
-  #addTrack:hover, #addMidi:hover { color:var(--ivory); }
+  #addTrack, #addMidi, #addSampler { height:calc(var(--lane-h) / 3); width:100%; font-size:0.66rem; letter-spacing:0.16em; text-transform:uppercase; color:rgba(250,248,245,0.5); border-bottom:1px solid var(--line); }
+  #addTrack:hover, #addMidi:hover, #addSampler:hover { color:var(--ivory); }
   .clip.midi canvas { top:17px; opacity:1; }
   .clip.midi { background:linear-gradient(rgba(0,0,0,0.12), rgba(0,0,0,0.12)), var(--c, #6b5a4a); }
   .clip.rec { border:1px dashed rgba(250,248,245,0.7); background:rgba(178,74,58,0.4); pointer-events:none; }
@@ -188,6 +175,7 @@
   /* ---------- fx rack ---------- */
   #fxPanel { flex:none; height:0; border-top:1px solid var(--line2); background:rgba(14,12,9,0.75); display:flex; flex-direction:column; overflow:hidden; transition:height .15s; }
   #fxPanel.open { height:min(230px, 36vh); }
+  #fxPanel:not(.open), #padPanel:not(.open), #roll:not(.open) { pointer-events:none; border-top:0; }
   #fxHead { flex:none; display:flex; align-items:center; gap:0.6rem; padding:0 0.8rem; height:30px; border-bottom:1px solid var(--line2); font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(250,248,245,0.55); }
   #fxHead b { color:var(--ivory); font-weight:400; letter-spacing:0.04em; text-transform:none; font-size:0.85rem; }
   #fxHead .sp { flex:1; } #fxHead .tbtn { height:22px; font-size:0.62rem; padding:0 0.5rem; } #fxHead select.tbtn { background:rgba(0,0,0,0.3); }
@@ -202,7 +190,8 @@
   .fxr .l { color:rgba(250,248,245,0.55); letter-spacing:0.06em; } .fxr .v { text-align:right; color:rgba(250,248,245,0.7); font-variant-numeric:tabular-nums; white-space:nowrap; }
   .fxr input[type=range] { height:12px; min-width:0; width:100%; } .fxr select { font:inherit; font-size:0.62rem; color:var(--ivory); background:rgba(0,0,0,0.35); border:1px solid var(--line2); border-radius:2px; height:18px; }
   .fx-empty { align-self:center; font-size:0.72rem; color:rgba(250,248,245,0.4); letter-spacing:0.08em; }
-  .ms.fx.on { background:var(--terracotta); color:var(--ink); border-color:var(--terracotta); }
+  .ms.fx.on, .ms.pads.on { background:var(--terracotta); color:var(--ink); border-color:var(--terracotta); }
+  .ms.pads { width:auto; padding:0 5px; font-size:0.58rem; letter-spacing:0.08em; }
 
   /* ---------- session / sharing / inspector ---------- */
   .tbtn.sm { height:26px; font-size:0.62rem; padding:0 0.45rem; }
@@ -248,9 +237,28 @@
   .peerph { position:absolute; top:0; width:2px; height:100%; opacity:0.85; } .peerph span { position:absolute; left:3px; top:2px; font-size:0.58rem; letter-spacing:0.06em; padding:1px 4px; border-radius:2px; color:var(--ink); white-space:nowrap; }
   .clip.peer { box-shadow:inset 0 0 0 2px var(--pc), 0 0 0 1px rgba(0,0,0,0.4); }
   .hdr .dot { cursor:pointer; }
-  #trayHead .row2 { display:flex; gap:0.3rem; } #trayHead .row2 .tbtn { flex:1; }
+  .key.padkey { background:#d9c3b5 !important; color:#2C2820; }
   .key.scale { background:#f3eee5; } .key.b.scale { background:#5a4f44; } .key.root { color:var(--terracotta); font-weight:500; }
   @media (max-width:980px) { #masterStrip, #recOpts { display:none; } #insp #iFiRow, #insp #iFoRow, #insp #iCount { display:none; } }
+  /* ---------- sampler pads ---------- */
+  #padPanel { flex:none; height:0; border-top:1px solid var(--line2); background:rgba(14,12,9,0.75); display:flex; flex-direction:column; overflow:hidden; transition:height .15s; }
+  #padPanel.open { height:min(250px, 40vh); }
+  #padHead { flex:none; display:flex; align-items:center; gap:0.6rem; padding:0 0.8rem; height:30px; border-bottom:1px solid var(--line2); font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(250,248,245,0.55); }
+  #padHead b { color:var(--ivory); font-weight:400; letter-spacing:0.04em; text-transform:none; font-size:0.85rem; } #padHead .sp { flex:1; } #padHead .tbtn { height:22px; font-size:0.62rem; padding:0 0.5rem; }
+  #padGrid { flex:1; display:grid; grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); gap:6px; padding:0.6rem 0.8rem; overflow-y:auto; align-content:start; scrollbar-width:thin; scrollbar-color:var(--clay-dark) transparent; }
+  .pad { position:relative; height:68px; border:1px solid var(--line2); border-radius:4px; background:rgba(0,0,0,0.25); padding:0.3rem 0.45rem; display:flex; flex-direction:column; gap:1px; cursor:pointer; touch-action:none; user-select:none; overflow:hidden; }
+  .pad.filled { background:rgba(198,123,92,0.12); border-color:rgba(198,123,92,0.4); }
+  .pad.sel { outline:1px solid var(--ivory); }
+  .pad.over { background:rgba(198,123,92,0.3); }
+  .pad.hit { background:var(--terracotta); }
+  .pad .k { font-size:0.56rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(250,248,245,0.45); display:flex; justify-content:space-between; }
+  .pad .k .dur { margin-right:12px; }
+  .pad .n { font-size:0.72rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pad canvas { width:100%; height:22px; opacity:0.8; }
+  .pad .x { position:absolute; right:3px; top:1px; background:rgba(20,17,12,0.9); border-radius:2px; padding:0 3px; opacity:0.35; font-size:0.85rem; line-height:1; } .pad .x:hover { opacity:1; }
+  .pad .empty { font-size:0.62rem; color:rgba(250,248,245,0.3); letter-spacing:0.08em; margin:auto; text-align:center; }
+  #padRec.on { background:#b24a3a; border-color:#b24a3a; color:var(--ivory); animation:pulse 1s infinite; }
+
   @media (max-width:760px) { #insp { padding:0 0.8rem; gap:0.4rem; } #insp .iname { width:6rem; } #insp #iTrRow { display:none; } }
 
   @media (max-width:760px) {
@@ -261,7 +269,6 @@
     #hint { display:none; }
     .hdr .pan { display:none; }
     .field.snapf { display:none; }
-    #tray { max-height:100px; }
     .qbox { display:none; }
     #roll.open { height:40vh; }
     .nav-content { flex-direction:column; align-items:flex-start; gap:0.4rem; }
@@ -316,7 +323,14 @@
   <div class="tgroup">
     <button class="tbtn" id="btnZoomOut" title="Zoom out (−)">−</button>
     <button class="tbtn" id="btnZoomIn" title="Zoom in (+)">+</button>
-    <button class="tbtn" id="btnExport" title="Render the arrangement to a WAV file (⇧-click: loop region only)">export</button>
+  </div>
+  <div class="tsep"></div>
+  <div class="tgroup">
+    <button class="tbtn sm" id="btnFile" title="Add audio files to the selected audio track at the playhead">+ file</button>
+    <button class="tbtn sm" id="btnDemo" title="Drop in a demo beat">demo</button>
+    <button class="tbtn sm" id="btnSaveProj" title="Download the whole project (with samples)">save</button>
+    <button class="tbtn sm" id="btnOpenProj" title="Open a saved project file">open</button>
+    <button class="tbtn sm" id="btnExport" title="Render to a WAV file (⇧-click: loop region only)">export</button>
   </div>
   <div class="tsep"></div>
   <div class="tgroup" id="recOpts">
@@ -335,7 +349,7 @@
     <button class="tbtn sm" id="btnLeave" title="Leave the room — back to your personal project" style="display:none">leave</button>
   </div>
   <div id="spacer"></div>
-  <div id="hint">tab = session view · dbl-click a midi clip to edit · Q quantizes · ⌘D duplicates clip/track · share → live room</div>
+  <div id="hint">tab = session view · + sampler track = pads · dbl-click a midi clip to edit · Q quantizes · share → live room</div>
 </div>
 
 <div id="insp">
@@ -385,25 +399,27 @@
   <div id="keys"><div id="keysInner"></div></div>
   <div id="rollScroll"><div id="rollGrid"><canvas id="rollCv"></canvas><div id="noteList"></div><div id="rollPh"></div></div></div>
 </div>
+<div id="padPanel">
+  <div id="padHead"><span>sampler</span><b id="padName"></b><span class="sp"></span>
+    <button class="tbtn sm" id="padAdd" title="Load audio files into the next free pads">+ files</button>
+    <button class="tbtn sm" id="padKit" title="Fill pads with the built-in kit">kit</button>
+    <button class="tbtn sm" id="padRec" title="Record the mic into the selected pad (plays for 4 beats)">● rec pad</button>
+    <button class="tbtn sm" id="padClear">clear all</button>
+    <button class="tbtn" id="padClose">✕</button></div>
+  <div id="padGrid"></div>
+</div>
 <div id="fxPanel">
   <div id="fxHead"><span>effects</span><b id="fxName"></b><span class="sp"></span><select id="fxAdd" class="tbtn"><option value="">add effect…</option></select><button class="tbtn" id="fxClose">✕</button></div>
   <div id="fxList"></div>
 </div>
-<div id="tray">
-  <div id="trayHead">
-    <div class="t">samples</div>
-    <button class="tbtn" id="btnFile">+ audio file</button>
-    <button class="tbtn" id="btnDemo">demo beat</button>
-    <span class="row2"><button class="tbtn sm" id="btnSaveProj" title="Download the whole project (with samples) as a .json file">save</button><button class="tbtn sm" id="btnOpenProj" title="Open a saved project file">open</button></span>
-    <input type="file" id="projIn" accept=".json,application/json" hidden>
-    <input type="file" id="fileIn" accept="audio/*,.wav,.mp3,.ogg,.flac,.m4a,.aif,.aiff" multiple hidden>
-  </div>
-  <div id="samples"><div id="emptyTray">loading…</div></div>
+<input type="file" id="projIn" accept=".json,application/json" hidden>
+<input type="file" id="fileIn" accept="audio/*,.wav,.mp3,.ogg,.flac,.m4a,.aif,.aiff" multiple hidden>
+<input type="file" id="padIn" accept="audio/*,.wav,.mp3,.ogg,.flac,.m4a,.aif,.aiff" multiple hidden>
 </div>
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03g";
+const BUILD = "2026-10-03h";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -464,7 +480,7 @@ function redo() { const e = redoStack.pop(); if (!e) return; for (const op of e.
 function afterChange(ops) {
   for (const id of [...selected]) if (!proj.clips[id]) selected.delete(id);
   if (ops.some(o => o.t === "set" && o.k === "bpm")) $("#bpm").value = proj.bpm;
-  render(); if (rollClip) renderRoll(); if (fxTrack) renderFx(); renderSession(); renderInsp();
+  render(); if (rollClip) renderRoll(); if (fxTrack) renderFx(); if (padTrack) renderPads(); renderSession(); renderInsp();
   if (ops.some(o => o.t === "set" && o.k === "master")) { engine.refreshMaster(); $("#masterGain").value = proj.master.gain; }
   if (ops.some(o => o.t === "clip" && (o.del || "scene" in o))) for (const tid in sess) if (!proj.clips[sess[tid].clip]) delete sess[tid];
   if (ops.some(o => o.t === "track" && "fx" in o)) engine.refreshFx(o => ops.some(p => p.id === o));
@@ -561,15 +577,40 @@ function samplerInst(aid) {
   };
 }
 const INST_LIST = () => [
+  ["pads", "sampler"],
   ...Object.keys(SYNTHS).map(k => ["synth:" + k, k]),
   ...Object.keys(KIT_PARAMS).map(k => ["kit:" + k, "kit " + k]),
-  ...Object.values(audios).filter(a => a.persist).map(a => ["smp:" + a.id, "sampler " + a.name]),
 ];
+// sampler: track.pads = { "<pitch>": { src, gain } } starting at C3 (48). An unmapped pitch plays the nearest
+// mapped pad below it chromatically when the track has a single pad, so one sample can be played as a keyboard.
+const PAD0 = 48;
+function padsInst(track) {
+  const pads = track.pads || {};
+  return {
+    kind: "pads", oneShot: true,
+    play(ctx, dest, pitch, vel, t0) {
+      let p = pads[pitch], rate = 1;
+      if (!p) { const keys = Object.keys(pads).map(Number); if (keys.length === 1) { p = pads[keys[0]]; rate = Math.pow(2, (pitch - keys[0]) / 12); } else return null; }
+      const a = audios[p.src]; if (!a) return null;
+      const s = ctx.createBufferSource(); s.buffer = a.buf; s.playbackRate.value = rate * (p.rate || 1);
+      const g = ctx.createGain(); g.gain.value = (0.3 + 0.7 * vel) * (p.gain ?? 1); s.connect(g); g.connect(dest); s.start(t0);
+      return { stop(t) { if (p.hold) { g.gain.setTargetAtTime(0, t, 0.02); s.stop(t + 0.15); } }, kill() { try { s.stop(); } catch (e) { } }, pitch };
+    }
+  };
+}
 const instCache = {};
 function instOf(track) {
   const id = track?.inst || "synth:keys";
+  if (id === "pads") { const k = "pads:" + track.id + ":" + JSON.stringify(track.pads || {}); return instCache[k] || (instCache[k] = padsInst(track)); }
   if (!instCache[id]) { const [k, v] = id.split(/:(.*)/); instCache[id] = k === "kit" ? kitInst(v) : k === "smp" ? samplerInst(v) : synthInst(v); }
   return instCache[id];
+}
+const isPads = t => isMidi(t) && t.inst === "pads";
+function addSamplerTrack() {
+  const n = tracksSorted().length, pads = {};
+  [["kit-kick", "kick"], ["kit-snare", "snare"], ["kit-hat", "hat"], ["kit-clap", "clap"], ["kit-bass", "bass"]].forEach(([id], i) => { if (audios[id]) pads[PAD0 + i] = { src: id, gain: 1 }; });
+  const t = { t: "track", id: uid(), name: "sampler " + (n + 1), kind: "midi", inst: "pads", pads, gain: 0.8, pan: 0, mute: false, solo: false, order: n, color: COLORS[n % COLORS.length] };
+  commit(t); return t.id;
 }
 const isMidi = t => t && t.kind === "midi";
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -960,7 +1001,8 @@ function render() {
   for (const id in laneEls) if (!seen.has(id)) { laneEls[id].lane.remove(); laneEls[id].hdr.remove(); delete laneEls[id]; }
   let add = $("#addTrack"); if (!add) { add = el("button", "", "+ audio track"); add.id = "addTrack"; add.onclick = () => { selTrack = addTrack(); render(); }; }
   let addM = $("#addMidi"); if (!addM) { addM = el("button", "", "+ midi track"); addM.id = "addMidi"; addM.onclick = () => { selTrack = addTrack(null, "midi"); render(); }; }
-  if (hdrsInner.lastChild !== addM) { hdrsInner.appendChild(add); hdrsInner.appendChild(addM); }
+  let addS = $("#addSampler"); if (!addS) { addS = el("button", "", "+ sampler track"); addS.id = "addSampler"; addS.onclick = () => { selTrack = addSamplerTrack(); render(); openPads(selTrack); }; }
+  if (hdrsInner.lastChild !== addS) { hdrsInner.appendChild(add); hdrsInner.appendChild(addM); hdrsInner.appendChild(addS); }
   let pad = $("#lanePad"); if (!pad) { pad = el("div", "lane empty"); pad.id = "lanePad"; } if (laneList.lastChild !== pad) laneList.appendChild(pad);
   // clips
   const cs = new Set();
@@ -993,9 +1035,9 @@ function buildHdr(t) {
   h.innerHTML = `<div class="top"><span class="dot"></span><span class="name" contenteditable="false" spellcheck="false"></span><span class="kind"></span><button class="x" title="delete track">×</button></div>
   <div class="mix"><button class="ms m">M</button><button class="ms s">S</button><input class="vol" type="range" min="0" max="1.2" step="0.01" title="volume"><input class="pan" type="range" min="-1" max="1" step="0.05" title="pan"><button class="ms fx" title="effects">fx</button></div>
   <div class="mix m2"><select class="inst" title="instrument"></select></div><div class="meter"><i></i></div>`;
-  if (!isMidi(t)) { h.querySelector(".m2").remove(); } else h.classList.add("midi");
+  if (!isMidi(t)) { h.querySelector(".m2").remove(); } else { h.classList.add("midi"); const pb = el("button", "ms pads", "pads"); pb.title = "open the sampler pads"; pb.onclick = e => { e.stopPropagation(); openPads(t.id); }; h.querySelector(".m2").appendChild(pb); }
   const sel = h.querySelector(".inst");
-  if (sel) { sel.addEventListener("pointerdown", e => e.stopPropagation()); sel.addEventListener("keydown", e => e.stopPropagation()); sel.addEventListener("change", () => commit({ t: "track", id: t.id, inst: sel.value })); }
+  if (sel) { sel.addEventListener("pointerdown", e => e.stopPropagation()); sel.addEventListener("keydown", e => e.stopPropagation()); sel.addEventListener("change", () => { const op = { t: "track", id: t.id, inst: sel.value }; if (sel.value === "pads" && !proj.tracks[t.id].pads) op.pads = {}; commit(op); if (sel.value === "pads") openPads(t.id); }); }
   h.querySelector(".fx").onclick = e => { e.stopPropagation(); openFx(t.id); };
   const name = h.querySelector(".name");
   h.addEventListener("pointerdown", () => { selTrack = t.id; render(); });
@@ -1026,6 +1068,7 @@ function updateHdr(h, t) {
   h.querySelector(".kind").textContent = isMidi(t) ? "midi" : "audio";
   h.querySelector(".fx").classList.toggle("on", !!(t.fx && t.fx.some(f => f.on !== false)));
   const sel = h.querySelector(".inst");
+  const pb = h.querySelector(".pads"); if (pb) { pb.style.display = isPads(t) ? "" : "none"; pb.classList.toggle("on", padTrack === t.id && padEl.classList.contains("open")); }
   if (sel) { const list = INST_LIST(), want = list.map(l => l[0]).join("|"); if (sel.dataset.k !== want) { sel.dataset.k = want; sel.innerHTML = ""; for (const [v, l] of list) { const o = document.createElement("option"); o.value = v; o.textContent = l; sel.appendChild(o); } } if (sel.value !== (t.inst || "synth:keys")) sel.value = t.inst || "synth:keys"; }
   const n = h.querySelector(".name"); if (n.contentEditable !== "true") n.textContent = t.name;
   h.querySelector(".m").classList.toggle("on", !!t.mute); h.querySelector(".s").classList.toggle("on", !!t.solo);
@@ -1095,21 +1138,7 @@ function drawGrid() {
   }
   if (proj.loop.on) { g.fillStyle = "rgba(198,123,92,0.06)"; g.fillRect(beatToPx(proj.loop.a), 0, beatToPx(proj.loop.b - proj.loop.a), h); }
 }
-function renderTray() {
-  const s = $("#samples"); s.innerHTML = "";
-  const list = Object.values(audios).sort((a, b) => (a.persist === b.persist ? 0 : a.persist ? -1 : 1) || a.name.localeCompare(b.name));
-  if (!list.length) { s.appendChild(el("div", "", "no samples yet")).id = "emptyTray"; return; }
-  for (const a of list) {
-    const d = el("div", "smp"); d.dataset.id = a.id; d.title = "drag onto a track · click to preview";
-    d.innerHTML = `<div class="n"></div><canvas width="106" height="34"></canvas><div class="d"></div>${a.persist ? '<button class="x" title="remove sample">×</button>' : ""}`;
-    d.querySelector(".n").textContent = a.name; d.querySelector(".d").textContent = a.dur.toFixed(2) + "s";
-    const cv = d.querySelector("canvas"), g = cv.getContext("2d"); g.fillStyle = "#C67B5C";
-    for (let x = 0; x < cv.width; x++) { const i0 = Math.floor(x / cv.width * a.peaks.length), i1 = Math.floor((x + 1) / cv.width * a.peaks.length); let m = 0; for (let i = i0; i <= i1 && i < a.peaks.length; i++) if (a.peaks[i] > m) m = a.peaks[i]; const hh = Math.max(1, m * 32); g.fillRect(x, (34 - hh) / 2, 1, hh); }
-    d.addEventListener("pointerdown", e => onSampleDown(e, a.id));
-    const x = d.querySelector(".x"); if (x) x.onclick = e => { e.stopPropagation(); removeAudio(a.id); };
-    s.appendChild(d);
-  }
-}
+function renderTray() { if (padTrack) renderPads(); }
 function removeAudio(id) {
   const dead = Object.values(proj.clips).filter(c => c.src === id).map(c => ({ t: "clip", id: c.id, del: true }));
   if (dead.length) commit(dead);
@@ -1150,7 +1179,7 @@ $("#btnDel").onclick = deleteSel; $("#btnSplit").onclick = splitAtPlayhead;
 $("#btnZoomIn").onclick = () => zoom(1.25); $("#btnZoomOut").onclick = () => zoom(0.8);
 $("#btnExport").onclick = e => renderWav(e.shiftKey);
 $("#btnFile").onclick = () => $("#fileIn").click();
-$("#fileIn").addEventListener("change", e => { addFiles([...e.target.files]); e.target.value = ""; });
+$("#fileIn").addEventListener("change", e => { const t = !isMidi(proj.tracks[selTrack]) && selTrack ? selTrack : tracksSorted().find(t => !isMidi(t))?.id || addTrack(); addFiles([...e.target.files], { track: t, beat: snapB(engine.beatNow()) }); e.target.value = ""; });
 $("#btnDemo").onclick = demoBeat;
 
 function zoom(f, anchorPx) {
@@ -1255,8 +1284,8 @@ $("#rulerWrap").addEventListener("pointerdown", e => {
   window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
 });
 // sample drag from the tray
-function onSampleDown(e, aid) {
-  e.preventDefault(); const x0 = e.clientX, y0 = e.clientY; let moved = false; const a = audios[aid];
+function onSampleDown(e, aid, started) {
+  e.preventDefault && e.preventDefault(); const x0 = e.clientX, y0 = e.clientY; let moved = !!started; const a = audios[aid];
   const mv = ev => {
     if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 6) return; moved = true;
     if (viewMode === "sess") { document.querySelectorAll(".slot.over").forEach(x => x.classList.remove("over")); const sl = slotAt(ev.clientX, ev.clientY); if (sl) sl.el.classList.add("over"); return; }
@@ -1343,7 +1372,7 @@ $("#vel").addEventListener("keydown", e => e.stopPropagation());
   }
 })();
 function openRoll(id) {
-  closeFx(); rollClip = id; noteSel.clear(); rollEl.classList.add("open");
+  closeFx(); if (padTrack) closePads(); rollClip = id; noteSel.clear(); rollEl.classList.add("open");
   renderRoll();
   const c = proj.clips[id]; const mid = c.notes.length ? c.notes.reduce((a, n) => a + n.p, 0) / c.notes.length : 60;
   requestAnimationFrame(() => { rollScroll.scrollTop = Math.max(0, pitchToY(mid) - rollScroll.clientHeight / 2); rollScroll.scrollLeft = 0; });
@@ -1388,6 +1417,7 @@ function commitNotes(notes) { if (!rollClip) return; commit({ t: "clip", id: rol
 function renderRoll() {
   if (!rollClip) return; const c = proj.clips[rollClip]; if (!c) return closeRoll();
   $("#rollName").textContent = c.name + " · " + (proj.tracks[c.track]?.name || "");
+  { const tr = proj.tracks[c.track], pads = isPads(tr) ? tr.pads || {} : null; keysInner.querySelectorAll(".key").forEach(k => { const p = +k.dataset.p; const pd = pads && pads[p]; k.textContent = pd ? (audios[pd.src]?.name || "pad") : (p % 12 === 0 ? noteName(p) : ""); k.classList.toggle("padkey", !!pd); }); }
   const W = Math.max(rollScroll.clientWidth, beatToPxR(Math.max(c.len, c.loop ? c.lp || 0 : 0)) + 40), H = N_ROWS * ROW;
   rollGrid.style.width = W + "px"; rollGrid.style.height = H + "px";
   rollCv.width = W; rollCv.height = H;
@@ -1645,7 +1675,7 @@ function buildChain(ctx, fxList, from, to) {
 // --- rack UI ---
 let fxTrack = null;
 const fxEl = $("#fxPanel"), fxList = $("#fxList");
-function openFx(tid) { if (fxTrack === tid && fxEl.classList.contains("open")) return closeFx(); closeRoll(); fxTrack = tid; fxEl.classList.add("open"); renderFx(); }
+function openFx(tid) { if (fxTrack === tid && fxEl.classList.contains("open")) return closeFx(); closeRoll(); if (padTrack) closePads(); fxTrack = tid; fxEl.classList.add("open"); renderFx(); }
 function closeFx() { fxTrack = null; fxEl.classList.remove("open"); }
 $("#fxClose").onclick = closeFx;
 $("#fxAdd").addEventListener("change", e => { const type = e.target.value; e.target.value = ""; if (!type || !fxTrack) return; const t = fxOwner(fxTrack); if (FX_DEFS[type].stub) return banner(FX_DEFS[type].name + ": " + FX_DEFS[type].stub); commitFxList(fxTrack, (t.fx || []).concat([fxDefaults(type)])); });
@@ -1721,6 +1751,7 @@ function netSend(ops) {
     if (!netKnown.has(path)) fb.set(fb.child(roomRef, path), cleanForNet(cur)); else fb.update(fb.child(roomRef, path), fields);
     netKnown.add(path);
     if (op.t === "clip" && cur.src && audios[cur.src] && audios[cur.src].persist && !audios[cur.src].shared) shareAudio(cur.src);
+    if (op.t === "track" && cur.pads) for (const pd of Object.values(cur.pads)) if (audios[pd.src] && audios[pd.src].persist && !audios[pd.src].shared) shareAudio(pd.src);
   }
 }
 const netKnown = new Set();
@@ -1748,6 +1779,7 @@ async function joinRoom(name) {
       for (const c of Object.values(proj.clips)) { seed.clips[c.id] = cleanForNet(c); netKnown.add("clips/" + c.id); }
       await fb.set(roomRef, seed);
       for (const c of Object.values(proj.clips)) if (c.src && audios[c.src]?.persist) shareAudio(c.src);
+      for (const t of Object.values(proj.tracks)) for (const pd of Object.values(t.pads || {})) if (audios[pd.src]?.persist) shareAudio(pd.src);
       banner("room “" + name + "” created from your project — share the link");
     } else {
       // the room wins: replace the local project, keep local samples in memory
@@ -1837,7 +1869,7 @@ const audioWanted = new Set();
 function requestAudio(id) { audioWanted.add(id); }
 async function receiveAudio(id, v) {
   if (!v || audios[id]) { if (audios[id]) audios[id].shared = true; return; }
-  try { const blob = await (await fetch(v.data)).blob(); await addAudio(v.name + (v.mime === "audio/wav" ? ".wav" : ".webm"), blob, { id, persist: false }); audios[id].fromRoom = true; audios[id].shared = true; audios[id].name = v.name; renderTray(); render(); } catch (e) { console.warn("audio receive failed", e); }
+  try { const blob = await (await fetch(v.data)).blob(); await addAudio(v.name + (v.mime === "audio/wav" ? ".wav" : ".webm"), blob, { id, persist: false }); audios[id].fromRoom = true; audios[id].shared = true; audios[id].name = v.name; renderTray(); render(); instCache[Object.keys(instCache).find(k => k.startsWith("pads:")) || ""] = undefined; engine.reschedule(); } catch (e) { console.warn("audio receive failed", e); }
 }
 // UI
 function updateShareUi() {
@@ -1858,7 +1890,8 @@ $("#btnKeep").onclick = async () => {
   if (!room) return; if (!confirm("Copy this room into your personal project? Your current personal project will be replaced.")) return;
   const snap = { bpm: proj.bpm, loop: proj.loop, tracks: proj.tracks, clips: proj.clips, scenes: proj.scenes, master: proj.master, pxPerBeat, playhead };
   await idbPut("kv", snap, "proj");
-  for (const c of Object.values(proj.clips)) { const a = c.src && audios[c.src]; if (a && !a.persist) { const blob = new Blob([encodeWav(a.buf)], { type: "audio/wav" }); await idbPut("audio", { id: a.id, name: a.name + ".wav", blob }); a.persist = true; } }
+  const srcs = Object.values(proj.clips).map(c => c.src).concat(Object.values(proj.tracks).flatMap(t => Object.values(t.pads || {}).map(pd => pd.src)));
+  for (const src of srcs) { const a = src && audios[src]; if (a && !a.persist) { const blob = new Blob([encodeWav(a.buf)], { type: "audio/wav" }); await idbPut("audio", { id: a.id, name: a.name + ".wav", blob }); a.persist = true; } }
   banner("saved a copy to your personal project");
 };
 function hashRoom() { const m = location.hash.match(/room=([a-z0-9_-]+)/i); return m ? m[1].toLowerCase() : null; }
@@ -2022,7 +2055,7 @@ try { const v = (localStorage.getItem("agkm-daw-scale") || "").split("|"); if (v
 // ---------- project file save / open ----------
 $("#btnSaveProj").onclick = async () => {
   const out = { v: 1, bpm: proj.bpm, loop: proj.loop, scenes: proj.scenes, master: proj.master, tracks: proj.tracks, clips: proj.clips, audio: {} };
-  const used = new Set(Object.values(proj.clips).map(c => c.src).concat(Object.values(proj.tracks).map(t => (t.inst || "").startsWith("smp:") ? t.inst.slice(4) : null)));
+  const used = new Set(Object.values(proj.clips).map(c => c.src).concat(Object.values(proj.tracks).flatMap(t => Object.values(t.pads || {}).map(pd => pd.src))));
   for (const id of used) { const a = audios[id]; if (!a || !a.persist && !a.fromRoom) continue; out.audio[id] = { name: a.name, data: await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(new Blob([encodeWav(a.buf)], { type: "audio/wav" })); }) }; }
   const blob = new Blob([JSON.stringify(out)], { type: "application/json" }), a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = (room ? "room-" + room : "project") + ".agkm.json"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
   banner("project saved (" + (blob.size / 1e6).toFixed(1) + "MB)");
@@ -2039,6 +2072,51 @@ $("#projIn").addEventListener("change", async e => {
     commit(ops); selTrack = tracksSorted()[0]?.id || null; banner("opened " + f.name);
   } catch (err) { banner("couldn't open: " + err.message); }
 });
+
+
+// ---------- sampler pads panel ----------
+let padTrack = null, padSel = null;
+const padEl = $("#padPanel"), padGrid = $("#padGrid");
+function openPads(tid) { if (padTrack === tid && padEl.classList.contains("open")) return closePads(); closeFx(); closeRoll(); padTrack = tid; padSel = padSel ?? PAD0; padEl.classList.add("open"); renderPads(); render(); }
+function closePads() { padTrack = null; padEl.classList.remove("open"); render(); }
+$("#padClose").onclick = closePads;
+function padsOf(tid) { return proj.tracks[tid]?.pads || {}; }
+function setPad(tid, pitch, v) { const pads = { ...padsOf(tid) }; if (v) pads[pitch] = v; else delete pads[pitch]; commit({ t: "track", id: tid, pads }); }
+function freePad(tid) { const pads = padsOf(tid); let p = PAD0; while (pads[p]) p++; return p; }
+function renderPads() {
+  const t = proj.tracks[padTrack]; if (!t) return closePads();
+  if (!isPads(t)) { $("#padName").textContent = t.name + " — switch the instrument to “sampler” to use pads"; padGrid.innerHTML = ""; return; }
+  $("#padName").textContent = t.name;
+  const pads = t.pads || {}, top = Math.max(PAD0 + 15, ...Object.keys(pads).map(Number), padSel || 0) + 1;
+  padGrid.innerHTML = "";
+  for (let p = PAD0; p <= top; p++) {
+    const pd = pads[p], a = pd && audios[pd.src], d = el("div", "pad" + (pd ? " filled" : "") + (padSel === p ? " sel" : "")); d.dataset.p = p;
+    d.innerHTML = `<div class="k"><span>${noteName(p)}</span><span class="dur">${pd ? (a ? a.dur.toFixed(2) + "s" : "…") : ""}</span></div>` + (pd ? `<div class="n"></div><canvas width="100" height="22"></canvas><button class="x" title="clear pad">×</button>` : `<div class="empty">drop audio<br>or + files</div>`);
+    if (pd) { d.querySelector(".n").textContent = a ? a.name : "(missing)"; if (a) drawPeaks(d.querySelector("canvas"), a.peaks); d.querySelector(".x").onclick = e => { e.stopPropagation(); setPad(padTrack, p, null); }; }
+    d.addEventListener("pointerdown", e => { if (e.target.classList.contains("x")) return; e.preventDefault(); padSel = p; padGrid.querySelectorAll(".pad.sel").forEach(x => x.classList.remove("sel")); d.classList.add("sel"); if (pd) { d.classList.add("hit"); liveNoteOn(p, velNow); const up = () => { liveNoteOff(p); d.classList.remove("hit"); window.removeEventListener("pointerup", up); }; window.addEventListener("pointerup", up); if (a) startPadDrag(e, pd.src); } });
+    d.addEventListener("dragover", e => { e.preventDefault(); d.classList.add("over"); }); d.addEventListener("dragleave", () => d.classList.remove("over"));
+    d.addEventListener("drop", async e => { e.preventDefault(); e.stopPropagation(); d.classList.remove("over"); document.body.classList.remove("dropping"); dropDepth = 0; const fs = [...e.dataTransfer.files]; let q = p; for (const f of fs) { const id = await addAudio(f.name, f); if (id) setPad(padTrack, q++, { src: id, gain: 1 }); } });
+    padGrid.appendChild(d);
+  }
+}
+function drawPeaks(cv, peaks) { const g = cv.getContext("2d"); g.fillStyle = "#C67B5C"; for (let x = 0; x < cv.width; x++) { const i0 = Math.floor(x / cv.width * peaks.length), i1 = Math.floor((x + 1) / cv.width * peaks.length); let m = 0; for (let i = i0; i <= i1 && i < peaks.length; i++) if (peaks[i] > m) m = peaks[i]; const hh = Math.max(1, m * cv.height); g.fillRect(x, (cv.height - hh) / 2, 1, hh); } }
+// dragging a pad out drops its sample on an audio lane / session slot (reuses the old tray drag)
+function startPadDrag(e, aid) { const x0 = e.clientX, y0 = e.clientY; const chk = ev => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) { window.removeEventListener("pointermove", chk); onSampleDown(ev, aid, true); } }; window.addEventListener("pointermove", chk); window.addEventListener("pointerup", () => window.removeEventListener("pointermove", chk), { once: true }); }
+$("#padAdd").onclick = () => $("#padIn").click();
+$("#padIn").addEventListener("change", async e => { const fs = [...e.target.files]; e.target.value = ""; if (!padTrack) return; let p = freePad(padTrack); for (const f of fs) { const id = await addAudio(f.name, f); if (id) { setPad(padTrack, p, { src: id, gain: 1 }); p = freePad(padTrack); } } });
+$("#padKit").onclick = () => { if (!padTrack) return; const pads = { ...padsOf(padTrack) }; let p = freePad(padTrack); for (const id of ["kit-kick", "kit-snare", "kit-hat", "kit-clap", "kit-bass"]) { if (Object.values(pads).some(v => v.src === id)) continue; while (pads[p]) p++; pads[p] = { src: id, gain: 1 }; } commit({ t: "track", id: padTrack, pads }); };
+$("#padClear").onclick = () => { if (padTrack && confirm("Clear every pad on this track?")) commit({ t: "track", id: padTrack, pads: {} }); };
+// record the mic straight into a pad (4 beats)
+$("#padRec").onclick = async () => {
+  if (!padTrack || padSel == null) return; const b = $("#padRec"); if (b.classList.contains("on")) return;
+  try {
+    const ctx = engine.ensure(); if (!micStream) micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    const src = ctx.createMediaStreamSource(micStream), rec = new MediaRecorder(micStream), chunks = []; rec.ondataavailable = e => chunks.push(e.data);
+    b.classList.add("on"); banner("recording pad " + noteName(padSel) + "…"); rec.start();
+    await new Promise(r => setTimeout(r, 4 * spb() * 1000)); rec.stop(); await new Promise(r => rec.onstop = r); src.disconnect(); b.classList.remove("on");
+    const id = await addAudio("pad " + noteName(padSel) + ".webm", new Blob(chunks, { type: rec.mimeType })); if (id) setPad(padTrack, padSel, { src: id, gain: 1 });
+  } catch (e) { b.classList.remove("on"); banner("mic unavailable: " + (e.message || e)); }
+};
 
 // ---------- banner ----------
 let bannerT;
@@ -2059,7 +2137,7 @@ function banner(msg) { const b = $("#banner"); b.textContent = msg; b.classList.
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec; }, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
