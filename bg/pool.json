@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-01",
-  "image": "pool-2026-10-01.jpg",
-  "headline": "Passengers recount chaos on Tel Aviv flight . And , FBI probes employee - data hack",
-  "url": "https://www.ksut.org/2026-10-01/passengers-recount-chaos-on-tel-aviv-flight-and-fbi-probes-employee-data-hack",
-  "outlet": "ksut.org",
-  "t": "2026-10-01T13:10:28+00:00",
-  "hash": 16777215
- },
- {
-  "id": "2026-10-01-b",
-  "image": "pool-2026-10-01-b.jpg",
-  "headline": "Malnutrition killed Wyoming pronghorn in peak summer as vegetation withered",
-  "url": "https://www.wyomingnews.com/laramieboomerang/laramieboomerang/news/malnutrition-killed-wyoming-pronghorn-in-peak-summer-as-vegetation-withered/article_41828a88-8dff-485a-b8d1-adff8715acf4.html",
-  "outlet": "wyomingnews.com",
-  "t": "2026-10-01T13:10:28+00:00",
-  "hash": 4194303999
- },
- {
-  "id": "2026-10-01-c",
-  "image": "pool-2026-10-01-c.jpg",
-  "headline": "San Diego County voters split on Ballot Measure A , poll shows",
-  "url": "https://www.10news.com/americavotes/poll-san-diego-county-voters-back-ethics-reforms-but-balk-at-extending-supervisor-term-limits",
-  "outlet": "10news.com",
-  "t": "2026-10-01T13:10:28+00:00",
-  "hash": 2240329004247190210
- },
- {
   "id": "2026-10-01-0948-0",
   "image": "pool-2026-10-01-0948-0.jpg",
   "headline": "Greece vanishing lake Koroneia exposes rapid climate impact : report",
@@ -169,5 +142,32 @@
   "t": "2026-10-03T11:59:52+00:00",
   "vista": 8.0,
   "hash": 29219050471352
+ },
+ {
+  "id": "2026-10-04",
+  "image": "pool-2026-10-04.jpg",
+  "headline": "Rafale fighters face S - 400 test in Ukraine",
+  "url": "https://www.bankingnews.gr/amyna-diplomatia/articles/902864/rafale-fighters-face-s-400-test-in-ukraine",
+  "outlet": "bankingnews.gr",
+  "t": "2026-10-04T12:21:25+00:00",
+  "hash": 579714000290567
+ },
+ {
+  "id": "2026-10-04-b",
+  "image": "pool-2026-10-04-b.jpg",
+  "headline": "CCTV Shows Russian Drone Strike on Kyiv School",
+  "url": "https://www.kyivpost.com/post/85896",
+  "outlet": "kyivpost.com",
+  "t": "2026-10-04T12:21:25+00:00",
+  "hash": 2586138240130420495
+ },
+ {
+  "id": "2026-10-04-c",
+  "image": "pool-2026-10-04-c.jpg",
+  "headline": "Arab News | Two major Kyiv bridges shut after Russian drone strikes",
+  "url": "https://www.arabnews.com/world/two-major-kyiv-bridges-shut-after-russian-drone-strikes-3004210",
+  "outlet": "arabnews.com",
+  "t": "2026-10-04T12:21:25+00:00",
+  "hash": 6931039829912059903
  }
 ]
