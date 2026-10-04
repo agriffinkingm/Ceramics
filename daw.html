@@ -509,7 +509,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-04c";
+const BUILD = "2026-10-04d";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -574,7 +574,7 @@ function afterChange(ops) {
   if (ops.some(o => o.t === "set" && o.k === "master")) { engine.refreshMaster(); $("#masterGain").value = proj.master.gain; }
   if (ops.some(o => o.t === "clip" && (o.del || "scene" in o))) for (const tid in sess) if (!proj.clips[sess[tid].clip]) delete sess[tid];
   for (const tid of [...armed]) if (!proj.tracks[tid]) { armed.delete(tid); delete recs[tid]; }
-  if (ops.some(o => o.t === "track" && "fx" in o)) engine.refreshFx(o => ops.some(p => p.id === o));
+  if (ops.some(o => o.t === "track" && "fx" in o)) { engine.refreshFx(o => ops.some(p => p.id === o)); for (const o of ops) if (o.t === "track" && "fx" in o && !arpOf(proj.tracks[o.id])) engine.arpClear(o.id); }
   if (ops.some(o => o.t === "set" && o.k === "bpm")) { engine.refreshFx(); engine.refreshMaster(); }
   if (ops.some(o => o.t === "set" && o.k === "scenes")) renderSession();
   if (ops.some(o => o.t === "clip" || (o.t === "track" && o.del) || (o.t === "set" && (o.k === "bpm" || o.k.startsWith("loop"))))) engine.reschedule();
@@ -747,6 +747,35 @@ function* midiEvents(c, fromB = -Infinity, toB = Infinity) {
   }
 }
 
+// ---------- arpeggiator ----------
+const ARP_STEP = { "1/4": 1, "1/8": 0.5, "1/8T": 1 / 3, "1/16": 0.25, "1/16T": 1 / 6, "1/32": 0.125 };
+const arpOf = t => (t && t.fx || []).find(f => f.type === "arp" && f.on !== false) || null;
+function arpOrder(pitches, f, step) {
+  const base = f.mode === "played" ? pitches.slice() : pitches.slice().sort((a, b) => a - b), oct = Math.max(1, Math.round(f.oct || 1)); let seq = [];
+  for (let o = 0; o < oct; o++) for (const p of base) seq.push(p + 12 * o);
+  if (f.mode === "down") seq.reverse();
+  else if (f.mode === "updown" && seq.length > 2) seq = seq.concat(seq.slice(1, -1).reverse());
+  if (!seq.length) return null;
+  if (f.mode === "random") { const x = Math.sin(step * 12.9898 + 78.233) * 43758.5453; return seq[Math.floor((x - Math.floor(x)) * seq.length)]; }
+  return seq[step % seq.length];
+}
+// arpeggiate a clip's events: at every grid step inside the clip, the notes sounding there are cycled by mode
+function* arpEvents(c, f, fromB = -Infinity, toB = Infinity) {
+  const step = ARP_STEP[f.rate] || 0.25, cEnd = clipEnd(c), evs = [...midiEvents(c)];
+  if (!evs.length) return;
+  const first = Math.max(c.start, Math.floor((Math.max(fromB, c.start) - 1e-6) / step) * step);
+  for (let b = first; b < cEnd && b < toB; b += step) {
+    if (b < fromB - 1e-6) continue;
+    const k = Math.round((b - c.start) / step);
+    const act = []; for (const e of evs) if (e.b <= b + 1e-6 && e.b + e.d > b + 1e-6 && !act.some(a => a.n.p === e.n.p)) act.push(e);
+    if (!act.length) continue;
+    act.sort((x, y) => x.b - y.b);
+    const p = arpOrder(act.map(a => a.n.p), f, k); if (p == null) continue;
+    const src = act.find(a => a.n.p === p || a.n.p === p - 12 || a.n.p === p - 24 || a.n.p === p - 36) || act[0];
+    yield { i: "a" + k, k, n: { p, v: src.n.v, s: src.n.s, d: src.n.d }, b, d: Math.min(step * (f.gate || 0.6), cEnd - b) };
+  }
+}
+const clipEventsFor = (c, tr, fromB, toB) => { const f = arpOf(tr); return f ? arpEvents(c, f, fromB, toB) : midiEvents(c, fromB, toB); };
 // Audio clip playback pieces, with clip looping: {b (abs beat), off (s), d (beats)}
 function* audioEvents(c, fromB = -Infinity, toB = Infinity) {
   const cEnd = clipEnd(c), lp = c.loop && c.lp > 0 ? c.lp : null;
@@ -860,7 +889,7 @@ const engine = (() => {
   }
   function startFrom(beat) {
     ensure(); playing = true;
-    stopLive();
+    stopLive(); for (const tid in arpLive) arpLive[tid].next = null;
     const l = proj.loop;
     segs = [{ startBeat: beat, endBeat: (l.on && beat < l.b) ? l.b : Infinity, ctx0: ctx.currentTime + 0.06 }];
     scheduled.clear();
@@ -874,7 +903,7 @@ const engine = (() => {
     if (timer) { clearInterval(timer); timer = null; }
   }
   function stopLive() { for (const s of live) { try { s.kill ? s.kill() : s.src.stop(); } catch (e) { } } live = []; }
-  function reschedule() { if (playing) startFrom(beatNow()); }
+  function reschedule() { if (playing) startFrom(beatNow()); for (const tid in arpLive) arpLive[tid].next = null; }
   const modded = new Set();   // "tid|key" currently driven by automation (so refreshMix can leave them alone)
   function beatAtTime(t) { for (let i = segs.length - 1; i >= 0; i--) if (t >= segs[i].ctx0 - 1e-6) return segs[i].startBeat + (t - segs[i].ctx0) / spb(); return segs[0] ? segs[0].startBeat : playhead; }
   function tickMod(now, horizon) {
@@ -948,7 +977,7 @@ const engine = (() => {
   function scheduleMidi(c, seg, key, now, horizon) {
     const tr = proj.tracks[c.track]; if (!tr) return;
     const inst = instOf(tr), dest = nodesFor(tr.id).in, cEnd = clipEnd(c);
-    for (const { i, n, b, d } of midiEvents(c, seg.startBeat, seg.endBeat)) {
+    for (const { i, n, b, d } of clipEventsFor(c, tr, seg.startBeat, seg.endBeat)) {
       const t0 = ctxOf(seg, b); if (t0 >= horizon) continue;
       const k = c.id + ":" + i + "@" + key; if (scheduled.has(k)) continue; scheduled.add(k);
       if (t0 < now - 0.03) continue;                      // started before we got here — skip, don't smear
@@ -960,15 +989,48 @@ const engine = (() => {
   }
   // live input (MIDI keyboard / QWERTY): one voice per pitch on the target track
   const held = {};
+  // live arpeggiator: held keys per track are stepped on the grid (transport beat when playing, free clock otherwise)
+  const arpLive = {};   // tid -> { keys:[{p,v}], next (beat or seconds), step, hold }
+  let arpTimer = null;
+  function arpState(tid) { return arpLive[tid] || (arpLive[tid] = { keys: [], next: null, step: 0, latch: [] }); }
+  function arpKeyOn(tid, pitch, vel) {
+    ensure(); const st = arpState(tid), f = arpOf(proj.tracks[tid]);
+    if (f.hold === "on" && !st.keys.length) st.latch = [];                 // first key of a new chord clears the latch
+    if (!st.keys.some(k => k.p === pitch)) st.keys.push({ p: pitch, v: vel });
+    if (f.hold === "on" && !st.latch.some(k => k.p === pitch)) st.latch.push({ p: pitch, v: vel });
+    if (!arpTimer) arpTimer = setInterval(arpTick, 30); arpTick();
+  }
+  function arpKeyOff(tid, pitch) { const st = arpLive[tid]; if (!st) return; st.keys = st.keys.filter(k => k.p !== pitch); }
+  function arpKeys(tid) { const st = arpLive[tid], f = arpOf(proj.tracks[tid]); if (!st || !f) return []; return f.hold === "on" ? st.latch : st.keys; }
+  function arpTick() {
+    if (!ctx) return; let any = false;
+    const now = ctx.currentTime, horizon = now + LOOK;
+    for (const tid in arpLive) {
+      const tr = proj.tracks[tid], f = arpOf(tr), keys = arpKeys(tid), st = arpLive[tid];
+      if (!tr || !f || !keys.length) { if (st) st.next = null; continue; } any = true;
+      const stepB = ARP_STEP[f.rate] || 0.25, stepS = stepB * spb(), inst = instOf(tr), dest = nodesFor(tid).in;
+      // grid: beats when the transport runs (aligned to the bar), otherwise a free clock from the first key
+      let t = st.next; if (t == null || t < now - stepS) { if (playing) { const seg = segNow(); const b = Math.ceil((beatNow() + 0.02) / stepB) * stepB; t = ctxOf(seg, b); st.step = Math.round(b / stepB); } else { t = now + 0.02; st.step = 0; } }
+      for (; t < horizon; t += stepS, st.step++) {
+        const p = arpOrder(keys.map(k => k.p), f, st.step); if (p == null) break;
+        const kv = keys.find(k => k.p === p || k.p === p - 12 || k.p === p - 24 || k.p === p - 36) || keys[0];
+        const v = inst.play(ctx, dest, p, kv.v, t); if (v) { v.stop(t + stepS * (f.gate || 0.6)); live.push({ src: v, kill: () => v.kill(), clip: null, end: t + stepS + 1 }); }
+      }
+      st.next = t;
+    }
+    if (!any && arpTimer) { clearInterval(arpTimer); arpTimer = null; }
+  }
+  function arpClear(tid) { if (arpLive[tid]) { arpLive[tid].keys = []; arpLive[tid].latch = []; arpLive[tid].next = null; } }
   function noteOn(tid, pitch, vel) {
     ensure(); const tr = proj.tracks[tid]; if (!isMidi(tr)) return;
+    if (arpOf(tr)) { arpKeyOn(tid, pitch, vel); return; }
     const inst = instOf(tr); noteOff(tid, pitch);
     if (inst.mono) for (const k in held) if (held[k].tid === tid) noteOff(tid, +k);
     const v = inst.play(ctx, nodesFor(tid).in, pitch, vel, ctx.currentTime); if (!v) return;
     held[pitch] = { v, tid, t: ctx.currentTime };
   }
-  function noteOff(tid, pitch) { const h = held[pitch]; if (!h) return; delete held[pitch]; h.v.stop(ctx.currentTime); setTimeout(() => h.v.kill && h.v.kill(), 3000); }
-  function allOff() { for (const k in held) noteOff(held[k].tid, +k); }
+  function noteOff(tid, pitch) { if (arpLive[tid]) arpKeyOff(tid, pitch); const h = held[pitch]; if (!h) return; delete held[pitch]; h.v.stop(ctx.currentTime); setTimeout(() => h.v.kill && h.v.kill(), 3000); }
+  function allOff() { for (const k in held) noteOff(held[k].tid, +k); for (const tid in arpLive) arpClear(tid); }
   let bendSemi = 0;
   function bend(semi) { bendSemi = semi; for (const k in held) if (held[k].v.bend) held[k].v.bend(semi); }
   function preview(id) {
@@ -987,7 +1049,7 @@ const engine = (() => {
     return out;
   }
   return {
-    ensure, startFrom, stop, reschedule, refreshMix, refreshFx, setFxParam, refreshMaster, setMasterGain, cutAt, bend, beatNow, modValueNow: (t, key) => modValue(t, key, beatNow(), ctx ? ctx.currentTime : 0), preview, meters, noteOn, noteOff, allOff, nodesFor, ctxOf, segNow,
+    ensure, startFrom, stop, reschedule, refreshMix, refreshFx, setFxParam, refreshMaster, setMasterGain, cutAt, bend, arpClear, beatNow, modValueNow: (t, key) => modValue(t, key, beatNow(), ctx ? ctx.currentTime : 0), preview, meters, noteOn, noteOff, allOff, nodesFor, ctxOf, segNow,
     get playing() { return playing; }, get ctx() { return ctx; },
     get click() { return clickOn; }, set click(v) { clickOn = v; },
     decode: ab => ensure().decodeAudioData(ab),
@@ -1023,7 +1085,7 @@ async function renderWav(loopOnly) {
     const dest = tn[c.track] || mIn, cEnd = clipEnd(c);
     if (c.kind === "m") {
       const inst = instOf(proj.tracks[c.track]);
-      for (const { n, b, d } of midiEvents(c, fromB, toB)) { if (b < fromB) continue; const v = inst.play(oc, dest, n.p + (c.tr || 0), n.v * (c.gain ?? 1), T(b)); if (v) v.stop(T(Math.min(b + d, cEnd, toB))); }
+      for (const { n, b, d } of clipEventsFor(c, proj.tracks[c.track], fromB, toB)) { if (b < fromB) continue; const v = inst.play(oc, dest, n.p + (c.tr || 0), n.v * (c.gain ?? 1), T(b)); if (v) v.stop(T(Math.min(b + d, cEnd, toB))); }
       continue;
     }
     for (const ev of audioEvents(c, fromB, toB)) {
@@ -1949,6 +2011,7 @@ const FX_DEFS = {
   chorus: { name: "chorus", params: { rate: { label: "rate", min: 0.05, max: 6, def: 0.8, log: true, unit: "Hz" }, depth: { label: "depth", min: 0.0005, max: 0.012, def: 0.004, unit: "s" }, mix: { label: "mix", min: 0, max: 1, def: 0.5 } } },
   eq: { name: "eq", params: { lo: { label: "low", min: -18, max: 18, def: 0, unit: "dB" }, mid: { label: "mid", min: -18, max: 18, def: 0, unit: "dB" }, hi: { label: "high", min: -18, max: 18, def: 0, unit: "dB" } } },
   crush: { name: "bitcrusher", params: { bits: { label: "bits", min: 2, max: 16, def: 6 }, mix: { label: "mix", min: 0, max: 1, def: 1 } } },
+  arp: { name: "arpeggiator", mod: true, midi: true, params: { rate: { label: "rate", opts: ["1/4", "1/8", "1/8T", "1/16", "1/16T", "1/32"], def: "1/16" }, mode: { label: "mode", opts: ["up", "down", "updown", "random", "played"], def: "up" }, oct: { label: "octaves", min: 1, max: 4, def: 1 }, gate: { label: "gate", min: 0.1, max: 1, def: 0.6 }, hold: { label: "hold", opts: ["off", "on"], def: "off" } } },
   lfo: { name: "lfo", mod: true, params: { target: { label: "target", targets: true, def: "" }, shape: { label: "shape", opts: ["sine", "tri", "saw", "square", "random"], def: "sine" }, rate: { label: "rate", opts: ["4 bars", "2 bars", "1 bar", "1/2", "1/4", "1/8", "1/16", "hz"], def: "1 bar" }, hz: { label: "hz", min: 0.05, max: 20, def: 2, log: true, unit: "Hz" }, depth: { label: "depth", min: 0, max: 1, def: 0.5 }, phase: { label: "phase", min: 0, max: 1, def: 0 } } },
   sidechain: { name: "sidechain", params: { src: { label: "from", tracks: true, def: "" }, th: { label: "threshold", min: 0, max: 0.6, def: 0.05 }, amount: { label: "duck", min: 0, max: 1, def: 0.8 }, speed: { label: "release", min: 0.01, max: 1, def: 0.12, log: true, unit: "s" } } },
   autotune: { name: "autotune", params: {}, stub: "needs a pitch-tracking worklet — coming later" },
@@ -2007,7 +2070,7 @@ const fxEl = $("#fxPanel"), fxList = $("#fxList");
 function openFx(tid) { if (fxTrack === tid && fxEl.classList.contains("open")) return closeFx(); closeRoll(); if (padTrack) closePads(); closeAudioEd(); fxTrack = tid; fxEl.classList.add("open"); renderFx(); }
 function closeFx() { fxTrack = null; fxEl.classList.remove("open"); }
 $("#fxClose").onclick = closeFx;
-$("#fxAdd").addEventListener("change", e => { const type = e.target.value; e.target.value = ""; if (!type || !fxTrack) return; const t = fxOwner(fxTrack); if (FX_DEFS[type].stub) return banner(FX_DEFS[type].name + ": " + FX_DEFS[type].stub); commitFxList(fxTrack, (t.fx || []).concat([fxDefaults(type)])); });
+$("#fxAdd").addEventListener("change", e => { const type = e.target.value; e.target.value = ""; if (!type || !fxTrack) return; const t = fxOwner(fxTrack); if (FX_DEFS[type].stub) return banner(FX_DEFS[type].name + ": " + FX_DEFS[type].stub); if (FX_DEFS[type].midi && !isMidi(t)) return banner("the arpeggiator goes on a midi track"); commitFxList(fxTrack, (t.fx || []).concat([fxDefaults(type)])); });
 $("#fxAdd").addEventListener("keydown", e => e.stopPropagation());
 (function () { const s = $("#fxAdd"); for (const k in FX_DEFS) { const o = document.createElement("option"); o.value = k; o.textContent = "+ " + FX_DEFS[k].name; s.appendChild(o); } })();
 const fmtVal = (p, v) => p.tracks || p.targets ? "" : p.opts ? v : (v >= 1000 ? (v / 1000).toFixed(1) + "k" : v >= 10 ? Math.round(v) : v >= 1 ? v.toFixed(1) : v.toFixed(3).replace(/0+$/, "")) + (p.unit || "");
@@ -2022,7 +2085,7 @@ function renderFx() {
     const D = FX_DEFS[f.type]; if (!D) return;
     const card = el("div", "fxc" + (f.on === false ? " off" : "")); card.dataset.id = f.id;
     const head = el("div", "fxh"); const on = el("button", "ms" + (f.on === false ? "" : " on") + " p", "●"); on.title = "bypass"; on.onclick = () => commitFx(idx, { on: f.on === false }); head.appendChild(on);
-    head.appendChild(el("span", "fxt", D.name));
+    head.appendChild(el("span", "fxt", D.name + (D.midi ? " · midi" : D.mod ? " · mod" : "")));
     const mv = el("button", "x", "‹"); mv.title = "move earlier"; mv.onclick = () => { if (idx === 0) return; const fx = t.fx.slice(); [fx[idx - 1], fx[idx]] = [fx[idx], fx[idx - 1]]; commitFxList(fxTrack, fx); }; head.appendChild(mv);
     const x = el("button", "x", "×"); x.onclick = () => commitFxList(fxTrack, t.fx.filter((_, j) => j !== idx)); head.appendChild(x);
     card.appendChild(head);
@@ -2652,7 +2715,7 @@ function banner(msg, ms = 2200) { const b = $("#banner"); b.textContent = msg; b
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { joinSel, modValue, targetsOf, autoShown, commitAuto, toggleFold, get rows() { return rows; }, openAudioEd, get aeClip() { return aeClip; }, padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { arpEvents, arpOf, joinSel, modValue, targetsOf, autoShown, commitAuto, toggleFold, get rows() { return rows; }, openAudioEd, get aeClip() { return aeClip; }, padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
