@@ -162,6 +162,7 @@
   #rollLoopEnd::after { content:''; position:absolute; left:4px; top:3px; border:5px solid transparent; border-top:8px solid var(--terracotta); }
   #rollFold.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
   #rollLoop.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
+  #laneMarquee { position:absolute; display:none; border:1px solid var(--ivory); background:rgba(250,248,245,0.1); pointer-events:none; z-index:7; }
   #marquee { position:absolute; display:none; border:1px solid var(--ivory); background:rgba(250,248,245,0.12); pointer-events:none; z-index:3; }
   #rollPh { position:absolute; top:0; width:1px; height:100%; background:var(--ivory); pointer-events:none; opacity:0.8; }
   #vel { width:70px; height:14px; }
@@ -496,7 +497,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03t";
+const BUILD = "2026-10-03u";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -1443,11 +1444,30 @@ laneList.addEventListener("dblclick", e => {
   const tid = laneAt(e.clientY); if (!isMidi(proj.tracks[tid])) return;
   const b = snapB(pxToBeat(lanesX(e.clientX))); const id = placeMidiClip(tid, Math.floor(b / 4) * 4, 4); openRoll(id);
 });
+// empty lane: click sets the playhead; drag draws a box that selects the clips it touches (⇧/⌘ adds to the selection)
+const laneMarquee = el("div", ""); laneMarquee.id = "laneMarquee"; lanes.appendChild(laneMarquee);
 laneList.addEventListener("pointerdown", e => {
-  if (e.target.closest(".clip")) return;
+  if (e.target.closest(".clip, .alane") || e.button === 2) return;
+  e.preventDefault();
   const tid = laneAt(e.clientY); if (tid) selTrack = tid;
-  selected.clear(); render();
-  setPlayhead(snapB(pxToBeat(lanesX(e.clientX)), e.shiftKey));
+  const add = e.shiftKey || e.metaKey || e.ctrlKey, base = add ? new Set(selected) : new Set();
+  const lr = lanes.getBoundingClientRect(), x0 = e.clientX - lr.left + 0, y0 = e.clientY - lr.top, sx = lanesWrap.scrollLeft, sy = lanesWrap.scrollTop;
+  let moved = false;
+  const mv = ev => {
+    const x1 = ev.clientX - lr.left, y1 = ev.clientY - lr.top; if (!moved && Math.hypot(x1 - x0, y1 - y0) < 5) return; moved = true;
+    const l = Math.min(x0, x1), r = Math.max(x0, x1), t = Math.min(y0, y1), b = Math.max(y0, y1);
+    laneMarquee.style.display = "block"; laneMarquee.style.left = l + "px"; laneMarquee.style.top = t + "px"; laneMarquee.style.width = (r - l) + "px"; laneMarquee.style.height = (b - t) + "px";
+    selected = new Set(base);
+    for (const id in clipEls) { const el2 = clipEls[id], cr = el2.getBoundingClientRect(); const cl = cr.left - lr.left, crr = cr.right - lr.left, ct = cr.top - lr.top, cb = cr.bottom - lr.top; if (cl < r && crr > l && ct < b && cb > t) selected.add(id); }
+    for (const id in clipEls) clipEls[id].classList.toggle("sel", selected.has(id));
+  };
+  const up = ev => {
+    window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); laneMarquee.style.display = "none";
+    if (moved) { render(); return; }
+    if (!add) selected.clear(); render();
+    setPlayhead(snapB(pxToBeat(lanesX(ev.clientX)), ev.shiftKey));
+  };
+  window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
 });
 // ruler: click = playhead, drag = loop region
 $("#rulerWrap").addEventListener("pointerdown", e => {
