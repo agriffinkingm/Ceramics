@@ -422,7 +422,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03k";
+const BUILD = "2026-10-03l";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -669,18 +669,20 @@ const engine = (() => {
   function nodesFor(tid) {
     let n = trackNodes[tid];
     if (!n) {
-      const gain = ctx.createGain(), pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null, an = ctx.createAnalyser();
+      const inp = ctx.createGain(), gain = ctx.createGain(), pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null, an = ctx.createAnalyser();
       an.fftSize = 256;
-      if (pan) pan.connect(an);
+      inp.connect(gain); if (pan) pan.connect(an);
       an.connect(master);
-      n = trackNodes[tid] = { gain, pan, an, chain: [] };
-      n.chain = buildChain(ctx, proj.tracks[tid]?.fx, gain, pan || an);
+      n = trackNodes[tid] = { in: inp, gain, pan, an, chain: [] };   // clips/voices → in (pre-fader key tap) → gain → fx → pan → analyser
+      n.chain = buildChain(ctx, proj.tracks[tid]?.fx, gain, pan || an, keyEnv(tid));
     }
     return n;
   }
+  const building = new Set();
+  const keyEnv = self => ({ key: src => { if (!src || src === self || !proj.tracks[src] || building.has(src)) return null; building.add(self); try { return nodesFor(src).in; } finally { building.delete(self); } } });
   function refreshFx(pred) {
     if (!ctx) return;
-    for (const tid in trackNodes) { if (pred && !pred(tid)) continue; const n = trackNodes[tid]; n.gain.disconnect(); for (const c of n.chain) { try { c.x.output.disconnect(); } catch (e) { } } n.chain = buildChain(ctx, proj.tracks[tid]?.fx, n.gain, n.pan || n.an); }
+    for (const tid in trackNodes) { if (pred && !pred(tid)) continue; const n = trackNodes[tid]; n.gain.disconnect(); for (const c of n.chain) { try { c.x.output.disconnect(); } catch (e) { } } n.chain = buildChain(ctx, proj.tracks[tid]?.fx, n.gain, n.pan || n.an, keyEnv(tid)); }
   }
   function setFxParam(tid, fxId, params) { const chain = tid === "master" ? masterChain : trackNodes[tid]?.chain; if (!chain) return; const c = chain.find(c => c.id === fxId); if (c) c.x.set(params); }
   function refreshMix() {
@@ -750,7 +752,7 @@ const engine = (() => {
           const src = ctx.createBufferSource(); src.buffer = a.buf;
           if (c.tr) src.playbackRate.value = Math.pow(2, c.tr / 12);
           const g = ctx.createGain(); applyFades(g.gain, c, ctxOf(seg, ev.b), ctxOf(seg, Math.min(ev.b + ev.d, cEnd)), now);
-          src.connect(g); g.connect(nodesFor(c.track).gain);
+          src.connect(g); g.connect(nodesFor(c.track).in);
           src.start(at, off, dur);
           live.push({ src, gain: g, clip: c.id, end: at + dur });
         }
@@ -778,7 +780,7 @@ const engine = (() => {
   }
   function scheduleMidi(c, seg, key, now, horizon) {
     const tr = proj.tracks[c.track]; if (!tr) return;
-    const inst = instOf(tr), dest = nodesFor(tr.id).gain, cEnd = clipEnd(c);
+    const inst = instOf(tr), dest = nodesFor(tr.id).in, cEnd = clipEnd(c);
     for (const { i, n, b, d } of midiEvents(c, seg.startBeat, seg.endBeat)) {
       const t0 = ctxOf(seg, b); if (t0 >= horizon) continue;
       const k = c.id + ":" + i + "@" + key; if (scheduled.has(k)) continue; scheduled.add(k);
@@ -795,7 +797,7 @@ const engine = (() => {
     ensure(); const tr = proj.tracks[tid]; if (!isMidi(tr)) return;
     const inst = instOf(tr); noteOff(tid, pitch);
     if (inst.mono) for (const k in held) if (held[k].tid === tid) noteOff(tid, +k);
-    const v = inst.play(ctx, nodesFor(tid).gain, pitch, vel, ctx.currentTime); if (!v) return;
+    const v = inst.play(ctx, nodesFor(tid).in, pitch, vel, ctx.currentTime); if (!v) return;
     held[pitch] = { v, tid, t: ctx.currentTime };
   }
   function noteOff(tid, pitch) { const h = held[pitch]; if (!h) return; delete held[pitch]; h.v.stop(ctx.currentTime); setTimeout(() => h.v.kill && h.v.kill(), 3000); }
@@ -833,13 +835,13 @@ async function renderWav(loopOnly) {
   const anySolo = Object.values(proj.tracks).some(t => t.solo);
   const mOut = oc.createGain(); mOut.gain.value = proj.master?.gain ?? 0.9; const lim = oc.createDynamicsCompressor(); lim.threshold.value = -1; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.002; lim.release.value = 0.08; mOut.connect(lim); lim.connect(oc.destination);
   const mIn = oc.createGain(); buildChain(oc, proj.master?.fx, mIn, mOut);
-  const tn = {};
+  const tn = {}, tG = {}, tOut = {};
   for (const t of tracksSorted()) {
-    const g = oc.createGain(); g.gain.value = (!t.mute && (!anySolo || t.solo)) ? t.gain : 0;
-    const p = oc.createStereoPanner ? oc.createStereoPanner() : null; if (p) { p.pan.value = t.pan; p.connect(mIn); }
-    buildChain(oc, t.fx, g, p || mIn);
-    tn[t.id] = g;
+    const inp = oc.createGain(), g = oc.createGain(); g.gain.value = (!t.mute && (!anySolo || t.solo)) ? t.gain : 0; inp.connect(g);
+    const p = oc.createStereoPanner ? oc.createStereoPanner() : oc.createGain(); if (p.pan) p.pan.value = t.pan; p.connect(mIn);
+    tn[t.id] = inp; tG[t.id] = g; tOut[t.id] = p;
   }
+  for (const t of tracksSorted()) buildChain(oc, t.fx, tG[t.id], tOut[t.id], { key: src => src !== t.id && tn[src] || null });
   const T = b => (b - fromB) * spb();
   for (const c of clips) {
     const dest = tn[c.track] || mIn, cEnd = clipEnd(c);
@@ -1653,6 +1655,7 @@ const FX_DEFS = {
   chorus: { name: "chorus", params: { rate: { label: "rate", min: 0.05, max: 6, def: 0.8, log: true, unit: "Hz" }, depth: { label: "depth", min: 0.0005, max: 0.012, def: 0.004, unit: "s" }, mix: { label: "mix", min: 0, max: 1, def: 0.5 } } },
   eq: { name: "eq", params: { lo: { label: "low", min: -18, max: 18, def: 0, unit: "dB" }, mid: { label: "mid", min: -18, max: 18, def: 0, unit: "dB" }, hi: { label: "high", min: -18, max: 18, def: 0, unit: "dB" } } },
   crush: { name: "bitcrusher", params: { bits: { label: "bits", min: 2, max: 16, def: 6 }, mix: { label: "mix", min: 0, max: 1, def: 1 } } },
+  sidechain: { name: "sidechain", params: { src: { label: "from", tracks: true, def: "" }, th: { label: "threshold", min: 0, max: 0.6, def: 0.05 }, amount: { label: "duck", min: 0, max: 1, def: 0.8 }, speed: { label: "release", min: 0.01, max: 1, def: 0.12, log: true, unit: "s" } } },
   autotune: { name: "autotune", params: {}, stub: "needs a pitch-tracking worklet — coming later" },
 };
 const DELAY_BEATS = { "1/16": 0.25, "1/8": 0.5, "1/8.": 0.75, "1/4": 1, "1/4.": 1.5, "1/2": 2, "1": 4 };
@@ -1664,7 +1667,7 @@ function makeIR(ctx, size, damp) {
   for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); let lp = 0; for (let i = 0; i < n; i++) { const e = Math.pow(1 - i / n, 2.2) * Math.exp(-3 * i / n); lp = lp * k + (Math.random() * 2 - 1) * (1 - k); d[i] = lp * e; } }
   return irCache[key] = b;
 }
-function makeFx(ctx, f) {
+function makeFx(ctx, f, env) {
   const input = ctx.createGain(), output = ctx.createGain(), dry = ctx.createGain(), wet = ctx.createGain();
   input.connect(dry); dry.connect(output); wet.connect(output);
   const mix = v => { dry.gain.value = 1 - v; wet.gain.value = v; };
@@ -1677,13 +1680,28 @@ function makeFx(ctx, f) {
   else if (T === "chorus") { const d = ctx.createDelay(0.1), lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.connect(lg); lg.connect(d.delayTime); lfo.start(); input.connect(d); d.connect(wet); set = p => { d.delayTime.value = 0.02; lfo.frequency.value = p.rate; lg.gain.value = p.depth; mix(p.mix); }; }
   else if (T === "eq") { const lo = ctx.createBiquadFilter(), mid = ctx.createBiquadFilter(), hi = ctx.createBiquadFilter(); lo.type = "lowshelf"; lo.frequency.value = 220; mid.type = "peaking"; mid.frequency.value = 1000; mid.Q.value = 0.9; hi.type = "highshelf"; hi.frequency.value = 4200; input.connect(lo); lo.connect(mid); mid.connect(hi); hi.connect(wet); mix(1); set = p => { lo.gain.value = p.lo; mid.gain.value = p.mid; hi.gain.value = p.hi; }; }
   else if (T === "crush") { const ws = ctx.createWaveShaper(); input.connect(ws); ws.connect(wet); set = p => { const steps = Math.pow(2, p.bits), c = new Float32Array(4096); for (let i = 0; i < 4096; i++) { const x = i / 2047.5 - 1; c[i] = Math.round(x * steps / 2) / (steps / 2); } ws.curve = c; mix(p.mix); }; }
+  else if (T === "sidechain") {
+    // envelope follower on another track: |key| → lowpass → threshold curve → negative gain → this track's gain
+    const duck = ctx.createGain(); duck.gain.value = 1; input.connect(duck); duck.connect(wet); mix(1);
+    const rect = ctx.createWaveShaper(), boost = ctx.createGain(), lp = ctx.createBiquadFilter(), thr = ctx.createWaveShaper(), neg = ctx.createGain();
+    const rc = new Float32Array(1025); for (let i = 0; i < 1025; i++) rc[i] = Math.abs(i / 512 - 1); rect.curve = rc;   // |x|
+    boost.gain.value = 4;   // short hits get averaged down by the smoothing filter; boost then clamp in the threshold curve so the duck opens fast and fully
+    lp.type = "lowpass"; lp.Q.value = 0.6; rect.connect(boost); boost.connect(lp); lp.connect(thr); thr.connect(neg); neg.connect(duck.gain);
+    let keyNode = null, keyId = null;
+    set = p => {
+      lp.frequency.value = 3 / (2 * Math.PI * Math.max(0.005, p.speed));   // ×3: a one-pole 'release' needs the cutoff above the pumping rate
+      const tc = new Float32Array(1025), th = p.th * 4; for (let i = 0; i < 1025; i++) { const x = i / 512 - 1; tc[i] = x <= th ? 0 : Math.min(1, (x - th) * 3); } thr.curve = tc;   // waveshaper input is clamped to ±1, so the boosted envelope saturates at 1
+      neg.gain.value = -p.amount;
+      if (p.src !== keyId) { if (keyNode) { try { keyNode.disconnect(rect); } catch (e) { } } keyId = p.src; keyNode = env && env.key ? env.key(p.src) : null; if (keyNode) keyNode.connect(rect); }
+    };
+  }
   else { input.connect(wet); mix(1); set = () => { }; }
   set(f);
   return { input, output, set };
 }
-function buildChain(ctx, fxList, from, to) {
+function buildChain(ctx, fxList, from, to, env) {
   let node = from; const built = [];
-  for (const f of fxList || []) { if (f.on === false || !FX_DEFS[f.type]) continue; const x = makeFx(ctx, f); node.connect(x.input); node = x.output; built.push({ id: f.id, type: f.type, x }); }
+  for (const f of fxList || []) { if (f.on === false || !FX_DEFS[f.type]) continue; const x = makeFx(ctx, f, env); node.connect(x.input); node = x.output; built.push({ id: f.id, type: f.type, x }); }
   node.connect(to); return built;
 }
 // --- rack UI ---
@@ -1695,7 +1713,7 @@ $("#fxClose").onclick = closeFx;
 $("#fxAdd").addEventListener("change", e => { const type = e.target.value; e.target.value = ""; if (!type || !fxTrack) return; const t = fxOwner(fxTrack); if (FX_DEFS[type].stub) return banner(FX_DEFS[type].name + ": " + FX_DEFS[type].stub); commitFxList(fxTrack, (t.fx || []).concat([fxDefaults(type)])); });
 $("#fxAdd").addEventListener("keydown", e => e.stopPropagation());
 (function () { const s = $("#fxAdd"); for (const k in FX_DEFS) { const o = document.createElement("option"); o.value = k; o.textContent = "+ " + FX_DEFS[k].name; s.appendChild(o); } })();
-const fmtVal = (p, v) => p.opts ? v : (v >= 1000 ? (v / 1000).toFixed(1) + "k" : v >= 10 ? Math.round(v) : v >= 1 ? v.toFixed(1) : v.toFixed(3).replace(/0+$/, "")) + (p.unit || "");
+const fmtVal = (p, v) => p.tracks ? "" : p.opts ? v : (v >= 1000 ? (v / 1000).toFixed(1) + "k" : v >= 10 ? Math.round(v) : v >= 1 ? v.toFixed(1) : v.toFixed(3).replace(/0+$/, "")) + (p.unit || "");
 const fxOwner = id => id === "master" ? proj.master : proj.tracks[id];
 function commitFxList(id, fx) { if (id === "master") commit({ t: "set", k: "master", v: { ...proj.master, fx } }); else commit({ t: "track", id, fx }); }
 function renderFx() {
@@ -1713,7 +1731,7 @@ function renderFx() {
     card.appendChild(head);
     for (const k in D.params) {
       const P = D.params[k], row = el("label", "fxr"); row.appendChild(el("span", "l", P.label || k)); const val = el("span", "v", fmtVal(P, f[k]));
-      if (P.opts) { const sel = document.createElement("select"); for (const o of P.opts) { const op = document.createElement("option"); op.value = o; op.textContent = o; sel.appendChild(op); } sel.value = f[k]; sel.onchange = () => commitFx(idx, { [k]: sel.value }); sel.addEventListener("keydown", e => e.stopPropagation()); row.appendChild(sel); }
+      if (P.opts || P.tracks) { const sel = document.createElement("select"); const opts = P.tracks ? [["", "— pick a track —"], ...tracksSorted().filter(x => x.id !== fxTrack).map(x => [x.id, x.name])] : P.opts.map(o => [o, o]); for (const [v, l] of opts) { const op = document.createElement("option"); op.value = v; op.textContent = l; sel.appendChild(op); } sel.value = f[k] || ""; sel.onchange = () => commitFx(idx, { [k]: sel.value }); sel.addEventListener("keydown", e => e.stopPropagation()); row.appendChild(sel); if (P.tracks) val.textContent = ""; }
       else {
         const r = document.createElement("input"); r.type = "range"; r.min = 0; r.max = 1000; r.step = 1;
         const toV = x => P.log ? P.min * Math.pow(P.max / P.min, x / 1000) : P.min + (P.max - P.min) * x / 1000, toX = v => P.log ? 1000 * Math.log(v / P.min) / Math.log(P.max / P.min) : 1000 * (v - P.min) / (P.max - P.min);
