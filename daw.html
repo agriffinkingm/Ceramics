@@ -455,7 +455,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03n";
+const BUILD = "2026-10-03o";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -1809,6 +1809,7 @@ function renderFx() {
 // under daw/rooms/<name> on the wall's Firebase project; every committed op is written per entity, remote changes are
 // applied directly (no undo entry). Playback stays local; other people's playheads and selections are shown.
 const firebaseConfig = { apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I", authDomain: "griffgraff-baa46.firebaseapp.com", databaseURL: "https://griffgraff-baa46-default-rtdb.firebaseio.com", projectId: "griffgraff-baa46", storageBucket: "griffgraff-baa46.firebasestorage.app", messagingSenderId: "354313176929", appId: "1:354313176929:web:65aa8467f9aad220026720" };
+const DB_ROOT = "walls/daw";   // lives under the wall's branch, which the database rules already open; swap for "daw" once rules allow it
 let fb = null, room = null, roomKey = null, roomRef = null, unsub = [], peers = {}, presRef = null, presTimer = null, joining = false;
 const uidSelf = (() => { try { let u = sessionStorage.getItem("agkm-daw-uid"); if (!u) { u = uid(); sessionStorage.setItem("agkm-daw-uid", u); } return u; } catch (e) { return uid(); } })();
 let myName = (() => { try { return localStorage.getItem("agkm-daw-name") || ""; } catch (e) { return ""; } })();
@@ -1866,12 +1867,12 @@ async function joinRoom(name) {
     await loadFirebase();
     leaveRoomListeners();
     let locked = false;
-    try { locked = (await fb.get(fb.ref(fb.db, "daw/rooms/" + name + "/locked"))).exists() || (await fb.get(fb.ref(fb.db, "daw/locks/" + name))).exists(); } catch (e) { console.warn("lock check", e); }
+    try { locked = (await fb.get(fb.ref(fb.db, DB_ROOT + "/rooms/" + name + "/locked"))).exists() || (await fb.get(fb.ref(fb.db, DB_ROOT + "/locks/" + name))).exists(); } catch (e) { console.warn("lock check", e); }
     let key = name, pw = pendingPw ?? pwMem.get(name); pendingPw = null;
     if (locked && pendingNew) { banner("“" + name + "” already exists and is locked — join it instead, or pick another name"); pendingNew = false; pendingPw = null; joining = false; location.hash = ""; return; }
     if (locked && !pw) { pw = prompt("room “" + name + "” is locked — password?", "") || ""; if (!pw) { joining = false; location.hash = ""; banner("not joined"); return; } }
-    if (pw) { key = name + "-" + await roomHash(name, pw); if (locked) { const ok = (await fb.get(fb.ref(fb.db, "daw/rooms/" + key + "/meta/created"))).exists(); if (!ok) { joining = false; location.hash = ""; banner("wrong password for “" + name + "”"); return; } } pwMem.set(name, pw); }
-    room = name; roomKey = key; roomRef = fb.ref(fb.db, "daw/rooms/" + key); netKnown.clear();
+    if (pw) { key = name + "-" + await roomHash(name, pw); if (locked) { const ok = (await fb.get(fb.ref(fb.db, DB_ROOT + "/rooms/" + key + "/meta/created"))).exists(); if (!ok) { joining = false; location.hash = ""; banner("wrong password for “" + name + "”"); return; } } pwMem.set(name, pw); }
+    room = name; roomKey = key; roomRef = fb.ref(fb.db, DB_ROOT + "/rooms/" + key); netKnown.clear();
     const metaSnap = await fb.get(fb.child(roomRef, "meta"));
     if (!metaSnap.exists() && !pendingNew && !pendingNewHash) {
       const mk = confirm("No room called “" + name + "” yet. Create it from your personal project?");
@@ -1880,7 +1881,7 @@ async function joinRoom(name) {
     pendingNew = false;
     if (!metaSnap.exists()) {
       if (pendingBlank) { blankProject(); selTrack = tracksSorted()[0]?.id || null; } pendingBlank = false;
-      if (pw) { await fb.set(fb.ref(fb.db, "daw/locks/" + name), true).catch(() => { }); await fb.set(fb.ref(fb.db, "daw/rooms/" + name + "/locked"), true).catch(() => { }); }
+      if (pw) { await fb.set(fb.ref(fb.db, DB_ROOT + "/locks/" + name), true).catch(() => { }); await fb.set(fb.ref(fb.db, DB_ROOT + "/rooms/" + name + "/locked"), true).catch(() => { }); }
       // first in: seed the room with this project (blank for “new room”)
       const seed = { meta: { bpm: proj.bpm, loop: proj.loop, scenes: proj.scenes || 8, master: proj.master || { gain: 0.9, fx: [] }, created: Date.now() }, tracks: {}, clips: {} };
       for (const t of Object.values(proj.tracks)) { seed.tracks[t.id] = cleanForNet(t); netKnown.add("tracks/" + t.id); }
@@ -1911,7 +1912,7 @@ async function joinRoom(name) {
     const onP = s => { if (s.key === uidSelf) return; peers[s.key] = s.val(); renderPeers(); };
     unsub.push(fb.onChildAdded(pr, onP), fb.onChildChanged(pr, onP), fb.onChildRemoved(pr, s => { delete peers[s.key]; renderPeers(); }));
     sendPresence(true); presTimer = setInterval(() => sendPresence(), 700);
-  } catch (e) { console.warn(e); banner("couldn't join room “" + name + "”: " + (e.message || e.code || e) + " — check the database rules allow daw/", 8000); room = null; roomKey = null; roomRef = null; location.hash = ""; }
+  } catch (e) { console.warn(e); banner("couldn't join room “" + name + "”: " + (e.message || e.code || e) + " ", 8000); room = null; roomKey = null; roomRef = null; location.hash = ""; }
   joining = false; pendingBlank = false; updateShareUi(); render();
 }
 function leaveRoomListeners() { for (const u of unsub) { try { u(); } catch (e) { } } unsub = []; if (presTimer) clearInterval(presTimer); presTimer = null; if (presRef) { try { fb.remove(presRef); } catch (e) { } } presRef = null; peers = {}; renderPeers(); }
