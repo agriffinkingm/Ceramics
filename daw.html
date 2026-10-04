@@ -291,6 +291,15 @@
   .am { position:absolute; top:0; bottom:0; width:2px; background:var(--ivory); cursor:ew-resize; } .am::after { content:''; position:absolute; left:-7px; top:0; width:16px; height:100%; }
   .am.en { background:var(--terracotta); }
   #aePh { position:absolute; top:0; bottom:0; width:1px; background:var(--ivory); opacity:0.8; pointer-events:none; display:none; }
+  /* ---------- automation ---------- */
+  .hdr .m3 select.auto { font:inherit; font-size:0.6rem; color:rgba(250,248,245,0.7); background:rgba(0,0,0,0.25); border:1px solid var(--line); border-radius:2px; height:16px; padding:0 2px; max-width:100%; flex:1; min-width:0; }
+  .hdr { gap:0.2rem; }
+  .alane { position:absolute; left:0; right:0; bottom:0; height:44px; border-top:1px dashed var(--line2); cursor:crosshair; touch-action:none; }
+  .alane canvas { position:absolute; left:0; top:0; height:44px; pointer-events:none; }
+  .apt { position:absolute; width:9px; height:9px; margin:-4.5px 0 0 -4.5px; border-radius:50%; box-shadow:0 0 0 1px var(--ink); cursor:grab; }
+  .apt:hover { transform:scale(1.3); }
+  .clip { z-index:1; }
+
   @media (max-width:760px) { #aeHead .field, #aeHalf, #aeDbl, #aeBar { display:none; } }
 
   @media (max-width:760px) { #padEdit { grid-template-columns:1fr; } #padWaveWrap { height:80px; } }
@@ -388,7 +397,7 @@
     <button class="tbtn sm" id="btnLeave" title="Leave the room — back to your personal project" style="display:none">leave</button>
   </div>
   <div id="spacer"></div>
-  <div id="hint">● on a track arms it, transport ● records · dbl-click a clip to edit / loop it · Q quantizes · new room / join room</div>
+  <div id="hint">● arms · dbl-click a clip to edit / loop · auto ▾ opens an automation lane · lfo lives in the fx rack · Q quantizes · new room / join room</div>
 </div>
 
 <div id="insp">
@@ -487,7 +496,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03s";
+const BUILD = "2026-10-03t";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -728,6 +737,45 @@ function* audioEvents(c, fromB = -Infinity, toB = Infinity) {
   for (let b = c.start; b < cEnd && b < toB; b += lp) { if (b + lp <= fromB) continue; yield { b, off: c.off || 0, d: Math.min(lp, cEnd - b) }; }
 }
 const playableClips = () => Object.values(proj.clips).filter(c => c.scene == null && !c.mute).concat(typeof sessionClips === "function" ? sessionClips() : []);
+
+// ---------- automation + LFO ----------
+// Targets are "gain", "pan", or "fx:<fxId>:<param>" of the same track. Automation lanes: track.auto[target] = [{b, v}] in
+// the param's own units (beats absolute, sorted). LFOs are rack entries of type "lfo" and add to whatever the lane or
+// static value gives. Both are rendered as AudioParam ramps a little ahead of time by the scheduler and by the exporter.
+const LFO_BEATS = { "4 bars": 16, "2 bars": 8, "1 bar": 4, "1/2": 2, "1/4": 1, "1/8": 0.5, "1/16": 0.25 };
+function targetsOf(t) {
+  const out = [["gain", "volume", { min: 0, max: 1.2 }], ["pan", "pan", { min: -1, max: 1 }]];
+  for (const f of t.fx || []) { const D = FX_DEFS[f.type]; if (!D || D.mod) continue; for (const k in D.params) { const P = D.params[k]; if (P.opts || P.tracks || P.targets) continue; if (!AUTOMATABLE[f.type]?.includes(k)) continue; out.push(["fx:" + f.id + ":" + k, D.name + " " + (P.label || k), P]); } }
+  return out;
+}
+const AUTOMATABLE = { filter: ["freq", "q"], delay: ["fb", "tone", "mix"], reverb: ["mix"], comp: ["th", "ratio", "gain"], drive: ["drive", "tone", "mix"], chorus: ["rate", "depth", "mix"], eq: ["lo", "mid", "hi"], crush: ["mix"], sidechain: ["amount", "speed"] };
+function targetSpec(t, key) { return targetsOf(t).find(x => x[0] === key); }
+function staticValue(t, key) { if (key === "gain") return t.gain; if (key === "pan") return t.pan; const [, fid, k] = key.split(":"); const f = (t.fx || []).find(f => f.id === fid); return f ? f[k] : null; }
+function laneValue(pts, b) {
+  if (!pts || !pts.length) return null;
+  if (b <= pts[0].b) return pts[0].v; const last = pts[pts.length - 1]; if (b >= last.b) return last.v;
+  let lo = 0, hi = pts.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (pts[m].b <= b) lo = m; else hi = m; }
+  const a = pts[lo], c = pts[hi]; return a.v + (c.v - a.v) * ((b - a.b) / (c.b - a.b || 1));
+}
+function lfoValue(f, b, timeSec) {
+  const L = f.rate === "hz" ? null : LFO_BEATS[f.rate] || 4; let ph = L ? (b / L) : timeSec * f.hz; ph = (ph + (f.phase || 0)) % 1; if (ph < 0) ph += 1;
+  switch (f.shape) { case "tri": return 1 - 4 * Math.abs(ph - 0.5); case "saw": return 1 - 2 * ph; case "square": return ph < 0.5 ? 1 : -1; case "random": { const n = Math.floor(L ? b / L : timeSec * f.hz); const x = Math.sin(n * 12.9898 + 78.233) * 43758.5453; return (x - Math.floor(x)) * 2 - 1; } default: return Math.sin(ph * 2 * Math.PI); }
+}
+// the modulated value of a target at beat b (null when nothing modulates it)
+function modValue(t, key, b, timeSec) {
+  const spec = targetSpec(t, key); if (!spec) return null; const P = spec[2];
+  let v = laneValue(t.auto && t.auto[key], b), any = v !== null; if (v === null) v = staticValue(t, key);
+  for (const f of t.fx || []) if (f.type === "lfo" && f.on !== false && f.target === key && f.depth > 0) { any = true; const range = P.log ? Math.log(P.max / P.min) : (P.max - P.min); const x = lfoValue(f, b, timeSec) * f.depth * range / 2; v = P.log ? v * Math.exp(x) : v + x; }
+  return any ? clamp(v, P.min, P.max) : null;
+}
+function modTargets(t) { const keys = new Set(); for (const k in t.auto || {}) if (t.auto[k] && t.auto[k].length) keys.add(k); for (const f of t.fx || []) if (f.type === "lfo" && f.on !== false && f.target) keys.add(f.target); return [...keys].filter(k => targetSpec(t, k)); }
+// AudioParams for a target in a built chain ({gain, pan, chain}) — live or offline
+function paramsFor(nodes, t, key) {
+  if (key === "gain") { const anySolo = Object.values(proj.tracks).some(x => x.solo), audible = !t.mute && (!anySolo || t.solo); return [[nodes.gain.gain, v => audible ? v : 0]]; }
+  if (key === "pan") return nodes.pan ? [[nodes.pan.pan, v => v]] : [];
+  const [, fid, k] = key.split(":"); const c = nodes.chain.find(c => c.id === fid); return c && c.x.ap && c.x.ap[k] ? c.x.ap[k] : [];
+}
+
 // ---------- audio engine ----------
 const engine = (() => {
   let ctx = null, master, playing = false, segs = [], scheduled = new Set(), live = [], timer = null;
@@ -777,8 +825,8 @@ const engine = (() => {
     const anySolo = Object.values(proj.tracks).some(t => t.solo);
     for (const t of Object.values(proj.tracks)) {
       const n = nodesFor(t.id), audible = !t.mute && (!anySolo || t.solo);
-      n.gain.gain.setTargetAtTime(audible ? t.gain : 0, ctx.currentTime, 0.01);
-      if (n.pan) n.pan.pan.setTargetAtTime(t.pan, ctx.currentTime, 0.01);
+      if (!modded.has(t.id + "|gain")) n.gain.gain.setTargetAtTime(audible ? t.gain : 0, ctx.currentTime, 0.01);
+      if (n.pan && !modded.has(t.id + "|pan")) n.pan.pan.setTargetAtTime(t.pan, ctx.currentTime, 0.01);
     }
     for (const s of live) if (s.gain && proj.clips[s.clip]) s.gain.gain.setTargetAtTime(proj.clips[s.clip].gain, ctx.currentTime, 0.01);
   }
@@ -805,14 +853,29 @@ const engine = (() => {
   function stop() {
     if (!playing) return;
     playhead = beatNow();
-    playing = false; stopLive(); segs = []; scheduled.clear();
+    playing = false; stopLive(); segs = []; scheduled.clear(); releaseMod();
     if (timer) { clearInterval(timer); timer = null; }
   }
   function stopLive() { for (const s of live) { try { s.kill ? s.kill() : s.src.stop(); } catch (e) { } } live = []; }
   function reschedule() { if (playing) startFrom(beatNow()); }
+  const modded = new Set();   // "tid|key" currently driven by automation (so refreshMix can leave them alone)
+  function beatAtTime(t) { for (let i = segs.length - 1; i >= 0; i--) if (t >= segs[i].ctx0 - 1e-6) return segs[i].startBeat + (t - segs[i].ctx0) / spb(); return segs[0] ? segs[0].startBeat : playhead; }
+  function tickMod(now, horizon) {
+    const tb = horizon, b = beatAtTime(tb); if (!(b >= 0)) return;
+    for (const t of Object.values(proj.tracks)) {
+      const keys = modTargets(t); if (!keys.length && !modded.size) continue;
+      const n = trackNodes[t.id]; if (!n) continue;
+      for (const key of keys) {
+        const v = modValue(t, key, b, tb); if (v === null) continue; modded.add(t.id + "|" + key);
+        for (const [param, map] of paramsFor(n, t, key)) { const val = map(v); try { param.cancelScheduledValues(tb); param.setValueAtTime(param.value, now); param.linearRampToValueAtTime(val, tb); } catch (e) { } }
+      }
+    }
+  }
+  function releaseMod() { for (const k of modded) { const [tid, key] = k.split("|"); const t = proj.tracks[tid], n = trackNodes[tid]; if (!t || !n) continue; const v = staticValue(t, key); if (v === null) continue; for (const [param, map] of paramsFor(n, t, key)) { try { param.cancelScheduledValues(0); param.setTargetAtTime(map(v), ctx.currentTime, 0.02); } catch (e) { } } } modded.clear(); }
   function tick() {
     if (!playing) return;
     const now = ctx.currentTime, horizon = now + LOOK, l = proj.loop;
+    tickMod(now, horizon);
     // extend segments across loop boundaries
     let last = segs[segs.length - 1];
     while (l.on && last.endBeat !== Infinity && ctxOf(last, last.endBeat) < horizon) {
@@ -905,7 +968,7 @@ const engine = (() => {
     return out;
   }
   return {
-    ensure, startFrom, stop, reschedule, refreshMix, refreshFx, setFxParam, refreshMaster, setMasterGain, cutAt, beatNow, preview, meters, noteOn, noteOff, allOff, nodesFor, ctxOf, segNow,
+    ensure, startFrom, stop, reschedule, refreshMix, refreshFx, setFxParam, refreshMaster, setMasterGain, cutAt, beatNow, modValueNow: (t, key) => modValue(t, key, beatNow(), ctx ? ctx.currentTime : 0), preview, meters, noteOn, noteOff, allOff, nodesFor, ctxOf, segNow,
     get playing() { return playing; }, get ctx() { return ctx; },
     get click() { return clickOn; }, set click(v) { clickOn = v; },
     decode: ab => ensure().decodeAudioData(ab),
@@ -928,7 +991,14 @@ async function renderWav(loopOnly) {
     const p = oc.createStereoPanner ? oc.createStereoPanner() : oc.createGain(); if (p.pan) p.pan.value = t.pan; p.connect(mIn);
     tn[t.id] = inp; tG[t.id] = g; tOut[t.id] = p;
   }
-  for (const t of tracksSorted()) buildChain(oc, t.fx, tG[t.id], tOut[t.id], { key: src => src !== t.id && tn[src] || null });
+  const tChain = {};
+  for (const t of tracksSorted()) tChain[t.id] = buildChain(oc, t.fx, tG[t.id], tOut[t.id], { key: src => src !== t.id && tn[src] || null });
+  // automation + lfo as ramps every 10 ms
+  for (const t of tracksSorted()) {
+    const keys = modTargets(t); if (!keys.length) continue;
+    const nodes = { gain: tG[t.id], pan: tOut[t.id].pan ? tOut[t.id] : null, chain: tChain[t.id] };
+    for (const key of keys) { const ps = paramsFor(nodes, t, key); if (!ps.length) continue; for (let tt = 0; tt <= endSec; tt += 0.01) { const v = modValue(t, key, fromB + tt / spb(), tt); if (v === null) continue; for (const [param, map] of ps) { if (tt === 0) param.setValueAtTime(map(v), 0); else param.linearRampToValueAtTime(map(v), tt); } } }
+  }
   const T = b => (b - fromB) * spb();
   for (const c of clips) {
     const dest = tn[c.track] || mIn, cEnd = clipEnd(c);
@@ -1113,6 +1183,7 @@ function render() {
     drawClip(e, c);
   }
   for (const id in clipEls) if (!cs.has(id)) { clipEls[id].remove(); delete clipEls[id]; }
+  for (const t of ts) renderALane(t.id);
   drawRuler(); drawGrid();
   $("#btnLoop").classList.toggle("on", proj.loop.on);
   loopBar.style.display = "block"; loopBar.classList.toggle("on", proj.loop.on);
@@ -1127,7 +1198,8 @@ function buildHdr(t) {
   const h = el("div", "hdr"); h.dataset.track = t.id;
   h.innerHTML = `<div class="top"><span class="dot"></span><span class="name" contenteditable="false" spellcheck="false"></span><span class="kind"></span><button class="x" title="delete track">×</button></div>
   <div class="mix"><button class="ms arm" title="arm for recording">●</button><button class="ms m">M</button><button class="ms s">S</button><input class="vol" type="range" min="0" max="1.2" step="0.01" title="volume"><input class="pan" type="range" min="-1" max="1" step="0.05" title="pan"><button class="ms fx" title="effects">fx</button></div>
-  <div class="mix m2"><select class="inst" title="instrument"></select></div><div class="meter"><i></i></div>`;
+  <div class="mix m2"><select class="inst" title="instrument"></select></div><div class="mix m3"><select class="auto" title="automation lane"></select></div><div class="meter"><i></i></div>`;
+  const au = h.querySelector(".auto"); au.addEventListener("pointerdown", e => e.stopPropagation()); au.addEventListener("keydown", e => e.stopPropagation()); au.addEventListener("change", () => { autoShown[t.id] = au.value || null; render(); });
   if (!isMidi(t)) { h.querySelector(".m2").remove(); } else { h.classList.add("midi"); const pb = el("button", "ms pads", "pads"); pb.title = "open the sampler pads"; pb.onclick = e => { e.stopPropagation(); openPads(t.id); }; h.querySelector(".m2").appendChild(pb); }
   const sel = h.querySelector(".inst");
   if (sel) { sel.addEventListener("pointerdown", e => e.stopPropagation()); sel.addEventListener("keydown", e => e.stopPropagation()); sel.addEventListener("change", () => { const op = { t: "track", id: t.id, inst: sel.value }; if (sel.value === "pads" && !proj.tracks[t.id].pads) op.pads = {}; commit(op); if (sel.value === "pads") openPads(t.id); }); }
@@ -1162,6 +1234,7 @@ function updateHdr(h, t) {
   h.querySelector(".kind").textContent = isMidi(t) ? "midi" : "audio";
   h.querySelector(".fx").classList.toggle("on", !!(t.fx && t.fx.some(f => f.on !== false)));
   const sel = h.querySelector(".inst");
+  { const au = h.querySelector(".auto"); const list = targetsOf(t), want = list.map(l => l[0]).join("|"); if (au.dataset.k !== want) { au.dataset.k = want; au.innerHTML = '<option value="">auto ▾</option>'; for (const [v, l] of list) { const o = document.createElement("option"); o.value = v; o.textContent = ((t.auto && t.auto[v] && t.auto[v].length) ? "● " : "") + l; au.appendChild(o); } } if (au.value !== (autoShown[t.id] || "")) au.value = autoShown[t.id] || ""; if (autoShown[t.id] && !list.some(l => l[0] === autoShown[t.id])) { autoShown[t.id] = null; au.value = ""; } }
   const pb = h.querySelector(".pads"); if (pb) { pb.style.display = isPads(t) ? "" : "none"; pb.classList.toggle("on", padTrack === t.id && padEl.classList.contains("open")); }
   if (sel) { const list = INST_LIST(), want = list.map(l => l[0]).join("|"); if (sel.dataset.k !== want) { sel.dataset.k = want; sel.innerHTML = ""; for (const [v, l] of list) { const o = document.createElement("option"); o.value = v; o.textContent = l; sel.appendChild(o); } } if (sel.value !== (t.inst || "synth:keys")) sel.value = t.inst || "synth:keys"; }
   const n = h.querySelector(".name"); if (n.contentEditable !== "true") n.textContent = t.name;
@@ -1777,6 +1850,7 @@ const FX_DEFS = {
   chorus: { name: "chorus", params: { rate: { label: "rate", min: 0.05, max: 6, def: 0.8, log: true, unit: "Hz" }, depth: { label: "depth", min: 0.0005, max: 0.012, def: 0.004, unit: "s" }, mix: { label: "mix", min: 0, max: 1, def: 0.5 } } },
   eq: { name: "eq", params: { lo: { label: "low", min: -18, max: 18, def: 0, unit: "dB" }, mid: { label: "mid", min: -18, max: 18, def: 0, unit: "dB" }, hi: { label: "high", min: -18, max: 18, def: 0, unit: "dB" } } },
   crush: { name: "bitcrusher", params: { bits: { label: "bits", min: 2, max: 16, def: 6 }, mix: { label: "mix", min: 0, max: 1, def: 1 } } },
+  lfo: { name: "lfo", mod: true, params: { target: { label: "target", targets: true, def: "" }, shape: { label: "shape", opts: ["sine", "tri", "saw", "square", "random"], def: "sine" }, rate: { label: "rate", opts: ["4 bars", "2 bars", "1 bar", "1/2", "1/4", "1/8", "1/16", "hz"], def: "1 bar" }, hz: { label: "hz", min: 0.05, max: 20, def: 2, log: true, unit: "Hz" }, depth: { label: "depth", min: 0, max: 1, def: 0.5 }, phase: { label: "phase", min: 0, max: 1, def: 0 } } },
   sidechain: { name: "sidechain", params: { src: { label: "from", tracks: true, def: "" }, th: { label: "threshold", min: 0, max: 0.6, def: 0.05 }, amount: { label: "duck", min: 0, max: 1, def: 0.8 }, speed: { label: "release", min: 0.01, max: 1, def: 0.12, log: true, unit: "s" } } },
   autotune: { name: "autotune", params: {}, stub: "needs a pitch-tracking worklet — coming later" },
 };
@@ -1793,14 +1867,15 @@ function makeFx(ctx, f, env) {
   const input = ctx.createGain(), output = ctx.createGain(), dry = ctx.createGain(), wet = ctx.createGain();
   input.connect(dry); dry.connect(output); wet.connect(output);
   const mix = v => { dry.gain.value = 1 - v; wet.gain.value = v; };
-  let set; const T = f.type;
-  if (T === "filter") { const b = ctx.createBiquadFilter(); input.connect(b); b.connect(wet); mix(1); set = p => { b.type = p.mode || "lowpass"; b.frequency.value = p.freq; b.Q.value = p.q; }; }
-  else if (T === "delay") { const d = ctx.createDelay(5), fb = ctx.createGain(), tone = ctx.createBiquadFilter(); tone.type = "lowpass"; input.connect(d); d.connect(tone); tone.connect(fb); fb.connect(d); tone.connect(wet); set = p => { d.delayTime.value = Math.min(5, (DELAY_BEATS[p.time] || 0.75) * spb()); fb.gain.value = p.fb; tone.frequency.value = p.tone; mix(p.mix); }; }
+  let set; const T = f.type, ap = {}; const id = v => v;
+  ap.mix = [[wet.gain, id], [dry.gain, v => 1 - v]];
+  if (T === "filter") { const b = ctx.createBiquadFilter(); input.connect(b); b.connect(wet); mix(1); set = p => { b.type = p.mode || "lowpass"; b.frequency.value = p.freq; b.Q.value = p.q; }; ap.freq = [[b.frequency, id]]; ap.q = [[b.Q, id]]; delete ap.mix; }
+  else if (T === "delay") { const d = ctx.createDelay(5), fb = ctx.createGain(), tone = ctx.createBiquadFilter(); tone.type = "lowpass"; input.connect(d); d.connect(tone); tone.connect(fb); fb.connect(d); tone.connect(wet); set = p => { d.delayTime.value = Math.min(5, (DELAY_BEATS[p.time] || 0.75) * spb()); fb.gain.value = p.fb; tone.frequency.value = p.tone; mix(p.mix); }; ap.fb = [[fb.gain, id]]; ap.tone = [[tone.frequency, id]]; }
   else if (T === "reverb") { const c = ctx.createConvolver(); input.connect(c); c.connect(wet); let last = ""; set = p => { const k = p.size + ":" + p.damp; if (k !== last) { last = k; c.buffer = makeIR(ctx, p.size, p.damp); } mix(p.mix); }; }
-  else if (T === "comp") { const c = ctx.createDynamicsCompressor(), g = ctx.createGain(); input.connect(c); c.connect(g); g.connect(wet); mix(1); set = p => { c.threshold.value = p.th; c.ratio.value = p.ratio; c.attack.value = p.att; c.release.value = p.rel; c.knee.value = 6; g.gain.value = Math.pow(10, p.gain / 20); }; }
-  else if (T === "drive") { const pre = ctx.createGain(), ws = ctx.createWaveShaper(), tone = ctx.createBiquadFilter(), post = ctx.createGain(); tone.type = "lowpass"; ws.oversample = "2x"; input.connect(pre); pre.connect(ws); ws.connect(tone); tone.connect(post); post.connect(wet); const curve = new Float32Array(2048); for (let i = 0; i < 2048; i++) { const x = i / 1023.5 - 1; curve[i] = Math.tanh(x * 3) / Math.tanh(3); } ws.curve = curve; set = p => { pre.gain.value = 1 + p.drive * 30; post.gain.value = 1 / (1 + p.drive * 2.2); tone.frequency.value = p.tone; mix(p.mix); }; }
-  else if (T === "chorus") { const d = ctx.createDelay(0.1), lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.connect(lg); lg.connect(d.delayTime); lfo.start(); input.connect(d); d.connect(wet); set = p => { d.delayTime.value = 0.02; lfo.frequency.value = p.rate; lg.gain.value = p.depth; mix(p.mix); }; }
-  else if (T === "eq") { const lo = ctx.createBiquadFilter(), mid = ctx.createBiquadFilter(), hi = ctx.createBiquadFilter(); lo.type = "lowshelf"; lo.frequency.value = 220; mid.type = "peaking"; mid.frequency.value = 1000; mid.Q.value = 0.9; hi.type = "highshelf"; hi.frequency.value = 4200; input.connect(lo); lo.connect(mid); mid.connect(hi); hi.connect(wet); mix(1); set = p => { lo.gain.value = p.lo; mid.gain.value = p.mid; hi.gain.value = p.hi; }; }
+  else if (T === "comp") { const c = ctx.createDynamicsCompressor(), g = ctx.createGain(); input.connect(c); c.connect(g); g.connect(wet); mix(1); set = p => { c.threshold.value = p.th; c.ratio.value = p.ratio; c.attack.value = p.att; c.release.value = p.rel; c.knee.value = 6; g.gain.value = Math.pow(10, p.gain / 20); }; ap.th = [[c.threshold, id]]; ap.ratio = [[c.ratio, id]]; ap.gain = [[g.gain, v => Math.pow(10, v / 20)]]; delete ap.mix; }
+  else if (T === "drive") { const pre = ctx.createGain(), ws = ctx.createWaveShaper(), tone = ctx.createBiquadFilter(), post = ctx.createGain(); tone.type = "lowpass"; ws.oversample = "2x"; input.connect(pre); pre.connect(ws); ws.connect(tone); tone.connect(post); post.connect(wet); const curve = new Float32Array(2048); for (let i = 0; i < 2048; i++) { const x = i / 1023.5 - 1; curve[i] = Math.tanh(x * 3) / Math.tanh(3); } ws.curve = curve; set = p => { pre.gain.value = 1 + p.drive * 30; post.gain.value = 1 / (1 + p.drive * 2.2); tone.frequency.value = p.tone; mix(p.mix); }; ap.drive = [[pre.gain, v => 1 + v * 30], [post.gain, v => 1 / (1 + v * 2.2)]]; ap.tone = [[tone.frequency, id]]; }
+  else if (T === "chorus") { const d = ctx.createDelay(0.1), lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.connect(lg); lg.connect(d.delayTime); lfo.start(); input.connect(d); d.connect(wet); set = p => { d.delayTime.value = 0.02; lfo.frequency.value = p.rate; lg.gain.value = p.depth; mix(p.mix); }; ap.rate = [[lfo.frequency, id]]; ap.depth = [[lg.gain, id]]; }
+  else if (T === "eq") { const lo = ctx.createBiquadFilter(), mid = ctx.createBiquadFilter(), hi = ctx.createBiquadFilter(); lo.type = "lowshelf"; lo.frequency.value = 220; mid.type = "peaking"; mid.frequency.value = 1000; mid.Q.value = 0.9; hi.type = "highshelf"; hi.frequency.value = 4200; input.connect(lo); lo.connect(mid); mid.connect(hi); hi.connect(wet); mix(1); set = p => { lo.gain.value = p.lo; mid.gain.value = p.mid; hi.gain.value = p.hi; }; ap.lo = [[lo.gain, id]]; ap.mid = [[mid.gain, id]]; ap.hi = [[hi.gain, id]]; delete ap.mix; }
   else if (T === "crush") { const ws = ctx.createWaveShaper(); input.connect(ws); ws.connect(wet); set = p => { const steps = Math.pow(2, p.bits), c = new Float32Array(4096); for (let i = 0; i < 4096; i++) { const x = i / 2047.5 - 1; c[i] = Math.round(x * steps / 2) / (steps / 2); } ws.curve = c; mix(p.mix); }; }
   else if (T === "sidechain") {
     // envelope follower on another track: |key| → lowpass → threshold curve → negative gain → this track's gain
@@ -1814,12 +1889,13 @@ function makeFx(ctx, f, env) {
       lp.frequency.value = 3 / (2 * Math.PI * Math.max(0.005, p.speed));   // ×3: a one-pole 'release' needs the cutoff above the pumping rate
       const tc = new Float32Array(1025), th = p.th * 4; for (let i = 0; i < 1025; i++) { const x = i / 512 - 1; tc[i] = x <= th ? 0 : Math.min(1, (x - th) * 3); } thr.curve = tc;   // waveshaper input is clamped to ±1, so the boosted envelope saturates at 1
       neg.gain.value = -p.amount;
+      ap.amount = [[neg.gain, v => -v]]; ap.speed = [[lp.frequency, v => 3 / (2 * Math.PI * Math.max(0.005, v))]];
       if (p.src !== keyId) { if (keyNode) { try { keyNode.disconnect(rect); } catch (e) { } } keyId = p.src; keyNode = env && env.key ? env.key(p.src) : null; if (keyNode) keyNode.connect(rect); }
     };
   }
-  else { input.connect(wet); mix(1); set = () => { }; }
+  else { input.connect(wet); mix(1); set = () => { }; delete ap.mix; }
   set(f);
-  return { input, output, set };
+  return { input, output, set, ap, type: T };
 }
 function buildChain(ctx, fxList, from, to, env) {
   let node = from; const built = [];
@@ -1835,7 +1911,7 @@ $("#fxClose").onclick = closeFx;
 $("#fxAdd").addEventListener("change", e => { const type = e.target.value; e.target.value = ""; if (!type || !fxTrack) return; const t = fxOwner(fxTrack); if (FX_DEFS[type].stub) return banner(FX_DEFS[type].name + ": " + FX_DEFS[type].stub); commitFxList(fxTrack, (t.fx || []).concat([fxDefaults(type)])); });
 $("#fxAdd").addEventListener("keydown", e => e.stopPropagation());
 (function () { const s = $("#fxAdd"); for (const k in FX_DEFS) { const o = document.createElement("option"); o.value = k; o.textContent = "+ " + FX_DEFS[k].name; s.appendChild(o); } })();
-const fmtVal = (p, v) => p.tracks ? "" : p.opts ? v : (v >= 1000 ? (v / 1000).toFixed(1) + "k" : v >= 10 ? Math.round(v) : v >= 1 ? v.toFixed(1) : v.toFixed(3).replace(/0+$/, "")) + (p.unit || "");
+const fmtVal = (p, v) => p.tracks || p.targets ? "" : p.opts ? v : (v >= 1000 ? (v / 1000).toFixed(1) + "k" : v >= 10 ? Math.round(v) : v >= 1 ? v.toFixed(1) : v.toFixed(3).replace(/0+$/, "")) + (p.unit || "");
 const fxOwner = id => id === "master" ? proj.master : proj.tracks[id];
 function commitFxList(id, fx) { if (id === "master") commit({ t: "set", k: "master", v: { ...proj.master, fx } }); else commit({ t: "track", id, fx }); }
 function renderFx() {
@@ -1853,7 +1929,7 @@ function renderFx() {
     card.appendChild(head);
     for (const k in D.params) {
       const P = D.params[k], row = el("label", "fxr"); row.appendChild(el("span", "l", P.label || k)); const val = el("span", "v", fmtVal(P, f[k]));
-      if (P.opts || P.tracks) { const sel = document.createElement("select"); const opts = P.tracks ? [["", "— pick a track —"], ...tracksSorted().filter(x => x.id !== fxTrack).map(x => [x.id, x.name])] : P.opts.map(o => [o, o]); for (const [v, l] of opts) { const op = document.createElement("option"); op.value = v; op.textContent = l; sel.appendChild(op); } sel.value = f[k] || ""; sel.onchange = () => commitFx(idx, { [k]: sel.value }); sel.addEventListener("keydown", e => e.stopPropagation()); row.appendChild(sel); if (P.tracks) val.textContent = ""; }
+      if (P.opts || P.tracks || P.targets) { const sel = document.createElement("select"); const opts = P.targets ? [["", "— pick a target —"], ...(fxTrack === "master" ? [] : targetsOf(proj.tracks[fxTrack]).map(x => [x[0], x[1]]))] : P.tracks ? [["", "— pick a track —"], ...tracksSorted().filter(x => x.id !== fxTrack).map(x => [x.id, x.name])] : P.opts.map(o => [o, o]); for (const [v, l] of opts) { const op = document.createElement("option"); op.value = v; op.textContent = l; sel.appendChild(op); } sel.value = f[k] || ""; sel.onchange = () => commitFx(idx, { [k]: sel.value }); sel.addEventListener("keydown", e => e.stopPropagation()); row.appendChild(sel); if (P.tracks) val.textContent = ""; }
       else {
         const r = document.createElement("input"); r.type = "range"; r.min = 0; r.max = 1000; r.step = 1;
         const toV = x => P.log ? P.min * Math.pow(P.max / P.min, x / 1000) : P.min + (P.max - P.min) * x / 1000, toX = v => P.log ? 1000 * Math.log(v / P.min) / Math.log(P.max / P.min) : 1000 * (v - P.min) / (P.max - P.min);
@@ -2414,6 +2490,50 @@ $("#aeRulerWrap").addEventListener("pointerdown", e => { const c = proj.clips[ae
 aeWrap.addEventListener("pointerdown", e => { if (e.target.classList.contains("am")) return; const c = proj.clips[aeClip], a = c && audios[c.src]; if (!a) return; const t = clamp((e.clientX - aeWrap.getBoundingClientRect().left) / aePx, 0, a.buf.duration); const ctx = engine.ensure(); const src = ctx.createBufferSource(); src.buffer = a.buf; const g = ctx.createGain(); g.gain.value = 0.9; src.connect(g); g.connect(engine.nodesFor(c.track).in); src.start(0, t, Math.min(2, a.buf.duration - t)); });
 aeWrap.addEventListener("dblclick", e => { const c = proj.clips[aeClip], a = c && audios[c.src]; if (!a) return; const t = clamp((e.clientX - aeWrap.getBoundingClientRect().left) / aePx, 0, a.buf.duration - 0.01); aeCommit({ off: t }); });
 
+
+// ---------- automation lane UI ----------
+// Each track header has an "auto" select; choosing a target opens a sub-lane under the track with the curve.
+const ALANE_H = 44;
+const autoShown = {};   // tid -> target key
+function laneHeight(tid) { return autoShown[tid] ? "calc(var(--lane-h) + " + ALANE_H + "px)" : ""; }
+function buildALane(tid) { const a = el("div", "alane"); a.dataset.track = tid; a.innerHTML = '<canvas></canvas><div class="apts"></div>'; a.addEventListener("pointerdown", onALaneDown); return a; }
+function renderALane(tid) {
+  const le = laneEls[tid], t = proj.tracks[tid]; if (!le || !t) return;
+  const key = autoShown[tid]; le.lane.style.height = laneHeight(tid); le.hdr.style.height = laneHeight(tid);
+  let a = le.alane; if (!key) { if (a) { a.remove(); le.alane = null; } return; }
+  if (!a) { a = le.alane = buildALane(tid); le.lane.appendChild(a); }
+  const spec = targetSpec(t, key); if (!spec) { autoShown[tid] = null; return renderALane(tid); }
+  const P = spec[2], pts = (t.auto && t.auto[key]) || [], W = lanes.clientWidth, H = ALANE_H;
+  const cv = a.querySelector("canvas"); cv.width = W; cv.height = H; cv.style.width = W + "px";
+  const yOf = v => H - 3 - (P.log ? Math.log(v / P.min) / Math.log(P.max / P.min) : (v - P.min) / (P.max - P.min)) * (H - 6);
+  const g = cv.getContext("2d"); g.clearRect(0, 0, W, H);
+  g.fillStyle = "rgba(0,0,0,0.25)"; g.fillRect(0, 0, W, H);
+  g.strokeStyle = t.color; g.lineWidth = 1.5; g.beginPath();
+  const v0 = pts.length ? pts[0].v : staticValue(t, key); g.moveTo(0, yOf(v0));
+  for (const p of pts) g.lineTo(beatToPx(p.b), yOf(p.v)); g.lineTo(W, yOf(pts.length ? pts[pts.length - 1].v : v0)); g.stroke();
+  // lfo preview
+  if ((t.fx || []).some(f => f.type === "lfo" && f.on !== false && f.target === key)) { g.strokeStyle = "rgba(250,248,245,0.35)"; g.lineWidth = 1; g.beginPath(); for (let x = 0; x < W; x += 2) { const b = pxToBeat(x), v = modValue(t, key, b, b * spb()); if (v === null) continue; x === 0 ? g.moveTo(x, yOf(v)) : g.lineTo(x, yOf(v)); } g.stroke(); }
+  g.fillStyle = "rgba(250,248,245,0.5)"; g.font = "10px Karla, sans-serif"; g.fillText(spec[1], 4, 11);
+  const pl = a.querySelector(".apts"); pl.innerHTML = "";
+  pts.forEach((p, i) => { const d = el("div", "apt"); d.dataset.i = i; d.style.left = beatToPx(p.b) + "px"; d.style.top = yOf(p.v) + "px"; d.style.background = t.color; d.title = fmtAuto(P, p.v); pl.appendChild(d); });
+}
+function fmtAuto(P, v) { return P.unit === "Hz" ? (v >= 1000 ? (v / 1000).toFixed(1) + "k" : Math.round(v) + "Hz") : P.unit === "dB" ? v.toFixed(1) + "dB" : v.toFixed(2) + (P.unit || ""); }
+function onALaneDown(e) {
+  const a = e.currentTarget, tid = a.dataset.track, t = proj.tracks[tid], key = autoShown[tid]; if (!t || !key) return; e.stopPropagation(); e.preventDefault();
+  const spec = targetSpec(t, key), P = spec[2], H = ALANE_H;
+  const vOf = y => { const f = clamp(1 - (y - 3) / (H - 6), 0, 1); return P.log ? P.min * Math.pow(P.max / P.min, f) : P.min + (P.max - P.min) * f; };
+  const rect = a.getBoundingClientRect(), pts = ((t.auto && t.auto[key]) || []).map(p => ({ ...p }));
+  let idx = e.target.classList.contains("apt") ? +e.target.dataset.i : -1;
+  if (idx >= 0 && (e.altKey || e.button === 2)) { commitAuto(tid, key, pts.filter((_, j) => j !== idx)); return; }
+  if (idx < 0) { const b = Math.max(0, snapB(pxToBeat(e.clientX - rect.left), e.shiftKey)), v = vOf(e.clientY - rect.top); pts.push({ b, v }); pts.sort((x, y) => x.b - y.b); idx = pts.findIndex(p => p.b === b && p.v === v); }
+  const mv = ev => { const b = Math.max(0, snapB(pxToBeat(ev.clientX - rect.left), ev.shiftKey)), v = vOf(ev.clientY - rect.top); const lo = idx > 0 ? pts[idx - 1].b : 0, hi = idx < pts.length - 1 ? pts[idx + 1].b : Infinity; pts[idx] = { b: clamp(b, lo, hi), v }; t.auto = { ...(t.auto || {}), [key]: pts }; renderALane(tid); };
+  mv(e);
+  const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); const final = pts; t.auto = origAuto; commitAuto(tid, key, final); };
+  const origAuto = JSON.parse(JSON.stringify(t.auto || {}));
+  window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
+}
+function commitAuto(tid, key, pts) { const t = proj.tracks[tid]; const auto = { ...(t.auto || {}) }; if (pts.length) auto[key] = pts; else delete auto[key]; commit({ t: "track", id: tid, auto }); }
+
 // ---------- banner ----------
 let bannerT;
 function banner(msg, ms = 2200) { const b = $("#banner"); b.textContent = msg; b.classList.add("show"); clearTimeout(bannerT); bannerT = setTimeout(() => b.classList.remove("show"), ms); }
@@ -2433,7 +2553,7 @@ function banner(msg, ms = 2200) { const b = $("#banner"); b.textContent = msg; b
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { toggleFold, get rows() { return rows; }, openAudioEd, get aeClip() { return aeClip; }, padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { modValue, targetsOf, autoShown, commitAuto, toggleFold, get rows() { return rows; }, openAudioEd, get aeClip() { return aeClip; }, padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
