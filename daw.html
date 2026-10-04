@@ -159,6 +159,12 @@
   #rollLoopBar { position:absolute; top:0; left:0; height:16px; background:rgba(198,123,92,0.35); border-right:2px solid var(--terracotta); display:none; }
   #rollLoopBar.on { display:block; }
   #rollLoopEnd { position:absolute; right:-9px; top:0; width:18px; height:16px; cursor:ew-resize; }
+  #rollLoopStart { position:absolute; left:-9px; top:0; width:18px; height:16px; cursor:ew-resize; }
+  #rollLoopStart::after { content:''; position:absolute; left:4px; top:3px; border:5px solid transparent; border-top:8px solid var(--terracotta); }
+  #rollLoopBody { position:absolute; left:9px; right:9px; top:0; height:16px; cursor:grab; }
+  #rollStartMark { position:absolute; top:0; width:0; height:16px; cursor:ew-resize; z-index:3; }
+  #rollStartMark::before { content:''; position:absolute; left:-6px; top:8px; border:6px solid transparent; border-bottom:8px solid var(--ivory); }
+  #rollStartMark::after { content:''; position:absolute; left:-8px; top:0; width:16px; height:16px; }
   #rollLoopEnd::after { content:''; position:absolute; left:4px; top:3px; border:5px solid transparent; border-top:8px solid var(--terracotta); }
   #rollFold.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
   #rollLoop.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
@@ -364,6 +370,7 @@
     <button class="tbtn" id="btnUndo" title="Undo (⌘Z)">undo</button>
     <button class="tbtn" id="btnRedo" title="Redo (⇧⌘Z)">redo</button>
     <button class="tbtn" id="btnSplit" title="Split at playhead (S)">split</button>
+    <button class="tbtn" id="btnJoin" title="Join selected midi clips into one (⌘J)">join</button>
     <button class="tbtn" id="btnDel" title="Delete (⌫)">del</button>
   </div>
   <div class="tsep"></div>
@@ -445,7 +452,7 @@
     <button class="tbtn" id="rollDbl" title="Double the clip length, repeating its notes">×2</button>
     <button class="tbtn" id="rollClose">✕</button></div>
   <div id="rollCorner">drag ruler = loop</div>
-  <div id="rollRulerWrap"><div id="rollRuler"><canvas id="rollRulerCv"></canvas><div id="rollLoopBar"><div id="rollLoopEnd"></div></div></div></div>
+  <div id="rollRulerWrap"><div id="rollRuler"><canvas id="rollRulerCv"></canvas><div id="rollLoopBar"><div id="rollLoopStart" title="drag: loop start"></div><div id="rollLoopBody" title="drag: move the loop"></div><div id="rollLoopEnd" title="drag: loop end"></div></div><div id="rollStartMark" title="drag: where the clip starts playing"></div></div></div>
   <div id="keys"><div id="keysInner"></div></div>
   <div id="rollScroll"><div id="rollGrid"><canvas id="rollCv"></canvas><div id="noteList"></div><div id="rollPh"></div></div></div>
 </div>
@@ -497,7 +504,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03u";
+const BUILD = "2026-10-03w";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -528,7 +535,7 @@ function applyOp(op) {
   const col = op.t === "track" ? proj.tracks : proj.clips;
   if (op.del) { delete col[op.id]; if (op.t === "track") for (const c of clipsOf(op.id)) delete proj.clips[c.id]; selected.delete(op.id); return; }
   const cur = col[op.id] || (col[op.id] = { id: op.id });
-  for (const k in op) if (k !== "t" && k !== "id" && k !== "del") cur[k] = op[k];
+  for (const k in op) if (k !== "t" && k !== "id" && k !== "del") { if (op[k] === null) delete cur[k]; else cur[k] = op[k]; }
 }
 function setPath(o, k, v) { const p = k.split("."); for (let i = 0; i < p.length - 1; i++) o = o[p[i]]; o[p[p.length - 1]] = v; }
 function getPath(o, k) { for (const s of k.split(".")) o = o[s]; return o; }
@@ -719,13 +726,17 @@ const noteName = p => NOTE_NAMES[p % 12] + (Math.floor(p / 12) - 1);
 // Every sounding note of a MIDI clip between two absolute beats, with clip looping applied.
 // A looping clip repeats notes [0, lp) every lp beats for its whole length; notes crossing the loop end are cut there.
 // Returns { i (note index), k (repeat), n, b (absolute start beat), d (duration) }.
+// Loop region in note space is [lb, lb+lp) (lb defaults to 0); playback starts at offb (defaults to lb). Notes before the
+// region play once on the way in; notes inside repeat every lp; notes after it are never reached (like Ableton).
+const loopBegin = c => c.loop && c.lp > 0 ? (c.lb || 0) : 0;
 function* midiEvents(c, fromB = -Infinity, toB = Infinity) {
-  const offb = c.offb || 0, cEnd = clipEnd(c), lp = c.loop && c.lp > 0 ? c.lp : null;
+  const cEnd = clipEnd(c), lp = c.loop && c.lp > 0 ? c.lp : null, lb = lp ? (c.lb || 0) : 0, offb = c.offb ?? (lp ? lb : 0);
   for (let i = 0; i < c.notes.length; i++) {
     const n = c.notes[i];
     if (!lp) { const b = c.start + n.s - offb; if (b >= c.start - 1e-6 && b < cEnd && b >= fromB - 1e-6 && b < toB) yield { i, k: 0, n, b, d: n.d }; continue; }
-    if (n.s >= lp) continue;
-    const d = Math.min(n.d, lp - n.s);
+    if (n.s < lb) { const b = c.start + n.s - offb; if (b >= c.start - 1e-6 && b < cEnd && b >= fromB - 1e-6 && b < toB) yield { i, k: 0, n, b, d: Math.min(n.d, lb - n.s) }; continue; }
+    if (n.s >= lb + lp) continue;
+    const d = Math.min(n.d, lb + lp - n.s);
     let k = Math.max(0, Math.ceil((offb - n.s - 1e-6) / lp)), b = c.start - offb + n.s + k * lp;
     for (; b < cEnd && b < toB; k++, b += lp) { if (b >= c.start - 1e-6 && b >= fromB - 1e-6) yield { i: i + ":" + k, k, n, b, d }; }
   }
@@ -1263,7 +1274,7 @@ function drawMidiClip(e, c) {
   g.fillStyle = "rgba(250,248,245,0.92)";
   for (const { n, b, d } of midiEvents(c)) { const x = beatToPx(b - c.start); if (x > w) break; g.globalAlpha = 0.4 + 0.6 * n.v; g.fillRect(x, h - 2 - (n.p - lo + 1) * rh, Math.max(2, beatToPx(d) - 1), rh - 1); }
   g.globalAlpha = 1;
-  if (c.loop && c.lp > 0) { g.fillStyle = "rgba(0,0,0,0.35)"; for (let q = c.lp - (c.offb || 0) % c.lp; q < c.len; q += c.lp) g.fillRect(Math.round(beatToPx(q)), 0, 1, h); }
+  if (c.loop && c.lp > 0) { g.fillStyle = "rgba(0,0,0,0.35)"; const lb = c.lb || 0, offb = c.offb ?? lb; let q = lb + c.lp - offb; while (q <= 0) q += c.lp; for (; q < c.len; q += c.lp) g.fillRect(Math.round(beatToPx(q)), 0, 1, h); }
 }
 function drawClip(e, c) {
   if (c.kind === "m") return drawMidiClip(e, c);
@@ -1349,7 +1360,7 @@ $("#bpm").addEventListener("change", e => { const v = clamp(+e.target.value || 1
 $("#bpm").addEventListener("keydown", e => e.stopPropagation());
 $("#snap").addEventListener("change", e => { snapBeats = +e.target.value; if (rollClip) renderRoll(); });
 $("#btnUndo").onclick = undo; $("#btnRedo").onclick = redo;
-$("#btnDel").onclick = deleteSel; $("#btnSplit").onclick = splitAtPlayhead;
+$("#btnDel").onclick = deleteSel; $("#btnSplit").onclick = splitAtPlayhead; $("#btnJoin").onclick = joinSel;
 $("#btnZoomIn").onclick = () => zoom(1.25); $("#btnZoomOut").onclick = () => zoom(0.8);
 $("#btnExport").onclick = e => renderWav(e.shiftKey);
 $("#btnFile").onclick = () => $("#fileIn").click();
@@ -1372,6 +1383,26 @@ function duplicateSel() {
   const cs = [...selected].map(id => proj.clips[id]), end = Math.max(...cs.map(clipEnd)), start = Math.min(...cs.map(c => c.start)), span = snapB(end - start) || end - start;
   const ops = cs.map(c => ({ t: "clip", ...c, id: uid(), start: c.start + span }));
   commit(ops); selected = new Set(ops.map(o => o.id)); render();
+}
+// ⌘J: consolidate the selected MIDI clips on each track into one clip. Loops/offsets are flattened to literal notes.
+function joinSel() {
+  const byTrack = {};
+  for (const id of selected) { const c = proj.clips[id]; if (c && c.kind === "m" && c.scene == null) (byTrack[c.track] = byTrack[c.track] || []).push(c); }
+  const groups = Object.values(byTrack).filter(g => g.length >= 2);
+  if (!groups.length) return banner("select two or more midi clips on the same track to join");
+  const ops = [], newIds = [];
+  for (const g of groups) {
+    g.sort((a, b) => a.start - b.start);
+    const start = g[0].start, end = Math.max(...g.map(clipEnd)), notes = [];
+    for (const c of g) for (const { n, b, d } of midiEvents(c)) notes.push({ p: n.p, s: +(b - start).toFixed(5), d: +Math.min(d, clipEnd(c) - b).toFixed(5), v: n.v });
+    notes.sort((a, b) => a.s - b.s || a.p - b.p);
+    const id = uid(); newIds.push(id);
+    ops.push({ t: "clip", id, kind: "m", track: g[0].track, name: g[0].name.replace(/ \+\d+$/, "") + " +" + (g.length - 1), start, len: end - start, offb: 0, gain: g[0].gain ?? 1, tr: g[0].tr || 0, notes });
+    for (const c of g) ops.push({ t: "clip", id: c.id, del: true });
+  }
+  if (rollClip && groups.some(g => g.some(c => c.id === rollClip))) closeRoll();
+  commit(ops); selected = new Set(newIds); render();
+  banner("joined " + groups.reduce((a, g) => a + g.length, 0) + " clips into " + groups.length);
 }
 function splitAtPlayhead() {
   const b = engine.beatNow(), pool = selected.size ? [...selected].map(id => proj.clips[id]) : Object.values(proj.clips);
@@ -1538,6 +1569,7 @@ window.addEventListener("keydown", e => {
   else if (mod && k === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); }
   else if (mod && k === "y") { e.preventDefault(); redo(); }
   else if (mod && k === "d") { e.preventDefault(); duplicateSel(); }
+  else if (mod && k === "j") { e.preventDefault(); joinSel(); }
   else if (mod && k === "a") { e.preventDefault(); if (rollClip && rollFocus) { noteSel = new Set(proj.clips[rollClip].notes.map((_, i) => i)); renderRoll(); } else { selected = new Set(Object.keys(proj.clips).filter(id => proj.clips[id].scene == null)); render(); } }
   else if (k === "s" && !mod) splitAtPlayhead();
   else if (k === "l" && !mod) $("#btnLoop").click();
@@ -1596,12 +1628,25 @@ function toggleFold() { if (!rollClip) return; rollFold = !rollFold; $("#rollFol
 $("#rollFold").onclick = toggleFold;
 try { rollFold = localStorage.getItem("agkm-daw-fold") === "1"; $("#rollFold").classList.toggle("on", rollFold); } catch (e) { }
 $("#rollLoop").onclick = () => { if (!rollClip) return; const c = proj.clips[rollClip]; if (c.loop) commit({ t: "clip", id: c.id, loop: false }); else { const lp = c.lp > 0 ? c.lp : Math.max(snapBeats || 0.25, c.len); commit({ t: "clip", id: c.id, loop: true, lp }); banner("looping every " + lp + " beats — drag the clip's right edge out to repeat"); } };
-$("#rollLoopEnd").addEventListener("pointerdown", e => {
-  e.preventDefault(); e.stopPropagation(); const c = proj.clips[rollClip]; if (!c) return; const lp0 = c.lp;
-  const mv = ev => { c.lp = Math.max(snapBeats || 0.25, snapB(pxToBeatR(rollX(ev.clientX)), ev.shiftKey)); renderRoll(); drawClip(clipEls[c.id], c); };
-  const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); const lp = c.lp; c.lp = lp0; if (lp !== lp0) commit({ t: "clip", id: c.id, lp }); };
+// loop handles: start / end / body (move), plus the play-start marker
+function loopDrag(e, kind) {
+  e.preventDefault(); e.stopPropagation(); const c = proj.clips[rollClip]; if (!c) return;
+  const o = { loop: c.loop, lp: c.lp, lb: c.lb || 0, offb: c.offb }, x0 = pxToBeatR(rollX(e.clientX)), q = snapBeats || 0.25;
+  const mv = ev => {
+    const x = Math.max(0, snapB(pxToBeatR(rollX(ev.clientX)), ev.shiftKey)), dx = snapB(pxToBeatR(rollX(ev.clientX)) - x0, ev.shiftKey);
+    if (kind === "end") c.lp = Math.max(q, x - (c.lb || 0));
+    else if (kind === "start") { const end = o.lb + o.lp; c.lb = Math.min(x, end - q); c.lp = end - c.lb; }
+    else if (kind === "body") { c.lb = Math.max(0, o.lb + dx); }
+    else if (kind === "mark") { c.offb = Math.max(0, x); }
+    renderRoll(); drawClip(clipEls[c.id], c);
+  };
+  const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); const v = { lp: c.lp, lb: c.lb, offb: c.offb }; Object.assign(c, o); if (o.lb === 0 && c.lb !== undefined) c.lb = o.lb; const patch = {}; for (const k in v) if (v[k] !== o[k]) patch[k] = v[k] === undefined ? null : v[k]; if (Object.keys(patch).length) commit({ t: "clip", id: c.id, ...patch }); else renderRoll(); };
   window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
-});
+}
+$("#rollLoopEnd").addEventListener("pointerdown", e => loopDrag(e, "end"));
+$("#rollLoopStart").addEventListener("pointerdown", e => loopDrag(e, "start"));
+$("#rollLoopBody").addEventListener("pointerdown", e => loopDrag(e, "body"));
+$("#rollStartMark").addEventListener("pointerdown", e => loopDrag(e, "mark"));
 // quantize: grid (incl. triplets), strength, optional note ends; works on the roll selection, a whole clip, or selected clips
 const Q_NAMES = { "1": "1/4", "0.5": "1/8", "0.3333": "1/8T", "0.25": "1/16", "0.1667": "1/16T", "0.125": "1/32" };
 function qSettings() { const g = $("#qGrid").value, grid = g === "0.3333" ? 1 / 3 : g === "0.1667" ? 1 / 6 : +g; return { grid, name: Q_NAMES[g], str: +$("#qStr").value / 100, ends: $("#qEnds").checked }; }
@@ -1628,24 +1673,25 @@ $("#qStr").addEventListener("input", () => $("#qStrV").textContent = $("#qStr").
 for (const id of ["#qGrid", "#qStr"]) $(id).addEventListener("keydown", e => e.stopPropagation());
 for (const id of ["#qGrid", "#qStr", "#qEnds", "#qRec"]) $(id).addEventListener("change", () => { try { localStorage.setItem("agkm-daw-q", JSON.stringify({ g: $("#qGrid").value, s: $("#qStr").value, e: $("#qEnds").checked, r: $("#qRec").checked })); } catch (e) { } });
 try { const q = JSON.parse(localStorage.getItem("agkm-daw-q") || "null"); if (q) { $("#qGrid").value = q.g; $("#qStr").value = q.s; $("#qStrV").textContent = q.s + "%"; $("#qEnds").checked = !!q.e; $("#qRec").checked = !!q.r; } } catch (e) { }
-$("#rollDbl").onclick = () => { if (!rollClip) return; const c = proj.clips[rollClip]; if (c.loop && c.lp > 0) { const L = c.lp; commit({ t: "clip", id: c.id, lp: L * 2, len: Math.max(c.len, L * 2), notes: c.notes.concat(c.notes.filter(n => n.s < L).map(n => ({ ...n, s: n.s + L }))) }); return; } const L = c.len; commit({ t: "clip", id: c.id, len: L * 2, notes: c.notes.concat(c.notes.filter(n => n.s < L).map(n => ({ ...n, s: n.s + L }))) }); };
+$("#rollDbl").onclick = () => { if (!rollClip) return; const c = proj.clips[rollClip]; if (c.loop && c.lp > 0) { const L = c.lp, lb = c.lb || 0; commit({ t: "clip", id: c.id, lp: L * 2, len: Math.max(c.len, L * 2), notes: c.notes.concat(c.notes.filter(n => n.s >= lb && n.s < lb + L).map(n => ({ ...n, s: n.s + L }))) }); return; } const L = c.len; commit({ t: "clip", id: c.id, len: L * 2, notes: c.notes.concat(c.notes.filter(n => n.s < L).map(n => ({ ...n, s: n.s + L }))) }); };
 function commitNotes(notes) { if (!rollClip) return; commit({ t: "clip", id: rollClip, notes }); }
 function renderRoll() {
   if (!rollClip) return; const c = proj.clips[rollClip]; if (!c) return closeRoll();
   $("#rollName").textContent = c.name + " · " + (proj.tracks[c.track]?.name || "");
   computeRows(); buildKeys();
   { const tr = proj.tracks[c.track], pads = isPads(tr) ? tr.pads || {} : null; keysInner.querySelectorAll(".key").forEach(k => { const p = +k.dataset.p; const pd = pads && pads[p]; k.textContent = pd ? (audios[pd.src]?.name || "pad") : (p % 12 === 0 || rollFold ? noteName(p) : ""); k.classList.toggle("padkey", !!pd); }); }
-  const W = Math.max(rollScroll.clientWidth, beatToPxR(Math.max(c.len, c.loop ? c.lp || 0 : 0)) + 40), H = Math.max(rows.length * ROW, rollScroll.clientHeight);
+  const W = Math.max(rollScroll.clientWidth, beatToPxR(Math.max(c.len, c.loop ? (c.lb || 0) + (c.lp || 0) : 0, c.offb || 0)) + 40), H = Math.max(rows.length * ROW, rollScroll.clientHeight);
   rollGrid.style.width = W + "px"; rollGrid.style.height = H + "px";
   rollCv.width = W; rollCv.height = H;
   const g = rollCv.getContext("2d"); g.clearRect(0, 0, W, H);
   for (const p of rows) { const y = pitchToY(p); g.fillStyle = [1, 3, 6, 8, 10].includes(p % 12) ? "rgba(0,0,0,0.22)" : "rgba(250,248,245,0.03)"; g.fillRect(0, y, W, ROW); if (p % 12 === 0) { g.fillStyle = "rgba(250,248,245,0.12)"; g.fillRect(0, y + ROW - 1, W, 1); } }
   const step = snapBeats || 0.25;
   for (let b = 0; b <= c.len + 1e-6; b += step) { const x = Math.round(beatToPxR(b)) + 0.5; g.strokeStyle = b % 4 === 0 ? "rgba(250,248,245,0.25)" : b % 1 === 0 ? "rgba(250,248,245,0.12)" : "rgba(250,248,245,0.05)"; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
-  const lp = c.loop && c.lp > 0 ? c.lp : null, lim = lp || c.len;
+  const lp = c.loop && c.lp > 0 ? c.lp : null, lb = loopBegin(c), lim = lp ? lb + lp : c.len, offb = c.offb ?? lb;
   g.fillStyle = "rgba(0,0,0,0.35)"; g.fillRect(beatToPxR(lim), 0, W, H);
-  if (lp) { g.fillStyle = "rgba(250,248,245,0.8)"; for (const { n, b, d } of midiEvents(c)) { const q = b - c.start + (c.offb || 0); if (q < lp) continue; g.globalAlpha = 0.18; g.fillRect(beatToPxR(q), pitchToY(n.p), Math.max(3, beatToPxR(d) - 1), ROW - 1); } g.globalAlpha = 1; }
-  $("#rollLoop").classList.toggle("on", !!c.loop); $("#rollLoopBar").classList.toggle("on", !!lp); if (lp) $("#rollLoopBar").style.width = beatToPxR(lp) + "px";
+  if (lp) { g.fillStyle = "rgba(250,248,245,0.8)"; for (const { n, b, d, k } of midiEvents(c)) { if (!k) continue; const q = b - c.start + offb; g.globalAlpha = 0.18; g.fillRect(beatToPxR(q), pitchToY(n.p), Math.max(3, beatToPxR(d) - 1), ROW - 1); } g.globalAlpha = 1; }
+  $("#rollLoop").classList.toggle("on", !!c.loop); $("#rollLoopBar").classList.toggle("on", !!lp); if (lp) { $("#rollLoopBar").style.left = beatToPxR(lb) + "px"; $("#rollLoopBar").style.width = beatToPxR(lp) + "px"; }
+  $("#rollStartMark").style.left = beatToPxR(offb) + "px";
   drawRollRuler(c, W);
   noteList.innerHTML = "";
   c.notes.forEach((n, i) => {
@@ -1662,15 +1708,15 @@ rollScroll.addEventListener("scroll", () => { keysInner.style.transform = "trans
 function drawRollRuler(c, W) {
   const cv = $("#rollRulerCv"); $("#rollRuler").style.width = W + "px"; cv.width = W; cv.height = 16; cv.style.width = W + "px";
   const g = cv.getContext("2d"); g.clearRect(0, 0, W, 16); g.font = "10px Karla, sans-serif"; g.fillStyle = "rgba(250,248,245,0.55)"; g.strokeStyle = "rgba(250,248,245,0.3)";
-  const lim = Math.max(c.len, c.loop ? c.lp || 0 : 0);
+  const lim = Math.max(c.len, c.loop ? (c.lb || 0) + (c.lp || 0) : 0);
   for (let b = 0; b <= lim + 4; b++) { const x = Math.round(beatToPxR(b)) + 0.5; g.beginPath(); g.moveTo(x, b % 4 ? 11 : 6); g.lineTo(x, 16); g.stroke(); if (b % 4 === 0 && rollPx >= 10) g.fillText(b / 4 + 1, x + 3, 10); }
 }
 // drag anywhere on the roll ruler to set the loop length (turns looping on)
 $("#rollRulerWrap").addEventListener("pointerdown", e => {
-  if (e.target.id === "rollLoopEnd" || !rollClip) return; e.preventDefault();
-  const c = proj.clips[rollClip], o = { loop: c.loop, lp: c.lp }; let moved = false;
-  const mv = ev => { moved = true; c.loop = true; c.lp = Math.max(snapBeats || 0.25, snapB(pxToBeatR(rollX(ev.clientX)), ev.shiftKey)); renderRoll(); drawClip(clipEls[c.id], c); };
-  const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); if (!moved) return; const v = { loop: c.loop, lp: c.lp }; Object.assign(c, o); commit({ t: "clip", id: c.id, ...v }); };
+  if (["rollLoopEnd", "rollLoopStart", "rollLoopBody", "rollStartMark"].includes(e.target.id) || !rollClip) return; e.preventDefault();
+  const c = proj.clips[rollClip], o = { loop: c.loop, lp: c.lp, lb: c.lb }, b0 = Math.max(0, snapB(pxToBeatR(rollX(e.clientX)), e.shiftKey)); let moved = false;
+  const mv = ev => { moved = true; const b1 = Math.max(0, snapB(pxToBeatR(rollX(ev.clientX)), ev.shiftKey)); c.loop = true; c.lb = Math.min(b0, b1); c.lp = Math.max(snapBeats || 0.25, Math.abs(b1 - b0)); renderRoll(); drawClip(clipEls[c.id], c); };
+  const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); if (!moved) return; const v = { loop: c.loop, lp: c.lp, lb: c.lb }; Object.assign(c, o); commit({ t: "clip", id: c.id, ...v }); };
   window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
 });
 rollScroll.addEventListener("wheel", e => { if (e.ctrlKey || e.metaKey) { e.preventDefault(); rollPx = clamp(rollPx * (e.deltaY < 0 ? 1.12 : 0.9), 8, 300); renderRoll(); } }, { passive: false });
@@ -1701,7 +1747,7 @@ rollGrid.addEventListener("pointerdown", e => {
 rollGrid.addEventListener("dblclick", e => {
   if (e.target.closest(".note") || !rollClip) return;
   const c = proj.clips[rollClip], sB = Math.max(0, snapB(pxToBeatR(rollX(e.clientX)), e.shiftKey)), p = clamp(yToPitch(rollY(e.clientY)), P_LO, P_HI);
-  if (sB >= (c.loop && c.lp > 0 ? c.lp : c.len)) return;
+  if (sB >= (c.loop && c.lp > 0 ? loopBegin(c) + c.lp : c.len)) return;
   const n = { p, s: sB, d: snapBeats || 0.25, v: velNow }, notes = c.notes.concat([n]);
   commitNotes(notes); noteSel = new Set([notes.length - 1]); renderRoll();
   engine.noteOn(c.track, p, velNow); setTimeout(() => engine.noteOff(c.track, p), 250);
@@ -2573,7 +2619,7 @@ function banner(msg, ms = 2200) { const b = $("#banner"); b.textContent = msg; b
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { modValue, targetsOf, autoShown, commitAuto, toggleFold, get rows() { return rows; }, openAudioEd, get aeClip() { return aeClip; }, padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { joinSel, modValue, targetsOf, autoShown, commitAuto, toggleFold, get rows() { return rows; }, openAudioEd, get aeClip() { return aeClip; }, padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
