@@ -274,6 +274,24 @@
   .pk { display:grid; grid-template-columns:48px 1fr 44px; align-items:center; gap:0.3rem; font-size:0.62rem; letter-spacing:0.06em; color:rgba(250,248,245,0.6); }
   .pk input[type=range] { height:12px; min-width:0; width:100%; } .pk span { text-align:right; color:rgba(250,248,245,0.8); font-variant-numeric:tabular-nums; }
   .pk.modes { grid-column:1 / -1; display:flex; gap:0.3rem; } .pk.modes .tbtn.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
+  /* ---------- audio clip editor ---------- */
+  #audioEd { flex:none; height:0; border-top:1px solid var(--line2); background:rgba(14,12,9,0.75); display:flex; flex-direction:column; overflow:hidden; transition:height .15s; }
+  #audioEd.open { height:min(240px, 38vh); }
+  #audioEd:not(.open) { pointer-events:none; border-top:0; }
+  #aeHead { flex:none; display:flex; align-items:center; gap:0.6rem; padding:0 0.8rem; height:30px; border-bottom:1px solid var(--line2); font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase; color:rgba(250,248,245,0.55); white-space:nowrap; overflow:hidden; }
+  #aeHead b { color:var(--ivory); font-weight:400; letter-spacing:0.04em; text-transform:none; font-size:0.85rem; } #aeHead .sp { flex:1; } #aeHead .tbtn { height:22px; font-size:0.62rem; padding:0 0.5rem; }
+  #aeHead .field span { color:var(--ivory); letter-spacing:0; font-variant-numeric:tabular-nums; }
+  #aeLoop.on { background:var(--terracotta); border-color:var(--terracotta); color:var(--ink); }
+  #aeRulerWrap { flex:none; position:relative; height:16px; border-bottom:1px solid var(--line2); cursor:ew-resize; }
+  #aeRuler { position:absolute; inset:0; width:100%; height:100%; }
+  #aeLoopBar { position:absolute; top:0; height:16px; background:rgba(198,123,92,0.35); border-right:2px solid var(--terracotta); border-left:2px solid var(--terracotta); pointer-events:none; }
+  #aeWaveWrap { flex:1; position:relative; overflow:hidden; touch-action:none; cursor:crosshair; }
+  #aeWave { position:absolute; inset:0; width:100%; height:100%; }
+  .am { position:absolute; top:0; bottom:0; width:2px; background:var(--ivory); cursor:ew-resize; } .am::after { content:''; position:absolute; left:-7px; top:0; width:16px; height:100%; }
+  .am.en { background:var(--terracotta); }
+  #aePh { position:absolute; top:0; bottom:0; width:1px; background:var(--ivory); opacity:0.8; pointer-events:none; display:none; }
+  @media (max-width:760px) { #aeHead .field, #aeHalf, #aeDbl, #aeBar { display:none; } }
+
   @media (max-width:760px) { #padEdit { grid-template-columns:1fr; } #padWaveWrap { height:80px; } }
   #padRec.on { background:#b24a3a; border-color:#b24a3a; color:var(--ivory); animation:pulse 1s infinite; }
 
@@ -369,7 +387,7 @@
     <button class="tbtn sm" id="btnLeave" title="Leave the room — back to your personal project" style="display:none">leave</button>
   </div>
   <div id="spacer"></div>
-  <div id="hint">● on a track arms it, transport ● records · dbl-click a midi clip to edit · Q quantizes · new room / join room</div>
+  <div id="hint">● on a track arms it, transport ● records · dbl-click a clip to edit / loop it · Q quantizes · new room / join room</div>
 </div>
 
 <div id="insp">
@@ -444,6 +462,18 @@
     </div>
   </div>
 </div>
+<div id="audioEd">
+  <div id="aeHead"><span>clip</span><b id="aeName"></b><span class="sp"></span>
+    <label class="field" title="playback start inside the sample">start <span id="aeStartV"></span></label>
+    <label class="field" title="loop / clip length in beats">length <span id="aeLenV"></span></label>
+    <button class="tbtn sm" id="aeLoop" title="loop this region for the clip's whole length — then drag the clip's right edge out in the arrangement">↻ loop</button>
+    <button class="tbtn sm" id="aeHalf" title="halve the loop length">÷2</button><button class="tbtn sm" id="aeDbl" title="double the loop length">×2</button>
+    <button class="tbtn sm" id="aeBar" title="snap the loop length to whole bars">to bars</button>
+    <button class="tbtn sm" id="aeFit" title="stretch the loop length to the whole sample">whole</button>
+    <button class="tbtn" id="aeClose">✕</button></div>
+  <div id="aeRulerWrap"><canvas id="aeRuler"></canvas><div id="aeLoopBar"></div></div>
+  <div id="aeWaveWrap"><canvas id="aeWave"></canvas><div class="am st" id="amStart" title="drag: start"></div><div class="am en" id="amEnd" title="drag: length"></div><div id="aePh"></div></div>
+</div>
 <div id="fxPanel">
   <div id="fxHead"><span>effects</span><b id="fxName"></b><span class="sp"></span><select id="fxAdd" class="tbtn"><option value="">add effect…</option></select><button class="tbtn" id="fxClose">✕</button></div>
   <div id="fxList"></div>
@@ -455,7 +485,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03q";
+const BUILD = "2026-10-03r";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -516,7 +546,7 @@ function redo() { const e = redoStack.pop(); if (!e) return; for (const op of e.
 function afterChange(ops) {
   for (const id of [...selected]) if (!proj.clips[id]) selected.delete(id);
   if (ops.some(o => o.t === "set" && o.k === "bpm")) $("#bpm").value = proj.bpm;
-  render(); if (rollClip) renderRoll(); if (fxTrack) renderFx(); if (padTrack) renderPads(); renderSession(); renderInsp();
+  render(); if (rollClip) renderRoll(); if (fxTrack) renderFx(); if (padTrack) renderPads(); if (aeClip) renderAudioEd(); renderSession(); renderInsp();
   if (ops.some(o => o.t === "set" && o.k === "master")) { engine.refreshMaster(); $("#masterGain").value = proj.master.gain; }
   if (ops.some(o => o.t === "clip" && (o.del || "scene" in o))) for (const tid in sess) if (!proj.clips[sess[tid].clip]) delete sess[tid];
   for (const tid of [...armed]) if (!proj.tracks[tid]) { armed.delete(tid); delete recs[tid]; }
@@ -1142,7 +1172,7 @@ function buildClip(c) {
   const e = el("div", "clip"); e.dataset.id = c.id;
   e.innerHTML = `<canvas></canvas><div class="lbl"></div><div class="h l"></div><div class="h r"></div>`;
   e.addEventListener("pointerdown", onClipDown);
-  e.addEventListener("dblclick", () => { const cc = proj.clips[c.id]; if (cc && cc.kind === "m") openRoll(cc.id); });
+  e.addEventListener("dblclick", () => { const cc = proj.clips[c.id]; if (!cc) return; if (cc.kind === "m") openRoll(cc.id); else openAudioEd(cc.id); });
   return e;
 }
 function drawMidiClip(e, c) {
@@ -1164,16 +1194,20 @@ function drawClip(e, c) {
   const cv = e.querySelector("canvas"), a = audios[c.src];
   const w = Math.min(4000, Math.max(1, Math.round(beatToPx(c.len)))), h = 50;
   if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; } else if (cv.dataset.k === c.src + ":" + c.off + ":" + c.len + ":" + c.gain) return;
-  cv.dataset.k = c.src + ":" + c.off + ":" + c.len + ":" + c.gain;
+  cv.dataset.k = c.src + ":" + c.off + ":" + c.len + ":" + c.gain + ":" + (c.loop ? c.lp : "-") + ":" + proj.bpm;
   const g = cv.getContext("2d"); g.clearRect(0, 0, w, h);
   if (!a) { g.fillStyle = "rgba(0,0,0,0.3)"; g.fillRect(0, 0, w, h); return; }
   const secPerPx = (c.len * spb()) / w, pps = a.buf.sampleRate / 256; // peaks per second
   g.fillStyle = "rgba(250,248,245,0.9)";
-  for (let x = 0; x < w; x++) {
-    const s0 = c.off + x * secPerPx, i0 = Math.floor(s0 * pps), i1 = Math.max(i0 + 1, Math.floor((s0 + secPerPx) * pps));
-    if (i0 >= a.peaks.length) break;
-    let m = 0; for (let i = i0; i < i1 && i < a.peaks.length; i++) if (a.peaks[i] > m) m = a.peaks[i];
-    const hh = Math.max(1, m * c.gain * (h - 2)); g.fillRect(x, (h - hh) / 2, 1, hh);
+  for (const ev of audioEvents(c)) {
+    const x0 = Math.round(beatToPx(ev.b - c.start)), x1 = Math.min(w, Math.round(beatToPx(ev.b - c.start + ev.d)));
+    for (let x = x0; x < x1; x++) {
+      const s0 = ev.off + (x - x0) * secPerPx, i0 = Math.floor(s0 * pps), i1 = Math.max(i0 + 1, Math.floor((s0 + secPerPx) * pps));
+      if (i0 >= a.peaks.length) break;
+      let m = 0; for (let i = i0; i < i1 && i < a.peaks.length; i++) if (a.peaks[i] > m) m = a.peaks[i];
+      const hh = Math.max(1, m * (c.gain ?? 1) * (h - 2)); g.fillRect(x, (h - hh) / 2, 1, hh);
+    }
+    if (c.loop && x0 > 0) { g.fillStyle = "rgba(0,0,0,0.35)"; g.fillRect(x0, 0, 1, h); g.fillStyle = "rgba(250,248,245,0.9)"; }
   }
 }
 function drawRuler() {
@@ -1219,6 +1253,7 @@ function frame() {
     if (engine.playing) { const vw = lanesWrap.clientWidth, sl = lanesWrap.scrollLeft; if (x > sl + vw - 40 || x < sl) lanesWrap.scrollLeft = Math.max(0, x - 40); }
   }
   recTick(); sessTick();
+  if (aeClip) { const c = proj.clips[aeClip]; const ph = $("#aePh"); if (c && engine.playing && b >= c.start && b < clipEnd(c)) { const L = aeLenB(c); const q = ((b - c.start) % L); ph.style.display = "block"; ph.style.left = ((c.off || 0) + q * spb()) * aePx + "px"; } else ph.style.display = "none"; }
   if (rollClip) { const c = proj.clips[rollClip]; if (c) { const rb = b - c.start + (c.offb || 0); rollPh.style.display = rb >= 0 && rb <= c.len ? "block" : "none"; rollPh.style.transform = "translateX(" + beatToPxR(rb) + "px)"; } }
   const m = engine.meters();
   if (m) for (const tid in m) { const h = laneEls[tid]?.hdr?.querySelector(".meter i"); if (h) h.style.height = Math.min(100, m[tid] * 100) + "%"; }
@@ -1312,7 +1347,7 @@ function onClipMove(e) {
     if (c.kind === "m") { const ns = clamp(snapB(o.start + db, force), Math.max(0, o.start - (o.offb || 0)), clipEnd(o) - 0.05); c.start = ns; c.len = clipEnd(o) - ns; c.offb = (o.offb || 0) + (ns - o.start); }
     else { const ns = clamp(snapB(o.start + db, force), Math.max(0, o.start - o.off / spb()), clipEnd(o) - 0.05); c.start = ns; c.len = clipEnd(o) - ns; c.off = o.off + (ns - o.start) * spb(); }
   } else {
-    const c = proj.clips[drag.id], a = audios[c.src], maxLen = c.kind === "m" ? 1e9 : a ? (a.dur - o.off) / spb() : 1e9;
+    const c = proj.clips[drag.id], a = audios[c.src], maxLen = c.kind === "m" || c.loop ? 1e9 : a ? (a.dur - o.off) / spb() : 1e9;
     c.len = clamp(snapB(clipEnd(o) + db, force) - o.start, 0.05, maxLen);
   }
   render();
@@ -1395,6 +1430,7 @@ window.addEventListener("keydown", e => {
   if (k === "r" && !mod) { toggleRec(); return; }
   if ((k === "delete" || k === "backspace") && rollClip && rollFocus) { e.preventDefault(); deleteNotes(); return; }
   if (k === "escape" && rollClip && !selected.size) { closeRoll(); return; }
+  if (k === "escape" && aeClip && !selected.size) { closeAudioEd(); return; }
   if (k === "k" && e.shiftKey && !mod) { $("#btnKbd").click(); return; }
   if (k === "tab") { e.preventDefault(); return; }   // session view parked for now
   if (viewMode === "sess" && (k === "delete" || k === "backspace")) { e.preventDefault(); if (sessSel) { const c = slotClip(sessSel.track, sessSel.scene); if (c) commit({ t: "clip", id: c.id, del: true }); } return; }
@@ -1435,7 +1471,7 @@ $("#vel").addEventListener("keydown", e => e.stopPropagation());
   }
 })();
 function openRoll(id) {
-  closeFx(); if (padTrack) closePads(); rollClip = id; noteSel.clear(); rollEl.classList.add("open");
+  closeFx(); if (padTrack) closePads(); closeAudioEd(); rollClip = id; noteSel.clear(); rollEl.classList.add("open");
   renderRoll();
   const c = proj.clips[id]; const mid = c.notes.length ? c.notes.reduce((a, n) => a + n.p, 0) / c.notes.length : 60;
   requestAnimationFrame(() => { rollScroll.scrollTop = Math.max(0, pitchToY(mid) - rollScroll.clientHeight / 2); rollScroll.scrollLeft = 0; });
@@ -1767,7 +1803,7 @@ function buildChain(ctx, fxList, from, to, env) {
 // --- rack UI ---
 let fxTrack = null;
 const fxEl = $("#fxPanel"), fxList = $("#fxList");
-function openFx(tid) { if (fxTrack === tid && fxEl.classList.contains("open")) return closeFx(); closeRoll(); if (padTrack) closePads(); fxTrack = tid; fxEl.classList.add("open"); renderFx(); }
+function openFx(tid) { if (fxTrack === tid && fxEl.classList.contains("open")) return closeFx(); closeRoll(); if (padTrack) closePads(); closeAudioEd(); fxTrack = tid; fxEl.classList.add("open"); renderFx(); }
 function closeFx() { fxTrack = null; fxEl.classList.remove("open"); }
 $("#fxClose").onclick = closeFx;
 $("#fxAdd").addEventListener("change", e => { const type = e.target.value; e.target.value = ""; if (!type || !fxTrack) return; const t = fxOwner(fxTrack); if (FX_DEFS[type].stub) return banner(FX_DEFS[type].name + ": " + FX_DEFS[type].stub); commitFxList(fxTrack, (t.fx || []).concat([fxDefaults(type)])); });
@@ -2212,7 +2248,7 @@ $("#projIn").addEventListener("change", async e => {
 // ---------- sampler pads panel ----------
 let padTrack = null, padSel = null;
 const padEl = $("#padPanel"), padGrid = $("#padGrid");
-function openPads(tid) { if (padTrack === tid && padEl.classList.contains("open")) return closePads(); closeFx(); closeRoll(); padTrack = tid; padSel = padSel ?? PAD0; padEl.classList.add("open"); renderPads(); render(); }
+function openPads(tid) { if (padTrack === tid && padEl.classList.contains("open")) return closePads(); closeFx(); closeRoll(); closeAudioEd(); padTrack = tid; padSel = padSel ?? PAD0; padEl.classList.add("open"); renderPads(); render(); }
 function closePads() { padTrack = null; padEl.classList.remove("open"); render(); }
 $("#padClose").onclick = closePads;
 function padsOf(tid) { return proj.tracks[tid]?.pads || {}; }
@@ -2295,6 +2331,63 @@ $("#padRec").onclick = async () => {
   } catch (e) { b.classList.remove("on"); banner("mic unavailable: " + (e.message || e)); }
 };
 
+
+// ---------- audio clip editor (double-click an audio clip) ----------
+// Shows the whole sample; the lit region is what the clip plays: start = clip.off (seconds), length = lp (beats) when
+// looping, else the clip's len. Drag the white marker to move the start, the orange one to set the length, or drag on
+// the ruler. Same loop semantics as MIDI clips: looping repeats the region for the clip's whole arrangement length.
+let aeClip = null, aePx = 0;
+const aeEl = $("#audioEd"), aeWave = $("#aeWave"), aeWrap = $("#aeWaveWrap"), aeRuler = $("#aeRuler");
+function openAudioEd(id) { closeRoll(); closeFx(); if (padTrack) closePads(); aeClip = id; aeEl.classList.add("open"); renderAudioEd(); setTimeout(renderAudioEd, 180); }
+function closeAudioEd() { aeClip = null; aeEl.classList.remove("open"); }
+$("#aeClose").onclick = closeAudioEd;
+const aeLenB = c => c.loop && c.lp > 0 ? c.lp : c.len;
+function renderAudioEd() {
+  if (!aeClip) return; const c = proj.clips[aeClip]; if (!c || c.kind === "m") return closeAudioEd();
+  const a = audios[c.src]; $("#aeName").textContent = c.name + (a ? "" : " (sample missing)"); if (!a) return;
+  const W = aeWrap.clientWidth || 600, H = aeWrap.clientHeight || 150, dur = a.buf.duration; aePx = W / dur;   // px per second
+  aeWave.width = W; aeWave.height = H; aeRuler.width = W; aeRuler.height = 16;
+  const g = aeWave.getContext("2d"); g.clearRect(0, 0, W, H);
+  const pk = a.peaks; g.fillStyle = "rgba(198,123,92,0.9)";
+  for (let x = 0; x < W; x++) { const i0 = Math.floor(x / W * pk.length), i1 = Math.floor((x + 1) / W * pk.length); let m = 0; for (let i = i0; i <= i1 && i < pk.length; i++) if (pk[i] > m) m = pk[i]; const hh = Math.max(1, m * (c.gain ?? 1) * (H - 8)); g.fillRect(x, (H - hh) / 2, 1, hh); }
+  const s0 = c.off || 0, L = aeLenB(c) * spb(), s1 = Math.min(dur, s0 + L);
+  g.fillStyle = "rgba(0,0,0,0.55)"; g.fillRect(0, 0, s0 * aePx, H); g.fillRect(s1 * aePx, 0, W - s1 * aePx, H);
+  // beat grid inside the region
+  g.strokeStyle = "rgba(250,248,245,0.15)"; for (let b = 0; b * spb() <= L + 1e-6; b++) { const x = Math.round((s0 + b * spb()) * aePx) + 0.5; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.strokeStyle = b % 4 === 0 ? "rgba(250,248,245,0.35)" : "rgba(250,248,245,0.12)"; g.stroke(); }
+  $("#amStart").style.left = s0 * aePx + "px"; $("#amEnd").style.left = (s1 * aePx - 2) + "px";
+  const lb = $("#aeLoopBar"); lb.style.left = s0 * aePx + "px"; lb.style.width = Math.max(0, (s1 - s0) * aePx) + "px"; lb.style.opacity = c.loop ? 1 : 0.4;
+  const r = aeRuler.getContext("2d"); r.clearRect(0, 0, W, 16); r.font = "10px Karla, sans-serif"; r.fillStyle = "rgba(250,248,245,0.5)"; r.strokeStyle = "rgba(250,248,245,0.3)";
+  for (let t = 0; t <= dur; t += 0.5) { const x = Math.round(t * aePx) + 0.5; r.beginPath(); r.moveTo(x, t % 1 ? 11 : 6); r.lineTo(x, 16); r.stroke(); if (t % 1 === 0 && aePx > 30) r.fillText(t + "s", x + 3, 10); }
+  $("#aeLoop").classList.toggle("on", !!c.loop);
+  $("#aeStartV").textContent = s0.toFixed(2) + "s"; $("#aeLenV").textContent = (+aeLenB(c).toFixed(3)) + " beats (" + (aeLenB(c) / 4).toFixed(2) + " bars)";
+}
+function aeCommit(patch) { if (aeClip) commit({ t: "clip", id: aeClip, ...patch }); }
+$("#aeLoop").onclick = () => { const c = proj.clips[aeClip]; if (!c) return; aeCommit(c.loop ? { loop: false } : { loop: true, lp: c.lp > 0 ? c.lp : Math.max(snapBeats || 0.25, snapB(c.len) || c.len) }); };
+$("#aeHalf").onclick = () => { const c = proj.clips[aeClip]; if (!c) return; aeCommit({ loop: true, lp: Math.max(0.25, aeLenB(c) / 2) }); };
+$("#aeDbl").onclick = () => { const c = proj.clips[aeClip]; if (!c) return; aeCommit({ loop: true, lp: aeLenB(c) * 2 }); };
+$("#aeBar").onclick = () => { const c = proj.clips[aeClip]; if (!c) return; aeCommit({ loop: true, lp: Math.max(4, Math.round(aeLenB(c) / 4) * 4) }); };
+$("#aeFit").onclick = () => { const c = proj.clips[aeClip], a = c && audios[c.src]; if (!a) return; aeCommit({ loop: true, off: 0, lp: Math.max(0.25, snapB((a.buf.duration) / spb()) || a.buf.duration / spb()) }); };
+// markers + ruler drags
+function aeDrag(e, kind) {
+  const c = proj.clips[aeClip], a = c && audios[c.src]; if (!a) return; e.preventDefault(); e.stopPropagation();
+  const dur = a.buf.duration, orig = { off: c.off || 0, lp: c.lp, len: c.len, loop: c.loop }, L0 = aeLenB(c) * spb();
+  const secAt = x => clamp((x - aeWrap.getBoundingClientRect().left) / aePx, 0, dur);
+  const mv = ev => {
+    const t = secAt(ev.clientX);
+    if (kind === "start") { c.off = Math.max(0, Math.min(t, dur - 0.01)); }
+    else { const beats = Math.max(snapBeats || 0.25, snapB((t - (c.off || 0)) / spb(), ev.shiftKey)); if (c.loop) c.lp = beats; else c.len = beats; }
+    renderAudioEd(); drawClip(clipEls[c.id], c);
+  };
+  const up = () => { window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); const now = { off: c.off, lp: c.lp, len: c.len }; Object.assign(c, orig); const patch = {}; for (const k in now) if (now[k] !== orig[k]) patch[k] = now[k]; if (Object.keys(patch).length) aeCommit(patch); else renderAudioEd(); };
+  window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
+}
+$("#amStart").addEventListener("pointerdown", e => aeDrag(e, "start"));
+$("#amEnd").addEventListener("pointerdown", e => aeDrag(e, "end"));
+$("#aeRulerWrap").addEventListener("pointerdown", e => { const c = proj.clips[aeClip]; if (!c) return; if (!c.loop) { c.loop = true; c.lp = c.lp > 0 ? c.lp : c.len; } aeDrag(e, "end"); });
+// click in the wave = audition from there; double-click = set start
+aeWrap.addEventListener("pointerdown", e => { if (e.target.classList.contains("am")) return; const c = proj.clips[aeClip], a = c && audios[c.src]; if (!a) return; const t = clamp((e.clientX - aeWrap.getBoundingClientRect().left) / aePx, 0, a.buf.duration); const ctx = engine.ensure(); const src = ctx.createBufferSource(); src.buffer = a.buf; const g = ctx.createGain(); g.gain.value = 0.9; src.connect(g); g.connect(engine.nodesFor(c.track).in); src.start(0, t, Math.min(2, a.buf.duration - t)); });
+aeWrap.addEventListener("dblclick", e => { const c = proj.clips[aeClip], a = c && audios[c.src]; if (!a) return; const t = clamp((e.clientX - aeWrap.getBoundingClientRect().left) / aePx, 0, a.buf.duration - 0.01); aeCommit({ off: t }); });
+
 // ---------- banner ----------
 let bannerT;
 function banner(msg, ms = 2200) { const b = $("#banner"); b.textContent = msg; b.classList.add("show"); clearTimeout(bannerT); bannerT = setTimeout(() => b.classList.remove("show"), ms); }
@@ -2314,7 +2407,7 @@ function banner(msg, ms = 2200) { const b = $("#banner"); b.textContent = msg; b
   window.addEventListener("pointerdown", unlock); window.addEventListener("keydown", unlock);
 })();
 // test hooks (offline Playwright drives these; harmless live)
-window.__daw = { padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
+window.__daw = { openAudioEd, get aeClip() { return aeClip; }, padP, PAD_DEF, get padSel() { return padSel; }, set padSel(v) { padSel = v; renderPadEdit(); }, roomHash, get roomKey() { return roomKey; }, addSamplerTrack, openPads, setPad, get padTrack() { return padTrack; }, midiEvents, audioEvents, launchClip, stopTrack, launchScene, sess, get room() { return room; }, joinRoom, leaveRoom, get peers() { return peers; }, setView, slotClip, placeInSlot, quantizeNotes, qSettings, proj, audios, commit, engine, placeClip, placeMidiClip, addTrack, demoBeat, renderWav, undo, redo, openRoll, kits, instOf, get rec() { return rec.any ? rec : null; }, get recs() { return recs; }, armed, toggleArm, get selected() { return selected; }, get undoDepth() { return undoStack.length; }, get rollClip() { return rollClip; }, get rollFocus() { return rollFocus; }, set selected(v) { selected = v; render(); }, get playhead() { return playhead; }, render, BUILD };
 </script>
 </body>
 </html>
