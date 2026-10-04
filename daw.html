@@ -455,7 +455,7 @@
 <div id="banner"></div>
 
 <script type="module">
-const BUILD = "2026-10-03o";
+const BUILD = "2026-10-03p";
 const $ = s => document.querySelector(s);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -1406,7 +1406,7 @@ window.addEventListener("keydown", e => {
   else if (mod && k === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); }
   else if (mod && k === "y") { e.preventDefault(); redo(); }
   else if (mod && k === "d") { e.preventDefault(); duplicateSel(); }
-  else if (mod && k === "a") { e.preventDefault(); selected = new Set(Object.keys(proj.clips)); render(); }
+  else if (mod && k === "a") { e.preventDefault(); if (rollClip && rollFocus) { noteSel = new Set(proj.clips[rollClip].notes.map((_, i) => i)); renderRoll(); } else { selected = new Set(Object.keys(proj.clips).filter(id => proj.clips[id].scene == null)); render(); } }
   else if (k === "s" && !mod) splitAtPlayhead();
   else if (k === "l" && !mod) $("#btnLoop").click();
   else if (k === "k" && !mod) $("#btnClick").click();
@@ -1540,15 +1540,17 @@ rollGrid.addEventListener("pointerdown", e => {
   const up = () => {
     window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", up); marquee.style.display = "none";
     if (moved) { renderRoll(); return; }
-    if (add) { noteSel.clear(); renderRoll(); return; }
-    // plain click: add a note at the grid cell
-    const sB = Math.max(0, snapB(pxToBeatR(x0))), p = clamp(yToPitch(y0), P_LO, P_HI);
-    if (sB >= (c.loop && c.lp > 0 ? c.lp : c.len)) { noteSel.clear(); renderRoll(); return; }
-    const n = { p, s: sB, d: snapBeats || 0.25, v: velNow }, notes = c.notes.concat([n]);
-    commitNotes(notes); noteSel = new Set([notes.length - 1]); renderRoll();
-    engine.noteOn(c.track, p, velNow); setTimeout(() => engine.noteOff(c.track, p), 250);
+    noteSel.clear(); renderRoll();   // single click on empty space: clear the selection (double-click adds a note)
   };
   window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
+});
+rollGrid.addEventListener("dblclick", e => {
+  if (e.target.closest(".note") || !rollClip) return;
+  const c = proj.clips[rollClip], sB = Math.max(0, snapB(pxToBeatR(rollX(e.clientX)), e.shiftKey)), p = clamp(yToPitch(rollY(e.clientY)), P_LO, P_HI);
+  if (sB >= (c.loop && c.lp > 0 ? c.lp : c.len)) return;
+  const n = { p, s: sB, d: snapBeats || 0.25, v: velNow }, notes = c.notes.concat([n]);
+  commitNotes(notes); noteSel = new Set([notes.length - 1]); renderRoll();
+  engine.noteOn(c.track, p, velNow); setTimeout(() => engine.noteOff(c.track, p), 250);
 });
 const marquee = el("div", ""); marquee.id = "marquee"; rollGrid.appendChild(marquee);
 function onNoteDown(e) {
