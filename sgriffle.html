@@ -115,7 +115,7 @@
 <main>
   <div id="rules" class="panel hidden">
     <h3>How Sgriffle works</h3>
-    <p>Scrabble, except the only playable words are <b>surnames</b> — every last name in the 2000 US Census held by at least 1,000 people (23,655 of them). Smith counts, Li counts, Antonacci counts. "Table" does not.</p>
+    <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — 31,918 names in all. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
     <p>17×17 board, 9 tiles on your rack, 125 tiles in the bag (2 blanks). <b>No centre square</b>: the first name goes anywhere, at least two letters. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
     <p><b>Build-off double.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name scores double. (Any name you form that contains two or more old tiles counts.)</p>
@@ -128,7 +128,7 @@
 
   <div id="lobby">
     <h1>Sgriffle</h1>
-    <p>Scrabble, but every word has to be somebody's last name. Two players, two phones, one board.</p>
+    <p>Scrabble, but every word has to be somebody's name. Two players, two phones, one board.</p>
     <div class="row"><input type="text" id="name" placeholder="your name" maxlength="18" autocomplete="off"></div>
     <div class="row">
       <button class="primary" id="mk">new game to share</button>
@@ -173,10 +173,10 @@
     <div id="log"></div>
   </div>
 </main>
-<footer>names from the 2000 US Census · <a href="index.html">agriffinkingm</a></footer>
+<footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-05d";
+const BUILD = "2026-10-05e";
 const N = 17, RACK = 9, BINGO = 50, EXTEND_MULT = 2, MAX_PASSES = 6;
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3, Y:4,P:4,W:4,F:4,Z:4,J:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -277,7 +277,7 @@ function evaluate() {
   if (!words.length) return { ok: false, why: "That doesn't make a name." };
   let score = words.reduce((a, w) => a + w.score, 0); const bingo = P.length === RACK; if (bingo) score += BINGO;
   const bad = words.filter(w => !DICT.has(w.word)).map(w => w.word);
-  if (bad.length) return { ok: false, why: bad.map(b => b[0] + b.slice(1).toLowerCase()).join(", ") + (bad.length > 1 ? " aren't" : " isn't") + " a name in the census.", bad, words, score, bingo, placed: P };
+  if (bad.length) return { ok: false, why: bad.map(b => b[0] + b.slice(1).toLowerCase()).join(", ") + (bad.length > 1 ? " aren't" : " isn't") + " a name we know.", bad, words, score, bingo, placed: P };
   return { ok: true, words, score, bingo, placed: P };
 }
 
