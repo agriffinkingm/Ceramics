@@ -79,6 +79,8 @@
   #actions { display: flex; justify-content: center; gap: .4rem; flex-wrap: wrap; }
   #msg { text-align: center; min-height: 1.4rem; margin: .5rem 0; font-size: .9rem; color: var(--stone); font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; }
   #msg.bad { color: var(--terracotta); }
+  #bubble { position: absolute; z-index: 2; pointer-events: none; min-width: 1.5em; height: 1.5em; padding: 0 .35em; border-radius: 1em; background: var(--charcoal); color: var(--ivory); font-family: 'Karla', sans-serif; font-weight: 500; font-size: .78rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(44,40,32,.4); transform: translate(-60%, -60%); }
+  #bubble.bad { background: var(--terracotta); }
   #preview { text-align: center; font-size: .8rem; letter-spacing: .05em; color: var(--clay-dark); min-height: 1.2rem; }
 
   /* log */
@@ -133,6 +135,7 @@
     </div>
     <div class="row" style="align-items:center">
       <button id="bot">play the computer</button>
+      <button id="watch">watch two computers</button>
       <select id="level" style="font:inherit;font-size:.8rem;padding:.4rem;border:1px solid var(--plaster-deep);border-radius:3px;background:var(--ivory);color:var(--stone)"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select>
     </div>
     <div class="row cols hidden" id="joinrow">
@@ -155,7 +158,7 @@
       <div class="pl right" id="p1"><div class="nm"></div><div class="sc">0</div></div>
     </div>
     <div id="overmsg" class="over hidden"></div>
-    <div id="board-wrap"><div id="board"></div></div>
+    <div id="board-wrap"><div id="board"></div><div id="bubble" class="hidden"></div></div>
     <div id="preview"></div>
     <div id="rack-row"></div>
     <div id="actions">
@@ -172,7 +175,7 @@
 <footer>names from the 2000 US Census · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-05b";
+const BUILD = "2026-10-05c";
 const N = 17, RACK = 9, BINGO = 50, EXTEND_MULT = 2, MAX_PASSES = 6;
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3, Y:4,P:4,W:4,F:4,Z:4,J:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -271,9 +274,9 @@ function evaluate() {
   addWord(main);
   for (const [r, c] of P) addWord(horiz ? run(r, c, 1, 0) : run(r, c, 0, 1));
   if (!words.length) return { ok: false, why: "That doesn't make a name." };
-  const bad = words.filter(w => !DICT.has(w.word)).map(w => w.word);
-  if (bad.length) return { ok: false, why: bad.map(b => b[0] + b.slice(1).toLowerCase()).join(", ") + (bad.length > 1 ? " aren't" : " isn't") + " a name in the census.", bad };
   let score = words.reduce((a, w) => a + w.score, 0); const bingo = P.length === RACK; if (bingo) score += BINGO;
+  const bad = words.filter(w => !DICT.has(w.word)).map(w => w.word);
+  if (bad.length) return { ok: false, why: bad.map(b => b[0] + b.slice(1).toLowerCase()).join(", ") + (bad.length > 1 ? " aren't" : " isn't") + " a name in the census.", bad, words, score, bingo, placed: P };
   return { ok: true, words, score, bingo, placed: P };
 }
 
@@ -334,12 +337,14 @@ async function commit(fn) {
     g = norm(cleanse(res.snapshot.val())); afterCommit(); return true;
   } catch (e) { console.error(e); say("Couldn't reach the game server.", true); return false; }
 }
-function afterCommit() { pending = {}; selRack = -1; exSel.clear(); exchanging = false; render(); if (mode === "bot" && !g.over && g.turn === 1) setTimeout(botTurn, 700); }
+function afterCommit() { pending = {}; selRack = -1; exSel.clear(); exchanging = false; render(); scheduleBot(); }
+const BOTS = { 0: null, 1: null };   // level per seat when a computer sits there
+function scheduleBot() { if (g && !g.over && BOTS[g.turn]) setTimeout(botTurn, mode === "watch" ? 1200 : 700); }
 
 // ---------- the computer ----------
 // Brute force over every span of every row/column: the span's fixed letters must match the name, the empty cells must be
 // coverable from the rack (blanks fill gaps), then evaluate() does cross-checks and scoring like a human play.
-let botLevel = "normal";
+
 function botMoves(rack) {
   const rackArr = rack.split(""), blanks = rackArr.filter(l => l === "?").length, counts = {};
   for (const l of rackArr) if (l !== "?") counts[l] = (counts[l] || 0) + 1;
@@ -372,23 +377,23 @@ function botMoves(rack) {
   }
   pending = saved; return moves;
 }
-function pickMove(moves) {
+function pickMove(moves, botLevel) {
   if (!moves.length) return null; moves.sort((a, b) => b.score - a.score);
   if (botLevel === "hard") return moves[0];
   if (botLevel === "normal") return moves[Math.floor(Math.random() * Math.min(6, moves.length))];
   const lo = moves.slice(Math.floor(moves.length / 2)); return lo[Math.floor(Math.random() * lo.length)];
 }
 async function botTurn() {
-  if (mode !== "bot" || !g || g.over || g.turn !== 1) return;
+  if (!g || g.over || !BOTS[g.turn]) return; const p = g.turn, botLevel = BOTS[p];
   await dictReady; if (!DICT) return;
-  const t0 = performance.now(); const moves = botMoves(g.racks[1]); const pick = pickMove(moves); console.log("bot:", moves.length, "moves,", Math.round(performance.now() - t0), "ms");
+  const t0 = performance.now(); const moves = botMoves(g.racks[p]); const pick = pickMove(moves, botLevel); console.log("bot:", moves.length, "moves,", Math.round(performance.now() - t0), "ms");
   if (!pick) {
-    if (g.bag.length >= RACK) { const letters = g.racks[1].split("").filter(l => l !== "?"); if (letters.length) { await commit(x => applyExchange(x, 1, letters)); say("The computer exchanged " + letters.length + "."); return; } }
-    await commit(x => applyPass(x, 1)); say("The computer passed."); return;
+    if (g.bag.length >= RACK) { const letters = g.racks[p].split("").filter(l => l !== "?"); if (letters.length) { await commit(x => applyExchange(x, p, letters)); say(pname(p) + " exchanged " + letters.length + "."); return; } }
+    await commit(x => applyPass(x, p)); say(pname(p) + " passed."); return;
   }
   pending = pick.pend;
-  const ok = await commit(x => applyPlay(x, 1, pick.placed, pick.words, pick.score));
-  if (ok) say("Computer: " + pick.words.map(w => w.word[0] + w.word.slice(1).toLowerCase()).join(", ") + " for " + pick.score + ".");
+  const ok = await commit(x => applyPlay(x, p, pick.placed, pick.words, pick.score));
+  if (ok) say(pname(p) + ": " + pick.words.map(w => w.word[0] + w.word.slice(1).toLowerCase()).join(", ") + " for " + pick.score + ".");
 }
 
 async function createRoom(pname) {
@@ -432,7 +437,7 @@ const pname = i => (g.players[i] && g.players[i].name) || (i === 1 ? "waiting…
 function render() {
   if (!g) return;
   for (let i = 0; i < 2; i++) { const e = $("p" + i); e.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); e.querySelector(".sc").textContent = g.scores[i]; e.classList.toggle("turn", !g.over && g.turn === i); }
-  $("midname").textContent = g.over ? "game over" : (mode === "hot" ? pname(g.turn) + " to play" : (myTurn() ? "your turn" : me < 0 ? "watching" : mode === "bot" ? "thinking…" : "their turn"));
+  $("midname").textContent = g.over ? "game over" : (mode === "hot" ? pname(g.turn) + " to play" : BOTS[g.turn] ? pname(g.turn) + " thinking…" : (myTurn() ? "your turn" : me < 0 ? "watching" : "their turn"));
   $("bag").textContent = g.bag.length + " in bag";
   const last = new Set(g.last);
   for (const d of $("board").children) {
@@ -443,7 +448,7 @@ function render() {
   }
   // rack
   const rr = $("rack-row"); rr.innerHTML = "";
-  const seat = mode === "hot" ? g.turn : me;
+  const seat = mode === "hot" || mode === "watch" ? g.turn : me;
   const rack = seat >= 0 ? g.racks[seat] : "";
   const used = {}; for (const kk in pending) { const t = pending[kk]; const l = t.bl ? "?" : t.l; used[l] = (used[l] || 0) + 1; }
   const show = []; for (const l of rack.split("")) { if (used[l]) { used[l]--; continue; } show.push(l); }
@@ -457,9 +462,13 @@ function render() {
   $("play").disabled = !canAct || (!exchanging && !np) || (exchanging && !exSel.size); $("play").textContent = exchanging ? "exchange " + exSel.size : "play";
   $("recall").disabled = !np && !exchanging; $("recall").textContent = exchanging ? "cancel" : "recall";
   $("exch").disabled = !canAct || exchanging || g.bag.length < RACK; $("pass").disabled = !canAct || exchanging; $("shuffle").disabled = seat < 0 || exchanging;
-  $("actions").classList.toggle("hidden", seat < 0 || g.over);
+  $("actions").classList.toggle("hidden", seat < 0 || g.over || mode === "watch");
   // preview
-  if (np && DICT) { const ev = evaluate(); $("preview").textContent = ev.ok ? ev.words.map(w => w.word + (w.extend ? " ×2" : "") + " " + w.score).join(" · ") + (ev.bingo ? " · all nine +" + BINGO : "") + " = " + ev.score : ""; }
+  const bub = $("bubble"); bub.classList.add("hidden");
+  if (np && DICT) {
+    const ev = evaluate(); $("preview").textContent = ev.words ? ev.words.map(w => w.word + (w.extend ? " ×2" : "") + " " + w.score).join(" · ") + (ev.bingo ? " · all nine +" + BINGO : "") + " = " + ev.score : "";
+    if (ev.words) { const [r, c] = ev.words[0].cells[ev.words[0].cells.length - 1]; const cell = $("board").children[r * N + c]; bub.textContent = ev.score; bub.className = ev.ok ? "" : "bad"; bub.style.left = (cell.offsetLeft + cell.offsetWidth) + "px"; bub.style.top = cell.offsetTop + "px"; }
+  }
   else $("preview").textContent = exchanging ? "tap the tiles to swap, then exchange" : "";
   // over
   const om = $("overmsg");
@@ -508,13 +517,14 @@ if (navigator.share) { $("sharebtn").classList.remove("hidden"); $("sharebtn").o
 $("name").value = nameMem.get();
 const getName = () => { const v = $("name").value.trim() || "anon"; nameMem.set(v); return v; };
 $("mk").onclick = async () => { try { await createRoom(getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server — try pass & play."); } };
-$("bot").onclick = () => { botLevel = $("level").value; mode = "bot"; me = 0; g = norm(newGame(1 + Math.floor(Math.random() * 9999), { uid: "a", name: getName() })); g.players[1] = { uid: "bot", name: "computer (" + botLevel + ")" }; $("newbtn").classList.remove("hidden"); enterGame(); };
+$("bot").onclick = () => { const lv = $("level").value; BOTS[0] = null; BOTS[1] = lv; mode = "bot"; me = 0; g = norm(newGame(1 + Math.floor(Math.random() * 9999), { uid: "a", name: getName() })); g.players[1] = { uid: "bot", name: "computer (" + lv + ")" }; $("newbtn").classList.remove("hidden"); enterGame(); };
+$("watch").onclick = () => { const lv = $("level").value; BOTS[0] = lv; BOTS[1] = lv; mode = "watch"; me = -1; g = norm(newGame(1 + Math.floor(Math.random() * 9999), { uid: "bot0", name: "computer A" })); g.players[1] = { uid: "bot1", name: "computer B" }; $("newbtn").classList.remove("hidden"); enterGame(); scheduleBot(); };
 $("hot").onclick = () => { mode = "hot"; me = 0; g = norm(newGame(1 + Math.floor(Math.random() * 9999), { uid: "a", name: getName() })); g.players[1] = { uid: "b", name: "player 2" }; $("newbtn").classList.remove("hidden"); enterGame(); };
 $("joinbtn").onclick = async () => { const m = location.hash.match(/g=(\w+)/); if (!m) return; try { await openRoom(m[1], getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server."); } };
 const hm = location.hash.match(/g=(\w+)/);
-if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
+if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("watch").parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
 dictReady.then(() => { if (g) render(); });
-window.__sg = { get g() { return g; }, set g(v) { g = v; }, get pending() { return pending; }, set pending(v) { pending = v; }, evaluate, layout, newGame, norm, applyPlay, applyPass, applyExchange, render, enterGame, setMode: (m, s) => { mode = m; me = s; }, get mode() { return mode; }, botMoves, botTurn, setLevel: l => { botLevel = l; } };
+window.__sg = { get g() { return g; }, set g(v) { g = v; }, get pending() { return pending; }, set pending(v) { pending = v; }, evaluate, layout, newGame, norm, applyPlay, applyPass, applyExchange, render, enterGame, setMode: (m, s) => { mode = m; me = s; }, get mode() { return mode; }, botMoves, botTurn, BOTS };
 </script>
 </body>
 </html>
