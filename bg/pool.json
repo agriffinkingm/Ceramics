@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-02-0136-0",
-  "image": "pool-2026-10-02-0136-0.jpg",
-  "headline": "\u0110\u1eafk L\u1eafk urges flood , landslide prevention amid heavy rain",
-  "url": "https://vietnamnews.vn/society/1800424/dak-lak-urges-flood-landslide-prevention-amid-heavy-rain.html",
-  "outlet": "vietnamnews.vn",
-  "t": "2026-10-02T05:36:30+00:00",
-  "vista": 9.0,
-  "hash": 9295850879129165599
- },
- {
-  "id": "2026-10-02",
-  "image": "pool-2026-10-02.jpg",
-  "headline": "Namibia FMD outbreak puts Ngamiland beef corridor at risk",
-  "url": "https://www.sundaystandard.info/namibia-fmd-outbreak-puts-ngamiland-beef-corridor-at-risk/",
-  "outlet": "sundaystandard.info",
-  "t": "2026-10-02T12:31:07+00:00",
-  "hash": 4541602097303495539
- },
- {
-  "id": "2026-10-02-b",
-  "image": "pool-2026-10-02-b.jpg",
-  "headline": "City Hall Launches Day 2 of  Operation Okoa Maisha  El Ni\u00f1o Emergency Simulation \u2013 Capital FM Kenya",
-  "url": "https://capitalfm.africa/city-hall-launches-day-2-of-operation-okoa-maisha-el-nino-emergency-simulation/",
-  "outlet": "capitalfm.africa",
-  "t": "2026-10-02T12:31:07+00:00",
-  "hash": 220825916459966351
- },
- {
   "id": "2026-10-02-c",
   "image": "pool-2026-10-02-c.jpg",
   "headline": "Germany : Merz collapses , AfD soars , hospitals go to war - The nuclear bunker awakens",
@@ -169,5 +141,32 @@
   "t": "2026-10-05T05:38:06+00:00",
   "vista": 9.0,
   "hash": 30081548287
+ },
+ {
+  "id": "2026-10-05",
+  "image": "pool-2026-10-05.jpg",
+  "headline": "Airstrike - Devastated Villages in Shwegu Township Urgently Need Reconstruction Aid",
+  "url": "https://www.bnionline.net/en/news/airstrike-devastated-villages-shwegu-township-urgently-need-reconstruction-aid",
+  "outlet": "bnionline.net",
+  "t": "2026-10-05T14:32:53+00:00",
+  "hash": 1303809925307997886
+ },
+ {
+  "id": "2026-10-05-b",
+  "image": "pool-2026-10-05-b.jpg",
+  "headline": "Aircraft crashes in northern Israel , two injured",
+  "url": "https://www.israelnationalnews.com/news/433991",
+  "outlet": "israelnationalnews.com",
+  "t": "2026-10-05T14:32:53+00:00",
+  "hash": 18437385582638841526
+ },
+ {
+  "id": "2026-10-05-c",
+  "image": "pool-2026-10-05-c.jpg",
+  "headline": "Chinese work gathering pace on Antelope Reef in South China Sea , latest satellite images show",
+  "url": "https://economictimes.indiatimes.com/news/defence/chinas-antelope-reef-military-base-strategic-expansion-in-the-south-china-sea-by-mid-2027/articleshow/134633049.cms",
+  "outlet": "economictimes.indiatimes.com",
+  "t": "2026-10-05T14:32:53+00:00",
+  "hash": 240972152639
  }
 ]

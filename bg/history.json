@@ -124,5 +124,12 @@
   "url": "https://www.bankingnews.gr/amyna-diplomatia/articles/902864/rafale-fighters-face-s-400-test-in-ukraine",
   "outlet": "bankingnews.gr",
   "method": "crop"
+ },
+ {
+  "id": "2026-10-05",
+  "headline": "Airstrike - Devastated Villages in Shwegu Township Urgently Need Reconstruction Aid",
+  "url": "https://www.bnionline.net/en/news/airstrike-devastated-villages-shwegu-township-urgently-need-reconstruction-aid",
+  "outlet": "bnionline.net",
+  "method": "outpaint"
  }
 ]
