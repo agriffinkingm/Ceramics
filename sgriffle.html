@@ -118,6 +118,7 @@
     <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — 31,918 names in all. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
     <p>17×17 board, 9 tiles on your rack, 125 tiles in the bag (2 blanks). <b>No centre square</b>: the first name goes anywhere, at least two letters. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
+    <p>You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
     <p><b>Build-off double.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name scores double. (Any name you form that contains two or more old tiles counts.)</p>
     <p><b>Bonus squares are shuffled every game</b>, chess960-style: the game number sets the layout (mirrored four ways). <span class="sw" style="background:var(--dl)"></span>double letter · <span class="sw" style="background:var(--tl)"></span>triple letter · <span class="sw" style="background:var(--dn)"></span>double name · <span class="sw" style="background:var(--tn)"></span>triple name. Bonus squares count only for the tiles you just placed.</p>
     <p>All nine tiles in one go: <b>+50</b>. You can exchange tiles instead of playing while the bag has at least nine left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
@@ -176,7 +177,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-05f";
+const BUILD = "2026-10-05g";
 const N = 17, RACK = 9, BINGO = 50, EXTEND_MULT = 2, MAX_PASSES = 6;
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -282,10 +283,10 @@ function evaluate() {
 }
 
 // ---------- applying moves (pure on a game object) ----------
-function applyPlay(x, p, placed, words, score) {
-  for (const [r, c] of placed) { const t = pending[k(r, c)]; x.board[k(r, c)] = { l: t.l, bl: !!t.bl, by: p }; }
+function applyPlay(x, p, placed, words, score, tiles = pending) {
+  for (const [r, c] of placed) { const t = tiles[k(r, c)]; x.board[k(r, c)] = { l: t.l, bl: !!t.bl, by: p }; }
   let rack = x.racks[p].split("");
-  for (const [r, c] of placed) { const t = pending[k(r, c)]; const i = rack.indexOf(t.bl ? "?" : t.l); if (i < 0) return null; rack.splice(i, 1); }
+  for (const [r, c] of placed) { const t = tiles[k(r, c)]; const i = rack.indexOf(t.bl ? "?" : t.l); if (i < 0) return null; rack.splice(i, 1); }
   const draw = Math.min(RACK - rack.length, x.bag.length); rack = rack.concat(x.bag.slice(0, draw).split("")); x.bag = x.bag.slice(draw);
   x.racks[p] = rack.join(""); x.scores[p] += score; x.passes = 0; x.last = placed.map(c => k(...c));
   x.log.push({ p, words: words.map(w => w.word), score, kind: "play", t: Date.now() });
@@ -326,8 +327,8 @@ async function loadFirebase() {
 }
 function cleanse(x) { return JSON.parse(JSON.stringify(x)); }
 // commit a mutation: fn(copy) → new state or null. Room mode runs it as a transaction keyed on the version.
-async function commit(fn) {
-  if (mode !== "room") { const nx = fn(cleanse(g)); if (!nx) return false; g = norm(nx); afterCommit(); return true; }
+async function commit(fn, keep) {
+  if (mode !== "room") { const nx = fn(cleanse(g)); if (!nx) return false; g = norm(nx); afterCommit(keep); return true; }
   const base = g.v; let applied = false;
   try {
     const res = await fb.runTransaction(gref, cur => {
@@ -335,10 +336,12 @@ async function commit(fn) {
       const nx = fn(norm(cleanse(cur))); if (!nx) return; applied = true; return nx;
     });
     if (!res.committed || !applied) { say("The board changed — have another look.", true); return false; }
-    g = norm(cleanse(res.snapshot.val())); afterCommit(); return true;
+    g = norm(cleanse(res.snapshot.val())); afterCommit(keep); return true;
   } catch (e) { console.error(e); say("Couldn't reach the game server.", true); return false; }
 }
-function afterCommit() { pending = {}; selRack = -1; exSel.clear(); exchanging = false; render(); scheduleBot(); }
+function afterCommit(keep) { if (keep) dropCollisions(); else pending = {}; selRack = -1; exSel.clear(); exchanging = false; render(); scheduleBot(); }
+// staged tiles survive other people's moves, minus any square that got covered
+function dropCollisions() { for (const kk in pending) if (g.board[kk]) delete pending[kk]; }
 const BOTS = { 0: null, 1: null };   // level per seat when a computer sits there
 function scheduleBot() { if (g && !g.over && BOTS[g.turn]) setTimeout(botTurn, mode === "watch" ? 1200 : 700); }
 
@@ -392,8 +395,7 @@ async function botTurn() {
     if (g.bag.length >= RACK) { const letters = g.racks[p].split("").filter(l => l !== "?"); if (letters.length) { await commit(x => applyExchange(x, p, letters)); say(pname(p) + " exchanged " + letters.length + "."); return; } }
     await commit(x => applyPass(x, p)); say(pname(p) + " passed."); return;
   }
-  pending = pick.pend;
-  const ok = await commit(x => applyPlay(x, p, pick.placed, pick.words, pick.score));
+  const ok = await commit(x => applyPlay(x, p, pick.placed, pick.words, pick.score, pick.pend), true);
   if (ok) say(pname(p) + ": " + pick.words.map(w => w.word[0] + w.word.slice(1).toLowerCase()).join(", ") + " for " + pick.score + ".");
 }
 
@@ -417,7 +419,7 @@ async function openRoom(k2, pname) {
   else { me = -1; }
   listen(); enterGame();
 }
-function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (g && nx.v === g.v && nx.players.every((p, i) => !!p === !!g.players[i])) return; const boardChanged = !g || Object.keys(nx.board).length !== Object.keys(g.board).length; g = nx; if (boardChanged || !(nx.turn === me || (nx.turn === -1 && !Object.keys(nx.board).length))) { pending = {}; } render(); }); }
+function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (g && nx.v === g.v && nx.players.every((p, i) => !!p === !!g.players[i])) return; g = nx; dropCollisions(); render(); }); }
 
 // ---------- UI ----------
 function say(t, bad) { const m = $("msg"); m.textContent = t || ""; m.className = bad ? "bad" : ""; }
@@ -488,7 +490,7 @@ function render() {
 $("rack-row").addEventListener("click", e => {
   const d = e.target.closest(".rt"); if (!d) return; const i = +d.dataset.i;
   if (exchanging) { exSel.has(i) ? exSel.delete(i) : exSel.add(i); render(); return; }
-  if (mode === "hot" ? g.over : !myTurn()) return;
+  if (g.over || (mode === "hot" ? false : me < 0 || mode === "watch")) return;   // staging is allowed off-turn; only play is gated
   selRack = selRack === i ? -1 : i; render();
 });
 $("board").addEventListener("click", e => {
