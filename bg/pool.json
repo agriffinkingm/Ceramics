@@ -1,24 +1,5 @@
 [
  {
-  "id": "2026-10-02-c",
-  "image": "pool-2026-10-02-c.jpg",
-  "headline": "Germany : Merz collapses , AfD soars , hospitals go to war - The nuclear bunker awakens",
-  "url": "https://www.bankingnews.gr/diethni/articles/902875/germany-merz-collapses-afd-soars-hospitals-go-to-war-the-nuclear-bunker-awakens",
-  "outlet": "bankingnews.gr",
-  "t": "2026-10-02T12:31:07+00:00",
-  "hash": 9732082917997837319
- },
- {
-  "id": "2026-10-02-0905-0",
-  "image": "pool-2026-10-02-0905-0.jpg",
-  "headline": "US Reinforcing Military Presence In Middle East As Iran Tensions Rise",
-  "url": "http://www.orlandoecho.com/news/279347225/us-reinforcing-military-presence-in-middle-east-as-iran-tensions-rise",
-  "outlet": "orlandoecho.com",
-  "t": "2026-10-02T13:05:34+00:00",
-  "vista": 7.0,
-  "hash": 6949089546994712575
- },
- {
   "id": "2026-10-02-1815-0",
   "image": "pool-2026-10-02-1815-0.jpg",
   "headline": "Nigeria Plans US$289 Million Cassava Ethanol Plant",
@@ -168,5 +149,25 @@
   "outlet": "economictimes.indiatimes.com",
   "t": "2026-10-05T14:32:53+00:00",
   "hash": 240972152639
+ },
+ {
+  "id": "2026-10-05-1113-0",
+  "image": "pool-2026-10-05-1113-0.jpg",
+  "headline": "Narayani water level receding , flood risk eases in other rivers",
+  "url": "https://peoplesreview.com.np/2026/09/28/narayani-water-level-receding-flood-risk-eases-in-other-rivers/",
+  "outlet": "peoplesreview.com.np",
+  "t": "2026-10-05T15:13:06+00:00",
+  "vista": 9.0,
+  "hash": 18446708751894446080
+ },
+ {
+  "id": "2026-10-05-1113-1",
+  "image": "pool-2026-10-05-1113-1.jpg",
+  "headline": "At least 14 people dead in 72 hours as relentless rainfall wreaks havoc in Nepal",
+  "url": "http://www.nepalnational.com/news/279335129/at-least-14-people-dead-in-72-hours-as-relentless-rainfall-wreaks-havoc-in-nepal",
+  "outlet": "nepalnational.com",
+  "t": "2026-10-05T15:13:06+00:00",
+  "vista": 8.0,
+  "hash": 14394352141131113471
  }
 ]
