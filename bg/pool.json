@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-01-0948-0",
-  "image": "pool-2026-10-01-0948-0.jpg",
-  "headline": "Greece vanishing lake Koroneia exposes rapid climate impact : report",
-  "url": "https://www.thenews.com.pk/latest/1418343-greeces-vanishing-lake-koroneia-exposes-rapid-climate-impact-report",
-  "outlet": "thenews.com.pk",
-  "t": "2026-10-01T13:48:54+00:00",
-  "vista": 9.0,
-  "hash": 1098878305320304640
- },
- {
   "id": "2026-10-02-0136-0",
   "image": "pool-2026-10-02-0136-0.jpg",
   "headline": "\u0110\u1eafk L\u1eafk urges flood , landslide prevention amid heavy rain",
@@ -169,5 +159,15 @@
   "outlet": "arabnews.com",
   "t": "2026-10-04T12:21:25+00:00",
   "hash": 6931039829912059903
+ },
+ {
+  "id": "2026-10-05-0138-0",
+  "image": "pool-2026-10-05-0138-0.jpg",
+  "headline": "Toxic algal blooms are spreading across the West",
+  "url": "https://www.hcn.org/articles/toxic-algal-blooms-are-spreading-across-the-west/",
+  "outlet": "hcn.org",
+  "t": "2026-10-05T05:38:06+00:00",
+  "vista": 9.0,
+  "hash": 30081548287
  }
 ]
