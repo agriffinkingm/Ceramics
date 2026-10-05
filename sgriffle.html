@@ -70,7 +70,8 @@
 
   /* rack + actions */
   #rack-row { display: flex; justify-content: center; align-items: center; gap: .35rem; margin: .8rem 0 .5rem; min-height: 46px; }
-  .rt { width: 40px; height: 44px; background: var(--tile); border-radius: 5px; box-shadow: 0 2px 0 var(--tile-edge), 0 2px 4px rgba(44,40,32,.25); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 500; position: relative; cursor: pointer; transition: transform .08s; }
+  .rt { width: 40px; height: 44px; background: var(--tile); border-radius: 5px; box-shadow: 0 2px 0 var(--tile-edge), 0 2px 4px rgba(44,40,32,.25); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 500; position: relative; cursor: pointer; transition: transform .08s; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .rt.drag { transition: none; z-index: 5; box-shadow: 0 0 0 2px var(--terracotta), 0 12px 14px -6px rgba(44,40,32,.45); cursor: grabbing; }
   .rt .v { position: absolute; right: 4px; bottom: 2px; font-family: 'Karla', sans-serif; font-size: .6rem; font-weight: 400; color: var(--clay-dark); }
   .rt.sel { transform: translateY(-7px); box-shadow: 0 0 0 2px var(--terracotta), 0 9px 8px -4px rgba(44,40,32,.35); }
   .rt.x { box-shadow: 0 0 0 2px var(--clay-dark); opacity: .7; }
@@ -118,7 +119,7 @@
     <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — 31,918 names in all. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
     <p>17×17 board, 9 tiles on your rack, 125 tiles in the bag (2 blanks). <b>No centre square</b>: the first name goes anywhere, at least two letters. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
-    <p>You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
+    <p>Tap a tile then a square, or drag it there; drag tiles within the rack to rearrange them. You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
     <p><b>Build-off double.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name scores double. (Any name you form that contains two or more old tiles counts.)</p>
     <p><b>Bonus squares are shuffled every game</b>, chess960-style: the game number sets the layout (mirrored four ways). <span class="sw" style="background:var(--dl)"></span>double letter · <span class="sw" style="background:var(--tl)"></span>triple letter · <span class="sw" style="background:var(--dn)"></span>double name · <span class="sw" style="background:var(--tn)"></span>triple name. Bonus squares count only for the tiles you just placed.</p>
     <p>All nine tiles in one go: <b>+50</b>. You can exchange tiles instead of playing while the bag has at least nine left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
@@ -177,7 +178,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-05g";
+const BUILD = "2026-10-05h";
 const N = 17, RACK = 9, BINGO = 50, EXTEND_MULT = 2, MAX_PASSES = 6;
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -454,8 +455,7 @@ function render() {
   const rr = $("rack-row"); rr.innerHTML = "";
   const seat = mode === "hot" || mode === "watch" ? g.turn : me;
   const rack = seat >= 0 ? g.racks[seat] : "";
-  const used = {}; for (const kk in pending) { const t = pending[kk]; const l = t.bl ? "?" : t.l; used[l] = (used[l] || 0) + 1; }
-  const show = []; for (const l of rack.split("")) { if (used[l]) { used[l]--; continue; } show.push(l); }
+  const { show } = rackView(rack);
   show.forEach((l, i) => {
     const d = document.createElement("div"); d.className = "rt" + (l === "?" ? " bl" : "") + (selRack === i ? " sel" : "") + (exchanging && exSel.has(i) ? " x" : "");
     d.innerHTML = (l === "?" ? "&nbsp;" : l) + `<span class="v">${l === "?" ? "" : VAL[l]}</span>`; d.dataset.i = i; d.dataset.l = l; rr.appendChild(d);
@@ -488,19 +488,45 @@ function render() {
 
 // interactions
 $("rack-row").addEventListener("click", e => {
+  if (suppressClick) { suppressClick = false; return; }
   const d = e.target.closest(".rt"); if (!d) return; const i = +d.dataset.i;
   if (exchanging) { exSel.has(i) ? exSel.delete(i) : exSel.add(i); render(); return; }
   if (g.over || (mode === "hot" ? false : me < 0 || mode === "watch")) return;   // staging is allowed off-turn; only play is gated
   selRack = selRack === i ? -1 : i; render();
 });
+// the rack as shown: the rack string minus the letters sitting on the board as staged tiles
+function rackView(rack) { const used = {}, usedList = []; for (const kk in pending) { const t = pending[kk]; const l = t.bl ? "?" : t.l; used[l] = (used[l] || 0) + 1; } const show = []; for (const l of rack.split("")) { if (used[l]) { used[l]--; usedList.push(l); continue; } show.push(l); } return { show, usedList }; }
+function placeTile(l, r, c) {
+  const kk = k(r, c); if (g.board[kk] || pending[kk]) return false; let bl = false;
+  if (l === "?") { const a = prompt("Blank — which letter?"); if (!a) return false; l = a.trim().toUpperCase()[0]; if (!VAL[l]) return false; bl = true; }
+  pending[kk] = { l, bl }; selRack = -1; say(""); render(); return true;
+}
 $("board").addEventListener("click", e => {
+  if (suppressClick) { suppressClick = false; return; }
   const d = e.target.closest(".cell"); if (!d || exchanging) return; const r = +d.dataset.r, c = +d.dataset.c, kk = k(r, c);
   if (pending[kk]) { delete pending[kk]; render(); return; }
   if (g.board[kk] || selRack < 0) return;
-  const rt = $("rack-row").children[selRack]; if (!rt) return; let l = rt.dataset.l, bl = false;
-  if (l === "?") { const a = prompt("Blank — which letter?"); if (!a) return; l = a.trim().toUpperCase()[0]; if (!VAL[l]) return; bl = true; }
-  pending[kk] = { l, bl }; selRack = -1; say(""); render();
+  const rt = $("rack-row").children[selRack]; if (!rt) return; placeTile(rt.dataset.l, r, c);
 });
+// drag a rack tile: within the rack to reorder it, or onto an empty square to stage it
+let drag = null, suppressClick = false;
+const curSeat = () => mode === "hot" || mode === "watch" ? g.turn : me;
+function reorderRack(i, j) { const seat = curSeat(); if (seat < 0) return; const { show, usedList } = rackView(g.racks[seat]); const [l] = show.splice(i, 1); show.splice(j, 0, l); g.racks[seat] = show.join("") + usedList.join(""); if (mode === "room" && fb && gref) fb.set(fb.child(gref, "racks/" + seat), g.racks[seat]).catch(() => { }); }
+$("rack-row").addEventListener("pointerdown", e => { const d = e.target.closest(".rt"); if (!d || exchanging || !g || g.over) return; drag = { el: d, i: +d.dataset.i, x: e.clientX, y: e.clientY, on: false }; try { d.setPointerCapture(e.pointerId); } catch (err) { } });
+$("rack-row").addEventListener("pointermove", e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (!drag.on) { if (Math.hypot(dx, dy) < 7) return; drag.on = true; drag.el.classList.add("drag"); } drag.el.style.transform = `translate(${dx}px,${dy}px)`; });
+function endDrag(e, cancelled) {
+  if (!drag) return; const d = drag; drag = null; if (!d.on) return;
+  d.el.style.transform = ""; d.el.classList.remove("drag"); suppressClick = true; setTimeout(() => { suppressClick = false; }, 60);
+  if (cancelled) return;
+  d.el.style.visibility = "hidden"; const under = document.elementFromPoint(e.clientX, e.clientY); d.el.style.visibility = "";
+  const cell = under && under.closest && under.closest(".cell");
+  if (cell && (mode === "hot" || me >= 0) && mode !== "watch") { if (placeTile(d.el.dataset.l, +cell.dataset.r, +cell.dataset.c)) return; }
+  const tiles = [...$("rack-row").children]; let j = tiles.findIndex(t => { const b = t.getBoundingClientRect(); return e.clientX < b.left + b.width / 2; }); if (j < 0) j = tiles.length; if (j > d.i) j--;
+  if (j !== d.i) reorderRack(d.i, j);
+  render();
+}
+$("rack-row").addEventListener("pointerup", e => endDrag(e, false));
+$("rack-row").addEventListener("pointercancel", e => endDrag(e, true));
 $("recall").onclick = () => { pending = {}; selRack = -1; exSel.clear(); exchanging = false; say(""); render(); };
 $("shuffle").onclick = () => { const seat = mode === "hot" ? g.turn : me; const a = g.racks[seat].split(""); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } g.racks[seat] = a.join(""); if (mode === "room") fb.set(fb.child(gref, "racks/" + seat), g.racks[seat]).catch(() => { }); render(); };
 $("exch").onclick = () => { pending = {}; selRack = -1; exchanging = true; exSel.clear(); render(); };
