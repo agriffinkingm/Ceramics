@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-02-1815-0",
-  "image": "pool-2026-10-02-1815-0.jpg",
-  "headline": "Nigeria Plans US$289 Million Cassava Ethanol Plant",
-  "url": "https://www.riotimesonline.com/nigeria-cassava-bioethanol-industry-2026/",
-  "outlet": "riotimesonline.com",
-  "t": "2026-10-02T22:15:29+00:00",
-  "vista": 9.0,
-  "hash": 5174509857730774024
- },
- {
   "id": "2026-10-02-1815-1",
   "image": "pool-2026-10-02-1815-1.jpg",
   "headline": "Eritrea cuts ties with Ethiopia over Asmara embassy closure",
@@ -169,5 +159,15 @@
   "t": "2026-10-05T15:13:06+00:00",
   "vista": 8.0,
   "hash": 14394352141131113471
+ },
+ {
+  "id": "2026-10-05-1228-0",
+  "image": "pool-2026-10-05-1228-0.jpg",
+  "headline": "Iran  fiery  plan \u2026 end of US bases in the Persian Gulf \u2013 Trump panic move with 3 aircraft carriers , what is happening with SM - 6",
+  "url": "https://www.bankingnews.gr/diethni/articles/902828/iran-s-fiery-plan-end-of-us-bases-in-the-persian-gulf-trump-s-panic-move-with-3-aircraft-carriers-what-is-happening-with-sm-6%20title=",
+  "outlet": "bankingnews.gr",
+  "t": "2026-10-05T16:28:33+00:00",
+  "vista": 7.0,
+  "hash": 22023518355452
  }
 ]
