@@ -120,7 +120,7 @@
     <p>All nine tiles in one go: <b>+50</b>. You can exchange tiles instead of playing while the bag has at least nine left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
     <p>Letter values, by how common each letter is in American surnames (edited by hand where it felt right):</p>
     <div class="vals" id="vals"></div>
-    <p>Invalid plays simply bounce — there's no challenging. Play from different phones: make a game and send the link.</p>
+    <p>Invalid plays simply bounce — there's no challenging. Play from different phones (make a game and send the link), on one phone, or against the computer: <b>hard</b> always takes its best-scoring play, <b>normal</b> picks from its top six, <b>easy</b> plays from the weaker half of what it sees.</p>
   </div>
 
   <div id="lobby">
@@ -130,6 +130,10 @@
     <div class="row">
       <button class="primary" id="mk">new game to share</button>
       <button id="hot">pass &amp; play here</button>
+    </div>
+    <div class="row" style="align-items:center">
+      <button id="bot">play the computer</button>
+      <select id="level" style="font:inherit;font-size:.8rem;padding:.4rem;border:1px solid var(--plaster-deep);border-radius:3px;background:var(--ivory);color:var(--stone)"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select>
     </div>
     <div class="row cols hidden" id="joinrow">
       <div id="joininfo"></div>
@@ -168,7 +172,7 @@
 <footer>names from the 2000 US Census · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-05a";
+const BUILD = "2026-10-05b";
 const N = 17, RACK = 9, BINGO = 50, EXTEND_MULT = 2, MAX_PASSES = 6;
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3, Y:4,P:4,W:4,F:4,Z:4,J:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -206,7 +210,8 @@ const LMULT = [1, 2, 3, 1, 1], WMULT = [1, 1, 1, 2, 3], CLS = ["", "dl", "tl", "
 
 // ---------- dictionary ----------
 let DICT = null;
-const dictReady = fetch("sgriffle-names.txt?v=" + BUILD).then(r => r.text()).then(t => { DICT = new Set(t.split(/\r?\n/).filter(Boolean)); return DICT; }).catch(e => { console.error(e); say("Couldn't load the name list — reload?", true); });
+let BYLEN = {};
+const dictReady = fetch("sgriffle-names.txt?v=" + BUILD).then(r => r.text()).then(t => { const a = t.split(/\r?\n/).filter(Boolean); DICT = new Set(a); for (const w of a) (BYLEN[w.length] = BYLEN[w.length] || []).push(w); return DICT; }).catch(e => { console.error(e); say("Couldn't load the name list — reload?", true); });
 
 // ---------- game state ----------
 // g = { seed, v, turn, bag, racks:[..], board:{"r,c":{l,bl,by}}, scores:[a,b], players:[{uid,name}|null x2], log:[{p,words,score,kind}], passes, over, last:[keys] }
@@ -318,7 +323,7 @@ async function loadFirebase() {
 function cleanse(x) { return JSON.parse(JSON.stringify(x)); }
 // commit a mutation: fn(copy) → new state or null. Room mode runs it as a transaction keyed on the version.
 async function commit(fn) {
-  if (mode === "hot") { const nx = fn(cleanse(g)); if (!nx) return false; g = norm(nx); afterCommit(); return true; }
+  if (mode !== "room") { const nx = fn(cleanse(g)); if (!nx) return false; g = norm(nx); afterCommit(); return true; }
   const base = g.v; let applied = false;
   try {
     const res = await fb.runTransaction(gref, cur => {
@@ -329,7 +334,62 @@ async function commit(fn) {
     g = norm(cleanse(res.snapshot.val())); afterCommit(); return true;
   } catch (e) { console.error(e); say("Couldn't reach the game server.", true); return false; }
 }
-function afterCommit() { pending = {}; selRack = -1; exSel.clear(); exchanging = false; render(); }
+function afterCommit() { pending = {}; selRack = -1; exSel.clear(); exchanging = false; render(); if (mode === "bot" && !g.over && g.turn === 1) setTimeout(botTurn, 700); }
+
+// ---------- the computer ----------
+// Brute force over every span of every row/column: the span's fixed letters must match the name, the empty cells must be
+// coverable from the rack (blanks fill gaps), then evaluate() does cross-checks and scoring like a human play.
+let botLevel = "normal";
+function botMoves(rack) {
+  const rackArr = rack.split(""), blanks = rackArr.filter(l => l === "?").length, counts = {};
+  for (const l of rackArr) if (l !== "?") counts[l] = (counts[l] || 0) + 1;
+  const empty = !Object.keys(g.board).length, moves = [], saved = pending;
+  const nb = (r, c) => (r && g.board[k(r - 1, c)]) || (r < N - 1 && g.board[k(r + 1, c)]) || (c && g.board[k(r, c - 1)]) || (c < N - 1 && g.board[k(r, c + 1)]);
+  for (let li = 0; li < 2 * N; li++) {
+    const i0 = li >> 1, vert = li & 1; if (empty && i0 !== 8) continue;
+    const cells = []; for (let j = 0; j < N; j++) cells.push(vert ? [j, i0] : [i0, j]);
+    const letters = cells.map(([r, c]) => g.board[k(r, c)] ? g.board[k(r, c)].l : null);
+    for (let s = 0; s < N; s++) {
+      if (s > 0 && letters[s - 1]) continue;
+      for (let e = s + 1; e < N; e++) {
+        if (e < N - 1 && letters[e + 1]) continue;
+        let need = 0, touches = empty;
+        for (let i = s; i <= e; i++) { if (!letters[i]) { need++; if (!touches && nb(...cells[i])) touches = true; } else touches = true; }
+        if (!need || need > rackArr.length || !touches || (empty && need < 2)) continue;
+        const list = BYLEN[e - s + 1]; if (!list) continue;
+        outer: for (const w of list) {
+          for (let i = s; i <= e; i++) if (letters[i] && letters[i] !== w[i - s]) continue outer;
+          const nd = {}; let short = 0;
+          for (let i = s; i <= e; i++) if (!letters[i]) { const ch = w[i - s]; nd[ch] = (nd[ch] || 0) + 1; }
+          for (const ch in nd) { const d = nd[ch] - (counts[ch] || 0); if (d > 0) { short += d; if (short > blanks) continue outer; } }
+          const pend = {}, avail = { ...counts };
+          for (let i = s; i <= e; i++) if (!letters[i]) { const ch = w[i - s]; if (avail[ch] > 0) { avail[ch]--; pend[k(...cells[i])] = { l: ch, bl: false }; } else pend[k(...cells[i])] = { l: ch, bl: true }; }
+          pending = pend; const ev = evaluate();
+          if (ev.ok) moves.push({ pend, score: ev.score, words: ev.words, placed: ev.placed });
+        }
+      }
+    }
+  }
+  pending = saved; return moves;
+}
+function pickMove(moves) {
+  if (!moves.length) return null; moves.sort((a, b) => b.score - a.score);
+  if (botLevel === "hard") return moves[0];
+  if (botLevel === "normal") return moves[Math.floor(Math.random() * Math.min(6, moves.length))];
+  const lo = moves.slice(Math.floor(moves.length / 2)); return lo[Math.floor(Math.random() * lo.length)];
+}
+async function botTurn() {
+  if (mode !== "bot" || !g || g.over || g.turn !== 1) return;
+  await dictReady; if (!DICT) return;
+  const t0 = performance.now(); const moves = botMoves(g.racks[1]); const pick = pickMove(moves); console.log("bot:", moves.length, "moves,", Math.round(performance.now() - t0), "ms");
+  if (!pick) {
+    if (g.bag.length >= RACK) { const letters = g.racks[1].split("").filter(l => l !== "?"); if (letters.length) { await commit(x => applyExchange(x, 1, letters)); say("The computer exchanged " + letters.length + "."); return; } }
+    await commit(x => applyPass(x, 1)); say("The computer passed."); return;
+  }
+  pending = pick.pend;
+  const ok = await commit(x => applyPlay(x, 1, pick.placed, pick.words, pick.score));
+  if (ok) say("Computer: " + pick.words.map(w => w.word[0] + w.word.slice(1).toLowerCase()).join(", ") + " for " + pick.score + ".");
+}
 
 async function createRoom(pname) {
   await loadFirebase();
@@ -372,7 +432,7 @@ const pname = i => (g.players[i] && g.players[i].name) || (i === 1 ? "waiting…
 function render() {
   if (!g) return;
   for (let i = 0; i < 2; i++) { const e = $("p" + i); e.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); e.querySelector(".sc").textContent = g.scores[i]; e.classList.toggle("turn", !g.over && g.turn === i); }
-  $("midname").textContent = g.over ? "game over" : (mode === "hot" ? pname(g.turn) + " to play" : (myTurn() ? "your turn" : me < 0 ? "watching" : "their turn"));
+  $("midname").textContent = g.over ? "game over" : (mode === "hot" ? pname(g.turn) + " to play" : (myTurn() ? "your turn" : me < 0 ? "watching" : mode === "bot" ? "thinking…" : "their turn"));
   $("bag").textContent = g.bag.length + " in bag";
   const last = new Set(g.last);
   for (const d of $("board").children) {
@@ -448,12 +508,13 @@ if (navigator.share) { $("sharebtn").classList.remove("hidden"); $("sharebtn").o
 $("name").value = nameMem.get();
 const getName = () => { const v = $("name").value.trim() || "anon"; nameMem.set(v); return v; };
 $("mk").onclick = async () => { try { await createRoom(getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server — try pass & play."); } };
+$("bot").onclick = () => { botLevel = $("level").value; mode = "bot"; me = 0; g = norm(newGame(1 + Math.floor(Math.random() * 9999), { uid: "a", name: getName() })); g.players[1] = { uid: "bot", name: "computer (" + botLevel + ")" }; $("newbtn").classList.remove("hidden"); enterGame(); };
 $("hot").onclick = () => { mode = "hot"; me = 0; g = norm(newGame(1 + Math.floor(Math.random() * 9999), { uid: "a", name: getName() })); g.players[1] = { uid: "b", name: "player 2" }; $("newbtn").classList.remove("hidden"); enterGame(); };
 $("joinbtn").onclick = async () => { const m = location.hash.match(/g=(\w+)/); if (!m) return; try { await openRoom(m[1], getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server."); } };
 const hm = location.hash.match(/g=(\w+)/);
-if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
+if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
 dictReady.then(() => { if (g) render(); });
-window.__sg = { get g() { return g; }, set g(v) { g = v; }, get pending() { return pending; }, set pending(v) { pending = v; }, evaluate, layout, newGame, norm, applyPlay, applyPass, applyExchange, render, enterGame, setMode: (m, s) => { mode = m; me = s; }, get mode() { return mode; } };
+window.__sg = { get g() { return g; }, set g(v) { g = v; }, get pending() { return pending; }, set pending(v) { pending = v; }, evaluate, layout, newGame, norm, applyPlay, applyPass, applyExchange, render, enterGame, setMode: (m, s) => { mode = m; me = s; }, get mode() { return mode; }, botMoves, botTurn, setLevel: l => { botLevel = l; } };
 </script>
 </body>
 </html>
