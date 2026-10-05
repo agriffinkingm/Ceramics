@@ -117,6 +117,7 @@
     <h3>How Sgriffle works</h3>
     <p>Scrabble, except the only playable words are <b>surnames</b> — every last name in the 2000 US Census held by at least 1,000 people (23,655 of them). Smith counts, Li counts, Antonacci counts. "Table" does not.</p>
     <p>17×17 board, 9 tiles on your rack, 125 tiles in the bag (2 blanks). <b>No centre square</b>: the first name goes anywhere, at least two letters. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
+    <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
     <p><b>Build-off double.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name scores double. (Any name you form that contains two or more old tiles counts.)</p>
     <p><b>Bonus squares are shuffled every game</b>, chess960-style: the game number sets the layout (mirrored four ways). <span class="sw" style="background:var(--dl)"></span>double letter · <span class="sw" style="background:var(--tl)"></span>triple letter · <span class="sw" style="background:var(--dn)"></span>double name · <span class="sw" style="background:var(--tn)"></span>triple name. Bonus squares count only for the tiles you just placed.</p>
     <p>All nine tiles in one go: <b>+50</b>. You can exchange tiles instead of playing while the bag has at least nine left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
@@ -175,7 +176,7 @@
 <footer>names from the 2000 US Census · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-05c";
+const BUILD = "2026-10-05d";
 const N = 17, RACK = 9, BINGO = 50, EXTEND_MULT = 2, MAX_PASSES = 6;
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3, Y:4,P:4,W:4,F:4,Z:4,J:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -400,7 +401,7 @@ async function createRoom(pname) {
   await loadFirebase();
   key = Math.random().toString(36).slice(2, 8);
   const seed = 1 + Math.floor(Math.random() * 9999);
-  g = norm(newGame(seed, { uid: uidSelf, name: pname })); me = 0; mode = "room";
+  g = norm(newGame(seed, { uid: uidSelf, name: pname })); g.turn = -1; me = 0; mode = "room";   // -1: first name on the board wins the first turn
   gref = fb.ref(fb.db, DB_ROOT + "/" + key);
   await fb.set(gref, cleanse(g));
   location.hash = "g=" + key; listen(); $("share").classList.remove("hidden"); $("share-link").value = location.href;
@@ -416,7 +417,7 @@ async function openRoom(k2, pname) {
   else { me = -1; }
   listen(); enterGame();
 }
-function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (g && nx.v === g.v && nx.players.every((p, i) => !!p === !!g.players[i])) return; g = nx; if (nx.turn !== me) { pending = {}; } render(); }); }
+function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (g && nx.v === g.v && nx.players.every((p, i) => !!p === !!g.players[i])) return; const boardChanged = !g || Object.keys(nx.board).length !== Object.keys(g.board).length; g = nx; if (boardChanged || !(nx.turn === me || (nx.turn === -1 && !Object.keys(nx.board).length))) { pending = {}; } render(); }); }
 
 // ---------- UI ----------
 function say(t, bad) { const m = $("msg"); m.textContent = t || ""; m.className = bad ? "bad" : ""; }
@@ -432,12 +433,13 @@ function buildBoard() {
     const d = document.createElement("div"); d.className = "cell " + CLS[L[r * N + c]]; d.dataset.r = r; d.dataset.c = c; b.appendChild(d);
   }
 }
-const myTurn = () => !g.over && me >= 0 && g.turn === me && !!g.players[me];
+const grabs = () => g.turn === -1 && !Object.keys(g.board).length;   // room games: nobody has moved yet, either player may
+const myTurn = () => !g.over && me >= 0 && (g.turn === me || grabs()) && !!g.players[me];
 const pname = i => (g.players[i] && g.players[i].name) || (i === 1 ? "waiting…" : "player 1");
 function render() {
   if (!g) return;
-  for (let i = 0; i < 2; i++) { const e = $("p" + i); e.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); e.querySelector(".sc").textContent = g.scores[i]; e.classList.toggle("turn", !g.over && g.turn === i); }
-  $("midname").textContent = g.over ? "game over" : (mode === "hot" ? pname(g.turn) + " to play" : BOTS[g.turn] ? pname(g.turn) + " thinking…" : (myTurn() ? "your turn" : me < 0 ? "watching" : "their turn"));
+  for (let i = 0; i < 2; i++) { const e = $("p" + i); e.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); e.querySelector(".sc").textContent = g.scores[i]; e.classList.toggle("turn", !g.over && (g.turn === i || (grabs() && !!g.players[i]))); }
+  $("midname").textContent = g.over ? "game over" : (grabs() ? "first name takes the first turn" : mode === "hot" ? pname(g.turn) + " to play" : BOTS[g.turn] ? pname(g.turn) + " thinking…" : (myTurn() ? "your turn" : me < 0 ? "watching" : "their turn"));
   $("bag").textContent = g.bag.length + " in bag";
   const last = new Set(g.last);
   for (const d of $("board").children) {
