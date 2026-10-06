@@ -130,9 +130,9 @@
     <p>17×17 board, 9 tiles on your rack, 125 tiles in the bag (2 blanks). <b>No centre square</b>: the first name goes anywhere, at least two letters. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
     <p>Tap a tile then a square, or drag it there; drag tiles within the rack to rearrange them. You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
+    <p><b>Build-off bonus.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name earns its plain letter value again on top (any name you form that contains two or more old tiles counts). It's added, never multiplied, so it can't stack with the name squares.</p>
     <p><b>Bonus squares are shuffled every game</b>, chess960-style: the game number sets the layout (mirrored four ways). <span class="sw" style="background:var(--dl)"></span>double letter · <span class="sw" style="background:var(--tl)"></span>triple letter · <span class="sw" style="background:var(--dn)"></span>double name · <span class="sw" style="background:var(--tn)"></span>triple name. Bonus squares count only for the tiles you just placed.</p>
     <p>All nine tiles in one go: <b>+75</b>. You can exchange tiles instead of playing while the bag has at least nine left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
-    <p>There are two <b>Ñ</b> tiles, worth 5. They play in the names that are spelled with one — Peña, Muñoz, Núñez, Zúñiga, Castañeda, Treviño, Quiñones and about forty others (the plain-N spellings count too, since the census writes them that way).</p>
     <p>Letter values, by how common each letter is in American surnames (edited by hand where it felt right):</p>
     <div class="vals" id="vals"></div>
     <p>When a game ends, <b>analyze the game</b> steps through every move with the rack that player held and shows the highest-scoring play that was available — points-only, no defence or lookahead.</p>
@@ -198,10 +198,10 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-06d";
-const N = 17, RACK = 9, BINGO = 75, EXTEND_MULT = 1, MAX_PASSES = 6;   // build-off double retired (it stacked with name squares: Deroche for 198)
-const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, "Ñ":5, G:6, V:7, X:10,Q:10 };
-const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "Ñ":2, "?":2 };
+const BUILD = "2026-10-06e";
+const N = 17, RACK = 9, BINGO = 75, EXTEND_BONUS = true, MAX_PASSES = 6;   // build-off: the name's plain letter value is added once (never multiplied — ×2 on top of name squares gave Deroche 198)
+const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, G:6, V:7, X:10,Q:10 };
+const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
 const $ = id => document.getElementById(id);
 
 // ---------- seeded layout (chess960 for bonus squares) ----------
@@ -289,12 +289,12 @@ function evaluate() {
   const words = []; const seen = new Set();
   const addWord = cells => {
     if (cells.length < 2) return; const id = cells.map(x => k(...x)).join("|"); if (seen.has(id)) return; seen.add(id);
-    let word = "", base = 0, wm = 1, old = 0;
+    let word = "", base = 0, plain = 0, wm = 1, old = 0;
     for (const [r, c] of cells) {
       const t = at(r, c); word += t.l; const isNew = !!pending[k(r, c)]; if (!isNew) old++;
-      const prem = isNew ? L[r * N + c] : 0; base += (t.bl ? 0 : VAL[t.l]) * LMULT[prem]; wm *= WMULT[prem];
+      const prem = isNew ? L[r * N + c] : 0; const v = t.bl ? 0 : VAL[t.l]; base += v * LMULT[prem]; plain += v; wm *= WMULT[prem];
     }
-    const extend = old >= 2; words.push({ word, cells, extend, score: base * wm * (extend ? EXTEND_MULT : 1) });
+    const extend = old >= 2; words.push({ word, cells, extend, bonus: extend && EXTEND_BONUS ? plain : 0, score: base * wm + (extend && EXTEND_BONUS ? plain : 0) });
   };
   addWord(main);
   for (const [r, c] of P) addWord(horiz ? run(r, c, 1, 0) : run(r, c, 0, 1));
@@ -378,8 +378,8 @@ function botMoves(rack) {
   for (const l of rackArr) if (l !== "?") counts[l] = (counts[l] || 0) + 1;
   const empty = !Object.keys(g.board).length, moves = [], saved = pending;
   // names the rack can spell outright, by length (one scan of the list per call)
-  const formable = {}; const cc = new Int8Array(27);
-  for (const len in BYLEN) { if (+len > rackArr.length) continue; const out = []; for (const w of BYLEN[len]) { cc.fill(0); let short = 0, bad = false; for (let i = 0; i < w.length; i++) { const x = w[i] === "Ñ" ? 26 : w.charCodeAt(i) - 65; cc[x]++; if (cc[x] > (counts[w[i]] || 0)) { short++; if (short > blanks) { bad = true; break; } } } if (!bad) out.push(w); } formable[len] = out; }
+  const formable = {}; const cc = new Int8Array(26);
+  for (const len in BYLEN) { if (+len > rackArr.length) continue; const out = []; for (const w of BYLEN[len]) { cc.fill(0); let short = 0, bad = false; for (let i = 0; i < w.length; i++) { const x = w.charCodeAt(i) - 65; cc[x]++; if (cc[x] > (counts[w[i]] || 0)) { short++; if (short > blanks) { bad = true; break; } } } if (!bad) out.push(w); } formable[len] = out; }
   const nb = (r, c) => (r && g.board[k(r - 1, c)]) || (r < N - 1 && g.board[k(r + 1, c)]) || (c && g.board[k(r, c - 1)]) || (c < N - 1 && g.board[k(r, c + 1)]);
   for (let li = 0; li < 2 * N; li++) {
     const i0 = li >> 1, vert = li & 1; if (empty && vert) continue;   // empty board: every row (columns would only repeat them)
@@ -499,7 +499,7 @@ function render() {
   // preview
   const bub = $("bubble"); bub.classList.add("hidden");
   if (np && DICT) {
-    const ev = evaluate(); $("preview").textContent = ev.words ? ev.words.map(w => w.word + (w.extend && EXTEND_MULT > 1 ? " ×" + EXTEND_MULT : "") + " " + w.score).join(" · ") + (ev.bingo ? " · all nine +" + BINGO : "") + " = " + ev.score : "";
+    const ev = evaluate(); $("preview").textContent = ev.words ? ev.words.map(w => w.word + (w.bonus ? " +" + w.bonus : "") + " " + w.score).join(" · ") + (ev.bingo ? " · all nine +" + BINGO : "") + " = " + ev.score : "";
     if (ev.words) { const [r, c] = ev.words[0].cells[ev.words[0].cells.length - 1]; const cell = $("board").children[r * N + c]; bub.textContent = ev.score; bub.className = ev.ok ? "" : "bad"; bub.style.left = (cell.offsetLeft + cell.offsetWidth) + "px"; bub.style.top = cell.offsetTop + "px"; }
   }
   else $("preview").textContent = exchanging ? "tap the tiles to swap, then exchange" : "";
@@ -531,7 +531,7 @@ $("rack-row").addEventListener("click", e => {
 function rackView(rack) { const used = {}, usedList = []; for (const kk in pending) { const t = pending[kk]; const l = t.bl ? "?" : t.l; used[l] = (used[l] || 0) + 1; } const show = []; for (const l of rack.split("")) { if (used[l]) { used[l]--; usedList.push(l); continue; } show.push(l); } return { show, usedList }; }
 function placeTile(l, r, c) {
   const kk = k(r, c); if (g.board[kk] || pending[kk]) return false; let bl = false;
-  if (l === "?") { const a = prompt("Blank — which letter? (ñ counts)"); if (!a) return false; l = a.trim().toUpperCase()[0]; if (!VAL[l]) return false; bl = true; }
+  if (l === "?") { const a = prompt("Blank — which letter?"); if (!a) return false; l = a.trim().toUpperCase()[0]; if (!VAL[l]) return false; bl = true; }
   pending[kk] = { l, bl }; selRack = -1; say(""); render(); return true;
 }
 $("board").addEventListener("click", e => {
@@ -575,7 +575,7 @@ $("play").onclick = async () => {
   if (ok) say(words.map(w => w.word[0] + w.word.slice(1).toLowerCase()).join(", ") + " for " + score + (ev.bingo ? " — all nine!" : "") + (g.over ? "" : ""));
 };
 $("lookup-in").addEventListener("input", () => {
-  const q = $("lookup-in").value.toUpperCase().replace(/[^A-ZÑ]/g, ""), out = $("lookup-out"), more = $("lookup-more");
+  const q = $("lookup-in").value.toUpperCase().replace(/[^A-Z]/g, ""), out = $("lookup-out"), more = $("lookup-more");
   if (!q || !DICT) { out.textContent = ""; out.className = ""; more.textContent = ""; return; }
   const has = DICT.has(q); out.textContent = has ? nice(q) + " — yes" : nice(q) + " — not a name we know"; out.className = has ? "yes" : "no";
   more.innerHTML = "";
