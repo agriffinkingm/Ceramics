@@ -130,7 +130,6 @@
     <p>17×17 board, 9 tiles on your rack, 125 tiles in the bag (2 blanks). <b>No centre square</b>: the first name goes anywhere, at least two letters. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
     <p>Tap a tile then a square, or drag it there; drag tiles within the rack to rearrange them. You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
-    <p><b>Build-off double.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name scores double. (Any name you form that contains two or more old tiles counts.)</p>
     <p><b>Bonus squares are shuffled every game</b>, chess960-style: the game number sets the layout (mirrored four ways). <span class="sw" style="background:var(--dl)"></span>double letter · <span class="sw" style="background:var(--tl)"></span>triple letter · <span class="sw" style="background:var(--dn)"></span>double name · <span class="sw" style="background:var(--tn)"></span>triple name. Bonus squares count only for the tiles you just placed.</p>
     <p>All nine tiles in one go: <b>+75</b>. You can exchange tiles instead of playing while the bag has at least nine left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
     <p>There are two <b>Ñ</b> tiles, worth 5. They play in the names that are spelled with one — Peña, Muñoz, Núñez, Zúñiga, Castañeda, Treviño, Quiñones and about forty others (the plain-N spellings count too, since the census writes them that way).</p>
@@ -199,8 +198,8 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-06c";
-const N = 17, RACK = 9, BINGO = 75, EXTEND_MULT = 2, MAX_PASSES = 6;
+const BUILD = "2026-10-06d";
+const N = 17, RACK = 9, BINGO = 75, EXTEND_MULT = 1, MAX_PASSES = 6;   // build-off double retired (it stacked with name squares: Deroche for 198)
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, "Ñ":5, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "Ñ":2, "?":2 };
 const $ = id => document.getElementById(id);
@@ -500,7 +499,7 @@ function render() {
   // preview
   const bub = $("bubble"); bub.classList.add("hidden");
   if (np && DICT) {
-    const ev = evaluate(); $("preview").textContent = ev.words ? ev.words.map(w => w.word + (w.extend ? " ×2" : "") + " " + w.score).join(" · ") + (ev.bingo ? " · all nine +" + BINGO : "") + " = " + ev.score : "";
+    const ev = evaluate(); $("preview").textContent = ev.words ? ev.words.map(w => w.word + (w.extend && EXTEND_MULT > 1 ? " ×" + EXTEND_MULT : "") + " " + w.score).join(" · ") + (ev.bingo ? " · all nine +" + BINGO : "") + " = " + ev.score : "";
     if (ev.words) { const [r, c] = ev.words[0].cells[ev.words[0].cells.length - 1]; const cell = $("board").children[r * N + c]; bub.textContent = ev.score; bub.className = ev.ok ? "" : "bad"; bub.style.left = (cell.offsetLeft + cell.offsetWidth) + "px"; bub.style.top = cell.offsetTop + "px"; }
   }
   else $("preview").textContent = exchanging ? "tap the tiles to swap, then exchange" : "";
