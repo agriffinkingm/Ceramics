@@ -106,6 +106,11 @@
   #share-link { width: 100%; max-width: 26rem; }
   footer { text-align: center; font-size: .7rem; letter-spacing: .1em; color: var(--clay-dark); padding: 1rem; }
   footer a { color: inherit; }
+  #analysis { margin-top: 0; }
+  #an-sum { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; font-size: .82rem; letter-spacing: .03em; margin-bottom: .6rem; }
+  #an-sum b { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; font-weight: 400; display: block; color: var(--charcoal); letter-spacing: 0; }
+  #an-move { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; line-height: 1.45; color: var(--charcoal); text-align: center; }
+  #an-move .lost { color: var(--terracotta); } #an-move .found { color: #4f7a5a; }
   .over { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.3rem; text-align: center; color: var(--charcoal); margin: .4rem 0; }
 </style>
 </head>
@@ -130,6 +135,7 @@
     <p>All nine tiles in one go: <b>+75</b>. You can exchange tiles instead of playing while the bag has at least nine left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
     <p>Letter values, by how common each letter is in American surnames (edited by hand where it felt right):</p>
     <div class="vals" id="vals"></div>
+    <p>When a game ends, <b>analyze the game</b> steps through every move with the rack that player held and shows the highest-scoring play that was available — points-only, no defence or lookahead.</p>
     <p>Not sure a name counts? The <b>is it a name?</b> box under the board checks the list — a yes or a no, nothing more. Invalid plays simply bounce — there's no challenging. Play from different phones (make a game and send the link), on one phone, or against the computer: <b>hard</b> always takes its best-scoring play, <b>normal</b> picks from its top six, <b>easy</b> plays from the weaker half of what it sees.</p>
   </div>
 
@@ -166,6 +172,14 @@
       <div class="pl right" id="p1"><div class="nm"></div><div class="sc">0</div></div>
     </div>
     <div id="overmsg" class="over hidden"></div>
+    <div id="analyze-row" class="hidden" style="text-align:center;margin:.2rem 0 .6rem"><button id="analyze">analyze the game</button></div>
+    <div id="analysis" class="panel hidden">
+      <div id="an-sum"></div>
+      <div id="an-move"></div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin-top:.6rem">
+        <button id="an-prev">◂ prev</button><button id="an-next">next ▸</button><button id="an-best">show best</button><button id="an-exit">back to the board</button>
+      </div>
+    </div>
     <div id="board-wrap"><div id="board"></div><div id="bubble" class="hidden"></div></div>
     <div id="preview"></div>
     <div id="rack-row"></div>
@@ -184,7 +198,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-05k";
+const BUILD = "2026-10-06a";
 const N = 17, RACK = 9, BINGO = 75, EXTEND_MULT = 2, MAX_PASSES = 6;
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -193,21 +207,23 @@ const $ = id => document.getElementById(id);
 // ---------- seeded layout (chess960 for bonus squares) ----------
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 // 0 plain · 1 DL · 2 TL · 3 DN · 4 TN. Generated in the top-left 8×8 quadrant, mirrored four ways; the centre cross stays plain.
-// Per quadrant: 3 TN, 5 DN, 4 TL, 8 DL (=80 premium squares, Scrabble's density), none orthogonally adjacent.
+// Per quadrant: 3 TN, 4 DN, 4 TL, 8 DL (=76 premium squares, about Scrabble's density). Nothing premium sits orthogonally
+// next to anything else. Name multipliers take one row and one column each, so a full line never carries more than one
+// mirrored pair (×9 at most, and a TN pair needs a 9-letter name: TN stays in quadrant rows/cols 0–4, DN in 0–6).
 function layout(seed) {
-  const rnd = mulberry32(seed * 7919 + 13), q = 8, want = [[4, 3], [3, 5], [2, 4], [1, 8]];
-  for (let attempt = 0; attempt < 500; attempt++) {
+  const rnd = mulberry32(seed * 7919 + 13), q = 8, want = [[4, 3, 4], [3, 4, 6], [2, 4, 7], [1, 8, 7]];
+  for (let attempt = 0; attempt < 2000; attempt++) {
     const cells = []; for (let r = 0; r < q; r++) for (let c = 0; c < q; c++) cells.push([r, c]);
     for (let i = cells.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
-    const g = new Uint8Array(q * q); let ok = true;
-    for (const [type, count] of want) {
+    const g = new Uint8Array(q * q), rowUsed = new Uint8Array(q), colUsed = new Uint8Array(q); let ok = true;
+    for (const [type, count, maxIdx] of want) {
       let placed = 0;
       for (const [r, c] of cells) {
         if (placed === count) break;
-        if (g[r * q + c]) continue;
+        if (g[r * q + c] || r > maxIdx || c > maxIdx) continue;
         if ((r && g[(r - 1) * q + c]) || (r < q - 1 && g[(r + 1) * q + c]) || (c && g[r * q + c - 1]) || (c < q - 1 && g[r * q + c + 1])) continue;
-        if (type >= 3 && ((r && c && g[(r - 1) * q + c - 1] >= 3) || (r && c < q - 1 && g[(r - 1) * q + c + 1] >= 3) || (r < q - 1 && c && g[(r + 1) * q + c - 1] >= 3) || (r < q - 1 && c < q - 1 && g[(r + 1) * q + c + 1] >= 3))) continue;
-        g[r * q + c] = type; placed++;
+        if (type >= 3 && (rowUsed[r] || colUsed[c])) continue;
+        g[r * q + c] = type; placed++; if (type >= 3) { rowUsed[r] = 1; colUsed[c] = 1; }
       }
       if (placed < count) { ok = false; break; }
     }
@@ -222,8 +238,8 @@ const LMULT = [1, 2, 3, 1, 1], WMULT = [1, 1, 1, 2, 3], CLS = ["", "dl", "tl", "
 
 // ---------- dictionary ----------
 let DICT = null;
-let BYLEN = {};
-const dictReady = fetch("sgriffle-names.txt?v=" + BUILD).then(r => r.text()).then(t => { const a = t.split(/\r?\n/).filter(Boolean); DICT = new Set(a); for (const w of a) (BYLEN[w.length] = BYLEN[w.length] || []).push(w); return DICT; }).catch(e => { console.error(e); say("Couldn't load the name list — reload?", true); });
+let BYLEN = {}, IDX = {};   // IDX[len][pos][letter] → names with that letter at that position
+const dictReady = fetch("sgriffle-names.txt?v=" + BUILD).then(r => r.text()).then(t => { const a = t.split(/\r?\n/).filter(Boolean); DICT = new Set(a); for (const w of a) { (BYLEN[w.length] = BYLEN[w.length] || []).push(w); const I = IDX[w.length] = IDX[w.length] || []; for (let i = 0; i < w.length; i++) { const P = I[i] = I[i] || {}; (P[w[i]] = P[w[i]] || []).push(w); } } return DICT; }).catch(e => { console.error(e); say("Couldn't load the name list — reload?", true); });
 
 // ---------- game state ----------
 // g = { seed, v, turn, bag, racks:[..], board:{"r,c":{l,bl,by}}, scores:[a,b], players:[{uid,name}|null x2], log:[{p,words,score,kind}], passes, over, last:[keys] }
@@ -242,7 +258,7 @@ function norm(x) { // Firebase drops empty arrays/strings and turns arrays into 
   x.racks = arr(x.racks, 2, ""); x.scores = arr(x.scores, 2, 0); x.players = arr(x.players, 2, null);
   x.board = x.board || {}; x.log = Array.isArray(x.log) ? x.log : Object.values(x.log || {}); x.last = Array.isArray(x.last) ? x.last : Object.values(x.last || {});
   x.bag = x.bag || ""; x.passes = x.passes || 0; x.over = !!x.over; x.v = x.v || 0; x.turn = x.turn || 0;
-  for (const m of x.log) m.words = Array.isArray(m.words) ? m.words : Object.values(m.words || {});
+  for (const m of x.log) { m.words = Array.isArray(m.words) ? m.words : Object.values(m.words || {}); if (m.tiles) m.tiles = (Array.isArray(m.tiles) ? m.tiles : Object.values(m.tiles)).map(t => Array.isArray(t) ? t : Object.values(t)); }
   return x;
 }
 
@@ -291,25 +307,26 @@ function evaluate() {
 
 // ---------- applying moves (pure on a game object) ----------
 function applyPlay(x, p, placed, words, score, tiles = pending) {
+  const rackBefore = x.racks[p];
   for (const [r, c] of placed) { const t = tiles[k(r, c)]; x.board[k(r, c)] = { l: t.l, bl: !!t.bl, by: p }; }
   let rack = x.racks[p].split("");
   for (const [r, c] of placed) { const t = tiles[k(r, c)]; const i = rack.indexOf(t.bl ? "?" : t.l); if (i < 0) return null; rack.splice(i, 1); }
   const draw = Math.min(RACK - rack.length, x.bag.length); rack = rack.concat(x.bag.slice(0, draw).split("")); x.bag = x.bag.slice(draw);
   x.racks[p] = rack.join(""); x.scores[p] += score; x.passes = 0; x.last = placed.map(c => k(...c));
-  x.log.push({ p, words: words.map(w => w.word), score, kind: "play", t: Date.now() });
+  x.log.push({ p, words: words.map(w => w.word), score, kind: "play", t: Date.now(), rack: rackBefore, tiles: placed.map(([r, c]) => { const t = tiles[k(r, c)]; return [r, c, t.l, t.bl ? 1 : 0]; }) });
   x.turn = 1 - p; x.v++;
   if (!x.bag.length && !rack.length) finish(x, p);
   return x;
 }
-function applyPass(x, p) { x.passes++; x.log.push({ p, words: [], score: 0, kind: "pass", t: Date.now() }); x.last = []; x.turn = 1 - p; x.v++; if (x.passes >= MAX_PASSES) finish(x, -1); return x; }
+function applyPass(x, p) { x.passes++; x.log.push({ p, words: [], score: 0, kind: "pass", t: Date.now(), rack: x.racks[p] }); x.last = []; x.turn = 1 - p; x.v++; if (x.passes >= MAX_PASSES) finish(x, -1); return x; }
 function applyExchange(x, p, letters) {
-  let rack = x.racks[p].split(""); const out = [];
+  const rackBefore = x.racks[p]; let rack = x.racks[p].split(""); const out = [];
   for (const l of letters) { const i = rack.indexOf(l); if (i < 0) return null; rack.splice(i, 1); out.push(l); }
   if (x.bag.length < RACK) return null;
   let bag = x.bag.split(""); rack = rack.concat(bag.splice(0, out.length)); bag = bag.concat(out);
   for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; }
   x.bag = bag.join(""); x.racks[p] = rack.join(""); x.passes++; x.last = [];
-  x.log.push({ p, words: [], score: 0, kind: "exchange", n: out.length, t: Date.now() }); x.turn = 1 - p; x.v++;
+  x.log.push({ p, words: [], score: 0, kind: "exchange", n: out.length, t: Date.now(), rack: rackBefore }); x.turn = 1 - p; x.v++;
   if (x.passes >= MAX_PASSES) finish(x, -1); return x;
 }
 const rackVal = s => s.split("").reduce((a, l) => a + (l === "?" ? 0 : VAL[l]), 0);
@@ -360,9 +377,12 @@ function botMoves(rack) {
   const rackArr = rack.split(""), blanks = rackArr.filter(l => l === "?").length, counts = {};
   for (const l of rackArr) if (l !== "?") counts[l] = (counts[l] || 0) + 1;
   const empty = !Object.keys(g.board).length, moves = [], saved = pending;
+  // names the rack can spell outright, by length (one scan of the list per call)
+  const formable = {}; const cc = new Int8Array(26);
+  for (const len in BYLEN) { if (+len > rackArr.length) continue; const out = []; for (const w of BYLEN[len]) { cc.fill(0); let short = 0, bad = false; for (let i = 0; i < w.length; i++) { const x = w.charCodeAt(i) - 65; cc[x]++; if (cc[x] > (counts[w[i]] || 0)) { short++; if (short > blanks) { bad = true; break; } } } if (!bad) out.push(w); } formable[len] = out; }
   const nb = (r, c) => (r && g.board[k(r - 1, c)]) || (r < N - 1 && g.board[k(r + 1, c)]) || (c && g.board[k(r, c - 1)]) || (c < N - 1 && g.board[k(r, c + 1)]);
   for (let li = 0; li < 2 * N; li++) {
-    const i0 = li >> 1, vert = li & 1; if (empty && i0 !== 8) continue;
+    const i0 = li >> 1, vert = li & 1; if (empty && vert) continue;   // empty board: every row (columns would only repeat them)
     const cells = []; for (let j = 0; j < N; j++) cells.push(vert ? [j, i0] : [i0, j]);
     const letters = cells.map(([r, c]) => g.board[k(r, c)] ? g.board[k(r, c)].l : null);
     for (let s = 0; s < N; s++) {
@@ -372,12 +392,15 @@ function botMoves(rack) {
         let need = 0, touches = empty;
         for (let i = s; i <= e; i++) { if (!letters[i]) { need++; if (!touches && nb(...cells[i])) touches = true; } else touches = true; }
         if (!need || need > rackArr.length || !touches || (empty && need < 2)) continue;
-        const list = BYLEN[e - s + 1]; if (!list) continue;
+        const len = e - s + 1; let list;
+        if (need === len) list = formable[len] || [];   // nothing fixed: only names the rack alone can spell
+        else { list = null; for (let i = s; i <= e; i++) if (letters[i]) { const L2 = (IDX[len] && IDX[len][i - s] && IDX[len][i - s][letters[i]]) || []; if (!list || L2.length < list.length) list = L2; } }
+        if (!list.length) continue;
         outer: for (const w of list) {
           for (let i = s; i <= e; i++) if (letters[i] && letters[i] !== w[i - s]) continue outer;
-          const nd = {}; let short = 0;
-          for (let i = s; i <= e; i++) if (!letters[i]) { const ch = w[i - s]; nd[ch] = (nd[ch] || 0) + 1; }
-          for (const ch in nd) { const d = nd[ch] - (counts[ch] || 0); if (d > 0) { short += d; if (short > blanks) continue outer; } }
+          if (need !== len) { const nd = {}; let short = 0;
+            for (let i = s; i <= e; i++) if (!letters[i]) { const ch = w[i - s]; nd[ch] = (nd[ch] || 0) + 1; }
+            for (const ch in nd) { const d = nd[ch] - (counts[ch] || 0); if (d > 0) { short += d; if (short > blanks) continue outer; } } }
           const pend = {}, avail = { ...counts };
           for (let i = s; i <= e; i++) if (!letters[i]) { const ch = w[i - s]; if (avail[ch] > 0) { avail[ch]--; pend[k(...cells[i])] = { l: ch, bl: false }; } else pend[k(...cells[i])] = { l: ch, bl: true }; }
           pending = pend; const ev = evaluate();
@@ -426,7 +449,7 @@ async function openRoom(k2, pname) {
   else { me = -1; }
   listen(); enterGame();
 }
-function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (g && nx.v === g.v && nx.players.every((p, i) => !!p === !!g.players[i])) return; g = nx; dropCollisions(); render(); }); }
+function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); const cur = an ? an.live : g; if (cur && nx.v === cur.v && nx.players.every((p, i) => !!p === !!cur.players[i])) return; if (an) { an.live = nx; return; } g = nx; dropCollisions(); render(); }); }
 
 // ---------- UI ----------
 function say(t, bad) { const m = $("msg"); m.textContent = t || ""; m.className = bad ? "bad" : ""; }
@@ -448,7 +471,7 @@ const pname = i => (g.players[i] && g.players[i].name) || (i === 1 ? "waiting…
 function render() {
   if (!g) return;
   for (let i = 0; i < 2; i++) { const e = $("p" + i); e.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); e.querySelector(".sc").textContent = g.scores[i]; e.classList.toggle("turn", !g.over && (g.turn === i || (grabs() && !!g.players[i]))); }
-  $("midname").textContent = g.over ? "game over" : (grabs() ? "first name takes the first turn" : mode === "hot" ? pname(g.turn) + " to play" : BOTS[g.turn] ? pname(g.turn) + " thinking…" : (myTurn() ? "your turn" : me < 0 ? "watching" : "their turn"));
+  $("midname").textContent = an ? "move " + (an.i + 1) + " of " + an.live.log.length : g.over ? "game over" : (grabs() ? "first name takes the first turn" : mode === "hot" ? pname(g.turn) + " to play" : BOTS[g.turn] ? pname(g.turn) + " thinking…" : (myTurn() ? "your turn" : me < 0 ? "watching" : "their turn"));
   $("bag").textContent = g.bag.length + " in bag";
   const last = new Set(g.last);
   for (const d of $("board").children) {
@@ -459,7 +482,7 @@ function render() {
   }
   // rack
   const rr = $("rack-row"); rr.innerHTML = "";
-  const seat = mode === "hot" || mode === "watch" ? g.turn : me;
+  const seat = an ? g.turn : mode === "hot" || mode === "watch" ? g.turn : me;
   const rack = seat >= 0 ? g.racks[seat] : "";
   const { show } = rackView(rack);
   show.forEach((l, i) => {
@@ -472,7 +495,7 @@ function render() {
   $("play").disabled = !canAct || (!exchanging && !np) || (exchanging && !exSel.size); $("play").textContent = exchanging ? "exchange " + exSel.size : "play";
   $("recall").disabled = !np && !exchanging; $("recall").textContent = exchanging ? "cancel" : "recall";
   $("exch").disabled = !canAct || exchanging || g.bag.length < RACK; $("pass").disabled = !canAct || exchanging; $("shuffle").disabled = seat < 0 || exchanging;
-  $("actions").classList.toggle("hidden", seat < 0 || g.over || mode === "watch");
+  $("actions").classList.toggle("hidden", seat < 0 || g.over || mode === "watch" || !!an);
   // preview
   const bub = $("bubble"); bub.classList.add("hidden");
   if (np && DICT) {
@@ -483,9 +506,12 @@ function render() {
   // over
   const om = $("overmsg");
   if (g.over) { const w = g.scores[0] === g.scores[1] ? "A draw." : (g.scores[0] > g.scores[1] ? pname(0) : pname(1)) + " wins, " + Math.max(...g.scores) + " to " + Math.min(...g.scores) + "."; om.textContent = w; om.classList.remove("hidden"); } else om.classList.add("hidden");
+  $("analyze-row").classList.toggle("hidden", !(g.over && !an && g.log.some(m => m.kind === "play" && m.tiles)));
+  $("analysis").classList.toggle("hidden", !an);
   // log
   const lg = $("log"); lg.innerHTML = "";
-  for (const m of [...g.log].reverse()) {
+  const logSrc = an ? an.live.log.slice(0, an.i + 1) : g.log;
+  for (const m of [...logSrc].reverse()) {
     const d = document.createElement("div");
     const body = m.kind === "play" ? m.words.map(w => w[0] + w.slice(1).toLowerCase()).join(", ") : m.kind === "pass" ? "passed" : m.kind === "exchange" ? "exchanged " + m.n : (m.p >= 0 ? pname(m.p) + " went out" : "six passes") + " · racks " + m.v.join(" / ");
     d.innerHTML = `<span class="who">${m.kind === "end" ? "end" : pname(m.p)}</span><span class="w">${body}</span><span class="s">${m.kind === "play" ? "+" + m.score : ""}</span>`; lg.appendChild(d);
@@ -495,9 +521,10 @@ function render() {
 // interactions
 $("rack-row").addEventListener("click", e => {
   if (suppressClick) { suppressClick = false; return; }
+  if (an) return;
   const d = e.target.closest(".rt"); if (!d) return; const i = +d.dataset.i;
   if (exchanging) { exSel.has(i) ? exSel.delete(i) : exSel.add(i); render(); return; }
-  if (g.over || (mode === "hot" ? false : me < 0 || mode === "watch")) return;   // staging is allowed off-turn; only play is gated
+  if (an || g.over || (mode === "hot" ? false : me < 0 || mode === "watch")) return;   // staging is allowed off-turn; only play is gated
   selRack = selRack === i ? -1 : i; render();
 });
 // the rack as shown: the rack string minus the letters sitting on the board as staged tiles
@@ -509,6 +536,7 @@ function placeTile(l, r, c) {
 }
 $("board").addEventListener("click", e => {
   if (suppressClick) { suppressClick = false; return; }
+  if (an) return;
   const d = e.target.closest(".cell"); if (!d || exchanging) return; const r = +d.dataset.r, c = +d.dataset.c, kk = k(r, c);
   if (pending[kk]) { delete pending[kk]; render(); return; }
   if (g.board[kk] || selRack < 0) return;
@@ -516,9 +544,9 @@ $("board").addEventListener("click", e => {
 });
 // drag a rack tile: within the rack to reorder it, or onto an empty square to stage it
 let drag = null, suppressClick = false;
-const curSeat = () => mode === "hot" || mode === "watch" ? g.turn : me;
+const curSeat = () => an ? -1 : mode === "hot" || mode === "watch" ? g.turn : me;
 function reorderRack(i, j) { const seat = curSeat(); if (seat < 0) return; const { show, usedList } = rackView(g.racks[seat]); const [l] = show.splice(i, 1); show.splice(j, 0, l); g.racks[seat] = show.join("") + usedList.join(""); if (mode === "room" && fb && gref) fb.set(fb.child(gref, "racks/" + seat), g.racks[seat]).catch(() => { }); }
-$("rack-row").addEventListener("pointerdown", e => { const d = e.target.closest(".rt"); if (!d || exchanging || !g || g.over) return; drag = { el: d, i: +d.dataset.i, x: e.clientX, y: e.clientY, on: false }; try { d.setPointerCapture(e.pointerId); } catch (err) { } });
+$("rack-row").addEventListener("pointerdown", e => { const d = e.target.closest(".rt"); if (!d || exchanging || !g || g.over || an) return; drag = { el: d, i: +d.dataset.i, x: e.clientX, y: e.clientY, on: false }; try { d.setPointerCapture(e.pointerId); } catch (err) { } });
 $("rack-row").addEventListener("pointermove", e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (!drag.on) { if (Math.hypot(dx, dy) < 7) return; drag.on = true; drag.el.classList.add("drag"); } drag.el.style.transform = `translate(${dx}px,${dy}px)`; });
 function endDrag(e, cancelled) {
   if (!drag) return; const d = drag; drag = null; if (!d.on) return;
@@ -553,6 +581,75 @@ $("lookup-in").addEventListener("input", () => {
   const has = DICT.has(q); out.textContent = has ? nice(q) + " — yes" : nice(q) + " — not a name we know"; out.className = has ? "yes" : "no";
   more.textContent = "";
 });
+// ---------- post-game analyzer ----------
+// Replays the log one move at a time; for each play, the move generator finds the best-scoring play from the rack the
+// player actually held (greedy, no lookahead or defence — "best" means most points right now).
+let an = null;
+const nice = w => w[0] + w.slice(1).toLowerCase();
+function replayTo(live, i) {   // state before move i
+  const x = cleanse(live); x.board = {}; x.scores = [0, 0]; x.over = false; x.last = []; x.racks = ["", ""];
+  for (let j = 0; j < i; j++) { const m = live.log[j]; if (m.kind !== "play") continue; for (const [r, c, l, bl] of m.tiles) x.board[k(r, c)] = { l, bl: !!bl, by: m.p }; x.scores[m.p] += m.score; }
+  return norm(x);
+}
+function openAnalysis() {
+  if (!g || !g.over || an) return;
+  an = { live: g, i: 0, best: {}, showBest: false, mode, me }; mode = "analysis"; me = -1;
+  const first = g.log.findIndex(m => m.kind === "play"); an.i = Math.max(0, first);
+  showMove(an.i); summarize();
+}
+function closeAnalysis() { if (!an) return; g = an.live; mode = an.mode; me = an.me; an = null; pending = {}; render(); }
+function bestFor(i) {
+  if (an.best[i] !== undefined) return an.best[i];
+  const m = an.live.log[i]; if (!m.rack) return an.best[i] = null;
+  const saveG = g, saveP = pending; g = replayTo(an.live, i); pending = {};
+  const moves = botMoves(m.rack); moves.sort((a, b) => b.score - a.score);
+  g = saveG; pending = saveP;
+  return an.best[i] = moves[0] || null;
+}
+function showMove(i) {
+  const m = an.live.log[i]; an.i = i; an.showBest = false;
+  g = replayTo(an.live, i); g.turn = m.p >= 0 ? m.p : 0; if (m.rack) g.racks[g.turn] = m.rack; pending = {};
+  if (m.kind === "play") { for (const [r, c, l, bl] of m.tiles) g.board[k(r, c)] = { l, bl: !!bl, by: m.p }; g.scores[m.p] += m.score; g.last = m.tiles.map(t => k(t[0], t[1])); }
+  render(); describeMove();
+}
+function describeMove() {
+  const m = an.live.log[an.i], el = $("an-move"), who = m.p >= 0 ? pname(m.p) : "";
+  let head = m.kind === "play" ? `${who} played <b>${m.words.map(nice).join(", ")}</b> for ${m.score}` : m.kind === "pass" ? `${who} passed` : m.kind === "exchange" ? `${who} exchanged ${m.n}` : (m.p >= 0 ? who + " went out" : "six passes") + " — game over";
+  if (m.kind === "end" || !m.rack) { el.innerHTML = head; $("an-best").disabled = true; return; }
+  el.innerHTML = head + `<br><span style="color:var(--clay-dark);font-size:.9rem;letter-spacing:.04em;font-family:Karla,sans-serif">rack ${m.rack.split("").join(" ")}</span><br><span id="an-verdict" style="color:var(--clay-dark)">finding the best play…</span>`;
+  $("an-best").disabled = true;
+  const i = an.i;
+  setTimeout(() => {
+    if (!an || an.i !== i) return; const b = bestFor(i); const v = $("an-verdict"); if (!v) return;
+    if (!b) { v.textContent = "no play was possible"; v.className = ""; return; }
+    const diff = b.score - (m.kind === "play" ? m.score : 0);
+    if (m.kind === "play" && diff <= 0) { v.innerHTML = `<span class="found">that was the best play</span>`; }
+    else v.innerHTML = `best: <b>${b.words.map(w => nice(w.word)).join(", ")}</b> for ${b.score} <span class="lost">(${m.kind === "play" ? "−" + diff : b.score + " left on the table"})</span>`;
+    $("an-best").disabled = false; $("an-best").textContent = "show best";
+  }, 30);
+}
+function toggleBest() {
+  const m = an.live.log[an.i]; const b = bestFor(an.i); if (!b) return;
+  an.showBest = !an.showBest;
+  g = replayTo(an.live, an.i); g.turn = m.p; g.racks[m.p] = m.rack;
+  if (an.showBest) { pending = { ...b.pend }; $("an-best").textContent = "show played"; }
+  else { pending = {}; if (m.kind === "play") { for (const [r, c, l, bl] of m.tiles) g.board[k(r, c)] = { l, bl: !!bl, by: m.p }; g.scores[m.p] += m.score; g.last = m.tiles.map(t => k(t[0], t[1])); } $("an-best").textContent = "show best"; }
+  render();
+}
+async function summarize() {
+  const live = an.live, lost = [0, 0], found = [0, 0], plays = [0, 0]; $("an-sum").innerHTML = `<div><b>${pname(0)}</b>working…</div><div><b>${pname(1)}</b></div>`;
+  for (let i = 0; i < live.log.length; i++) {
+    if (!an || an.live !== live) return; const m = live.log[i]; if (m.kind !== "play" || !m.rack) continue;
+    await new Promise(r => setTimeout(r, 0)); const b = bestFor(i); if (!an) return;
+    plays[m.p]++; const d = b ? Math.max(0, b.score - m.score) : 0; lost[m.p] += d; if (d === 0) found[m.p]++;
+    paint(`<div style="grid-column:1/-1;color:var(--clay-dark)">checking move ${i + 1} of ${live.log.length}…</div>`);
+  }
+  paint("");
+  function paint(tail) { $("an-sum").innerHTML = [0, 1].map(p => `<div><b>${pname(p)}</b>${plays[p] ? `${lost[p]} points left behind · ${(lost[p] / plays[p]).toFixed(1)} per move<br>best play found ${found[p]} of ${plays[p]}` : "—"}</div>`).join("") + tail; }
+}
+$("analyze").onclick = openAnalysis; $("an-exit").onclick = closeAnalysis; $("an-best").onclick = toggleBest;
+$("an-prev").onclick = () => { if (an && an.i > 0) showMove(an.i - 1); };
+$("an-next").onclick = () => { if (an && an.i < an.live.log.length - 1) showMove(an.i + 1); };
 $("rulesbtn").onclick = e => { e.preventDefault(); $("rules").classList.toggle("hidden"); };
 $("vals").innerHTML = Object.entries(VAL).sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0])).map(([l, v]) => `<span>${l} · ${v} <span style="color:var(--clay-dark)">×${CNT[l]}</span></span>`).join("") + `<span>blank · 0 <span style="color:var(--clay-dark)">×2</span></span>`;
 $("copy").onclick = () => { navigator.clipboard?.writeText($("share-link").value).then(() => { $("copy").textContent = "copied"; }); $("share-link").select(); };
@@ -567,7 +664,7 @@ $("joinbtn").onclick = async () => { const m = location.hash.match(/g=(\w+)/); i
 const hm = location.hash.match(/g=(\w+)/);
 if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("watch").parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
 dictReady.then(() => { if (g) render(); });
-window.__sg = { get g() { return g; }, set g(v) { g = v; }, get pending() { return pending; }, set pending(v) { pending = v; }, evaluate, layout, newGame, norm, applyPlay, applyPass, applyExchange, render, enterGame, setMode: (m, s) => { mode = m; me = s; }, get mode() { return mode; }, botMoves, botTurn, BOTS };
+window.__sg = { get g() { return g; }, set g(v) { g = v; }, get pending() { return pending; }, set pending(v) { pending = v; }, evaluate, layout, newGame, norm, applyPlay, applyPass, applyExchange, render, enterGame, setMode: (m, s) => { mode = m; me = s; }, get mode() { return mode; }, botMoves, botTurn, BOTS, get an() { return an; }, openAnalysis, showMove, bestFor };
 </script>
 </body>
 </html>
