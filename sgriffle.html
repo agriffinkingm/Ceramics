@@ -136,7 +136,7 @@
     <p>Letter values, by how common each letter is in American surnames (edited by hand where it felt right):</p>
     <div class="vals" id="vals"></div>
     <p>When a game ends, <b>analyze the game</b> steps through every move with the rack that player held and shows the highest-scoring play that was available — points-only, no defence or lookahead.</p>
-    <p>Not sure a name counts? The <b>is it a name?</b> box under the board checks the list — a yes or a no, nothing more. Invalid plays simply bounce — there's no challenging. Play from different phones (make a game and send the link), on one phone, or against the computer: <b>hard</b> always takes its best-scoring play, <b>normal</b> picks from its top six, <b>easy</b> plays from the weaker half of what it sees.</p>
+    <p>Not sure a name counts? The <b>is it a name?</b> box under the board checks the list — a yes or a no, nothing more. In the analyzer, once the game is over, it also shows the names that start or end with what you typed, for seeing what a chain could have become. Invalid plays simply bounce — there's no challenging. Play from different phones (make a game and send the link), on one phone, or against the computer: <b>hard</b> always takes its best-scoring play, <b>normal</b> picks from its top six, <b>easy</b> plays from the weaker half of what it sees.</p>
   </div>
 
   <div id="lobby">
@@ -198,7 +198,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-06a";
+const BUILD = "2026-10-06b";
 const N = 17, RACK = 9, BINGO = 75, EXTEND_MULT = 2, MAX_PASSES = 6;
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -577,9 +577,13 @@ $("play").onclick = async () => {
 $("lookup-in").addEventListener("input", () => {
   const q = $("lookup-in").value.toUpperCase().replace(/[^A-Z]/g, ""), out = $("lookup-out"), more = $("lookup-more");
   if (!q || !DICT) { out.textContent = ""; out.className = ""; more.textContent = ""; return; }
-  const nice = w => w[0] + w.slice(1).toLowerCase();
   const has = DICT.has(q); out.textContent = has ? nice(q) + " — yes" : nice(q) + " — not a name we know"; out.className = has ? "yes" : "no";
-  more.textContent = "";
+  more.innerHTML = "";
+  if (an) {   // after the game it isn't cheating: show what the name could grow into, both ways
+    const pre = [], suf = []; for (const w of DICT) { if (w === q) continue; if (w.startsWith(q)) pre.push(w); else if (w.endsWith(q)) suf.push(w); }
+    const srt = a => a.sort((x, y) => x.length - y.length || x.localeCompare(y)).slice(0, 12).map(nice).join(" · ") + (a.length > 12 ? ` · … ${a.length - 12} more` : "");
+    more.innerHTML = (pre.length ? `<div><span style="color:var(--stone)">grows to</span> ${srt(pre)}</div>` : "") + (suf.length ? `<div><span style="color:var(--stone)">ends with it</span> ${srt(suf)}</div>` : "");
+  }
 });
 // ---------- post-game analyzer ----------
 // Replays the log one move at a time; for each play, the move generator finds the best-scoring play from the rack the
@@ -595,9 +599,9 @@ function openAnalysis() {
   if (!g || !g.over || an) return;
   an = { live: g, i: 0, best: {}, showBest: false, mode, me }; mode = "analysis"; me = -1;
   const first = g.log.findIndex(m => m.kind === "play"); an.i = Math.max(0, first);
-  showMove(an.i); summarize();
+  showMove(an.i); summarize(); $("lookup-in").dispatchEvent(new Event("input"));
 }
-function closeAnalysis() { if (!an) return; g = an.live; mode = an.mode; me = an.me; an = null; pending = {}; render(); }
+function closeAnalysis() { if (!an) return; g = an.live; mode = an.mode; me = an.me; an = null; pending = {}; render(); $("lookup-in").dispatchEvent(new Event("input")); }
 function bestFor(i) {
   if (an.best[i] !== undefined) return an.best[i];
   const m = an.live.log[i]; if (!m.rack) return an.best[i] = null;
