@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-10-03-0759-1",
-  "image": "pool-2026-10-03-0759-1.jpg",
-  "headline": "Turkish Aerospace Industries prepares to integrate homegrown engines into aerial platforms",
-  "url": "https://aa.com.tr/en/turkiye/turkish-aerospace-industries-prepares-to-integrate-homegrown-engines-into-aerial-platforms/4075188",
-  "outlet": "aa.com.tr",
-  "t": "2026-10-03T11:59:52+00:00",
-  "vista": 8.0,
-  "hash": 324848679495308765
- },
- {
-  "id": "2026-10-03-0759-2",
-  "image": "pool-2026-10-03-0759-2.jpg",
-  "headline": "Hurricane Rachel strengthens to Category 1 off Mexico Pacific coast",
-  "url": "https://aa.com.tr/en/americas/hurricane-rachel-strengthens-to-category-1-off-mexicos-pacific-coast/4074295",
-  "outlet": "aa.com.tr",
-  "t": "2026-10-03T11:59:52+00:00",
-  "vista": 8.0,
-  "hash": 29219050471352
- },
- {
   "id": "2026-10-04",
   "image": "pool-2026-10-04.jpg",
   "headline": "Rafale fighters face S - 400 test in Ukraine",
@@ -169,5 +149,25 @@
   "outlet": "kpcnews.com",
   "t": "2026-10-06T13:36:38+00:00",
   "hash": 9158070121313255102
+ },
+ {
+  "id": "2026-10-06-1426-0",
+  "image": "pool-2026-10-06-1426-0.jpg",
+  "headline": "How Switzerland lost 20 percent of its ice in five years",
+  "url": "https://www.aljazeera.com/news/2026/10/2/how-switzerland-lost-20-percent-of-its-ice-in-five-years",
+  "outlet": "aljazeera.com",
+  "t": "2026-10-06T18:26:13+00:00",
+  "vista": 9.0,
+  "hash": 9223213585923047696
+ },
+ {
+  "id": "2026-10-06-1426-1",
+  "image": "pool-2026-10-06-1426-1.jpg",
+  "headline": "Newsom vetoes bill aimed at funding Sacramento - San Joaquin delta levee repairs , water infrastructure",
+  "url": "https://www.cbsnews.com/sacramento/news/newsom-vetoed-delta-levee-bill/",
+  "outlet": "cbsnews.com",
+  "t": "2026-10-06T18:26:13+00:00",
+  "vista": 7.0,
+  "hash": 74061045705998335
  }
 ]
