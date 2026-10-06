@@ -130,8 +130,8 @@
 <main>
   <div id="rules" class="panel hidden">
     <h3>How Sgriffle works</h3>
-    <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — 31,918 names in all — plus a few house names: Grief, Graff, Gruff, Gryph, Groff, Gorf, Garf, Grr, Gr, Grif, Sgriff, Sgriffle and Kojo. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
-    <p>17×17 board, 9 tiles on your rack, 129 tiles in the bag (2 blanks). <b>No centre square</b>: the first name goes anywhere, at least two letters. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
+    <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — 31,918 names in all — plus a few house names: Grief, Graff, Gruff, Gryph, Groff, Gorf, Garf, Grr, Gr, Grif, Sgriff, Sgriffle, Kojo and Lenk. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
+    <p>17×17 board, 9 tiles on your rack, 129 tiles in the bag (2 blanks). <b>No centre rule</b>: the first name goes anywhere, at least two letters — though the centre square is a triple name on every board, so there's a reason to go there. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
     <p>Tap a tile then a square, or drag it there; drag tiles within the rack to rearrange them. You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
     <p><b>Build-off bonus.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name earns its plain letter value again on top (any name you form that contains two or more old tiles counts). It's added, never multiplied, so it can't stack with the name squares.</p>
@@ -209,7 +209,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-06j";
+const BUILD = "2026-10-06k";
 const N = 17, RACK = 9, BINGO = 75, EXTEND_BONUS = true, MAX_PASSES = 6;   // build-off: the name's plain letter value is added once (never multiplied — ×2 on top of name squares gave Deroche 198)
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,G:5,F:4,B:3,K:3,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -217,7 +217,7 @@ const $ = id => document.getElementById(id);
 
 // ---------- seeded layout (chess960 for bonus squares) ----------
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-// 0 plain · 1 DL · 2 TL · 3 DN · 4 TN. Generated in the top-left 8×8 quadrant, mirrored four ways; the centre cross stays plain.
+// 0 plain · 1 DL · 2 TL · 3 DN · 4 TN. Generated in the top-left 8×8 quadrant, mirrored four ways; the centre square is always TN and the rest of the centre cross stays plain.
 // Per quadrant: 3 TN, 4 DN, 4 TL, 8 DL (=76 premium squares, about Scrabble's density). Nothing premium sits orthogonally
 // next to anything else. Name multipliers take one row and one column each, so a full line never carries more than one
 // mirrored pair (×9 at most, and a TN pair needs a 9-letter name: TN stays in quadrant rows/cols 0–4, DN in 0–6).
@@ -241,6 +241,7 @@ function layout(seed) {
     if (!ok) continue;
     const full = new Uint8Array(N * N);
     for (let r = 0; r < q; r++) for (let c = 0; c < q; c++) { const v = g[r * q + c]; if (!v) continue; full[r * N + c] = v; full[r * N + (N - 1 - c)] = v; full[(N - 1 - r) * N + c] = v; full[(N - 1 - r) * N + (N - 1 - c)] = v; }
+    full[8 * N + 8] = 4;   // the centre is always a triple name — the rest of the centre cross stays plain, so it's alone in its row and column
     return full;
   }
   return new Uint8Array(N * N);
