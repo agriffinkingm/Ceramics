@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-03-b",
-  "image": "pool-2026-10-03-b.jpg",
-  "headline": "First UAE - built commercial satellite completes historic launch in major step forward in space race",
-  "url": "https://www.thenationalnews.com/news/uae/2026/10/02/first-uae-built-commercial-satellite-completes-historic-launch-in-major-step-forward-in-space-race/",
-  "outlet": "thenationalnews.com",
-  "t": "2026-10-03T11:39:47+00:00",
-  "hash": 247373439696896
- },
- {
-  "id": "2026-10-03-c",
-  "image": "pool-2026-10-03-c.jpg",
-  "headline": "Soggy weekend expected with driving rain across states",
-  "url": "https://www.yasstribune.com.au/story/9361394/soggy-weekend-expected-with-driving-rain-across-states/",
-  "outlet": "yasstribune.com.au",
-  "t": "2026-10-03T11:39:47+00:00",
-  "hash": 12727349270864115960
- },
- {
-  "id": "2026-10-03-0759-0",
-  "image": "pool-2026-10-03-0759-0.jpg",
-  "headline": "How Switzerland lost 20 percent of its ice in five years",
-  "url": "https://www.aljazeera.com/news/2026/10/2/how-switzerland-lost-20-percent-of-its-ice-in-five-years",
-  "outlet": "aljazeera.com",
-  "t": "2026-10-03T11:59:52+00:00",
-  "vista": 9.0,
-  "hash": 9223213585923047696
- },
- {
   "id": "2026-10-03-0759-1",
   "image": "pool-2026-10-03-0759-1.jpg",
   "headline": "Turkish Aerospace Industries prepares to integrate homegrown engines into aerial platforms",
@@ -170,5 +142,32 @@
   "t": "2026-10-06T06:21:03+00:00",
   "vista": 7.0,
   "hash": 2310399593578789116
+ },
+ {
+  "id": "2026-10-06",
+  "image": "pool-2026-10-06.jpg",
+  "headline": "Indonesia Anak Krakatau volcano spawns two new islands after eruption",
+  "url": "https://www.business-standard.com/world-news/indonesia-s-anak-krakatau-volcano-spawns-two-new-islands-after-eruption-126100200287_1.html",
+  "outlet": "business-standard.com",
+  "t": "2026-10-06T13:36:38+00:00",
+  "hash": 17661713989631
+ },
+ {
+  "id": "2026-10-06-b",
+  "image": "pool-2026-10-06-b.jpg",
+  "headline": "Trust is climate infrastructure : What Mauritius teaches us about building truly resilient communities",
+  "url": "https://www.resilience.org/stories/2026-10-06/trust-is-climate-infrastructure-what-mauritius-teaches-us-about-building-truly-resilient-communities/",
+  "outlet": "resilience.org",
+  "t": "2026-10-06T13:36:38+00:00",
+  "hash": 31885770063616
+ },
+ {
+  "id": "2026-10-06-c",
+  "image": "pool-2026-10-06-c.jpg",
+  "headline": "5 U . S . Destinations Where Fall Color Lasts Beyond New England Early Peak",
+  "url": "https://www.kpcnews.com/news/national/article_550784de-a7f1-5515-a33e-72f8459e4359.html",
+  "outlet": "kpcnews.com",
+  "t": "2026-10-06T13:36:38+00:00",
+  "hash": 9158070121313255102
  }
 ]
