@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-03",
-  "image": "pool-2026-10-03.jpg",
-  "headline": "Congo Ebola death toll hits 4 , 000 as violence hampers response",
-  "url": "https://www.dailysabah.com/world/africa/congo-ebola-death-toll-hits-4000-as-violence-hampers-response",
-  "outlet": "dailysabah.com",
-  "t": "2026-10-03T11:39:47+00:00",
-  "hash": 14408088684849006591
- },
- {
   "id": "2026-10-03-b",
   "image": "pool-2026-10-03-b.jpg",
   "headline": "First UAE - built commercial satellite completes historic launch in major step forward in space race",
@@ -169,5 +160,15 @@
   "t": "2026-10-06T00:08:48+00:00",
   "vista": 7.0,
   "hash": 1802647153606656
+ },
+ {
+  "id": "2026-10-06-0221-0",
+  "image": "pool-2026-10-06-0221-0.jpg",
+  "headline": "Eritrea cuts ties with Ethiopia over Asmara embassy closure",
+  "url": "https://www.cnbcafrica.com/2026/eritrea-cuts-ties-with-ethiopia-over-asmara-embassy-closure",
+  "outlet": "cnbcafrica.com",
+  "t": "2026-10-06T06:21:03+00:00",
+  "vista": 7.0,
+  "hash": 2310399593578789116
  }
 ]
