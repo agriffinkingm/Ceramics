@@ -130,13 +130,14 @@
 <main>
   <div id="rules" class="panel hidden">
     <h3>How Sgriffle works</h3>
-    <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — 31,918 names in all — plus a few house names: Grief, Graff, Gruff, Gryph, Groff, Gorf, Garf, Grr, Gr, Grif and Sgriff. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
-    <p>17×17 board, 9 tiles on your rack, 125 tiles in the bag (2 blanks). <b>No centre square</b>: the first name goes anywhere, at least two letters. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
+    <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — 31,918 names in all — plus a few house names: Grief, Graff, Gruff, Gryph, Groff, Gorf, Garf, Grr, Gr, Grif, Sgriff and Sgriffle. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
+    <p>17×17 board, 9 tiles on your rack, 129 tiles in the bag (2 blanks). <b>No centre square</b>: the first name goes anywhere, at least two letters. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
     <p>Tap a tile then a square, or drag it there; drag tiles within the rack to rearrange them. You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
     <p><b>Build-off bonus.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name earns its plain letter value again on top (any name you form that contains two or more old tiles counts). It's added, never multiplied, so it can't stack with the name squares.</p>
     <p><b>Bonus squares are shuffled every game</b>, chess960-style: the game number sets the layout (mirrored four ways). <span class="sw" style="background:var(--dl)"></span>double letter · <span class="sw" style="background:var(--tl)"></span>triple letter · <span class="sw" style="background:var(--dn)"></span>double name · <span class="sw" style="background:var(--tn)"></span>triple name. Bonus squares count only for the tiles you just placed.</p>
     <p><b>Clocks.</b> A timed game gives each player a bank of minutes; every move you make adds the increment back. The default is 10 minutes with 10 seconds a move. Run out and you lose on time, whatever the score. Correspondence games have no clock — play a move whenever, the link keeps the game. In a shared game the clock starts with the first name played.</p>
+    <p><b>Sgriffle wins.</b> Play the name SGRIFFLE and the game is over — you win, whatever the score. (There are five G's and four F's in the bag to make it thinkable.)</p>
     <p>All nine tiles in one go: <b>+75</b>. You can exchange tiles instead of playing while the bag has at least nine left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
     <p>Letter values, by how common each letter is in American surnames (edited by hand where it felt right):</p>
     <div class="vals" id="vals"></div>
@@ -208,10 +209,10 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-06h";
+const BUILD = "2026-10-06i";
 const N = 17, RACK = 9, BINGO = 75, EXTEND_BONUS = true, MAX_PASSES = 6;   // build-off: the name's plain letter value is added once (never multiplied — ×2 on top of name squares gave Deroche 198)
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, G:6, V:7, X:10,Q:10 };
-const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,B:3,G:3,K:3,F:2,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
+const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,G:5,F:4,B:3,K:3,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
 const $ = id => document.getElementById(id);
 
 // ---------- seeded layout (chess960 for bonus squares) ----------
@@ -290,7 +291,7 @@ function norm(x) { // Firebase drops empty arrays/strings and turns arrays into 
   x.racks = arr(x.racks, 2, ""); x.scores = arr(x.scores, 2, 0); x.players = arr(x.players, 2, null);
   x.board = x.board || {}; x.log = Array.isArray(x.log) ? x.log : Object.values(x.log || {}); x.last = Array.isArray(x.last) ? x.last : Object.values(x.last || {});
   x.bag = x.bag || ""; x.passes = x.passes || 0; x.over = !!x.over; x.v = x.v || 0; x.turn = x.turn || 0;
-  x.clock = x.clock || null; x.times = arr(x.times, 2, x.clock ? x.clock.base : 0); x.tick = x.tick || 0; if (x.flagged == null) delete x.flagged;
+  x.clock = x.clock || null; x.times = arr(x.times, 2, x.clock ? x.clock.base : 0); x.tick = x.tick || 0; if (x.flagged == null) delete x.flagged; if (x.sgriffle == null) delete x.sgriffle;
   for (const m of x.log) { m.words = Array.isArray(m.words) ? m.words : Object.values(m.words || {}); if (m.tiles) m.tiles = (Array.isArray(m.tiles) ? m.tiles : Object.values(m.tiles)).map(t => Array.isArray(t) ? t : Object.values(t)); }
   return x;
 }
@@ -349,6 +350,7 @@ function applyPlay(x, p, placed, words, score, tiles = pending) {
   x.racks[p] = rack.join(""); x.scores[p] += score; x.passes = 0; x.last = placed.map(c => k(...c));
   x.log.push({ p, words: words.map(w => w.word), score, kind: "play", t: Date.now(), rack: rackBefore, tiles: placed.map(([r, c]) => { const t = tiles[k(r, c)]; return [r, c, t.l, t.bl ? 1 : 0]; }) });
   x.turn = 1 - p; x.v++;
+  if (words.some(w => w.word === "SGRIFFLE")) { x.over = true; x.sgriffle = p; x.tick = 0; x.log.push({ p, words: [], score: 0, kind: "sgriffle", t: Date.now() }); return x; }
   if (!x.bag.length && !rack.length) finish(x, p);
   return x;
 }
@@ -537,7 +539,7 @@ function render() {
   else $("preview").textContent = exchanging ? "tap the tiles to swap, then exchange" : "";
   // over
   const om = $("overmsg");
-  if (g.over) { const w = g.flagged != null ? pname(1 - g.flagged) + " wins on time, " + g.scores[1 - g.flagged] + " to " + g.scores[g.flagged] + "." : g.scores[0] === g.scores[1] ? "A draw." : (g.scores[0] > g.scores[1] ? pname(0) : pname(1)) + " wins, " + Math.max(...g.scores) + " to " + Math.min(...g.scores) + "."; om.textContent = w; om.classList.remove("hidden"); } else om.classList.add("hidden");
+  if (g.over) { const w = g.sgriffle != null ? pname(g.sgriffle) + " played Sgriffle. " + pname(g.sgriffle) + " wins." : g.flagged != null ? pname(1 - g.flagged) + " wins on time, " + g.scores[1 - g.flagged] + " to " + g.scores[g.flagged] + "." : g.scores[0] === g.scores[1] ? "A draw." : (g.scores[0] > g.scores[1] ? pname(0) : pname(1)) + " wins, " + Math.max(...g.scores) + " to " + Math.min(...g.scores) + "."; om.textContent = w; om.classList.remove("hidden"); } else om.classList.add("hidden");
   $("analyze-row").classList.toggle("hidden", !(g.over && !an && g.log.some(m => m.kind === "play" && m.tiles)));
   $("analysis").classList.toggle("hidden", !an);
   // log
@@ -545,8 +547,8 @@ function render() {
   const logSrc = an ? an.live.log.slice(0, an.i + 1) : g.log;
   for (const m of [...logSrc].reverse()) {
     const d = document.createElement("div");
-    const body = m.kind === "play" ? m.words.map(w => w[0] + w.slice(1).toLowerCase()).join(", ") : m.kind === "pass" ? "passed" : m.kind === "exchange" ? "exchanged " + m.n : m.kind === "timeout" ? "ran out of time" : (m.p >= 0 ? pname(m.p) + " went out" : "six passes") + " · racks " + m.v.join(" / ");
-    d.innerHTML = `<span class="who">${m.kind === "end" ? "end" : pname(m.p)}</span><span class="w">${body}</span><span class="s">${m.kind === "play" ? "+" + m.score : ""}</span>`; lg.appendChild(d);
+    const body = m.kind === "play" ? m.words.map(w => w[0] + w.slice(1).toLowerCase()).join(", ") : m.kind === "pass" ? "passed" : m.kind === "exchange" ? "exchanged " + m.n : m.kind === "timeout" ? "ran out of time" : m.kind === "sgriffle" ? "SGRIFFLE — game over" : (m.p >= 0 ? pname(m.p) + " went out" : "six passes") + " · racks " + m.v.join(" / ");
+    d.innerHTML = `<span class="who">${m.kind === "end" || m.kind === "sgriffle" ? "end" : pname(m.p)}</span><span class="w">${body}</span><span class="s">${m.kind === "play" ? "+" + m.score : ""}</span>`; lg.appendChild(d);
   }
   paintClocks();
 }
@@ -652,8 +654,8 @@ function showMove(i) {
 }
 function describeMove() {
   const m = an.live.log[an.i], el = $("an-move"), who = m.p >= 0 ? pname(m.p) : "";
-  let head = m.kind === "play" ? `${who} played <b>${m.words.map(nice).join(", ")}</b> for ${m.score}` : m.kind === "pass" ? `${who} passed` : m.kind === "exchange" ? `${who} exchanged ${m.n}` : m.kind === "timeout" ? `${who} ran out of time` : (m.p >= 0 ? who + " went out" : "six passes") + " — game over";
-  if (m.kind === "end" || m.kind === "timeout" || !m.rack) { el.innerHTML = head; $("an-best").disabled = true; return; }
+  let head = m.kind === "play" ? `${who} played <b>${m.words.map(nice).join(", ")}</b> for ${m.score}` : m.kind === "pass" ? `${who} passed` : m.kind === "exchange" ? `${who} exchanged ${m.n}` : m.kind === "timeout" ? `${who} ran out of time` : m.kind === "sgriffle" ? `${who} played Sgriffle — game over` : (m.p >= 0 ? who + " went out" : "six passes") + " — game over";
+  if (m.kind === "end" || m.kind === "timeout" || m.kind === "sgriffle" || !m.rack) { el.innerHTML = head; $("an-best").disabled = true; return; }
   el.innerHTML = head + `<br><span style="color:var(--clay-dark);font-size:.9rem;letter-spacing:.04em;font-family:Karla,sans-serif">rack ${m.rack.split("").join(" ")}</span><br><span id="an-verdict" style="color:var(--clay-dark)">finding the best play…</span>`;
   $("an-best").disabled = true;
   const i = an.i;
