@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-10-02-1815-1",
-  "image": "pool-2026-10-02-1815-1.jpg",
-  "headline": "Eritrea cuts ties with Ethiopia over Asmara embassy closure",
-  "url": "https://www.cnbcafrica.com/2026/eritrea-cuts-ties-with-ethiopia-over-asmara-embassy-closure",
-  "outlet": "cnbcafrica.com",
-  "t": "2026-10-02T22:15:29+00:00",
-  "vista": 7.0,
-  "hash": 2310399593578789116
- },
- {
-  "id": "2026-10-03-0118-0",
-  "image": "pool-2026-10-03-0118-0.jpg",
-  "headline": "Pakistan says militant camps destroyed in air and drone strikes in Afghanistan",
-  "url": "https://www.pakistantimes.com/pakistan-says-militant-camps-destroyed-in-air-and-drone-strikes-in-afghanistan-15315/",
-  "outlet": "pakistantimes.com",
-  "t": "2026-10-03T05:18:29+00:00",
-  "vista": 8.0,
-  "hash": 17834537103254470143
- },
- {
   "id": "2026-10-03",
   "image": "pool-2026-10-03.jpg",
   "headline": "Congo Ebola death toll hits 4 , 000 as violence hampers response",
@@ -169,5 +149,25 @@
   "t": "2026-10-05T16:28:33+00:00",
   "vista": 7.0,
   "hash": 22023518355452
+ },
+ {
+  "id": "2026-10-05-2008-0",
+  "image": "pool-2026-10-05-2008-0.jpg",
+  "headline": "Nigeria Plans US$289 Million Cassava Ethanol Plant",
+  "url": "https://www.riotimesonline.com/nigeria-cassava-bioethanol-industry-2026/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-10-06T00:08:47+00:00",
+  "vista": 9.0,
+  "hash": 5174509857730774024
+ },
+ {
+  "id": "2026-10-05-2008-1",
+  "image": "pool-2026-10-05-2008-1.jpg",
+  "headline": "Moundville Responds To 15 - acre Fire Near Lock 8",
+  "url": "https://953thebear.com/wildfire-season-hits-alabama-communities/",
+  "outlet": "953thebear.com",
+  "t": "2026-10-06T00:08:48+00:00",
+  "vista": 7.0,
+  "hash": 1802647153606656
  }
 ]
