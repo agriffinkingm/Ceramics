@@ -131,7 +131,7 @@
 <main>
   <div id="rules" class="panel hidden">
     <h3>How Sgriffle works</h3>
-    <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — about 37,000 names in all, including a pass of famous mononyms, bands and initials (Oprah, Sting, Lizzo, Picasso, Pelé as Pele, Radiohead, ABBA, AOC, JFK, RBG, MLK, DMX, RDJ, GRRM…) nicknames and places (every country and capital, the fifty states and their capitals, the thousand biggest US cities and a few hundred world cities — single words only, so Las Vegas is Vegas and New York is York) — tap a played tile to see who any initials belong to — plus a few house names: Grief, Graff, Gruff, Gryph, Groff, Gorf, Garf, Grr, Gr, Grif, Sgriff, Sgriffle, Kojo, Lenk and Maho. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
+    <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — about 37,000 names in all, including a pass of famous mononyms, bands, initials and a few NYC streets (Bleecker, Varick, Nostrand, Gansevoort…) (Oprah, Sting, Lizzo, Picasso, Pelé as Pele, Radiohead, ABBA, AOC, JFK, RBG, MLK, DMX, RDJ, GRRM…) nicknames and places (every country and capital, the fifty states and their capitals, the thousand biggest US cities and a few hundred world cities — single words only, so Las Vegas is Vegas and New York is York) — tap a played tile to see who any initials belong to — plus a few house names: Grief, Graff, Gruff, Gryph, Groff, Gorf, Garf, Grr, Gr, Grif, Sgriff, Sgriffle, Kojo, Lenk and Maho. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
     <p>17×17 board, 9 tiles on your rack, 129 tiles in the bag (2 blanks) — and everyone starts the game holding a blank of their own. <b>No centre rule</b>: the first name goes anywhere, at least two letters — though the centre square is a triple name on every board, so there's a reason to go there. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
     <p>Tap a tile then a square, or drag it there; drag tiles within the rack to rearrange them. You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
@@ -143,6 +143,7 @@
     <p>Letter values, by how common each letter is in American surnames (edited by hand where it felt right):</p>
     <div class="vals" id="vals"></div>
     <p>When a game ends, <b>analyze the game</b> steps through every move with the rack that player held and shows the highest-scoring play that was available — points-only, no defence or lookahead.</p>
+    <p><b>Puzzles.</b> A position from a computer game and a rack — find the highest-scoring play. Any play that matches the best score solves it; "show solution" lays it out. Each puzzle has a number you can share.</p>
     <p>Not sure a name counts? The <b>is it a name?</b> box under the board checks the list and shows the names that start or end with what you typed — handy for seeing what a chain could become. Invalid plays simply bounce — there's no challenging. Play from different phones (make a game and send the link), on one phone, or against the computer: <b>hard</b> always takes its best-scoring play, <b>normal</b> picks from its top six, <b>easy</b> plays from the weaker half of what it sees.</p>
   </div>
 
@@ -162,6 +163,7 @@
     <div class="row" style="align-items:center">
       <button id="bot">play the computer</button>
       <button id="watch">watch two computers</button>
+      <button id="puzzles">puzzles</button>
       <select id="level" style="font:inherit;font-size:.8rem;padding:.4rem;border:1px solid var(--plaster-deep);border-radius:3px;background:var(--ivory);color:var(--stone)"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select>
     </div>
     <div class="row cols hidden" id="joinrow">
@@ -185,6 +187,12 @@
     </div>
     <div id="overmsg" class="over hidden"></div>
     <div id="analyze-row" class="hidden" style="text-align:center;margin:.2rem 0 .6rem"><button id="analyze">analyze the game</button></div>
+    <div id="puzzle" class="panel hidden">
+      <div id="pz-text"></div>
+      <div style="display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center;margin-top:.6rem">
+        <button id="pz-sol">show solution</button><button id="pz-next" class="primary">next puzzle</button><button id="pz-share">copy link</button>
+      </div>
+    </div>
     <div id="analysis" class="panel hidden">
       <div id="an-sum"></div>
       <div id="an-move"></div>
@@ -210,7 +218,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-07c";
+const BUILD = "2026-10-07d";
 // who the initials and band names belong to — tap a played tile to see
 const WHO = {"AOC": "Alexandria Ocasio-Cortez", "RBG": "Ruth Bader Ginsburg", "JFK": "John F. Kennedy", "LBJ": "Lyndon B. Johnson", "FDR": "Franklin D. Roosevelt", "MLK": "Martin Luther King Jr.", "RFK": "Robert F. Kennedy", "JLO": "Jennifer Lopez", "HRC": "Hillary Rodham Clinton", "DJT": "Donald J. Trump", "GWB": "George W. Bush", "DMX": "DMX, rapper (Earl Simmons)", "SZA": "SZA, singer (Solána Rowe)", "RZA": "RZA of Wu-Tang Clan", "GZA": "GZA of Wu-Tang Clan", "ODB": "Ol' Dirty Bastard", "NAS": "Nas, rapper", "KRS": "KRS-One", "DMC": "Darryl McDaniels of Run-DMC", "LL": "LL Cool J", "MC": "MC Hammer", "BB": "B.B. King", "KD": "Kevin Durant", "AI": "Allen Iverson", "JT": "Justin Timberlake", "JB": "Justin Bieber", "MGK": "Machine Gun Kelly", "DRE": "Dr. Dre", "ASAP": "A$AP Rocky", "TI": "T.I., rapper", "DOOM": "MF DOOM", "MF": "MF DOOM", "JRR": "J.R.R. Tolkien", "CS": "C.S. Lewis", "TS": "T.S. Eliot", "EE": "e.e. cummings", "WEB": "W.E.B. Du Bois", "PT": "P.T. Barnum", "RDJ": "Robert Downey Jr.", "PSH": "Philip Seymour Hoffman", "GRRM": "George R.R. Martin", "OJ": "O.J. Simpson", "MJ": "Michael Jordan / Michael Jackson", "PJ": "PJ Harvey", "DJ": "DJ Khaled, among others", "EJ": "EJ Johnson", "LJ": "LeBron James", "KJ": "KJ Apa", "RJ": "RJ Mitte", "JJ": "JJ Abrams / JJ Watt", "BTS": "BTS, the band", "ABBA": "ABBA, the band", "REM": "R.E.M., the band", "TLC": "TLC, the group", "NSYNC": "*NSYNC", "ELO": "Electric Light Orchestra", "OMD": "Orchestral Manoeuvres in the Dark", "NWA": "N.W.A", "INXS": "INXS, the band", "MGMT": "MGMT, the band", "LCD": "LCD Soundsystem", "SWV": "SWV (Sisters With Voices)", "KLF": "The KLF", "EMF": "EMF, the band", "BBD": "Bell Biv DeVoe", "CCR": "Creedence Clearwater Revival", "ELP": "Emerson, Lake & Palmer", "BTO": "Bachman–Turner Overdrive", "REO": "REO Speedwagon", "HIM": "HIM, the band", "ACDC": "AC/DC", "ZZTOP": "ZZ Top", "UB": "UB40", "QUEEN": "Queen, the band", "NIRVANA": "Nirvana, the band", "RADIOHEAD": "Radiohead", "METALLICA": "Metallica", "COLDPLAY": "Coldplay", "OASIS": "Oasis, the band", "BLUR": "Blur, the band", "PULP": "Pulp, the band", "WILCO": "Wilco", "PHISH": "Phish", "RUSH": "Rush, the band", "KISS": "KISS, the band", "GENESIS": "Genesis, the band", "TOOL": "Tool, the band", "MUSE": "Muse, the band", "WEEZER": "Weezer", "PAVEMENT": "Pavement, the band", "FUGAZI": "Fugazi", "SUBLIME": "Sublime, the band", "OUTKAST": "OutKast", "GORILLAZ": "Gorillaz", "BLONDIE": "Blondie", "JOURNEY": "Journey, the band", "STYX": "Styx", "TOTO": "Toto, the band", "CREAM": "Cream, the band", "WHAM": "Wham!", "DEVO": "Devo", "YES": "Yes, the band", "HEART": "Heart, the band", "BOSTON": "Boston, the band", "CHICAGO": "Chicago, the band", "KANSAS": "Kansas, the band", "MIGOS": "Migos"};
 const N = 17, RACK = 9, BINGO = 0, EXTEND_BONUS = true, MAX_PASSES = 6;   // build-off: the name's plain letter value is added once (never multiplied — ×2 on top of name squares gave Deroche 198)
@@ -264,8 +272,8 @@ const uidSelf = (() => { try { let u = localStorage.getItem("agkm-sg-uid"); if (
 const nameMem = { get: () => { try { return localStorage.getItem("agkm-sg-name") || ""; } catch (e) { return ""; } }, set: v => { try { localStorage.setItem("agkm-sg-name", v); } catch (e) { } } };
 
 function newBag(rnd = Math.random) { const t = []; for (const l in CNT) for (let i = 0; i < CNT[l]; i++) t.push(l); for (let i = t.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [t[i], t[j]] = [t[j], t[i]]; } return t.join(""); }
-function newGame(seed, p0, clock) {
-  const bag = newBag(); const r0 = "?" + bag.slice(0, RACK - 1), r1 = "?" + bag.slice(RACK - 1, 2 * RACK - 2);   // everyone starts with a blank, on top of the two in the bag
+function newGame(seed, p0, clock, rnd) {
+  const bag = newBag(rnd); const r0 = "?" + bag.slice(0, RACK - 1), r1 = "?" + bag.slice(RACK - 1, 2 * RACK - 2);   // everyone starts with a blank, on top of the two in the bag
   return { seed, v: 0, turn: 0, bag: bag.slice(2 * RACK - 2), racks: [r0, r1], board: {}, scores: [0, 0], players: [p0, null], log: [], passes: 0, over: false, last: [], created: Date.now(),
     clock: clock || null, times: [clock ? clock.base : 0, clock ? clock.base : 0], tick: 0 };   // clock {base, inc} in ms; tick = server time the running clock started (0 = not running)
 }
@@ -510,7 +518,7 @@ const pname = i => (g.players[i] && g.players[i].name) || (i === 1 ? "waiting…
 function render() {
   if (!g) return;
   for (let i = 0; i < 2; i++) { const e = $("p" + i); e.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); e.querySelector(".sc").textContent = g.scores[i]; e.classList.toggle("turn", !g.over && (g.turn === i || (grabs() && !!g.players[i]))); }
-  $("midname").textContent = an ? "move " + (an.i + 1) + " of " + an.live.log.length : g.over ? "game over" : (grabs() ? "first name takes the first turn" : mode === "hot" ? pname(g.turn) + " to play" : BOTS[g.turn] ? pname(g.turn) + " thinking…" : (myTurn() ? "your turn" : me < 0 ? "watching" : "their turn"));
+  $("midname").textContent = pz ? (pz.state === "making" ? "setting up…" : pz.state === "solved" ? "solved" : "find the best play") : an ? "move " + (an.i + 1) + " of " + an.live.log.length : g.over ? "game over" : (grabs() ? "first name takes the first turn" : mode === "hot" ? pname(g.turn) + " to play" : BOTS[g.turn] ? pname(g.turn) + " thinking…" : (myTurn() ? "your turn" : me < 0 ? "watching" : "their turn"));
   $("bag").textContent = g.bag.length + " in bag";
   const last = new Set(g.last);
   for (const d of $("board").children) {
@@ -534,7 +542,8 @@ function render() {
   $("play").disabled = !canAct || (!exchanging && !np) || (exchanging && !exSel.size); $("play").textContent = exchanging ? "exchange " + exSel.size : "play";
   $("recall").disabled = !np && !exchanging; $("recall").textContent = exchanging ? "cancel" : "recall";
   $("exch").disabled = !canAct || exchanging || g.bag.length < RACK; $("pass").disabled = !canAct || exchanging; $("shuffle").disabled = seat < 0 || exchanging;
-  $("actions").classList.toggle("hidden", seat < 0 || g.over || mode === "watch" || !!an);
+  for (const id of ["exch", "pass"]) $(id).classList.toggle("hidden", !!pz); $("puzzle").classList.toggle("hidden", !pz);
+  $("actions").classList.toggle("hidden", seat < 0 || (g.over && !pz) || mode === "watch" || !!an || (pz && pz.state !== "ready"));
   // preview
   const bub = $("bubble"); bub.classList.add("hidden");
   if (np && DICT) {
@@ -615,6 +624,7 @@ $("shuffle").onclick = () => { const seat = mode === "hot" ? g.turn : me; const 
 $("exch").onclick = () => { pending = {}; selRack = -1; exchanging = true; exSel.clear(); render(); };
 $("pass").onclick = async () => { if (!confirm("Pass your turn?")) return; const p = mode === "hot" ? g.turn : me; await commit(x => applyPass(x, p)); };
 $("play").onclick = async () => {
+  if (pz) { checkPuzzle(); return; }
   const p = mode === "hot" ? g.turn : me;
   if (exchanging) { const letters = [...exSel].map(i => $("rack-row").children[i].dataset.l); const ok = await commit(x => applyExchange(x, p, letters)); if (ok && g.flagged == null) say("Exchanged " + letters.length + "."); return; }
   if (!DICT) { say("Name list still loading…", true); return; }
@@ -623,6 +633,60 @@ $("play").onclick = async () => {
   const ok = await commit(x => applyPlay(x, p, placed, words, score));
   if (ok && g.flagged == null) say(words.map(w => w.word[0] + w.word.slice(1).toLowerCase()).join(", ") + " for " + score + (ev.bingo ? " — all nine!" : "") + (g.over ? "" : ""));
 };
+// ---------- puzzles ----------
+// Puzzle n is deterministic: a seeded bag and layout, a handful of hard-bot moves, then a position whose best play is
+// clearly best (by margin). Drop tiles and press play; a match on score solves it.
+let pz = null;
+const pzMem = { get: () => { try { return JSON.parse(localStorage.getItem("agkm-sg-pz") || "{}"); } catch (e) { return {}; } }, set: v => { try { localStorage.setItem("agkm-sg-pz", JSON.stringify(v)); } catch (e) { } } };
+async function startPuzzle(n) {
+  await dictReady; if (!DICT) return;
+  mode = "puzzle"; me = 0; BOTS[0] = BOTS[1] = null; an = null; pending = {};
+  pz = { n, state: "making", tries: 0 };
+  $("lobby").classList.add("hidden"); $("game").classList.remove("hidden"); $("newbtn").classList.remove("hidden"); $("share").classList.add("hidden");
+  $("pz-text").innerHTML = "setting up puzzle #" + n + "…"; $("seedlbl").textContent = "puzzle #" + n; location.hash = "p=" + n;
+  const saveMode = pz;
+  for (let t = 0; t < 12; t++) {
+    const seed = n * 101 + t, rnd = mulberry32(seed * 31 + 7);
+    g = norm(newGame(1 + (seed % 9999), { uid: "you", name: "you" }, null, rnd)); g.players[1] = { uid: "them", name: "them" };
+    L = layout(g.seed); buildBoard();
+    const skip = 2 + Math.floor(rnd() * 4);   // play at least this many moves before a position may become the puzzle
+    for (let i = 0; i < 16; i++) {
+      await new Promise(r => setTimeout(r, 0)); if (pz !== saveMode) return;
+      const p = g.turn; const moves = botMoves(g.racks[p]); if (!moves.length) break;
+      moves.sort((a, b) => b.score - a.score);
+      if (i >= skip && moves.length > 1 && moves[0].score >= 20 && moves[0].score - moves[1].score >= 5) {
+        me = p; g.tick = 0; g.clock = null; pz.best = moves[0]; pz.second = moves[1]; pz.state = "ready"; pz.seat = p;
+        g.players[p] = { uid: "you", name: "you" }; g.players[1 - p] = { uid: "them", name: "them" };
+        $("pz-text").innerHTML = `Puzzle #${n} · find the highest-scoring play from this rack.` + streakLine();
+        render(); say(""); return;
+      }
+      const pick = moves[Math.floor(rnd() * Math.min(3, moves.length))];
+      g = norm(applyPlay(cleanse(g), p, pick.placed, pick.words, pick.score, pick.pend)); if (g.over) break;
+    }
+  }
+  $("pz-text").textContent = "Couldn't build that puzzle — try the next one."; pz.state = "failed"; render();
+}
+function streakLine() { const m = pzMem.get(); return m.solved ? `<br><span style="color:var(--clay-dark);font-size:.85rem">solved ${m.solved} · streak ${m.streak || 0}</span>` : ""; }
+function checkPuzzle() {
+  if (!pz || pz.state !== "ready") return;
+  const ev = evaluate(); if (!ev.ok) { say(ev.why, true); return; }
+  pz.tries++;
+  const played = ev.words.map(w => nice(w.word)).join(", ");
+  if (ev.score >= pz.best.score) {
+    pz.state = "solved"; const m = pzMem.get(); m.solved = (m.solved || 0) + 1; m.streak = pz.tries === 1 ? (m.streak || 0) + 1 : 0; pzMem.set(m);
+    say(played + " for " + ev.score + " — that's it." + (pz.tries > 1 ? " (" + pz.tries + " tries)" : ""));
+    $("pz-text").innerHTML = `Solved: <b>${played}</b> for ${ev.score}.` + streakLine(); render();
+  } else say(played + " scores " + ev.score + " — there's better.", true);
+}
+function showSolution() {
+  if (!pz || !pz.best) return; pz.state = "solved"; const m = pzMem.get(); m.streak = 0; pzMem.set(m);
+  pending = { ...pz.best.pend }; render();
+  const b = pz.best; $("pz-text").innerHTML = `Best: <b>${b.words.map(w => nice(w.word)).join(", ")}</b> for ${b.score} (next best ${pz.second.score}).` + streakLine(); say("");
+}
+$("puzzles").onclick = () => startPuzzle(1 + Math.floor(Math.random() * 9999));
+$("pz-next").onclick = () => startPuzzle(1 + Math.floor(Math.random() * 9999));
+$("pz-sol").onclick = showSolution;
+$("pz-share").onclick = () => { const u = location.origin + location.pathname + "#p=" + pz.n; navigator.clipboard?.writeText(u).then(() => say("Link copied.")); };
 let lookupOpen = {};
 $("lookup-more").addEventListener("click", e => { const a = e.target.closest(".lk-more"); if (!a) return; e.preventDefault(); lookupOpen[a.dataset.kind] = true; $("lookup-in").dispatchEvent(new Event("input")); });
 $("lookup-in").addEventListener("input", () => {
@@ -719,10 +783,11 @@ $("bot").onclick = () => { const lv = $("level").value; BOTS[0] = null; BOTS[1] 
 $("watch").onclick = () => { const lv = $("level").value; BOTS[0] = lv; BOTS[1] = lv; mode = "watch"; me = -1; g = norm(newGame(1 + Math.floor(Math.random() * 9999), { uid: "bot0", name: "computer A" })); g.players[1] = { uid: "bot1", name: "computer B" }; $("newbtn").classList.remove("hidden"); enterGame(); scheduleBot(); };
 $("hot").onclick = () => { mode = "hot"; me = 0; g = norm(newGame(1 + Math.floor(Math.random() * 9999), { uid: "a", name: getName() }, lobbyClock())); g.players[1] = { uid: "b", name: "player 2" }; g.tick = g.clock ? now() : 0; $("newbtn").classList.remove("hidden"); enterGame(); };
 $("joinbtn").onclick = async () => { const m = location.hash.match(/g=(\w+)/); if (!m) return; try { await openRoom(m[1], getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server."); } };
+const hp = location.hash.match(/p=(\d+)/); if (hp) startPuzzle(+hp[1]);
 const hm = location.hash.match(/g=(\w+)/);
 if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("watch").parentElement.classList.add("hidden"); $("clockrow").classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
 dictReady.then(() => { if (g) render(); });
-window.__sg = { get g() { return g; }, set g(v) { g = v; }, get pending() { return pending; }, set pending(v) { pending = v; }, evaluate, layout, newGame, norm, applyPlay, applyPass, applyExchange, render, enterGame, setMode: (m, s) => { mode = m; me = s; }, get mode() { return mode; }, botMoves, botTurn, BOTS, get an() { return an; }, openAnalysis, showMove, bestFor, remaining, applyFlag, paintClocks, get now() { return now(); }, setOffset: v => { timeOffset = v; } };
+window.__sg = { get g() { return g; }, set g(v) { g = v; }, get pending() { return pending; }, set pending(v) { pending = v; }, evaluate, layout, newGame, norm, applyPlay, applyPass, applyExchange, render, enterGame, setMode: (m, s) => { mode = m; me = s; }, get mode() { return mode; }, botMoves, botTurn, BOTS, get an() { return an; }, get pz() { return pz; }, startPuzzle, openAnalysis, showMove, bestFor, remaining, applyFlag, paintClocks, get now() { return now(); }, setOffset: v => { timeOffset = v; } };
 </script>
 </body>
 </html>
