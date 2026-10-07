@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-04",
-  "image": "pool-2026-10-04.jpg",
-  "headline": "Rafale fighters face S - 400 test in Ukraine",
-  "url": "https://www.bankingnews.gr/amyna-diplomatia/articles/902864/rafale-fighters-face-s-400-test-in-ukraine",
-  "outlet": "bankingnews.gr",
-  "t": "2026-10-04T12:21:25+00:00",
-  "hash": 579714000290567
- },
- {
-  "id": "2026-10-04-b",
-  "image": "pool-2026-10-04-b.jpg",
-  "headline": "CCTV Shows Russian Drone Strike on Kyiv School",
-  "url": "https://www.kyivpost.com/post/85896",
-  "outlet": "kyivpost.com",
-  "t": "2026-10-04T12:21:25+00:00",
-  "hash": 2586138240130420495
- },
- {
-  "id": "2026-10-04-c",
-  "image": "pool-2026-10-04-c.jpg",
-  "headline": "Arab News | Two major Kyiv bridges shut after Russian drone strikes",
-  "url": "https://www.arabnews.com/world/two-major-kyiv-bridges-shut-after-russian-drone-strikes-3004210",
-  "outlet": "arabnews.com",
-  "t": "2026-10-04T12:21:25+00:00",
-  "hash": 6931039829912059903
- },
- {
   "id": "2026-10-05-0138-0",
   "image": "pool-2026-10-05-0138-0.jpg",
   "headline": "Toxic algal blooms are spreading across the West",
@@ -169,5 +142,32 @@
   "t": "2026-10-06T18:26:13+00:00",
   "vista": 7.0,
   "hash": 74061045705998335
+ },
+ {
+  "id": "2026-10-07",
+  "image": "pool-2026-10-07.jpg",
+  "headline": "First UAE - built commercial satellite completes historic launch in major step forward in space race",
+  "url": "https://www.thenationalnews.com/news/uae/2026/10/02/first-uae-built-commercial-satellite-completes-historic-launch-in-major-step-forward-in-space-race/",
+  "outlet": "thenationalnews.com",
+  "t": "2026-10-07T13:20:26+00:00",
+  "hash": 36276153278791680
+ },
+ {
+  "id": "2026-10-07-b",
+  "image": "pool-2026-10-07-b.jpg",
+  "headline": "City Hall Launches Day 2 of  Operation Okoa Maisha  El Ni\u00f1o Emergency Simulation \u2013 Capital FM Kenya",
+  "url": "https://capitalfm.africa/city-hall-launches-day-2-of-operation-okoa-maisha-el-nino-emergency-simulation/",
+  "outlet": "capitalfm.africa",
+  "t": "2026-10-07T13:20:26+00:00",
+  "hash": 220825916459966351
+ },
+ {
+  "id": "2026-10-07-c",
+  "image": "pool-2026-10-07-c.jpg",
+  "headline": "Government to investigate post - quake death toll among NTT evacuees - Society",
+  "url": "http://www.thejakartapost.com/indonesia/2026/10/02/government-to-investigate-post-quake-death-toll-among-ntt-evacuees",
+  "outlet": "thejakartapost.com",
+  "t": "2026-10-07T13:20:26+00:00",
+  "hash": 9259546818868666855
  }
 ]

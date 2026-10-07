@@ -138,5 +138,12 @@
   "url": "https://www.business-standard.com/world-news/indonesia-s-anak-krakatau-volcano-spawns-two-new-islands-after-eruption-126100200287_1.html",
   "outlet": "business-standard.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-07",
+  "headline": "First UAE - built commercial satellite completes historic launch in major step forward in space race",
+  "url": "https://www.thenationalnews.com/news/uae/2026/10/02/first-uae-built-commercial-satellite-completes-historic-launch-in-major-step-forward-in-space-race/",
+  "outlet": "thenationalnews.com",
+  "method": "crop-flat"
  }
 ]
