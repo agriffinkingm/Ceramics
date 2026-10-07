@@ -86,6 +86,7 @@
   #lookup input { width: 100%; max-width: 20rem; text-align: center; letter-spacing: .12em; text-transform: uppercase; font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; }
   #lookup-out { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; color: var(--stone); min-height: 1.4rem; text-align: center; }
   #lookup-out.yes { color: #4f7a5a; } #lookup-out.no { color: var(--terracotta); }
+  #lookup-more a { color: var(--terracotta); text-decoration: none; }
   #lookup-more { font-size: .78rem; letter-spacing: .05em; color: var(--clay-dark); text-align: center; line-height: 1.6; max-width: 26rem; }
   #msg { text-align: center; min-height: 1.4rem; margin: .5rem 0; font-size: .9rem; color: var(--stone); font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; }
   #msg.bad { color: var(--terracotta); }
@@ -131,7 +132,7 @@
   <div id="rules" class="panel hidden">
     <h3>How Sgriffle works</h3>
     <p>Scrabble, except the only playable words are <b>names</b>: every surname in the 2000 US Census held by at least 1,000 people, plus every first name the Social Security Administration has recorded for at least 1,000 babies since 1880 — 31,918 names in all — plus a few house names: Grief, Graff, Gruff, Gryph, Groff, Gorf, Garf, Grr, Gr, Grif, Sgriff, Sgriffle, Kojo, Lenk and Maho. Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
-    <p>17×17 board, 9 tiles on your rack, 129 tiles in the bag (2 blanks). <b>No centre rule</b>: the first name goes anywhere, at least two letters — though the centre square is a triple name on every board, so there's a reason to go there. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
+    <p>17×17 board, 9 tiles on your rack, 129 tiles in the bag (2 blanks) — and everyone starts the game holding a blank of their own. <b>No centre rule</b>: the first name goes anywhere, at least two letters — though the centre square is a triple name on every board, so there's a reason to go there. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
     <p>Tap a tile then a square, or drag it there; drag tiles within the rack to rearrange them. You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
     <p><b>Build-off bonus.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name earns its plain letter value again on top (any name you form that contains two or more old tiles counts). It's added, never multiplied, so it can't stack with the name squares.</p>
@@ -209,7 +210,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-06l";
+const BUILD = "2026-10-06m";
 const N = 17, RACK = 9, BINGO = 75, EXTEND_BONUS = true, MAX_PASSES = 6;   // build-off: the name's plain letter value is added once (never multiplied — ×2 on top of name squares gave Deroche 198)
 const VAL = { E:1,A:1,R:1,N:1,L:1,O:1,I:1,S:1, T:2,C:2,H:2,M:2,D:2,U:2, B:3,K:3,J:3, Y:4,P:4,W:4,F:4,Z:4, G:6, V:7, X:10,Q:10 };
 const CNT = { E:14,A:11,R:11,N:9,L:8,O:8,I:7,S:7,T:6,C:4,D:4,H:4,M:4,U:4,G:5,F:4,B:3,K:3,P:2,W:2,Y:2,V:1,Z:1,J:1,Q:1,X:1, "?":2 };
@@ -262,8 +263,8 @@ const nameMem = { get: () => { try { return localStorage.getItem("agkm-sg-name")
 
 function newBag(rnd = Math.random) { const t = []; for (const l in CNT) for (let i = 0; i < CNT[l]; i++) t.push(l); for (let i = t.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [t[i], t[j]] = [t[j], t[i]]; } return t.join(""); }
 function newGame(seed, p0, clock) {
-  const bag = newBag(); const r0 = bag.slice(0, RACK), r1 = bag.slice(RACK, 2 * RACK);
-  return { seed, v: 0, turn: 0, bag: bag.slice(2 * RACK), racks: [r0, r1], board: {}, scores: [0, 0], players: [p0, null], log: [], passes: 0, over: false, last: [], created: Date.now(),
+  const bag = newBag(); const r0 = "?" + bag.slice(0, RACK - 1), r1 = "?" + bag.slice(RACK - 1, 2 * RACK - 2);   // everyone starts with a blank, on top of the two in the bag
+  return { seed, v: 0, turn: 0, bag: bag.slice(2 * RACK - 2), racks: [r0, r1], board: {}, scores: [0, 0], players: [p0, null], log: [], passes: 0, over: false, last: [], created: Date.now(),
     clock: clock || null, times: [clock ? clock.base : 0, clock ? clock.base : 0], tick: 0 };   // clock {base, inc} in ms; tick = server time the running clock started (0 = not running)
 }
 function lobbyClock() { if ($("tmode").value !== "timed") return null; return { base: +$("tmin").value * 60000, inc: +$("tinc").value * 1000 }; }
@@ -610,15 +611,18 @@ $("play").onclick = async () => {
   const ok = await commit(x => applyPlay(x, p, placed, words, score));
   if (ok && g.flagged == null) say(words.map(w => w.word[0] + w.word.slice(1).toLowerCase()).join(", ") + " for " + score + (ev.bingo ? " — all nine!" : "") + (g.over ? "" : ""));
 };
+let lookupOpen = {};
+$("lookup-more").addEventListener("click", e => { const a = e.target.closest(".lk-more"); if (!a) return; e.preventDefault(); lookupOpen[a.dataset.kind] = true; $("lookup-in").dispatchEvent(new Event("input")); });
 $("lookup-in").addEventListener("input", () => {
+  if ($("lookup-in").value !== lookupOpen.q) lookupOpen = { q: $("lookup-in").value };
   const q = $("lookup-in").value.toUpperCase().replace(/[^A-Z]/g, ""), out = $("lookup-out"), more = $("lookup-more");
   if (!q || !DICT) { out.textContent = ""; out.className = ""; more.textContent = ""; return; }
   const has = DICT.has(q); out.textContent = has ? nice(q) + " — yes" : nice(q) + " — not a name we know"; out.className = has ? "yes" : "no";
   more.innerHTML = "";
   {   // what the name could grow into, both ways (live too, for now)
     const pre = [], suf = []; for (const w of DICT) { if (w === q) continue; if (w.startsWith(q)) pre.push(w); else if (w.endsWith(q)) suf.push(w); }
-    const srt = a => a.sort((x, y) => x.length - y.length || x.localeCompare(y)).slice(0, 12).map(nice).join(" · ") + (a.length > 12 ? ` · … ${a.length - 12} more` : "");
-    more.innerHTML = (pre.length ? `<div><span style="color:var(--stone)">grows to</span> ${srt(pre)}</div>` : "") + (suf.length ? `<div><span style="color:var(--stone)">ends with it</span> ${srt(suf)}</div>` : "");
+    const srt = (a, kind) => { a.sort((x, y) => x.length - y.length || x.localeCompare(y)); const all = lookupOpen[kind] || a.length <= 12; return a.slice(0, all ? a.length : 12).map(nice).join(" · ") + (all ? "" : ` · <a href="#" class="lk-more" data-kind="${kind}">… ${a.length - 12} more</a>`); };
+    more.innerHTML = (pre.length ? `<div><span style="color:var(--stone)">grows to</span> ${srt(pre, "pre")}</div>` : "") + (suf.length ? `<div><span style="color:var(--stone)">ends with it</span> ${srt(suf, "suf")}</div>` : "");
   }
 });
 // ---------- post-game analyzer ----------
