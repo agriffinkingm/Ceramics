@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-05",
-  "image": "pool-2026-10-05.jpg",
-  "headline": "Airstrike - Devastated Villages in Shwegu Township Urgently Need Reconstruction Aid",
-  "url": "https://www.bnionline.net/en/news/airstrike-devastated-villages-shwegu-township-urgently-need-reconstruction-aid",
-  "outlet": "bnionline.net",
-  "t": "2026-10-05T14:32:53+00:00",
-  "hash": 1303809925307997886
- },
- {
-  "id": "2026-10-05-b",
-  "image": "pool-2026-10-05-b.jpg",
-  "headline": "Aircraft crashes in northern Israel , two injured",
-  "url": "https://www.israelnationalnews.com/news/433991",
-  "outlet": "israelnationalnews.com",
-  "t": "2026-10-05T14:32:53+00:00",
-  "hash": 18437385582638841526
- },
- {
-  "id": "2026-10-05-c",
-  "image": "pool-2026-10-05-c.jpg",
-  "headline": "Chinese work gathering pace on Antelope Reef in South China Sea , latest satellite images show",
-  "url": "https://economictimes.indiatimes.com/news/defence/chinas-antelope-reef-military-base-strategic-expansion-in-the-south-china-sea-by-mid-2027/articleshow/134633049.cms",
-  "outlet": "economictimes.indiatimes.com",
-  "t": "2026-10-05T14:32:53+00:00",
-  "hash": 240972152639
- },
- {
   "id": "2026-10-05-1113-0",
   "image": "pool-2026-10-05-1113-0.jpg",
   "headline": "Narayani water level receding , flood risk eases in other rivers",
@@ -169,5 +142,32 @@
   "t": "2026-10-08T06:03:46+00:00",
   "vista": 9.0,
   "hash": 9006916115401281536
+ },
+ {
+  "id": "2026-10-08",
+  "image": "pool-2026-10-08.jpg",
+  "headline": "Indigenous leaders killed in Philippines were  red - tagged  over dam opposition",
+  "url": "https://news.mongabay.com/2021/02/indigenous-leaders-killed-in-philippines-were-red-tagged-over-dam-opposition/",
+  "outlet": "news.mongabay.com",
+  "t": "2026-10-08T13:26:01+00:00",
+  "hash": 13898161347354181182
+ },
+ {
+  "id": "2026-10-08-b",
+  "image": "pool-2026-10-08-b.jpg",
+  "headline": "Himlung avalanche toll rises to 15 , one still missing",
+  "url": "https://peoplesreview.com.np/2026/10/02/himlung-avalanche-toll-rises-to-15-one-still-missing/",
+  "outlet": "peoplesreview.com.np",
+  "t": "2026-10-08T13:26:01+00:00",
+  "hash": 18445609481057337344
+ },
+ {
+  "id": "2026-10-08-c",
+  "image": "pool-2026-10-08-c.jpg",
+  "headline": "Outdoor lab : Glacier bumble bee study explores population declines",
+  "url": "https://dailyinterlake.com/news/2026/oct/02/bumble-bees/",
+  "outlet": "dailyinterlake.com",
+  "t": "2026-10-08T13:26:01+00:00",
+  "hash": 1168746208932460799
  }
 ]
