@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-05-1113-0",
-  "image": "pool-2026-10-05-1113-0.jpg",
-  "headline": "Narayani water level receding , flood risk eases in other rivers",
-  "url": "https://peoplesreview.com.np/2026/09/28/narayani-water-level-receding-flood-risk-eases-in-other-rivers/",
-  "outlet": "peoplesreview.com.np",
-  "t": "2026-10-05T15:13:06+00:00",
-  "vista": 9.0,
-  "hash": 18446708751894446080
- },
- {
   "id": "2026-10-05-1113-1",
   "image": "pool-2026-10-05-1113-1.jpg",
   "headline": "At least 14 people dead in 72 hours as relentless rainfall wreaks havoc in Nepal",
@@ -169,5 +159,15 @@
   "outlet": "dailyinterlake.com",
   "t": "2026-10-08T13:26:01+00:00",
   "hash": 1168746208932460799
+ },
+ {
+  "id": "2026-10-08-1926-0",
+  "image": "pool-2026-10-08-1926-0.jpg",
+  "headline": "How Disney parks have evolved through the years",
+  "url": "https://www.fox35orlando.com/news/how-disney-parks-have-evolved-through-years",
+  "outlet": "fox35orlando.com",
+  "t": "2026-10-08T23:26:24+00:00",
+  "vista": 8.0,
+  "hash": 5483136944383524863
  }
 ]
