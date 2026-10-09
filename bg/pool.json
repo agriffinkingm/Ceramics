@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-05-2008-1",
-  "image": "pool-2026-10-05-2008-1.jpg",
-  "headline": "Moundville Responds To 15 - acre Fire Near Lock 8",
-  "url": "https://953thebear.com/wildfire-season-hits-alabama-communities/",
-  "outlet": "953thebear.com",
-  "t": "2026-10-06T00:08:48+00:00",
-  "vista": 7.0,
-  "hash": 1802647153606656
- },
- {
   "id": "2026-10-06-0221-0",
   "image": "pool-2026-10-06-0221-0.jpg",
   "headline": "Eritrea cuts ties with Ethiopia over Asmara embassy closure",
@@ -166,5 +156,15 @@
   "outlet": "chesterstandard.co.uk",
   "t": "2026-10-09T13:14:28+00:00",
   "hash": 2236319190068457249
+ },
+ {
+  "id": "2026-10-09-1841-0",
+  "image": "pool-2026-10-09-1841-0.jpg",
+  "headline": "US Reinforcing Military Presence In Middle East As Iran Tensions Rise",
+  "url": "http://www.orlandoecho.com/news/279347225/us-reinforcing-military-presence-in-middle-east-as-iran-tensions-rise",
+  "outlet": "orlandoecho.com",
+  "t": "2026-10-09T22:41:33+00:00",
+  "vista": 7.0,
+  "hash": 6949089546994712575
  }
 ]
