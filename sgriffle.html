@@ -91,8 +91,9 @@
   #lookup-more { font-size: .78rem; letter-spacing: .05em; color: var(--clay-dark); text-align: center; line-height: 1.6; max-width: 26rem; }
   #msg { text-align: center; min-height: 1.4rem; margin: .5rem 0; font-size: .9rem; color: var(--stone); font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.05rem; }
   #msg.bad { color: var(--terracotta); }
-  #bubble { position: absolute; z-index: 2; pointer-events: none; min-width: 1.5em; height: 1.5em; padding: 0 .35em; border-radius: 1em; background: var(--charcoal); color: var(--ivory); font-family: 'Karla', sans-serif; font-weight: 500; font-size: .78rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(44,40,32,.4); transform: translate(-60%, -60%); }
+  #bubble { position: absolute; z-index: 2; pointer-events: none; min-width: 1.5em; height: 1.5em; padding: 0 .35em; border-radius: 1em; background: #4f7a5a; color: var(--ivory); font-family: 'Karla', sans-serif; font-weight: 500; font-size: .78rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(44,40,32,.4); transform: translate(-60%, -60%); }
   #bubble.bad { background: var(--terracotta); }
+  #preview.ok { color: #4f7a5a; } #preview.bad { color: var(--terracotta); }
   #preview { text-align: center; font-size: .8rem; letter-spacing: .05em; color: var(--clay-dark); min-height: 1.2rem; }
 
   /* log */
@@ -220,7 +221,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-09c";
+const BUILD = "2026-10-09d";
 const NAME_BONUS = 25;   // for playing your own name
 // who the initials and band names belong to — tap a played tile to see
 const WHO = {"AOC": "Alexandria Ocasio-Cortez", "RBG": "Ruth Bader Ginsburg", "JFK": "John F. Kennedy", "LBJ": "Lyndon B. Johnson", "FDR": "Franklin D. Roosevelt", "MLK": "Martin Luther King Jr.", "RFK": "Robert F. Kennedy", "JLO": "Jennifer Lopez", "HRC": "Hillary Rodham Clinton", "DJT": "Donald J. Trump", "GWB": "George W. Bush", "DMX": "DMX, rapper (Earl Simmons)", "SZA": "SZA, singer (Solána Rowe)", "RZA": "RZA of Wu-Tang Clan", "GZA": "GZA of Wu-Tang Clan", "ODB": "Ol' Dirty Bastard", "NAS": "Nas, rapper", "KRS": "KRS-One", "DMC": "Darryl McDaniels of Run-DMC", "LL": "LL Cool J", "MC": "MC Hammer", "BB": "B.B. King", "KD": "Kevin Durant", "AI": "Allen Iverson", "JT": "Justin Timberlake", "JB": "Justin Bieber", "MGK": "Machine Gun Kelly", "DRE": "Dr. Dre", "ASAP": "A$AP Rocky", "TI": "T.I., rapper", "DOOM": "MF DOOM", "MF": "MF DOOM", "JRR": "J.R.R. Tolkien", "CS": "C.S. Lewis", "TS": "T.S. Eliot", "EE": "e.e. cummings", "WEB": "W.E.B. Du Bois", "PT": "P.T. Barnum", "RDJ": "Robert Downey Jr.", "PSH": "Philip Seymour Hoffman", "GRRM": "George R.R. Martin", "OJ": "O.J. Simpson", "MJ": "Michael Jordan / Michael Jackson", "PJ": "PJ Harvey", "DJ": "DJ Khaled, among others", "EJ": "EJ Johnson", "LJ": "LeBron James", "KJ": "KJ Apa", "RJ": "RJ Mitte", "JJ": "JJ Abrams / JJ Watt", "BTS": "BTS, the band", "ABBA": "ABBA, the band", "REM": "R.E.M., the band", "TLC": "TLC, the group", "NSYNC": "*NSYNC", "ELO": "Electric Light Orchestra", "OMD": "Orchestral Manoeuvres in the Dark", "NWA": "N.W.A", "INXS": "INXS, the band", "MGMT": "MGMT, the band", "LCD": "LCD Soundsystem", "SWV": "SWV (Sisters With Voices)", "KLF": "The KLF", "EMF": "EMF, the band", "BBD": "Bell Biv DeVoe", "CCR": "Creedence Clearwater Revival", "ELP": "Emerson, Lake & Palmer", "BTO": "Bachman–Turner Overdrive", "REO": "REO Speedwagon", "HIM": "HIM, the band", "ACDC": "AC/DC", "ZZTOP": "ZZ Top", "UB": "UB40", "QUEEN": "Queen, the band", "NIRVANA": "Nirvana, the band", "RADIOHEAD": "Radiohead", "METALLICA": "Metallica", "COLDPLAY": "Coldplay", "OASIS": "Oasis, the band", "BLUR": "Blur, the band", "PULP": "Pulp, the band", "WILCO": "Wilco", "PHISH": "Phish", "RUSH": "Rush, the band", "KISS": "KISS, the band", "GENESIS": "Genesis, the band", "TOOL": "Tool, the band", "MUSE": "Muse, the band", "WEEZER": "Weezer", "PAVEMENT": "Pavement, the band", "FUGAZI": "Fugazi", "SUBLIME": "Sublime, the band", "OUTKAST": "OutKast", "GORILLAZ": "Gorillaz", "BLONDIE": "Blondie", "JOURNEY": "Journey, the band", "STYX": "Styx", "TOTO": "Toto, the band", "CREAM": "Cream, the band", "WHAM": "Wham!", "DEVO": "Devo", "YES": "Yes, the band", "HEART": "Heart, the band", "BOSTON": "Boston, the band", "CHICAGO": "Chicago, the band", "KANSAS": "Kansas, the band", "MIGOS": "Migos"};
@@ -555,10 +556,10 @@ function render() {
   // preview
   const bub = $("bubble"); bub.classList.add("hidden");
   if (np && DICT) {
-    const ev = evaluate(); $("preview").textContent = ev.words ? ev.words.map(w => w.word + (w.bonus ? " +" + w.bonus : "") + " " + w.score).join(" · ") + (ev.self ? " · your name +" + NAME_BONUS : "") + (ev.bingo ? " · ALL TEN — wins" : "") + " = " + ev.score : "";
+    const ev = evaluate(); $("preview").className = ev.words ? (ev.ok ? "ok" : "bad") : ""; $("preview").textContent = ev.words ? ev.words.map(w => w.word + (w.bonus ? " +" + w.bonus : "") + " " + w.score).join(" · ") + (ev.self ? " · your name +" + NAME_BONUS : "") + (ev.bingo ? " · ALL TEN — wins" : "") + " = " + ev.score : "";
     if (ev.words) { const [r, c] = ev.words[0].cells[ev.words[0].cells.length - 1]; const cell = $("board").children[r * N + c]; bub.textContent = ev.score; bub.className = ev.ok ? "" : "bad"; bub.style.left = (cell.offsetLeft + cell.offsetWidth) + "px"; bub.style.top = cell.offsetTop + "px"; }
   }
-  else $("preview").textContent = exchanging ? "tap the tiles to swap, then exchange" : "";
+  else { $("preview").className = ""; $("preview").textContent = exchanging ? "tap the tiles to swap, then exchange" : ""; }
   // over
   const om = $("overmsg");
   if (g.over) { const w = g.won != null ? (g.why === "bingo" ? pname(g.won) + " played all ten tiles. " : pname(g.won) + " played Sgriffle. ") + pname(g.won) + " wins." : g.flagged != null ? pname(1 - g.flagged) + " wins on time, " + g.scores[1 - g.flagged] + " to " + g.scores[g.flagged] + "." : g.scores[0] === g.scores[1] ? "A draw." : (g.scores[0] > g.scores[1] ? pname(0) : pname(1)) + " wins, " + Math.max(...g.scores) + " to " + Math.min(...g.scores) + "."; om.textContent = w; om.classList.remove("hidden"); } else om.classList.add("hidden");
