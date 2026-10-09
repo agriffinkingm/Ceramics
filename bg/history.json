@@ -152,5 +152,12 @@
   "url": "https://news.mongabay.com/2021/02/indigenous-leaders-killed-in-philippines-were-red-tagged-over-dam-opposition/",
   "outlet": "news.mongabay.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-09",
+  "headline": "Russia burning as Ukraine launches massive drone attack on Moscow",
+  "url": "https://www.express.co.uk/news/world/2254731/russia-burning-ukraine-massive-drone-attack-moscow",
+  "outlet": "express.co.uk",
+  "method": "crop-flat"
  }
 ]

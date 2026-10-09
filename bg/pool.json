@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-10-05-1113-1",
-  "image": "pool-2026-10-05-1113-1.jpg",
-  "headline": "At least 14 people dead in 72 hours as relentless rainfall wreaks havoc in Nepal",
-  "url": "http://www.nepalnational.com/news/279335129/at-least-14-people-dead-in-72-hours-as-relentless-rainfall-wreaks-havoc-in-nepal",
-  "outlet": "nepalnational.com",
-  "t": "2026-10-05T15:13:06+00:00",
-  "vista": 8.0,
-  "hash": 14394352141131113471
- },
- {
-  "id": "2026-10-05-1228-0",
-  "image": "pool-2026-10-05-1228-0.jpg",
-  "headline": "Iran  fiery  plan \u2026 end of US bases in the Persian Gulf \u2013 Trump panic move with 3 aircraft carriers , what is happening with SM - 6",
-  "url": "https://www.bankingnews.gr/diethni/articles/902828/iran-s-fiery-plan-end-of-us-bases-in-the-persian-gulf-trump-s-panic-move-with-3-aircraft-carriers-what-is-happening-with-sm-6%20title=",
-  "outlet": "bankingnews.gr",
-  "t": "2026-10-05T16:28:33+00:00",
-  "vista": 7.0,
-  "hash": 22023518355452
- },
- {
-  "id": "2026-10-05-2008-0",
-  "image": "pool-2026-10-05-2008-0.jpg",
-  "headline": "Nigeria Plans US$289 Million Cassava Ethanol Plant",
-  "url": "https://www.riotimesonline.com/nigeria-cassava-bioethanol-industry-2026/",
-  "outlet": "riotimesonline.com",
-  "t": "2026-10-06T00:08:47+00:00",
-  "vista": 9.0,
-  "hash": 5174509857730774024
- },
- {
   "id": "2026-10-05-2008-1",
   "image": "pool-2026-10-05-2008-1.jpg",
   "headline": "Moundville Responds To 15 - acre Fire Near Lock 8",
@@ -169,5 +139,32 @@
   "t": "2026-10-08T23:26:24+00:00",
   "vista": 8.0,
   "hash": 5483136944383524863
+ },
+ {
+  "id": "2026-10-09",
+  "image": "pool-2026-10-09.jpg",
+  "headline": "Russia burning as Ukraine launches massive drone attack on Moscow",
+  "url": "https://www.express.co.uk/news/world/2254731/russia-burning-ukraine-massive-drone-attack-moscow",
+  "outlet": "express.co.uk",
+  "t": "2026-10-09T13:14:28+00:00",
+  "hash": 247385818132451
+ },
+ {
+  "id": "2026-10-09-b",
+  "image": "pool-2026-10-09-b.jpg",
+  "headline": "Inside the Donkervoort , a Dutch super car like no other",
+  "url": "https://www.cityam.com/inside-the-donkervoort-a-dutch-super-car-like-no-other/",
+  "outlet": "cityam.com",
+  "t": "2026-10-09T13:14:28+00:00",
+  "hash": 9764895722317821989
+ },
+ {
+  "id": "2026-10-09-c",
+  "image": "pool-2026-10-09-c.jpg",
+  "headline": "Two taken to hospital after M53 crash near Ellesmere Port | Chester and District Standard",
+  "url": "https://www.chesterstandard.co.uk/news/26609868.two-taken-hospital-m53-crash-near-ellesmere-port/",
+  "outlet": "chesterstandard.co.uk",
+  "t": "2026-10-09T13:14:28+00:00",
+  "hash": 2236319190068457249
  }
 ]
