@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-06-0221-0",
-  "image": "pool-2026-10-06-0221-0.jpg",
-  "headline": "Eritrea cuts ties with Ethiopia over Asmara embassy closure",
-  "url": "https://www.cnbcafrica.com/2026/eritrea-cuts-ties-with-ethiopia-over-asmara-embassy-closure",
-  "outlet": "cnbcafrica.com",
-  "t": "2026-10-06T06:21:03+00:00",
-  "vista": 7.0,
-  "hash": 2310399593578789116
- },
- {
-  "id": "2026-10-06",
-  "image": "pool-2026-10-06.jpg",
-  "headline": "Indonesia Anak Krakatau volcano spawns two new islands after eruption",
-  "url": "https://www.business-standard.com/world-news/indonesia-s-anak-krakatau-volcano-spawns-two-new-islands-after-eruption-126100200287_1.html",
-  "outlet": "business-standard.com",
-  "t": "2026-10-06T13:36:38+00:00",
-  "hash": 17661713989631
- },
- {
-  "id": "2026-10-06-b",
-  "image": "pool-2026-10-06-b.jpg",
-  "headline": "Trust is climate infrastructure : What Mauritius teaches us about building truly resilient communities",
-  "url": "https://www.resilience.org/stories/2026-10-06/trust-is-climate-infrastructure-what-mauritius-teaches-us-about-building-truly-resilient-communities/",
-  "outlet": "resilience.org",
-  "t": "2026-10-06T13:36:38+00:00",
-  "hash": 31885770063616
- },
- {
   "id": "2026-10-06-c",
   "image": "pool-2026-10-06-c.jpg",
   "headline": "5 U . S . Destinations Where Fall Color Lasts Beyond New England Early Peak",
@@ -166,5 +138,32 @@
   "t": "2026-10-09T22:41:33+00:00",
   "vista": 7.0,
   "hash": 6949089546994712575
+ },
+ {
+  "id": "2026-10-10",
+  "image": "pool-2026-10-10.jpg",
+  "headline": "Nepal plans to drain four glacial lakes after deadly floods",
+  "url": "https://www.straitstimes.com/asia/nepal-plans-to-drain-four-glacial-lakes-after-deadly-floods",
+  "outlet": "straitstimes.com",
+  "t": "2026-10-10T12:29:30+00:00",
+  "hash": 7927470298876614975
+ },
+ {
+  "id": "2026-10-10-b",
+  "image": "pool-2026-10-10-b.jpg",
+  "headline": "Arab News | Five dead as mine collapses collapse in west Turkiye",
+  "url": "https://www.arabnews.com/middle-east/five-dead-as-mine-collapses-collapse-in-west-turkiye-3004215",
+  "outlet": "arabnews.com",
+  "t": "2026-10-10T12:29:30+00:00",
+  "hash": 1081994239108914128
+ },
+ {
+  "id": "2026-10-10-c",
+  "image": "pool-2026-10-10-c.jpg",
+  "headline": "Isaias makes landfall as hurricane , hammering US Gulf Coast with powerful winds , dangerous flooding",
+  "url": "https://www.sun-sentinel.com/2026/10/09/isaias-makes-landfall-as-hurricane-hammering-us-gulf-coast-with-powerful-winds-dangerous-flooding/",
+  "outlet": "sun-sentinel.com",
+  "t": "2026-10-10T12:29:30+00:00",
+  "hash": 15798201583696383
  }
 ]

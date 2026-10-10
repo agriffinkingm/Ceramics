@@ -159,5 +159,12 @@
   "url": "https://www.express.co.uk/news/world/2254731/russia-burning-ukraine-massive-drone-attack-moscow",
   "outlet": "express.co.uk",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-10",
+  "headline": "Nepal plans to drain four glacial lakes after deadly floods",
+  "url": "https://www.straitstimes.com/asia/nepal-plans-to-drain-four-glacial-lakes-after-deadly-floods",
+  "outlet": "straitstimes.com",
+  "method": "outpaint"
  }
 ]
