@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-06-1426-0",
-  "image": "pool-2026-10-06-1426-0.jpg",
-  "headline": "How Switzerland lost 20 percent of its ice in five years",
-  "url": "https://www.aljazeera.com/news/2026/10/2/how-switzerland-lost-20-percent-of-its-ice-in-five-years",
-  "outlet": "aljazeera.com",
-  "t": "2026-10-06T18:26:13+00:00",
-  "vista": 9.0,
-  "hash": 9223213585923047696
- },
- {
   "id": "2026-10-06-1426-1",
   "image": "pool-2026-10-06-1426-1.jpg",
   "headline": "Newsom vetoes bill aimed at funding Sacramento - San Joaquin delta levee repairs , water infrastructure",
@@ -166,5 +156,15 @@
   "t": "2026-10-10T12:57:24+00:00",
   "vista": 7.0,
   "hash": 1802647153606656
+ },
+ {
+  "id": "2026-10-10-1004-0",
+  "image": "pool-2026-10-10-1004-0.jpg",
+  "headline": "Nigeria Plans US$289 Million Cassava Ethanol Plant",
+  "url": "https://www.riotimesonline.com/nigeria-cassava-bioethanol-industry-2026/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-10-10T14:04:13+00:00",
+  "vista": 9.0,
+  "hash": 5174509857730774024
  }
 ]
