@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-06-c",
-  "image": "pool-2026-10-06-c.jpg",
-  "headline": "5 U . S . Destinations Where Fall Color Lasts Beyond New England Early Peak",
-  "url": "https://www.kpcnews.com/news/national/article_550784de-a7f1-5515-a33e-72f8459e4359.html",
-  "outlet": "kpcnews.com",
-  "t": "2026-10-06T13:36:38+00:00",
-  "hash": 9158070121313255102
- },
- {
   "id": "2026-10-06-1426-0",
   "image": "pool-2026-10-06-1426-0.jpg",
   "headline": "How Switzerland lost 20 percent of its ice in five years",
@@ -165,5 +156,15 @@
   "outlet": "sun-sentinel.com",
   "t": "2026-10-10T12:29:30+00:00",
   "hash": 15798201583696383
+ },
+ {
+  "id": "2026-10-10-0857-0",
+  "image": "pool-2026-10-10-0857-0.jpg",
+  "headline": "Moundville Responds To 15 - acre Fire Near Lock 8",
+  "url": "https://953thebear.com/wildfire-season-hits-alabama-communities/",
+  "outlet": "953thebear.com",
+  "t": "2026-10-10T12:57:24+00:00",
+  "vista": 7.0,
+  "hash": 1802647153606656
  }
 ]
