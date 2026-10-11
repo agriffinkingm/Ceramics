@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-08",
-  "image": "pool-2026-10-08.jpg",
-  "headline": "Indigenous leaders killed in Philippines were  red - tagged  over dam opposition",
-  "url": "https://news.mongabay.com/2021/02/indigenous-leaders-killed-in-philippines-were-red-tagged-over-dam-opposition/",
-  "outlet": "news.mongabay.com",
-  "t": "2026-10-08T13:26:01+00:00",
-  "hash": 13898161347354181182
- },
- {
-  "id": "2026-10-08-b",
-  "image": "pool-2026-10-08-b.jpg",
-  "headline": "Himlung avalanche toll rises to 15 , one still missing",
-  "url": "https://peoplesreview.com.np/2026/10/02/himlung-avalanche-toll-rises-to-15-one-still-missing/",
-  "outlet": "peoplesreview.com.np",
-  "t": "2026-10-08T13:26:01+00:00",
-  "hash": 18445609481057337344
- },
- {
-  "id": "2026-10-08-c",
-  "image": "pool-2026-10-08-c.jpg",
-  "headline": "Outdoor lab : Glacier bumble bee study explores population declines",
-  "url": "https://dailyinterlake.com/news/2026/oct/02/bumble-bees/",
-  "outlet": "dailyinterlake.com",
-  "t": "2026-10-08T13:26:01+00:00",
-  "hash": 1168746208932460799
- },
- {
   "id": "2026-10-08-1926-0",
   "image": "pool-2026-10-08-1926-0.jpg",
   "headline": "How Disney parks have evolved through the years",
@@ -166,5 +139,35 @@
   "t": "2026-10-11T13:21:48+00:00",
   "vista": 7.0,
   "hash": 9158070121313255102
+ },
+ {
+  "id": "2026-10-11-1027-0",
+  "image": "pool-2026-10-11-1027-0.jpg",
+  "headline": "No new volcanic activity at Ahyi Seamount : USGS",
+  "url": "https://www.mvariety.com/news/local/no-new-volcanic-activity-at-ahyi-seamount-usgs/article_92138f26-98f9-4956-b545-3c68f2e21920.html",
+  "outlet": "mvariety.com",
+  "t": "2026-10-11T14:27:23+00:00",
+  "vista": 9.0,
+  "hash": 9006916115401281536
+ },
+ {
+  "id": "2026-10-11-1027-1",
+  "image": "pool-2026-10-11-1027-1.jpg",
+  "headline": "Trust is climate infrastructure : What Mauritius teaches us about building truly resilient communities",
+  "url": "https://www.resilience.org/stories/2026-10-06/trust-is-climate-infrastructure-what-mauritius-teaches-us-about-building-truly-resilient-communities/",
+  "outlet": "resilience.org",
+  "t": "2026-10-11T14:27:23+00:00",
+  "vista": 9.0,
+  "hash": 31885770063616
+ },
+ {
+  "id": "2026-10-11-1027-2",
+  "image": "pool-2026-10-11-1027-2.jpg",
+  "headline": "Record - breaking heatwave drought cost European agriculture $3 . 6bn",
+  "url": "https://www.thenationalnews.com/news/europe/2026/10/02/record-breaking-heatwave-drought-cost-european-agriculture-36bn/",
+  "outlet": "thenationalnews.com",
+  "t": "2026-10-11T14:27:23+00:00",
+  "vista": 7.0,
+  "hash": 72923077445419007
  }
 ]
