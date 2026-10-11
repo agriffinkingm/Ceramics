@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-08-0203-0",
-  "image": "pool-2026-10-08-0203-0.jpg",
-  "headline": "No new volcanic activity at Ahyi Seamount : USGS",
-  "url": "https://www.mvariety.com/news/local/no-new-volcanic-activity-at-ahyi-seamount-usgs/article_92138f26-98f9-4956-b545-3c68f2e21920.html",
-  "outlet": "mvariety.com",
-  "t": "2026-10-08T06:03:46+00:00",
-  "vista": 9.0,
-  "hash": 9006916115401281536
- },
- {
   "id": "2026-10-08",
   "image": "pool-2026-10-08.jpg",
   "headline": "Indigenous leaders killed in Philippines were  red - tagged  over dam opposition",
@@ -166,5 +156,15 @@
   "outlet": "oneindia.com",
   "t": "2026-10-11T12:47:03+00:00",
   "hash": 3940649815506943
+ },
+ {
+  "id": "2026-10-11-0921-0",
+  "image": "pool-2026-10-11-0921-0.jpg",
+  "headline": "5 U . S . Destinations Where Fall Color Lasts Beyond New England Early Peak",
+  "url": "https://www.kpcnews.com/news/national/article_550784de-a7f1-5515-a33e-72f8459e4359.html",
+  "outlet": "kpcnews.com",
+  "t": "2026-10-11T13:21:48+00:00",
+  "vista": 7.0,
+  "hash": 9158070121313255102
  }
 ]
