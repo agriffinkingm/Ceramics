@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-07",
-  "image": "pool-2026-10-07.jpg",
-  "headline": "First UAE - built commercial satellite completes historic launch in major step forward in space race",
-  "url": "https://www.thenationalnews.com/news/uae/2026/10/02/first-uae-built-commercial-satellite-completes-historic-launch-in-major-step-forward-in-space-race/",
-  "outlet": "thenationalnews.com",
-  "t": "2026-10-07T13:20:26+00:00",
-  "hash": 36276153278791680
- },
- {
-  "id": "2026-10-07-b",
-  "image": "pool-2026-10-07-b.jpg",
-  "headline": "City Hall Launches Day 2 of  Operation Okoa Maisha  El Ni\u00f1o Emergency Simulation \u2013 Capital FM Kenya",
-  "url": "https://capitalfm.africa/city-hall-launches-day-2-of-operation-okoa-maisha-el-nino-emergency-simulation/",
-  "outlet": "capitalfm.africa",
-  "t": "2026-10-07T13:20:26+00:00",
-  "hash": 220825916459966351
- },
- {
-  "id": "2026-10-07-c",
-  "image": "pool-2026-10-07-c.jpg",
-  "headline": "Government to investigate post - quake death toll among NTT evacuees - Society",
-  "url": "http://www.thejakartapost.com/indonesia/2026/10/02/government-to-investigate-post-quake-death-toll-among-ntt-evacuees",
-  "outlet": "thejakartapost.com",
-  "t": "2026-10-07T13:20:26+00:00",
-  "hash": 9259546818868666855
- },
- {
   "id": "2026-10-08-0203-0",
   "image": "pool-2026-10-08-0203-0.jpg",
   "headline": "No new volcanic activity at Ahyi Seamount : USGS",
@@ -166,5 +139,32 @@
   "t": "2026-10-11T05:44:57+00:00",
   "vista": 9.0,
   "hash": 9223213585923047696
+ },
+ {
+  "id": "2026-10-11",
+  "image": "pool-2026-10-11.jpg",
+  "headline": "7 . 6 magnitude earthquake in Panama , fear in the capital : tsunami risk",
+  "url": "https://www.thevermilion.com/7-6-magnitude-earthquake-in-panama-fear-in-the-capital-tsunami-risk/article_21530/",
+  "outlet": "thevermilion.com",
+  "t": "2026-10-11T12:47:03+00:00",
+  "hash": 7029164934627327
+ },
+ {
+  "id": "2026-10-11-b",
+  "image": "pool-2026-10-11-b.jpg",
+  "headline": "Newsom vetoes bill aimed at funding Sacramento - San Joaquin delta levee repairs , water infrastructure",
+  "url": "https://www.cbsnews.com/sacramento/news/newsom-vetoed-delta-levee-bill/",
+  "outlet": "cbsnews.com",
+  "t": "2026-10-11T12:47:03+00:00",
+  "hash": 74061045705998335
+ },
+ {
+  "id": "2026-10-11-c",
+  "image": "pool-2026-10-11-c.jpg",
+  "headline": "7 . 6 - Magnitude Earthquake Hits Panama , Tsunami Threat Ends , Residents Report Damage And Aftershocks",
+  "url": "https://www.oneindia.com/international/7-6-magnitude-earthquake-hits-panama-tsunami-threat-ends-residents-report-damage-and-aftershocks-8230657.html",
+  "outlet": "oneindia.com",
+  "t": "2026-10-11T12:47:03+00:00",
+  "hash": 3940649815506943
  }
 ]

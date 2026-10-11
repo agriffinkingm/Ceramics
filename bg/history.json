@@ -166,5 +166,12 @@
   "url": "https://www.straitstimes.com/asia/nepal-plans-to-drain-four-glacial-lakes-after-deadly-floods",
   "outlet": "straitstimes.com",
   "method": "outpaint"
+ },
+ {
+  "id": "2026-10-11",
+  "headline": "7 . 6 magnitude earthquake in Panama , fear in the capital : tsunami risk",
+  "url": "https://www.thevermilion.com/7-6-magnitude-earthquake-in-panama-fear-in-the-capital-tsunami-risk/article_21530/",
+  "outlet": "thevermilion.com",
+  "method": "crop"
  }
 ]
