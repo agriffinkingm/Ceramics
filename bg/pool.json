@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-09-c",
-  "image": "pool-2026-10-09-c.jpg",
-  "headline": "Two taken to hospital after M53 crash near Ellesmere Port | Chester and District Standard",
-  "url": "https://www.chesterstandard.co.uk/news/26609868.two-taken-hospital-m53-crash-near-ellesmere-port/",
-  "outlet": "chesterstandard.co.uk",
-  "t": "2026-10-09T13:14:28+00:00",
-  "hash": 2236319190068457249
- },
- {
   "id": "2026-10-09-1841-0",
   "image": "pool-2026-10-09-1841-0.jpg",
   "headline": "US Reinforcing Military Presence In Middle East As Iran Tensions Rise",
@@ -168,5 +159,15 @@
   "outlet": "dailystar.co.uk",
   "t": "2026-10-12T15:18:10+00:00",
   "hash": 6917529028462116863
+ },
+ {
+  "id": "2026-10-12-1159-0",
+  "image": "pool-2026-10-12-1159-0.jpg",
+  "headline": "How Disney parks have evolved through the years",
+  "url": "https://www.fox35orlando.com/news/how-disney-parks-have-evolved-through-years",
+  "outlet": "fox35orlando.com",
+  "t": "2026-10-12T15:59:15+00:00",
+  "vista": 8.0,
+  "hash": 5483136944383524863
  }
 ]
