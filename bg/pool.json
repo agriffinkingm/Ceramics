@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-08-1926-0",
-  "image": "pool-2026-10-08-1926-0.jpg",
-  "headline": "How Disney parks have evolved through the years",
-  "url": "https://www.fox35orlando.com/news/how-disney-parks-have-evolved-through-years",
-  "outlet": "fox35orlando.com",
-  "t": "2026-10-08T23:26:24+00:00",
-  "vista": 8.0,
-  "hash": 5483136944383524863
- },
- {
-  "id": "2026-10-09",
-  "image": "pool-2026-10-09.jpg",
-  "headline": "Russia burning as Ukraine launches massive drone attack on Moscow",
-  "url": "https://www.express.co.uk/news/world/2254731/russia-burning-ukraine-massive-drone-attack-moscow",
-  "outlet": "express.co.uk",
-  "t": "2026-10-09T13:14:28+00:00",
-  "hash": 247385818132451
- },
- {
-  "id": "2026-10-09-b",
-  "image": "pool-2026-10-09-b.jpg",
-  "headline": "Inside the Donkervoort , a Dutch super car like no other",
-  "url": "https://www.cityam.com/inside-the-donkervoort-a-dutch-super-car-like-no-other/",
-  "outlet": "cityam.com",
-  "t": "2026-10-09T13:14:28+00:00",
-  "hash": 9764895722317821989
- },
- {
   "id": "2026-10-09-c",
   "image": "pool-2026-10-09-c.jpg",
   "headline": "Two taken to hospital after M53 crash near Ellesmere Port | Chester and District Standard",
@@ -169,5 +141,32 @@
   "t": "2026-10-11T14:27:23+00:00",
   "vista": 7.0,
   "hash": 72923077445419007
+ },
+ {
+  "id": "2026-10-12",
+  "image": "pool-2026-10-12.jpg",
+  "headline": "Moment reckless rider tells police  it was just a bit of fun  after leading officers on chase through residential streets on his illegal off - road bike",
+  "url": "https://www.dailymail.com/news/article-16184107/Moment-police-intercept-rider-illegal-road-motorbike.html",
+  "outlet": "dailymail.com",
+  "t": "2026-10-12T15:18:10+00:00",
+  "hash": 1226671878961091519
+ },
+ {
+  "id": "2026-10-12-b",
+  "image": "pool-2026-10-12-b.jpg",
+  "headline": "CJP Protest Today : 43 , 000 Security Personnel Deployed In Delhi , Drones Used For Surveillance",
+  "url": "https://www.oneindia.com/new-delhi/cjp-protest-today-43-000-security-personnel-deployed-in-delhi-drones-used-for-surveillance-8230679.html",
+  "outlet": "oneindia.com",
+  "t": "2026-10-12T15:18:10+00:00",
+  "hash": 16990690724342796547
+ },
+ {
+  "id": "2026-10-12-c",
+  "image": "pool-2026-10-12-c.jpg",
+  "headline": "Horror as toddler killed in Mexico prison bloodbath as inmates open fire and kill 10",
+  "url": "https://www.dailystar.co.uk/news/us-news/child-dies-in-prison-brawl-37757093",
+  "outlet": "dailystar.co.uk",
+  "t": "2026-10-12T15:18:10+00:00",
+  "hash": 6917529028462116863
  }
 ]
