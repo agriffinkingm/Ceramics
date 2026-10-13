@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-10",
-  "image": "pool-2026-10-10.jpg",
-  "headline": "Nepal plans to drain four glacial lakes after deadly floods",
-  "url": "https://www.straitstimes.com/asia/nepal-plans-to-drain-four-glacial-lakes-after-deadly-floods",
-  "outlet": "straitstimes.com",
-  "t": "2026-10-10T12:29:30+00:00",
-  "hash": 7927470298876614975
- },
- {
-  "id": "2026-10-10-b",
-  "image": "pool-2026-10-10-b.jpg",
-  "headline": "Arab News | Five dead as mine collapses collapse in west Turkiye",
-  "url": "https://www.arabnews.com/middle-east/five-dead-as-mine-collapses-collapse-in-west-turkiye-3004215",
-  "outlet": "arabnews.com",
-  "t": "2026-10-10T12:29:30+00:00",
-  "hash": 1081994239108914128
- },
- {
-  "id": "2026-10-10-c",
-  "image": "pool-2026-10-10-c.jpg",
-  "headline": "Isaias makes landfall as hurricane , hammering US Gulf Coast with powerful winds , dangerous flooding",
-  "url": "https://www.sun-sentinel.com/2026/10/09/isaias-makes-landfall-as-hurricane-hammering-us-gulf-coast-with-powerful-winds-dangerous-flooding/",
-  "outlet": "sun-sentinel.com",
-  "t": "2026-10-10T12:29:30+00:00",
-  "hash": 15798201583696383
- },
- {
   "id": "2026-10-10-0857-0",
   "image": "pool-2026-10-10-0857-0.jpg",
   "headline": "Moundville Responds To 15 - acre Fire Near Lock 8",
@@ -169,5 +142,32 @@
   "t": "2026-10-13T00:41:22+00:00",
   "vista": 9.0,
   "hash": 1691542796271359
+ },
+ {
+  "id": "2026-10-13",
+  "image": "pool-2026-10-13.jpg",
+  "headline": "Ebola outbreak in Congo spreads to new hotspots , health workers warn",
+  "url": "https://www.business-standard.com/world-news/ebola-outbreak-in-congo-spreads-to-new-hotspots-health-workers-warn-126100800083_1.html",
+  "outlet": "business-standard.com",
+  "t": "2026-10-13T14:09:12+00:00",
+  "hash": 3474032530088076810
+ },
+ {
+  "id": "2026-10-13-b",
+  "image": "pool-2026-10-13-b.jpg",
+  "headline": "Age , heat may be behind underground electrical vault explosions in LA , engineer says",
+  "url": "https://www.foxla.com/news/age-heat-may-be-behind-underground-electrical-vault-explosions-la-engineer-says",
+  "outlet": "foxla.com",
+  "t": "2026-10-13T14:09:12+00:00",
+  "hash": 11809214440174768231
+ },
+ {
+  "id": "2026-10-13-c",
+  "image": "pool-2026-10-13-c.jpg",
+  "headline": "CJP Leaders Abhijeet Dipke , Saurav Das , Ashutosh Ranka Detained From Inside The Flight After Dhruv Rathee",
+  "url": "https://www.oneindia.com/new-delhi/cjp-leaders-abhijeet-dipke-saurav-das-ashutosh-ranka-detained-after-dhruv-rathee-8230735.html",
+  "outlet": "oneindia.com",
+  "t": "2026-10-13T14:09:12+00:00",
+  "hash": 9711598662635160837
  }
 ]

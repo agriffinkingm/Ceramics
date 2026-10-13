@@ -180,5 +180,12 @@
   "url": "https://www.dailymail.com/news/article-16184107/Moment-police-intercept-rider-illegal-road-motorbike.html",
   "outlet": "dailymail.com",
   "method": "crop"
+ },
+ {
+  "id": "2026-10-13",
+  "headline": "Ebola outbreak in Congo spreads to new hotspots , health workers warn",
+  "url": "https://www.business-standard.com/world-news/ebola-outbreak-in-congo-spreads-to-new-hotspots-health-workers-warn-126100800083_1.html",
+  "outlet": "business-standard.com",
+  "method": "crop-flat"
  }
 ]
