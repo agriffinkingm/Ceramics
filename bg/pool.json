@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-09-1841-0",
-  "image": "pool-2026-10-09-1841-0.jpg",
-  "headline": "US Reinforcing Military Presence In Middle East As Iran Tensions Rise",
-  "url": "http://www.orlandoecho.com/news/279347225/us-reinforcing-military-presence-in-middle-east-as-iran-tensions-rise",
-  "outlet": "orlandoecho.com",
-  "t": "2026-10-09T22:41:33+00:00",
-  "vista": 7.0,
-  "hash": 6949089546994712575
- },
- {
   "id": "2026-10-10",
   "image": "pool-2026-10-10.jpg",
   "headline": "Nepal plans to drain four glacial lakes after deadly floods",
@@ -169,5 +159,15 @@
   "t": "2026-10-12T15:59:15+00:00",
   "vista": 8.0,
   "hash": 5483136944383524863
+ },
+ {
+  "id": "2026-10-12-2041-0",
+  "image": "pool-2026-10-12-2041-0.jpg",
+  "headline": "A9 Inverness to Caithness road reopens at Cromarty Bridge and Culbokie on the Black Isle following 13 - hour closure in wake of crash at B9163 junction on Friday , Highland Police Scotland officers and Traffic Scotland confirm",
+  "url": "https://www.inverness-courier.co.uk/news/update-a9-back-open-after-13-hour-closure-447139/",
+  "outlet": "inverness-courier.co.uk",
+  "t": "2026-10-13T00:41:22+00:00",
+  "vista": 9.0,
+  "hash": 1691542796271359
  }
 ]
