@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-10-0857-0",
-  "image": "pool-2026-10-10-0857-0.jpg",
-  "headline": "Moundville Responds To 15 - acre Fire Near Lock 8",
-  "url": "https://953thebear.com/wildfire-season-hits-alabama-communities/",
-  "outlet": "953thebear.com",
-  "t": "2026-10-10T12:57:24+00:00",
-  "vista": 7.0,
-  "hash": 1802647153606656
- },
- {
   "id": "2026-10-10-1004-0",
   "image": "pool-2026-10-10-1004-0.jpg",
   "headline": "Nigeria Plans US$289 Million Cassava Ethanol Plant",
@@ -169,5 +159,15 @@
   "outlet": "oneindia.com",
   "t": "2026-10-13T14:09:12+00:00",
   "hash": 9711598662635160837
+ },
+ {
+  "id": "2026-10-13-1121-0",
+  "image": "pool-2026-10-13-1121-0.jpg",
+  "headline": "Hurricane Isaias makes landfall as extreme winds , heavy rain blast the Gulf Coast",
+  "url": "https://www.fox7austin.com/news/hurricane-isaias-now-category-3-storm-see-latest-track",
+  "outlet": "fox7austin.com",
+  "t": "2026-10-13T15:21:51+00:00",
+  "vista": 9.0,
+  "hash": 14992501239105322941
  }
 ]
