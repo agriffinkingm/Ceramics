@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-10-10-1004-0",
-  "image": "pool-2026-10-10-1004-0.jpg",
-  "headline": "Nigeria Plans US$289 Million Cassava Ethanol Plant",
-  "url": "https://www.riotimesonline.com/nigeria-cassava-bioethanol-industry-2026/",
-  "outlet": "riotimesonline.com",
-  "t": "2026-10-10T14:04:13+00:00",
-  "vista": 9.0,
-  "hash": 5174509857730774024
- },
- {
-  "id": "2026-10-11-0144-0",
-  "image": "pool-2026-10-11-0144-0.jpg",
-  "headline": "How Switzerland lost 20 percent of its ice in five years",
-  "url": "https://www.aljazeera.com/news/2026/10/2/how-switzerland-lost-20-percent-of-its-ice-in-five-years",
-  "outlet": "aljazeera.com",
-  "t": "2026-10-11T05:44:57+00:00",
-  "vista": 9.0,
-  "hash": 9223213585923047696
- },
- {
-  "id": "2026-10-11",
-  "image": "pool-2026-10-11.jpg",
-  "headline": "7 . 6 magnitude earthquake in Panama , fear in the capital : tsunami risk",
-  "url": "https://www.thevermilion.com/7-6-magnitude-earthquake-in-panama-fear-in-the-capital-tsunami-risk/article_21530/",
-  "outlet": "thevermilion.com",
-  "t": "2026-10-11T12:47:03+00:00",
-  "hash": 7029164934627327
- },
- {
   "id": "2026-10-11-b",
   "image": "pool-2026-10-11-b.jpg",
   "headline": "Newsom vetoes bill aimed at funding Sacramento - San Joaquin delta levee repairs , water infrastructure",
@@ -169,5 +140,32 @@
   "t": "2026-10-13T15:21:51+00:00",
   "vista": 9.0,
   "hash": 14992501239105322941
+ },
+ {
+  "id": "2026-10-14",
+  "image": "pool-2026-10-14.jpg",
+  "headline": "A Pacific island  will be swallowed  by the sea within decades . Is Ireland paying attention ? \u2013 The Irish Times",
+  "url": "https://www.irishtimes.com/environment/climate-crisis/2026/10/08/a-pacific-island-will-be-swallowed-by-the-sea-within-decades-is-ireland-paying-attention/",
+  "outlet": "irishtimes.com",
+  "t": "2026-10-14T11:50:05+00:00",
+  "hash": 16179646785065533311
+ },
+ {
+  "id": "2026-10-14-b",
+  "image": "pool-2026-10-14-b.jpg",
+  "headline": "Analysis - Spain housing crisis bursts into the spotlight at snap election",
+  "url": "https://lufkindailynews.com/news_reuters/top_news/analysis-spains-housing-crisis-bursts-into-the-spotlight-at-snap-election/article_e92870e5-bd1c-5be0-aa9e-1e348394f61f.html",
+  "outlet": "lufkindailynews.com",
+  "t": "2026-10-14T11:50:05+00:00",
+  "hash": 7509891461299568652
+ },
+ {
+  "id": "2026-10-14-c",
+  "image": "pool-2026-10-14-c.jpg",
+  "headline": "UK bluefin tuna comeback shows nature can recover , says WWF",
+  "url": "https://www.bbc.co.uk/news/articles/c5rmyzgdjzkwo",
+  "outlet": "bbc.co.uk",
+  "t": "2026-10-14T11:50:05+00:00",
+  "hash": 63579153626570495
  }
 ]

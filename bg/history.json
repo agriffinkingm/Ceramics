@@ -187,5 +187,12 @@
   "url": "https://www.business-standard.com/world-news/ebola-outbreak-in-congo-spreads-to-new-hotspots-health-workers-warn-126100800083_1.html",
   "outlet": "business-standard.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-14",
+  "headline": "A Pacific island  will be swallowed  by the sea within decades . Is Ireland paying attention ? \u2013 The Irish Times",
+  "url": "https://www.irishtimes.com/environment/climate-crisis/2026/10/08/a-pacific-island-will-be-swallowed-by-the-sea-within-decades-is-ireland-paying-attention/",
+  "outlet": "irishtimes.com",
+  "method": "crop-flat"
  }
 ]
