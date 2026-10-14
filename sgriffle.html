@@ -147,7 +147,7 @@
     <div class="vals" id="vals"></div>
     <p>When a game ends, <b>analyze the game</b> steps through every move with the rack that player held and shows the highest-scoring play that was available — points-only, no defence or lookahead.</p>
     <p><b>Puzzles.</b> A position from a computer game and a rack — find the highest-scoring play. Any play that matches the best score solves it; "show solution" lays it out. Each puzzle has a number you can share.</p>
-    <p>Not sure a name counts? The <b>is it a name?</b> box under the board checks the list and shows the names that start or end with what you typed — handy for seeing what a chain could become. Invalid plays simply bounce — there's no challenging. Play from different phones (make a game and send the link), on one phone, or against the computer: <b>hard</b> always takes its best-scoring play, <b>normal</b> picks from its top six, <b>easy</b> plays from the weaker half of what it sees.</p>
+    <p>Not sure a name counts? The <b>is it a name?</b> box under the board checks the list and shows the names that start with, end with, or contain what you typed — handy for seeing what a chain could become. Invalid plays simply bounce — there's no challenging. Play from different phones (make a game and send the link), on one phone, or against the computer: <b>hard</b> always takes its best-scoring play, <b>normal</b> picks from its top six, <b>easy</b> plays from the weaker half of what it sees.</p>
   </div>
 
   <div id="lobby">
@@ -221,7 +221,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-09k";
+const BUILD = "2026-10-14a";
 const NAME_BONUS = 25;   // for playing your own name
 const HOUSE_BONUS = { AGKM: 20 };   // house names with a tip
 // who the initials and band names belong to — tap a played tile to see
@@ -710,9 +710,9 @@ $("lookup-in").addEventListener("input", () => {
   const has = isName(q); out.textContent = has ? nice(q) + (DICT.has(q) ? " — yes" : " — yes, a player's name") : nice(q) + " — not a name we know"; out.className = has ? "yes" : "no";
   more.innerHTML = "";
   {   // what the name could grow into, both ways (live too, for now)
-    const pre = [], suf = []; for (const w of DICT) { if (w === q) continue; if (w.startsWith(q)) pre.push(w); else if (w.endsWith(q)) suf.push(w); }
+    const pre = [], suf = [], mid = []; for (const w of DICT) { if (w === q) continue; if (w.startsWith(q)) pre.push(w); else if (w.endsWith(q)) suf.push(w); else if (w.includes(q)) mid.push(w); }
     const srt = (a, kind) => { a.sort((x, y) => x.length - y.length || x.localeCompare(y)); const all = lookupOpen[kind] || a.length <= 12; return a.slice(0, all ? a.length : 12).map(nice).join(" · ") + (all ? "" : ` · <a href="#" class="lk-more" data-kind="${kind}">… ${a.length - 12} more</a>`); };
-    more.innerHTML = (pre.length ? `<div><span style="color:var(--stone)">grows to</span> ${srt(pre, "pre")}</div>` : "") + (suf.length ? `<div><span style="color:var(--stone)">ends with it</span> ${srt(suf, "suf")}</div>` : "");
+    more.innerHTML = (pre.length ? `<div><span style="color:var(--stone)">grows to</span> ${srt(pre, "pre")}</div>` : "") + (suf.length ? `<div><span style="color:var(--stone)">ends with it</span> ${srt(suf, "suf")}</div>` : "") + (mid.length ? `<div><span style="color:var(--stone)">contains it</span> ${srt(mid, "mid")}</div>` : "");
   }
 });
 // ---------- post-game analyzer ----------
