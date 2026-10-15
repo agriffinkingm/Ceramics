@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-11-1027-0",
-  "image": "pool-2026-10-11-1027-0.jpg",
-  "headline": "No new volcanic activity at Ahyi Seamount : USGS",
-  "url": "https://www.mvariety.com/news/local/no-new-volcanic-activity-at-ahyi-seamount-usgs/article_92138f26-98f9-4956-b545-3c68f2e21920.html",
-  "outlet": "mvariety.com",
-  "t": "2026-10-11T14:27:23+00:00",
-  "vista": 9.0,
-  "hash": 9006916115401281536
- },
- {
   "id": "2026-10-11-1027-1",
   "image": "pool-2026-10-11-1027-1.jpg",
   "headline": "Trust is climate infrastructure : What Mauritius teaches us about building truly resilient communities",
@@ -166,5 +156,15 @@
   "outlet": "gdnonline.com",
   "t": "2026-10-15T11:26:08+00:00",
   "hash": 17256729867388621567
+ },
+ {
+  "id": "2026-10-15-0759-0",
+  "image": "pool-2026-10-15-0759-0.jpg",
+  "headline": "Newsom vetoes bill aimed at funding Sacramento - San Joaquin delta levee repairs , water infrastructure",
+  "url": "https://www.cbsnews.com/sacramento/news/newsom-vetoed-delta-levee-bill/",
+  "outlet": "cbsnews.com",
+  "t": "2026-10-15T11:59:59+00:00",
+  "vista": 7.0,
+  "hash": 74061045705998335
  }
 ]
