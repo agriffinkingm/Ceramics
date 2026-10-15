@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-11-1027-2",
-  "image": "pool-2026-10-11-1027-2.jpg",
-  "headline": "Record - breaking heatwave drought cost European agriculture $3 . 6bn",
-  "url": "https://www.thenationalnews.com/news/europe/2026/10/02/record-breaking-heatwave-drought-cost-european-agriculture-36bn/",
-  "outlet": "thenationalnews.com",
-  "t": "2026-10-11T14:27:23+00:00",
-  "vista": 7.0,
-  "hash": 72923077445419007
- },
- {
-  "id": "2026-10-12",
-  "image": "pool-2026-10-12.jpg",
-  "headline": "Moment reckless rider tells police  it was just a bit of fun  after leading officers on chase through residential streets on his illegal off - road bike",
-  "url": "https://www.dailymail.com/news/article-16184107/Moment-police-intercept-rider-illegal-road-motorbike.html",
-  "outlet": "dailymail.com",
-  "t": "2026-10-12T15:18:10+00:00",
-  "hash": 1226671878961091519
- },
- {
-  "id": "2026-10-12-b",
-  "image": "pool-2026-10-12-b.jpg",
-  "headline": "CJP Protest Today : 43 , 000 Security Personnel Deployed In Delhi , Drones Used For Surveillance",
-  "url": "https://www.oneindia.com/new-delhi/cjp-protest-today-43-000-security-personnel-deployed-in-delhi-drones-used-for-surveillance-8230679.html",
-  "outlet": "oneindia.com",
-  "t": "2026-10-12T15:18:10+00:00",
-  "hash": 16990690724342796547
- },
- {
   "id": "2026-10-12-c",
   "image": "pool-2026-10-12-c.jpg",
   "headline": "Horror as toddler killed in Mexico prison bloodbath as inmates open fire and kill 10",
@@ -166,5 +138,35 @@
   "t": "2026-10-15T12:57:00+00:00",
   "vista": 9.0,
   "hash": 2198989701120
+ },
+ {
+  "id": "2026-10-15-1301-0",
+  "image": "pool-2026-10-15-1301-0.jpg",
+  "headline": "Devon among areas in severe drought , Government says",
+  "url": "https://www.midweekherald.co.uk/news/26640572.dorset-among-areas-severe-drought-government-says/",
+  "outlet": "midweekherald.co.uk",
+  "t": "2026-10-15T17:01:32+00:00",
+  "vista": 9.0,
+  "hash": 291817635668762289
+ },
+ {
+  "id": "2026-10-15-1301-1",
+  "image": "pool-2026-10-15-1301-1.jpg",
+  "headline": "Next system set to bring widespread rainfall to the area",
+  "url": "https://www.wxow.com/weather/next-system-set-to-bring-widespread-rainfall-to-the-area/article_a91c30c9-06a8-4713-94e5-fc5f60484716.html",
+  "outlet": "wxow.com",
+  "t": "2026-10-15T17:01:32+00:00",
+  "vista": 9.0,
+  "hash": 14367876811754267513
+ },
+ {
+  "id": "2026-10-15-1301-2",
+  "image": "pool-2026-10-15-1301-2.jpg",
+  "headline": "Travel : Myrtle Beach , Pigeon Forge and Branson offer 3 distinct flavors of Americana",
+  "url": "https://www.dailyfreeman.com/2026/10/15/travel-myrtle-beach-pigeon-forge-and-branson-offer-3-distinct-flavors-of-americana/",
+  "outlet": "dailyfreeman.com",
+  "t": "2026-10-15T17:01:32+00:00",
+  "vista": 8.0,
+  "hash": 8703206279910260735
  }
 ]
