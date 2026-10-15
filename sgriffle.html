@@ -138,7 +138,7 @@
     <p>Scrabble, except the only playable words are <b>names</b>: every surname held by at least 1,000 people in the 2000 or 2020 US Census, plus every first name the Social Security Administration has recorded for at least 500 babies since 1880, plus every first name held by 500 or more people in the 2020 Census (which catches the names of people who were born abroad — Ruslan, Kuldeep, Galina, Zihao, Takumi) — about 37,000 names in all, including a pass of famous mononyms, bands, initials a few NYC streets (Bleecker, Varick, Nostrand, Gansevoort…) the dogs (Fido, Rover, Biscuit, Scooby, Laika…), cartoon, comic, anime and fantasy characters (Daffy, Spongebob, Pikachu, Goku, Totoro, Gandalf, Dumbledore, Daenerys, Geralt, Kaladin, Shrek, Wolverine, Batman…), brands that are names rather than words (Nike, Adidas, Toyota, Pepsi, Lego, Ikea, Google, Spotify, Nintendo, Kleenex, Tylenol, IBM, HBO, CVS, MTA… but not Apple, Target, Shell or Tide), and some five thousand tragedeighs — the creative spellings the Social Security Administration has actually recorded (Jaxxyn, Kynslee, Braxtyn, Paisleigh, Mckenzee, Abcde…) (Oprah, Sting, Lizzo, Picasso, Pelé as Pele, Radiohead, ABBA, AOC, JFK, RBG, MLK, DMX, RDJ, GRRM…) nicknames and places (every country and capital, the fifty states and their capitals, the thousand biggest US cities and a few hundred world cities — single words only, so Las Vegas is Vegas and New York is York) — tap a played tile to see who any initials belong to — plus a few house names: Grief, Graff, Gruff, Gryph, Groff, Gorf, Garf, Grr, Gr, Grif, Sgriff, Sgriffle, Kojo, Lenk, Maho, Brule, Krule, Jid and AGKM (worth an extra 20). Smith counts, Li counts, Antonacci counts, Brunilda counts. "Table" does not.</p>
     <p>17×17 board, 10 tiles on your rack, 129 tiles in the bag (2 blanks) — and everyone starts the game holding a blank of their own. <b>No centre rule</b>: the first name goes anywhere, at least two letters — though the centre square is a triple name on every board, so there's a reason to go there. After that, every play must touch the names already down, and every run of letters it makes must be a name.</p>
     <p><b>First turn is up for grabs.</b> In a shared game nobody goes first by default — whoever lays down a name first takes the first turn, and the other player goes next.</p>
-    <p>Tap a tile then a square, or drag it there; drag tiles within the rack to rearrange them, and drag a tile you've laid down to a different square (or back onto the rack) to rethink it. You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
+    <p>Tap a tile then a square, or drag it there; drag tiles within the rack to rearrange them, and drag a tile you've laid down to a different square (or back onto the rack) to rethink it — drop any tile onto another and they swap. You can lay tiles out on the board while you wait for your turn — only the play button waits. If the other player covers one of your squares, that tile hops back to your rack.</p>
     <p><b>Build-off bonus.</b> Extend a name already on the board — add letters to either end, or bridge two — and the new, longer name earns its plain letter value again on top (any name you form that contains two or more old tiles counts). It's added, never multiplied, so it can't stack with the name squares.</p>
     <p><b>Bonus squares are shuffled every game</b>, chess960-style: the game number sets the layout (mirrored four ways). <span class="sw" style="background:var(--dl)"></span>double letter · <span class="sw" style="background:var(--tl)"></span>triple letter · <span class="sw" style="background:var(--dn)"></span>double name · <span class="sw" style="background:var(--tn)"></span>triple name. Bonus squares count only for the tiles you just placed.</p>
     <p><b>Clocks.</b> A timed game gives each player a bank of minutes; every move you make adds the increment back. Pick timed on the start screen; the default is correspondence. A timed game starts at 10 minutes with 10 seconds a move unless you change it. Run out and you lose on time, whatever the score. Correspondence games have no clock — play a move whenever, the link keeps the game. In a shared game the clock starts with the first name played.</p>
@@ -223,7 +223,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-14b";
+const BUILD = "2026-10-14c";
 const NAME_BONUS = 25;   // for playing your own name
 const HOUSE_BONUS = { AGKM: 20 };   // house names with a tip
 // who the initials and band names belong to — tap a played tile to see
@@ -628,7 +628,11 @@ function endDrag(e, cancelled) {
   if (cancelled) return;
   d.el.style.visibility = "hidden"; const under = document.elementFromPoint(e.clientX, e.clientY); d.el.style.visibility = "";
   const cell = under && under.closest && under.closest(".cell");
-  if (cell && (mode === "hot" || me >= 0) && mode !== "watch") { if (placeTile(d.el.dataset.l, +cell.dataset.r, +cell.dataset.c)) return; }
+  if (cell && (mode === "hot" || me >= 0) && mode !== "watch") {
+    const kk = k(+cell.dataset.r, +cell.dataset.c);
+    if (pending[kk]) { const old = pending[kk]; delete pending[kk]; if (placeTile(d.el.dataset.l, +cell.dataset.r, +cell.dataset.c)) return; pending[kk] = old; render(); return; }   // swap: the staged tile goes back to the rack
+    if (placeTile(d.el.dataset.l, +cell.dataset.r, +cell.dataset.c)) return;
+  }
   const tiles = [...$("rack-row").children]; let j = tiles.findIndex(t => { const b = t.getBoundingClientRect(); return e.clientX < b.left + b.width / 2; }); if (j < 0) j = tiles.length; if (j > d.i) j--;
   if (j !== d.i) reorderRack(d.i, j);
   render();
@@ -649,7 +653,8 @@ function endBoardDrag(e, cancelled) {
   d.el.style.visibility = "hidden"; const under = document.elementFromPoint(e.clientX, e.clientY); d.el.style.visibility = "";
   const cell = under && under.closest && under.closest(".cell");
   const tile = pending[d.kk];
-  if (cell) { const kk2 = k(+cell.dataset.r, +cell.dataset.c); if (kk2 !== d.kk && !g.board[kk2] && !pending[kk2]) { delete pending[d.kk]; pending[kk2] = tile; } }
+  if (cell) { const kk2 = k(+cell.dataset.r, +cell.dataset.c); if (kk2 !== d.kk && !g.board[kk2]) { if (pending[kk2]) { pending[d.kk] = pending[kk2]; pending[kk2] = tile; } else { delete pending[d.kk]; pending[kk2] = tile; } } }   // empty square: move · staged tile: swap
+  else if (under && under.closest && under.closest(".rt")) { const rt = under.closest(".rt"); const [r, c] = d.kk.split(",").map(Number); delete pending[d.kk]; render(); if (!placeTile(rt.dataset.l, r, c)) { pending[d.kk] = tile; } return; }   // dropped on a rack tile: that tile takes the square
   else if (under && under.closest && under.closest("#rack-row, #actions")) delete pending[d.kk];   // dropped on the rack: back it goes
   else if (!under || !under.closest("#board-wrap")) delete pending[d.kk];                            // dropped well off the board: back to the rack too
   say(""); render();
