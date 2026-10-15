@@ -144,6 +144,7 @@
     <p><b>Clocks.</b> A timed game gives each player a bank of minutes; every move you make adds the increment back. Pick timed on the start screen; the default is correspondence. A timed game starts at 10 minutes with 10 seconds a move unless you change it. Run out and you lose on time, whatever the score. Correspondence games have no clock — play a move whenever, the link keeps the game. In a shared game the clock starts with the first name played.</p>
     <p><b>Sgriffle wins.</b> Play the name SGRIFFLE and the game is over — you win, whatever the score. (There are five G's and four F's in the bag to make it thinkable.)</p>
     <p><b>Your names count.</b> Whatever the two of you entered as your names is playable in that game, and playing your own name is worth <b>+25</b>. (Multi-word names count word by word; letters only.)</p>
+    <p><b>First to 555 wins.</b> The moment a play takes you to 555 or more, the game's over.</p>
     <p><b>All ten tiles in one go wins the game.</b> Empty your rack in a single play and it's over, whatever the score. You can exchange tiles instead of playing while the bag has at least ten left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
     <p>Letter values, by how common each letter is in American surnames (edited by hand where it felt right):</p>
     <div class="vals" id="vals"></div>
@@ -154,7 +155,7 @@
 
   <div id="lobby">
     <h1>Sgriffle</h1>
-    <p>Scrabble's inverse dictionary. Everything the official word list leaves out — 52,000 names, places, brands and the people in them — is what you play here. Nothing else counts.</p>
+    <p>Scrabble's little brother. Names only.</p>
     <div class="row"><input type="text" id="name" placeholder="your name" maxlength="18" autocomplete="off"></div>
     <div class="row" id="clockrow">
       <select id="tmode"><option value="corr" selected>correspondence</option><option value="timed">timed</option></select>
@@ -223,7 +224,8 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-10-15b";
+const BUILD = "2026-10-15c";
+const TARGET = 555;   // first to this many points wins
 const NAME_BONUS = 25;   // for playing your own name
 const HOUSE_BONUS = { AGKM: 20 };   // house names with a tip
 // who the initials and band names belong to — tap a played tile to see
@@ -376,7 +378,7 @@ function applyPlay(x, p, placed, words, score, tiles = pending) {
   x.racks[p] = rack.join(""); x.scores[p] += score; x.passes = 0; x.last = placed.map(c => k(...c));
   x.log.push({ p, words: words.map(w => w.word), score, kind: "play", t: Date.now(), rack: rackBefore, tiles: placed.map(([r, c]) => { const t = tiles[k(r, c)]; return [r, c, t.l, t.bl ? 1 : 0]; }) });
   x.turn = 1 - p; x.v++;
-  const why = words.some(w => w.word === "SGRIFFLE") ? "sgriffle" : placed.length === RACK ? "bingo" : null;
+  const why = words.some(w => w.word === "SGRIFFLE") ? "sgriffle" : placed.length === RACK ? "bingo" : x.scores[p] >= TARGET ? "target" : null;
   if (why) { x.over = true; x.won = p; x.why = why; x.tick = 0; x.log.push({ p, words: [], score: 0, kind: why, t: Date.now() }); return x; }
   if (!x.bag.length && !rack.length) finish(x, p);
   return x;
@@ -567,7 +569,7 @@ function render() {
   else { $("preview").className = ""; $("preview").textContent = exchanging ? "tap the tiles to swap, then exchange" : ""; }
   // over
   const om = $("overmsg");
-  if (g.over) { const w = g.won != null ? (g.why === "bingo" ? pname(g.won) + " played all ten tiles. " : pname(g.won) + " played Sgriffle. ") + pname(g.won) + " wins." : g.flagged != null ? pname(1 - g.flagged) + " wins on time, " + g.scores[1 - g.flagged] + " to " + g.scores[g.flagged] + "." : g.scores[0] === g.scores[1] ? "A draw." : (g.scores[0] > g.scores[1] ? pname(0) : pname(1)) + " wins, " + Math.max(...g.scores) + " to " + Math.min(...g.scores) + "."; om.textContent = w; om.classList.remove("hidden"); } else om.classList.add("hidden");
+  if (g.over) { const w = g.won != null ? (g.why === "bingo" ? pname(g.won) + " played all ten tiles. " : g.why === "target" ? pname(g.won) + " reached " + TARGET + ". " : pname(g.won) + " played Sgriffle. ") + pname(g.won) + " wins." : g.flagged != null ? pname(1 - g.flagged) + " wins on time, " + g.scores[1 - g.flagged] + " to " + g.scores[g.flagged] + "." : g.scores[0] === g.scores[1] ? "A draw." : (g.scores[0] > g.scores[1] ? pname(0) : pname(1)) + " wins, " + Math.max(...g.scores) + " to " + Math.min(...g.scores) + "."; om.textContent = w; om.classList.remove("hidden"); } else om.classList.add("hidden");
   $("analyze-row").classList.toggle("hidden", !(g.over && !an && g.log.some(m => m.kind === "play" && m.tiles)));
   $("analysis").classList.toggle("hidden", !an);
   // log
@@ -575,8 +577,8 @@ function render() {
   const logSrc = an ? an.live.log.slice(0, an.i + 1) : g.log;
   for (const m of [...logSrc].reverse()) {
     const d = document.createElement("div");
-    const body = m.kind === "play" ? m.words.map(w => w[0] + w.slice(1).toLowerCase()).join(", ") : m.kind === "pass" ? "passed" : m.kind === "exchange" ? "exchanged " + m.n : m.kind === "timeout" ? "ran out of time" : m.kind === "sgriffle" ? "SGRIFFLE — game over" : m.kind === "bingo" ? "all ten — game over" : (m.p >= 0 ? pname(m.p) + " went out" : "six passes") + " · racks " + m.v.join(" / ");
-    d.innerHTML = `<span class="who">${m.kind === "end" || m.kind === "sgriffle" || m.kind === "bingo" ? "end" : pname(m.p)}</span><span class="w">${body}</span><span class="s">${m.kind === "play" ? "+" + m.score : ""}</span>`; lg.appendChild(d);
+    const body = m.kind === "play" ? m.words.map(w => w[0] + w.slice(1).toLowerCase()).join(", ") : m.kind === "pass" ? "passed" : m.kind === "exchange" ? "exchanged " + m.n : m.kind === "timeout" ? "ran out of time" : m.kind === "sgriffle" ? "SGRIFFLE — game over" : m.kind === "bingo" ? "all ten — game over" : m.kind === "target" ? TARGET + " — game over" : (m.p >= 0 ? pname(m.p) + " went out" : "six passes") + " · racks " + m.v.join(" / ");
+    d.innerHTML = `<span class="who">${m.kind === "end" || m.kind === "sgriffle" || m.kind === "bingo" || m.kind === "target" ? "end" : pname(m.p)}</span><span class="w">${body}</span><span class="s">${m.kind === "play" ? "+" + m.score : ""}</span>`; lg.appendChild(d);
   }
   paintClocks();
   // tab title: "● your move — Sgriffle" when it's on you, so a backgrounded tab says so
@@ -777,8 +779,8 @@ function showMove(i) {
 }
 function describeMove() {
   const m = an.live.log[an.i], el = $("an-move"), who = m.p >= 0 ? pname(m.p) : "";
-  let head = m.kind === "play" ? `${who} played <b>${m.words.map(nice).join(", ")}</b> for ${m.score}` : m.kind === "pass" ? `${who} passed` : m.kind === "exchange" ? `${who} exchanged ${m.n}` : m.kind === "timeout" ? `${who} ran out of time` : m.kind === "sgriffle" ? `${who} played Sgriffle — game over` : m.kind === "bingo" ? `${who} played all ten — game over` : (m.p >= 0 ? who + " went out" : "six passes") + " — game over";
-  if (m.kind === "end" || m.kind === "timeout" || m.kind === "sgriffle" || m.kind === "bingo" || !m.rack) { el.innerHTML = head; $("an-best").disabled = true; return; }
+  let head = m.kind === "play" ? `${who} played <b>${m.words.map(nice).join(", ")}</b> for ${m.score}` : m.kind === "pass" ? `${who} passed` : m.kind === "exchange" ? `${who} exchanged ${m.n}` : m.kind === "timeout" ? `${who} ran out of time` : m.kind === "sgriffle" ? `${who} played Sgriffle — game over` : m.kind === "bingo" ? `${who} played all ten — game over` : m.kind === "target" ? `${who} reached ${TARGET} — game over` : (m.p >= 0 ? who + " went out" : "six passes") + " — game over";
+  if (m.kind === "end" || m.kind === "timeout" || m.kind === "sgriffle" || m.kind === "bingo" || m.kind === "target" || !m.rack) { el.innerHTML = head; $("an-best").disabled = true; return; }
   el.innerHTML = head + `<br><span style="color:var(--clay-dark);font-size:.9rem;letter-spacing:.04em;font-family:Karla,sans-serif">rack ${m.rack.split("").join(" ")}</span><br><span id="an-verdict" style="color:var(--clay-dark)">finding the best play…</span>`;
   $("an-best").disabled = true;
   const i = an.i;
