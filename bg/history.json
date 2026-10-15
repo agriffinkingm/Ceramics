@@ -194,5 +194,12 @@
   "url": "https://www.irishtimes.com/environment/climate-crisis/2026/10/08/a-pacific-island-will-be-swallowed-by-the-sea-within-decades-is-ireland-paying-attention/",
   "outlet": "irishtimes.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-15",
+  "headline": "School roof collapse kills at least 28 children and a teacher in Pakistan",
+  "url": "https://www.lancashiretelegraph.co.uk/news/national/26638394.school-roof-collapse-kills-least-28-children-teacher-pakistan/",
+  "outlet": "lancashiretelegraph.co.uk",
+  "method": "crop-flat"
  }
 ]

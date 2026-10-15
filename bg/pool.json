@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-11-b",
-  "image": "pool-2026-10-11-b.jpg",
-  "headline": "Newsom vetoes bill aimed at funding Sacramento - San Joaquin delta levee repairs , water infrastructure",
-  "url": "https://www.cbsnews.com/sacramento/news/newsom-vetoed-delta-levee-bill/",
-  "outlet": "cbsnews.com",
-  "t": "2026-10-11T12:47:03+00:00",
-  "hash": 74061045705998335
- },
- {
-  "id": "2026-10-11-c",
-  "image": "pool-2026-10-11-c.jpg",
-  "headline": "7 . 6 - Magnitude Earthquake Hits Panama , Tsunami Threat Ends , Residents Report Damage And Aftershocks",
-  "url": "https://www.oneindia.com/international/7-6-magnitude-earthquake-hits-panama-tsunami-threat-ends-residents-report-damage-and-aftershocks-8230657.html",
-  "outlet": "oneindia.com",
-  "t": "2026-10-11T12:47:03+00:00",
-  "hash": 3940649815506943
- },
- {
-  "id": "2026-10-11-0921-0",
-  "image": "pool-2026-10-11-0921-0.jpg",
-  "headline": "5 U . S . Destinations Where Fall Color Lasts Beyond New England Early Peak",
-  "url": "https://www.kpcnews.com/news/national/article_550784de-a7f1-5515-a33e-72f8459e4359.html",
-  "outlet": "kpcnews.com",
-  "t": "2026-10-11T13:21:48+00:00",
-  "vista": 7.0,
-  "hash": 9158070121313255102
- },
- {
   "id": "2026-10-11-1027-0",
   "image": "pool-2026-10-11-1027-0.jpg",
   "headline": "No new volcanic activity at Ahyi Seamount : USGS",
@@ -167,5 +139,32 @@
   "outlet": "bbc.co.uk",
   "t": "2026-10-14T11:50:05+00:00",
   "hash": 63579153626570495
+ },
+ {
+  "id": "2026-10-15",
+  "image": "pool-2026-10-15.jpg",
+  "headline": "School roof collapse kills at least 28 children and a teacher in Pakistan",
+  "url": "https://www.lancashiretelegraph.co.uk/news/national/26638394.school-roof-collapse-kills-least-28-children-teacher-pakistan/",
+  "outlet": "lancashiretelegraph.co.uk",
+  "t": "2026-10-15T11:26:08+00:00",
+  "hash": 17580867638195665176
+ },
+ {
+  "id": "2026-10-15-b",
+  "image": "pool-2026-10-15-b.jpg",
+  "headline": "School roof collapse kills at least 29 , injures more than 3 dozen in Pakistan",
+  "url": "https://www.wvxu.org/news-from-npr/2026-10-15/school-roof-collapse-kills-at-least-29-injures-more-than-3-dozen-in-pakistan",
+  "outlet": "wvxu.org",
+  "t": "2026-10-15T11:26:08+00:00",
+  "hash": 8355298439943231800
+ },
+ {
+  "id": "2026-10-15-c",
+  "image": "pool-2026-10-15-c.jpg",
+  "headline": "World News : Pakistan school roof collapse kills 28 ; more deaths feared",
+  "url": "https://www.gdnonline.com:443/Details/1409814",
+  "outlet": "gdnonline.com",
+  "t": "2026-10-15T11:26:08+00:00",
+  "hash": 17256729867388621567
  }
 ]
