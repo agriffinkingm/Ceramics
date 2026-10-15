@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-11-1027-1",
-  "image": "pool-2026-10-11-1027-1.jpg",
-  "headline": "Trust is climate infrastructure : What Mauritius teaches us about building truly resilient communities",
-  "url": "https://www.resilience.org/stories/2026-10-06/trust-is-climate-infrastructure-what-mauritius-teaches-us-about-building-truly-resilient-communities/",
-  "outlet": "resilience.org",
-  "t": "2026-10-11T14:27:23+00:00",
-  "vista": 9.0,
-  "hash": 31885770063616
- },
- {
   "id": "2026-10-11-1027-2",
   "image": "pool-2026-10-11-1027-2.jpg",
   "headline": "Record - breaking heatwave drought cost European agriculture $3 . 6bn",
@@ -166,5 +156,15 @@
   "t": "2026-10-15T11:59:59+00:00",
   "vista": 7.0,
   "hash": 74061045705998335
+ },
+ {
+  "id": "2026-10-15-0857-0",
+  "image": "pool-2026-10-15-0857-0.jpg",
+  "headline": "China opens a joint airfield in Laos with construction ongoing and eyes on its military role",
+  "url": "http://www.sitkasentinel.com/stories/china-opens-a-joint-airfield-in-laos-with-construction-ongoing-and-eyes-on-its-military-role,178748",
+  "outlet": "sitkasentinel.com",
+  "t": "2026-10-15T12:57:00+00:00",
+  "vista": 9.0,
+  "hash": 2198989701120
  }
 ]
