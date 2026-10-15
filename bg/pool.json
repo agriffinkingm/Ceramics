@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-10-12-c",
-  "image": "pool-2026-10-12-c.jpg",
-  "headline": "Horror as toddler killed in Mexico prison bloodbath as inmates open fire and kill 10",
-  "url": "https://www.dailystar.co.uk/news/us-news/child-dies-in-prison-brawl-37757093",
-  "outlet": "dailystar.co.uk",
-  "t": "2026-10-12T15:18:10+00:00",
-  "hash": 6917529028462116863
- },
- {
-  "id": "2026-10-12-1159-0",
-  "image": "pool-2026-10-12-1159-0.jpg",
-  "headline": "How Disney parks have evolved through the years",
-  "url": "https://www.fox35orlando.com/news/how-disney-parks-have-evolved-through-years",
-  "outlet": "fox35orlando.com",
-  "t": "2026-10-12T15:59:15+00:00",
-  "vista": 8.0,
-  "hash": 5483136944383524863
- },
- {
-  "id": "2026-10-12-2041-0",
-  "image": "pool-2026-10-12-2041-0.jpg",
-  "headline": "A9 Inverness to Caithness road reopens at Cromarty Bridge and Culbokie on the Black Isle following 13 - hour closure in wake of crash at B9163 junction on Friday , Highland Police Scotland officers and Traffic Scotland confirm",
-  "url": "https://www.inverness-courier.co.uk/news/update-a9-back-open-after-13-hour-closure-447139/",
-  "outlet": "inverness-courier.co.uk",
-  "t": "2026-10-13T00:41:22+00:00",
-  "vista": 9.0,
-  "hash": 1691542796271359
- },
- {
   "id": "2026-10-13",
   "image": "pool-2026-10-13.jpg",
   "headline": "Ebola outbreak in Congo spreads to new hotspots , health workers warn",
@@ -168,5 +139,35 @@
   "t": "2026-10-15T17:01:32+00:00",
   "vista": 8.0,
   "hash": 8703206279910260735
+ },
+ {
+  "id": "2026-10-15-1727-0",
+  "image": "pool-2026-10-15-1727-0.jpg",
+  "headline": "Antarctica  doomsday  glacier will keep melting even if oceans cool",
+  "url": "https://www.newscientist.com/article/2594246-antarcticas-doomsday-glacier-will-keep-melting-even-if-oceans-cool/",
+  "outlet": "newscientist.com",
+  "t": "2026-10-15T21:27:23+00:00",
+  "vista": 10.0,
+  "hash": 9277662557957455871
+ },
+ {
+  "id": "2026-10-15-1727-1",
+  "image": "pool-2026-10-15-1727-1.jpg",
+  "headline": "U . S . historic preservation law faces the most serious threat in its 60 - year history",
+  "url": "https://www.iowapublicradio.org/news-from-npr/2026-10-15/u-s-historic-preservation-law-faces-the-most-serious-threat-in-its-60-year-history",
+  "outlet": "iowapublicradio.org",
+  "t": "2026-10-15T21:27:24+00:00",
+  "vista": 9.0,
+  "hash": 17884059033871257359
+ },
+ {
+  "id": "2026-10-15-1727-2",
+  "image": "pool-2026-10-15-1727-2.jpg",
+  "headline": "Dozens of Calif . dams need repair as El Ni\u00f1o winter nears | Regional",
+  "url": "https://napavalleyregister.com/news/regional/dozens-of-california-dams-need-repair-as-el-ni-o-winter-draws-closer/article_3b97c800-7e53-4ec3-bbe3-0bf5770f2795.html",
+  "outlet": "napavalleyregister.com",
+  "t": "2026-10-15T21:27:24+00:00",
+  "vista": 9.0,
+  "hash": 144118594927001343
  }
 ]
