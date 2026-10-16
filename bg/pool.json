@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-10-15",
-  "image": "pool-2026-10-15.jpg",
-  "headline": "School roof collapse kills at least 28 children and a teacher in Pakistan",
-  "url": "https://www.lancashiretelegraph.co.uk/news/national/26638394.school-roof-collapse-kills-least-28-children-teacher-pakistan/",
-  "outlet": "lancashiretelegraph.co.uk",
-  "t": "2026-10-15T11:26:08+00:00",
-  "hash": 17580867638195665176
- },
- {
-  "id": "2026-10-15-b",
-  "image": "pool-2026-10-15-b.jpg",
-  "headline": "School roof collapse kills at least 29 , injures more than 3 dozen in Pakistan",
-  "url": "https://www.wvxu.org/news-from-npr/2026-10-15/school-roof-collapse-kills-at-least-29-injures-more-than-3-dozen-in-pakistan",
-  "outlet": "wvxu.org",
-  "t": "2026-10-15T11:26:08+00:00",
-  "hash": 8355298439943231800
- },
- {
   "id": "2026-10-15-c",
   "image": "pool-2026-10-15-c.jpg",
   "headline": "World News : Pakistan school roof collapse kills 28 ; more deaths feared",
@@ -172,5 +154,25 @@
   "t": "2026-10-16T11:51:43+00:00",
   "vista": 9.0,
   "hash": 18446677559757754335
+ },
+ {
+  "id": "2026-10-16-0848-0",
+  "image": "pool-2026-10-16-0848-0.jpg",
+  "headline": "Tropical storm Champi strengthens as it moves toward Guam under Typhoon watch",
+  "url": "https://www.thenews.com.pk/latest/1420067-tropical-storm-champi-strengthens-as-it-moves-toward-guam-under-typhoon-watch",
+  "outlet": "thenews.com.pk",
+  "t": "2026-10-16T12:48:35+00:00",
+  "vista": 9.0,
+  "hash": 14763046835237470272
+ },
+ {
+  "id": "2026-10-16-0848-1",
+  "image": "pool-2026-10-16-0848-1.jpg",
+  "headline": "NATO alarm over Black Sea drones - 2 tankers in flames in Romania , 8 sailors missing",
+  "url": "https://www.bankingnews.gr/diethni/articles/905351/nato-alarm-over-black-sea-drones-2-tankers-in-flames-in-romania-8-sailors-missing",
+  "outlet": "bankingnews.gr",
+  "t": "2026-10-16T12:48:35+00:00",
+  "vista": 8.0,
+  "hash": 124231359605822
  }
 ]
