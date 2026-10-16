@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-15-c",
-  "image": "pool-2026-10-15-c.jpg",
-  "headline": "World News : Pakistan school roof collapse kills 28 ; more deaths feared",
-  "url": "https://www.gdnonline.com:443/Details/1409814",
-  "outlet": "gdnonline.com",
-  "t": "2026-10-15T11:26:08+00:00",
-  "hash": 17256729867388621567
- },
- {
   "id": "2026-10-15-0759-0",
   "image": "pool-2026-10-15-0759-0.jpg",
   "headline": "Newsom vetoes bill aimed at funding Sacramento - San Joaquin delta levee repairs , water infrastructure",
@@ -174,5 +165,15 @@
   "t": "2026-10-16T12:48:35+00:00",
   "vista": 8.0,
   "hash": 124231359605822
+ },
+ {
+  "id": "2026-10-16-1239-0",
+  "image": "pool-2026-10-16-1239-0.jpg",
+  "headline": "Man dies after crash on A14 Orwell Bridge near Ipswich",
+  "url": "https://www.halsteadgazette.co.uk/news/26644031.man-dies-crash-a14-orwell-bridge-near-ipswich/",
+  "outlet": "halsteadgazette.co.uk",
+  "t": "2026-10-16T16:39:23+00:00",
+  "vista": 8.0,
+  "hash": 2315255807
  }
 ]
