@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-15-0759-0",
-  "image": "pool-2026-10-15-0759-0.jpg",
-  "headline": "Newsom vetoes bill aimed at funding Sacramento - San Joaquin delta levee repairs , water infrastructure",
-  "url": "https://www.cbsnews.com/sacramento/news/newsom-vetoed-delta-levee-bill/",
-  "outlet": "cbsnews.com",
-  "t": "2026-10-15T11:59:59+00:00",
-  "vista": 7.0,
-  "hash": 74061045705998335
- },
- {
   "id": "2026-10-15-0857-0",
   "image": "pool-2026-10-15-0857-0.jpg",
   "headline": "China opens a joint airfield in Laos with construction ongoing and eyes on its military role",
@@ -175,5 +165,15 @@
   "t": "2026-10-16T16:39:23+00:00",
   "vista": 8.0,
   "hash": 2315255807
+ },
+ {
+  "id": "2026-10-16-1710-0",
+  "image": "pool-2026-10-16-1710-0.jpg",
+  "headline": "Terminated FBI employees sue to regain jobs",
+  "url": "https://www.eldoradonews.com/news/2026/oct/16/terminated-fbi-employees-sue-to-regain-jobs/",
+  "outlet": "eldoradonews.com",
+  "t": "2026-10-16T21:10:27+00:00",
+  "vista": 8.0,
+  "hash": 45241710145240063
  }
 ]
