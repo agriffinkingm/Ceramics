@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-14",
-  "image": "pool-2026-10-14.jpg",
-  "headline": "A Pacific island  will be swallowed  by the sea within decades . Is Ireland paying attention ? \u2013 The Irish Times",
-  "url": "https://www.irishtimes.com/environment/climate-crisis/2026/10/08/a-pacific-island-will-be-swallowed-by-the-sea-within-decades-is-ireland-paying-attention/",
-  "outlet": "irishtimes.com",
-  "t": "2026-10-14T11:50:05+00:00",
-  "hash": 16179646785065533311
- },
- {
-  "id": "2026-10-14-b",
-  "image": "pool-2026-10-14-b.jpg",
-  "headline": "Analysis - Spain housing crisis bursts into the spotlight at snap election",
-  "url": "https://lufkindailynews.com/news_reuters/top_news/analysis-spains-housing-crisis-bursts-into-the-spotlight-at-snap-election/article_e92870e5-bd1c-5be0-aa9e-1e348394f61f.html",
-  "outlet": "lufkindailynews.com",
-  "t": "2026-10-14T11:50:05+00:00",
-  "hash": 7509891461299568652
- },
- {
-  "id": "2026-10-14-c",
-  "image": "pool-2026-10-14-c.jpg",
-  "headline": "UK bluefin tuna comeback shows nature can recover , says WWF",
-  "url": "https://www.bbc.co.uk/news/articles/c5rmyzgdjzkwo",
-  "outlet": "bbc.co.uk",
-  "t": "2026-10-14T11:50:05+00:00",
-  "hash": 63579153626570495
- },
- {
   "id": "2026-10-15",
   "image": "pool-2026-10-15.jpg",
   "headline": "School roof collapse kills at least 28 children and a teacher in Pakistan",
@@ -169,5 +142,35 @@
   "outlet": "dailysabah.com",
   "t": "2026-10-16T11:22:41+00:00",
   "hash": 18437253419002501823
+ },
+ {
+  "id": "2026-10-16-0751-0",
+  "image": "pool-2026-10-16-0751-0.jpg",
+  "headline": "Action needed to save water , minister tells MPs",
+  "url": "https://www.bbc.co.uk/news/articles/cq0ld4g0309go",
+  "outlet": "bbc.co.uk",
+  "t": "2026-10-16T11:51:43+00:00",
+  "vista": 9.0,
+  "hash": 18446743836429451777
+ },
+ {
+  "id": "2026-10-16-0751-1",
+  "image": "pool-2026-10-16-0751-1.jpg",
+  "headline": "Hurricane Trudy hits category 3 off Mexico coast after earlier storms kill six",
+  "url": "https://www.aol.co.uk/articles/hurricane-trudy-hits-category-3-090303000.html",
+  "outlet": "aol.co.uk",
+  "t": "2026-10-16T11:51:43+00:00",
+  "vista": 9.0,
+  "hash": 1168746487568400665
+ },
+ {
+  "id": "2026-10-16-0751-2",
+  "image": "pool-2026-10-16-0751-2.jpg",
+  "headline": "Local mapping company shares where Super El Ni\u00f1o will hit SA hardest",
+  "url": "https://htxt.co.za/2026/10/local-mapping-company-shares-where-super-el-nino-will-hit-sa-hardest/",
+  "outlet": "htxt.co.za",
+  "t": "2026-10-16T11:51:43+00:00",
+  "vista": 9.0,
+  "hash": 18446677559757754335
  }
 ]
