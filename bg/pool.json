@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-13-b",
-  "image": "pool-2026-10-13-b.jpg",
-  "headline": "Age , heat may be behind underground electrical vault explosions in LA , engineer says",
-  "url": "https://www.foxla.com/news/age-heat-may-be-behind-underground-electrical-vault-explosions-la-engineer-says",
-  "outlet": "foxla.com",
-  "t": "2026-10-13T14:09:12+00:00",
-  "hash": 11809214440174768231
- },
- {
-  "id": "2026-10-13-c",
-  "image": "pool-2026-10-13-c.jpg",
-  "headline": "CJP Leaders Abhijeet Dipke , Saurav Das , Ashutosh Ranka Detained From Inside The Flight After Dhruv Rathee",
-  "url": "https://www.oneindia.com/new-delhi/cjp-leaders-abhijeet-dipke-saurav-das-ashutosh-ranka-detained-after-dhruv-rathee-8230735.html",
-  "outlet": "oneindia.com",
-  "t": "2026-10-13T14:09:12+00:00",
-  "hash": 9711598662635160837
- },
- {
-  "id": "2026-10-13-1121-0",
-  "image": "pool-2026-10-13-1121-0.jpg",
-  "headline": "Hurricane Isaias makes landfall as extreme winds , heavy rain blast the Gulf Coast",
-  "url": "https://www.fox7austin.com/news/hurricane-isaias-now-category-3-storm-see-latest-track",
-  "outlet": "fox7austin.com",
-  "t": "2026-10-13T15:21:51+00:00",
-  "vista": 9.0,
-  "hash": 14992501239105322941
- },
- {
   "id": "2026-10-14",
   "image": "pool-2026-10-14.jpg",
   "headline": "A Pacific island  will be swallowed  by the sea within decades . Is Ireland paying attention ? \u2013 The Irish Times",
@@ -170,5 +142,32 @@
   "t": "2026-10-16T04:32:35+00:00",
   "vista": 7.0,
   "hash": 4669108013179105360
+ },
+ {
+  "id": "2026-10-16",
+  "image": "pool-2026-10-16.jpg",
+  "headline": "Himachal hopes advanced GLOF early warning system will save lives ; seeks Centre aid for Rs 3 , 525 cr disaster losses",
+  "url": "http://www.srilankasource.com/news/279378367/himachal-hopes-advanced-glof-early-warning-system-will-save-lives-seeks-centre-aid-for-rs-3525-cr-disaster-losses",
+  "outlet": "srilankasource.com",
+  "t": "2026-10-16T11:22:41+00:00",
+  "hash": 58758867234913535
+ },
+ {
+  "id": "2026-10-16-b",
+  "image": "pool-2026-10-16-b.jpg",
+  "headline": "Da Nang tests heavy - lifting drone carrying up to 120kg of cargo",
+  "url": "https://news.tuoitre.vn/da-nang-tests-heavy-lifting-drone-carrying-up-to-120kg-of-cargo-103261016150017992.htm",
+  "outlet": "news.tuoitre.vn",
+  "t": "2026-10-16T11:22:41+00:00",
+  "hash": 18225219938319130864
+ },
+ {
+  "id": "2026-10-16-c",
+  "image": "pool-2026-10-16-c.jpg",
+  "headline": "Istanbul floods trigger 48 landslides , damage 300 businesses",
+  "url": "https://www.dailysabah.com/turkiye/istanbul/istanbul-floods-trigger-48-landslides-damage-300-businesses",
+  "outlet": "dailysabah.com",
+  "t": "2026-10-16T11:22:41+00:00",
+  "hash": 18437253419002501823
  }
 ]
