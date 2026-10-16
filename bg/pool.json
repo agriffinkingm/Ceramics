@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-13",
-  "image": "pool-2026-10-13.jpg",
-  "headline": "Ebola outbreak in Congo spreads to new hotspots , health workers warn",
-  "url": "https://www.business-standard.com/world-news/ebola-outbreak-in-congo-spreads-to-new-hotspots-health-workers-warn-126100800083_1.html",
-  "outlet": "business-standard.com",
-  "t": "2026-10-13T14:09:12+00:00",
-  "hash": 3474032530088076810
- },
- {
   "id": "2026-10-13-b",
   "image": "pool-2026-10-13-b.jpg",
   "headline": "Age , heat may be behind underground electrical vault explosions in LA , engineer says",
@@ -169,5 +160,15 @@
   "t": "2026-10-15T21:27:24+00:00",
   "vista": 9.0,
   "hash": 144118594927001343
+ },
+ {
+  "id": "2026-10-16-0032-0",
+  "image": "pool-2026-10-16-0032-0.jpg",
+  "headline": "Fire breaks out on Camp Pendleton , threatening structures",
+  "url": "https://www.ocregister.com/2026/10/15/large-brush-fire-threatens-structures-on-camp-pendleton/",
+  "outlet": "ocregister.com",
+  "t": "2026-10-16T04:32:35+00:00",
+  "vista": 7.0,
+  "hash": 4669108013179105360
  }
 ]
