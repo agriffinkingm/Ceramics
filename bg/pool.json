@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-10-15-1727-2",
-  "image": "pool-2026-10-15-1727-2.jpg",
-  "headline": "Dozens of Calif . dams need repair as El Ni\u00f1o winter nears | Regional",
-  "url": "https://napavalleyregister.com/news/regional/dozens-of-california-dams-need-repair-as-el-ni-o-winter-draws-closer/article_3b97c800-7e53-4ec3-bbe3-0bf5770f2795.html",
-  "outlet": "napavalleyregister.com",
-  "t": "2026-10-15T21:27:24+00:00",
-  "vista": 9.0,
-  "hash": 144118594927001343
- },
- {
-  "id": "2026-10-16-0032-0",
-  "image": "pool-2026-10-16-0032-0.jpg",
-  "headline": "Fire breaks out on Camp Pendleton , threatening structures",
-  "url": "https://www.ocregister.com/2026/10/15/large-brush-fire-threatens-structures-on-camp-pendleton/",
-  "outlet": "ocregister.com",
-  "t": "2026-10-16T04:32:35+00:00",
-  "vista": 7.0,
-  "hash": 4669108013179105360
- },
- {
   "id": "2026-10-16",
   "image": "pool-2026-10-16.jpg",
   "headline": "Himachal hopes advanced GLOF early warning system will save lives ; seeks Centre aid for Rs 3 , 525 cr disaster losses",
@@ -172,5 +152,25 @@
   "t": "2026-10-17T11:50:07+00:00",
   "vista": 7.0,
   "hash": 288132712890367
+ },
+ {
+  "id": "2026-10-17-1136-0",
+  "image": "pool-2026-10-17-1136-0.jpg",
+  "headline": "The lost crops of the Himalaya",
+  "url": "https://nepalitimes.com/the-lost-crops-of-the-himalaya",
+  "outlet": "nepalitimes.com",
+  "t": "2026-10-17T15:36:14+00:00",
+  "vista": 8.0,
+  "hash": 18261775690497921
+ },
+ {
+  "id": "2026-10-17-1136-1",
+  "image": "pool-2026-10-17-1136-1.jpg",
+  "headline": "Latur declared water scarcity zone , borewell curbs imposed",
+  "url": "https://www.siasat.com/latur-declared-water-scarcity-zone-borewell-curbs-imposed-3560076/",
+  "outlet": "siasat.com",
+  "t": "2026-10-17T15:36:14+00:00",
+  "vista": 8.0,
+  "hash": 82678056831
  }
 ]
