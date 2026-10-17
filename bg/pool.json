@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-15-0857-0",
-  "image": "pool-2026-10-15-0857-0.jpg",
-  "headline": "China opens a joint airfield in Laos with construction ongoing and eyes on its military role",
-  "url": "http://www.sitkasentinel.com/stories/china-opens-a-joint-airfield-in-laos-with-construction-ongoing-and-eyes-on-its-military-role,178748",
-  "outlet": "sitkasentinel.com",
-  "t": "2026-10-15T12:57:00+00:00",
-  "vista": 9.0,
-  "hash": 2198989701120
- },
- {
   "id": "2026-10-15-1301-0",
   "image": "pool-2026-10-15-1301-0.jpg",
   "headline": "Devon among areas in severe drought , Government says",
@@ -175,5 +165,15 @@
   "t": "2026-10-16T21:10:27+00:00",
   "vista": 8.0,
   "hash": 45241710145240063
+ },
+ {
+  "id": "2026-10-17-0025-0",
+  "image": "pool-2026-10-17-0025-0.jpg",
+  "headline": "She Either Has No Water or Lives With Uncertainty : The Racial and Economic Divide of Puerto Rico Water Rationing",
+  "url": "http://www.phoenixherald.com/news/279380235/she-either-has-no-water-or-lives-with-uncertainty-the-racial-and-economic-divide-of-puerto-rico-s-water-rationing",
+  "outlet": "phoenixherald.com",
+  "t": "2026-10-17T04:25:11+00:00",
+  "vista": 9.0,
+  "hash": 16208720026057859314
  }
 ]
