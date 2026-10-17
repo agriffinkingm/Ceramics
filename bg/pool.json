@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-10-15-1727-0",
-  "image": "pool-2026-10-15-1727-0.jpg",
-  "headline": "Antarctica  doomsday  glacier will keep melting even if oceans cool",
-  "url": "https://www.newscientist.com/article/2594246-antarcticas-doomsday-glacier-will-keep-melting-even-if-oceans-cool/",
-  "outlet": "newscientist.com",
-  "t": "2026-10-15T21:27:23+00:00",
-  "vista": 10.0,
-  "hash": 9277662557957455871
- },
- {
-  "id": "2026-10-15-1727-1",
-  "image": "pool-2026-10-15-1727-1.jpg",
-  "headline": "U . S . historic preservation law faces the most serious threat in its 60 - year history",
-  "url": "https://www.iowapublicradio.org/news-from-npr/2026-10-15/u-s-historic-preservation-law-faces-the-most-serious-threat-in-its-60-year-history",
-  "outlet": "iowapublicradio.org",
-  "t": "2026-10-15T21:27:24+00:00",
-  "vista": 9.0,
-  "hash": 17884059033871257359
- },
- {
   "id": "2026-10-15-1727-2",
   "image": "pool-2026-10-15-1727-2.jpg",
   "headline": "Dozens of Calif . dams need repair as El Ni\u00f1o winter nears | Regional",
@@ -172,5 +152,25 @@
   "outlet": "theepochtimes.com",
   "t": "2026-10-17T10:40:19+00:00",
   "hash": 1736278394728873983
+ },
+ {
+  "id": "2026-10-17-0750-0",
+  "image": "pool-2026-10-17-0750-0.jpg",
+  "headline": "5 Scenic Swiss Villages to Put on Your Travel Itinerary",
+  "url": "https://www.nationalgeographic.com/travel/article/scenic-swiss-villages-to-put-on-your-travel-itinerary",
+  "outlet": "nationalgeographic.com",
+  "t": "2026-10-17T11:50:07+00:00",
+  "vista": 8.0,
+  "hash": 11248896876322097300
+ },
+ {
+  "id": "2026-10-17-0750-1",
+  "image": "pool-2026-10-17-0750-1.jpg",
+  "headline": "Dare County orders visitor evacuation as Noreaster Storm nears Hatteras Island",
+  "url": "https://www.el-balad.com/17058286",
+  "outlet": "el-balad.com",
+  "t": "2026-10-17T11:50:07+00:00",
+  "vista": 7.0,
+  "hash": 288132712890367
  }
 ]
