@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-10-15-1301-0",
-  "image": "pool-2026-10-15-1301-0.jpg",
-  "headline": "Devon among areas in severe drought , Government says",
-  "url": "https://www.midweekherald.co.uk/news/26640572.dorset-among-areas-severe-drought-government-says/",
-  "outlet": "midweekherald.co.uk",
-  "t": "2026-10-15T17:01:32+00:00",
-  "vista": 9.0,
-  "hash": 291817635668762289
- },
- {
-  "id": "2026-10-15-1301-1",
-  "image": "pool-2026-10-15-1301-1.jpg",
-  "headline": "Next system set to bring widespread rainfall to the area",
-  "url": "https://www.wxow.com/weather/next-system-set-to-bring-widespread-rainfall-to-the-area/article_a91c30c9-06a8-4713-94e5-fc5f60484716.html",
-  "outlet": "wxow.com",
-  "t": "2026-10-15T17:01:32+00:00",
-  "vista": 9.0,
-  "hash": 14367876811754267513
- },
- {
-  "id": "2026-10-15-1301-2",
-  "image": "pool-2026-10-15-1301-2.jpg",
-  "headline": "Travel : Myrtle Beach , Pigeon Forge and Branson offer 3 distinct flavors of Americana",
-  "url": "https://www.dailyfreeman.com/2026/10/15/travel-myrtle-beach-pigeon-forge-and-branson-offer-3-distinct-flavors-of-americana/",
-  "outlet": "dailyfreeman.com",
-  "t": "2026-10-15T17:01:32+00:00",
-  "vista": 8.0,
-  "hash": 8703206279910260735
- },
- {
   "id": "2026-10-15-1727-0",
   "image": "pool-2026-10-15-1727-0.jpg",
   "headline": "Antarctica  doomsday  glacier will keep melting even if oceans cool",
@@ -175,5 +145,32 @@
   "t": "2026-10-17T04:25:11+00:00",
   "vista": 9.0,
   "hash": 16208720026057859314
+ },
+ {
+  "id": "2026-10-17",
+  "image": "pool-2026-10-17.jpg",
+  "headline": "Tanker struck by unknown projectile near Al Jubail in Saudi Arabia : UKMTO",
+  "url": "http://www.iranherald.com/news/279380743/tanker-struck-by-unknown-projectile-near-al-jubail-in-saudi-arabia-ukmto",
+  "outlet": "iranherald.com",
+  "t": "2026-10-17T10:40:19+00:00",
+  "hash": 1073741823999
+ },
+ {
+  "id": "2026-10-17-b",
+  "image": "pool-2026-10-17-b.jpg",
+  "headline": "Kharkiv Missile Strikes Injure 15 , Including 3 Children",
+  "url": "https://www.kyivpost.com/post/87347",
+  "outlet": "kyivpost.com",
+  "t": "2026-10-17T10:40:19+00:00",
+  "hash": 296138823937095928
+ },
+ {
+  "id": "2026-10-17-c",
+  "image": "pool-2026-10-17-c.jpg",
+  "headline": "Saw What at Stake : Afghanistan Veterans Honoured",
+  "url": "https://www.theepochtimes.com/world/saw-whats-at-stake-afghanistan-veterans-honoured-6102203",
+  "outlet": "theepochtimes.com",
+  "t": "2026-10-17T10:40:19+00:00",
+  "hash": 1736278394728873983
  }
 ]
