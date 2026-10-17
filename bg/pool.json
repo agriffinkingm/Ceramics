@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-16",
-  "image": "pool-2026-10-16.jpg",
-  "headline": "Himachal hopes advanced GLOF early warning system will save lives ; seeks Centre aid for Rs 3 , 525 cr disaster losses",
-  "url": "http://www.srilankasource.com/news/279378367/himachal-hopes-advanced-glof-early-warning-system-will-save-lives-seeks-centre-aid-for-rs-3525-cr-disaster-losses",
-  "outlet": "srilankasource.com",
-  "t": "2026-10-16T11:22:41+00:00",
-  "hash": 58758867234913535
- },
- {
   "id": "2026-10-16-b",
   "image": "pool-2026-10-16-b.jpg",
   "headline": "Da Nang tests heavy - lifting drone carrying up to 120kg of cargo",
@@ -172,5 +163,15 @@
   "t": "2026-10-17T15:36:14+00:00",
   "vista": 8.0,
   "hash": 82678056831
+ },
+ {
+  "id": "2026-10-17-1638-0",
+  "image": "pool-2026-10-17-1638-0.jpg",
+  "headline": "Southern California homes engulfed in flames as multiple fast - moving fires rage",
+  "url": "https://www.independent.co.uk/news/world/americas/california-fires-fire-san-clemente-santa-ana-winds-b3068411.html",
+  "outlet": "independent.co.uk",
+  "t": "2026-10-17T20:38:56+00:00",
+  "vista": 8.0,
+  "hash": 3459612778434589696
  }
 ]
