@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-16-b",
-  "image": "pool-2026-10-16-b.jpg",
-  "headline": "Da Nang tests heavy - lifting drone carrying up to 120kg of cargo",
-  "url": "https://news.tuoitre.vn/da-nang-tests-heavy-lifting-drone-carrying-up-to-120kg-of-cargo-103261016150017992.htm",
-  "outlet": "news.tuoitre.vn",
-  "t": "2026-10-16T11:22:41+00:00",
-  "hash": 18225219938319130864
- },
- {
-  "id": "2026-10-16-c",
-  "image": "pool-2026-10-16-c.jpg",
-  "headline": "Istanbul floods trigger 48 landslides , damage 300 businesses",
-  "url": "https://www.dailysabah.com/turkiye/istanbul/istanbul-floods-trigger-48-landslides-damage-300-businesses",
-  "outlet": "dailysabah.com",
-  "t": "2026-10-16T11:22:41+00:00",
-  "hash": 18437253419002501823
- },
- {
-  "id": "2026-10-16-0751-0",
-  "image": "pool-2026-10-16-0751-0.jpg",
-  "headline": "Action needed to save water , minister tells MPs",
-  "url": "https://www.bbc.co.uk/news/articles/cq0ld4g0309go",
-  "outlet": "bbc.co.uk",
-  "t": "2026-10-16T11:51:43+00:00",
-  "vista": 9.0,
-  "hash": 18446743836429451777
- },
- {
   "id": "2026-10-16-0751-1",
   "image": "pool-2026-10-16-0751-1.jpg",
   "headline": "Hurricane Trudy hits category 3 off Mexico coast after earlier storms kill six",
@@ -173,5 +145,32 @@
   "t": "2026-10-17T20:38:56+00:00",
   "vista": 8.0,
   "hash": 3459612778434589696
+ },
+ {
+  "id": "2026-10-18",
+  "image": "pool-2026-10-18.jpg",
+  "headline": "Why Starlink matters in Ukrainian warfare",
+  "url": "https://www.dw.com/en/how-reliant-is-ukraine-on-the-us-controlled-starlink-internet-service/a-79689729",
+  "outlet": "dw.com",
+  "t": "2026-10-18T11:01:29+00:00",
+  "hash": 18446744071547322368
+ },
+ {
+  "id": "2026-10-18-b",
+  "image": "pool-2026-10-18-b.jpg",
+  "headline": "Why Starlink is so important for Ukraine",
+  "url": "https://www.dw.com/en/why-starlink-is-so-important-for-ukraine/a-79689729",
+  "outlet": "dw.com",
+  "t": "2026-10-18T11:01:29+00:00",
+  "hash": 18446744071547322368
+ },
+ {
+  "id": "2026-10-18-c",
+  "image": "pool-2026-10-18-c.jpg",
+  "headline": "More attacks as Zelenskiy and Trump trade barbs",
+  "url": "https://www.canberratimes.com.au/story/9370357/more-attacks-as-zelenskiy-and-trump-trade-barbs/",
+  "outlet": "canberratimes.com.au",
+  "t": "2026-10-18T11:01:29+00:00",
+  "hash": 3496507610173192
  }
 ]

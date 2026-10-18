@@ -215,5 +215,12 @@
   "url": "http://www.iranherald.com/news/279380743/tanker-struck-by-unknown-projectile-near-al-jubail-in-saudi-arabia-ukmto",
   "outlet": "iranherald.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-18",
+  "headline": "Why Starlink matters in Ukrainian warfare",
+  "url": "https://www.dw.com/en/how-reliant-is-ukraine-on-the-us-controlled-starlink-internet-service/a-79689729",
+  "outlet": "dw.com",
+  "method": "crop"
  }
 ]
