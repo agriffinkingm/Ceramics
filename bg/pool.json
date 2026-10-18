@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-10-16-0751-1",
-  "image": "pool-2026-10-16-0751-1.jpg",
-  "headline": "Hurricane Trudy hits category 3 off Mexico coast after earlier storms kill six",
-  "url": "https://www.aol.co.uk/articles/hurricane-trudy-hits-category-3-090303000.html",
-  "outlet": "aol.co.uk",
-  "t": "2026-10-16T11:51:43+00:00",
-  "vista": 9.0,
-  "hash": 1168746487568400665
- },
- {
-  "id": "2026-10-16-0751-2",
-  "image": "pool-2026-10-16-0751-2.jpg",
-  "headline": "Local mapping company shares where Super El Ni\u00f1o will hit SA hardest",
-  "url": "https://htxt.co.za/2026/10/local-mapping-company-shares-where-super-el-nino-will-hit-sa-hardest/",
-  "outlet": "htxt.co.za",
-  "t": "2026-10-16T11:51:43+00:00",
-  "vista": 9.0,
-  "hash": 18446677559757754335
- },
- {
-  "id": "2026-10-16-0848-0",
-  "image": "pool-2026-10-16-0848-0.jpg",
-  "headline": "Tropical storm Champi strengthens as it moves toward Guam under Typhoon watch",
-  "url": "https://www.thenews.com.pk/latest/1420067-tropical-storm-champi-strengthens-as-it-moves-toward-guam-under-typhoon-watch",
-  "outlet": "thenews.com.pk",
-  "t": "2026-10-16T12:48:35+00:00",
-  "vista": 9.0,
-  "hash": 14763046835237470272
- },
- {
   "id": "2026-10-16-0848-1",
   "image": "pool-2026-10-16-0848-1.jpg",
   "headline": "NATO alarm over Black Sea drones - 2 tankers in flames in Romania , 8 sailors missing",
@@ -172,5 +142,35 @@
   "outlet": "canberratimes.com.au",
   "t": "2026-10-18T11:01:29+00:00",
   "hash": 3496507610173192
+ },
+ {
+  "id": "2026-10-18-1155-0",
+  "image": "pool-2026-10-18-1155-0.jpg",
+  "headline": "7 Best Luxury Railways Through the World Wildest Landscapes",
+  "url": "https://www.latimes.com/eta/travel-themes/adventure/story/luxury-train-journeys-rugged-terrain",
+  "outlet": "latimes.com",
+  "t": "2026-10-18T15:55:19+00:00",
+  "vista": 9.0,
+  "hash": 36253701307644
+ },
+ {
+  "id": "2026-10-18-1155-1",
+  "image": "pool-2026-10-18-1155-1.jpg",
+  "headline": "Oceanside allocates $8 . 2 million for overdue federal flood - control project",
+  "url": "https://www.sandiegouniontribune.com/2026/10/18/with-thousands-of-properties-at-risk-oceanside-allocates-8-2m-for-overdue-federal-flood-control-project/",
+  "outlet": "sandiegouniontribune.com",
+  "t": "2026-10-18T15:55:20+00:00",
+  "vista": 9.0,
+  "hash": 18410723209612886271
+ },
+ {
+  "id": "2026-10-18-1155-2",
+  "image": "pool-2026-10-18-1155-2.jpg",
+  "headline": "Blaze at St Petersburg oil sites as Kyiv launches drones at Russia",
+  "url": "https://www.business-standard.com/world-news/blaze-at-st-petersburg-oil-sites-as-kyiv-launches-drones-at-russia-126101800383_1.html",
+  "outlet": "business-standard.com",
+  "t": "2026-10-18T15:55:20+00:00",
+  "vista": 8.0,
+  "hash": 246769559007183
  }
 ]
