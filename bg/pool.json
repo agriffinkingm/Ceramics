@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-10-16-1710-0",
-  "image": "pool-2026-10-16-1710-0.jpg",
-  "headline": "Terminated FBI employees sue to regain jobs",
-  "url": "https://www.eldoradonews.com/news/2026/oct/16/terminated-fbi-employees-sue-to-regain-jobs/",
-  "outlet": "eldoradonews.com",
-  "t": "2026-10-16T21:10:27+00:00",
-  "vista": 8.0,
-  "hash": 45241710145240063
- },
- {
-  "id": "2026-10-17-0025-0",
-  "image": "pool-2026-10-17-0025-0.jpg",
-  "headline": "She Either Has No Water or Lives With Uncertainty : The Racial and Economic Divide of Puerto Rico Water Rationing",
-  "url": "http://www.phoenixherald.com/news/279380235/she-either-has-no-water-or-lives-with-uncertainty-the-racial-and-economic-divide-of-puerto-rico-s-water-rationing",
-  "outlet": "phoenixherald.com",
-  "t": "2026-10-17T04:25:11+00:00",
-  "vista": 9.0,
-  "hash": 16208720026057859314
- },
- {
   "id": "2026-10-17",
   "image": "pool-2026-10-17.jpg",
   "headline": "Tanker struck by unknown projectile near Al Jubail in Saudi Arabia : UKMTO",
@@ -172,5 +152,25 @@
   "t": "2026-10-18T20:43:33+00:00",
   "vista": 9.0,
   "hash": 18229656877907575552
+ },
+ {
+  "id": "2026-10-19-0041-0",
+  "image": "pool-2026-10-19-0041-0.jpg",
+  "headline": "Champi  may re - intensify into super typhoon , to enter PAR Tuesday",
+  "url": "https://www.philstar.com/headlines/weather/2026/10/19/2564255/champi-may-re-intensify-super-typhoon-enter-par-tuesday",
+  "outlet": "philstar.com",
+  "t": "2026-10-19T04:41:02+00:00",
+  "vista": 9.0,
+  "hash": 236385988199317504
+ },
+ {
+  "id": "2026-10-19-0041-1",
+  "image": "pool-2026-10-19-0041-1.jpg",
+  "headline": "Two Rushed To Hospital After Multi - Vehicle Crash on 110 Freeway",
+  "url": "https://mynewsla.com/life/2026/10/18/two-rushed-to-hospital-after-multi-vehicle-crash-on-110-freeway-2/",
+  "outlet": "mynewsla.com",
+  "t": "2026-10-19T04:41:02+00:00",
+  "vista": 8.0,
+  "hash": 505250748531933183
  }
 ]
