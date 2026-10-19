@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-17",
-  "image": "pool-2026-10-17.jpg",
-  "headline": "Tanker struck by unknown projectile near Al Jubail in Saudi Arabia : UKMTO",
-  "url": "http://www.iranherald.com/news/279380743/tanker-struck-by-unknown-projectile-near-al-jubail-in-saudi-arabia-ukmto",
-  "outlet": "iranherald.com",
-  "t": "2026-10-17T10:40:19+00:00",
-  "hash": 1073741823999
- },
- {
-  "id": "2026-10-17-b",
-  "image": "pool-2026-10-17-b.jpg",
-  "headline": "Kharkiv Missile Strikes Injure 15 , Including 3 Children",
-  "url": "https://www.kyivpost.com/post/87347",
-  "outlet": "kyivpost.com",
-  "t": "2026-10-17T10:40:19+00:00",
-  "hash": 296138823937095928
- },
- {
-  "id": "2026-10-17-c",
-  "image": "pool-2026-10-17-c.jpg",
-  "headline": "Saw What at Stake : Afghanistan Veterans Honoured",
-  "url": "https://www.theepochtimes.com/world/saw-whats-at-stake-afghanistan-veterans-honoured-6102203",
-  "outlet": "theepochtimes.com",
-  "t": "2026-10-17T10:40:19+00:00",
-  "hash": 1736278394728873983
- },
- {
   "id": "2026-10-17-0750-0",
   "image": "pool-2026-10-17-0750-0.jpg",
   "headline": "5 Scenic Swiss Villages to Put on Your Travel Itinerary",
@@ -172,5 +145,32 @@
   "t": "2026-10-19T04:41:02+00:00",
   "vista": 8.0,
   "hash": 505250748531933183
+ },
+ {
+  "id": "2026-10-19",
+  "image": "pool-2026-10-19.jpg",
+  "headline": "Erdene Resource Provides Q3 2026 Update and Notice of Conference Call and Webcast",
+  "url": "https://www.juniorminingnetwork.com/junior-miner-news/press-releases/1079-tsx/erd/213091-erdene-provides-q3-2026-update-and-notice-of-conference-call-and-webcast.html",
+  "outlet": "juniorminingnetwork.com",
+  "t": "2026-10-19T13:07:51+00:00",
+  "hash": 17940362893622968576
+ },
+ {
+  "id": "2026-10-19-b",
+  "image": "pool-2026-10-19-b.jpg",
+  "headline": "Hezbollah funding plan indicates a new challenge to Lebanon government - Grenada Chronicle \u2013 Daily Grenada And Caribbean News",
+  "url": "https://grenadachronicle.com/hezbollah-funding-plan-indicates-a-new-challenge-to-lebanons-government/",
+  "outlet": "grenadachronicle.com",
+  "t": "2026-10-19T13:07:51+00:00",
+  "hash": 490574867817565758
+ },
+ {
+  "id": "2026-10-19-c",
+  "image": "pool-2026-10-19-c.jpg",
+  "headline": "Incidents at the Black Sea on the rise - Radio Romania International",
+  "url": "https://www.rri.ro/en/news-and-current-affairs/today-in-the-news/incidents-at-the-black-sea-on-the-rise-id1072901.html",
+  "outlet": "rri.ro",
+  "t": "2026-10-19T13:07:51+00:00",
+  "hash": 108510742415671295
  }
 ]
