@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-18",
-  "image": "pool-2026-10-18.jpg",
-  "headline": "Why Starlink matters in Ukrainian warfare",
-  "url": "https://www.dw.com/en/how-reliant-is-ukraine-on-the-us-controlled-starlink-internet-service/a-79689729",
-  "outlet": "dw.com",
-  "t": "2026-10-18T11:01:29+00:00",
-  "hash": 18446744071547322368
- },
- {
   "id": "2026-10-18-b",
   "image": "pool-2026-10-18-b.jpg",
   "headline": "Why Starlink is so important for Ukraine",
@@ -169,5 +160,15 @@
   "t": "2026-10-20T12:03:36+00:00",
   "vista": 9.0,
   "hash": 1890324303601745163
+ },
+ {
+  "id": "2026-10-20-0902-0",
+  "image": "pool-2026-10-20-0902-0.jpg",
+  "headline": "Krka National Park : Waterfalls , Tickets , Swimming Rules",
+  "url": "https://www.latimes.com/eta/travel-experiences/story/krka-national-park-croatia-waterfalls-guide",
+  "outlet": "latimes.com",
+  "t": "2026-10-20T13:02:36+00:00",
+  "vista": 7.0,
+  "hash": 18264612558544595180
  }
 ]
