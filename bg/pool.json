@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-18-b",
-  "image": "pool-2026-10-18-b.jpg",
-  "headline": "Why Starlink is so important for Ukraine",
-  "url": "https://www.dw.com/en/why-starlink-is-so-important-for-ukraine/a-79689729",
-  "outlet": "dw.com",
-  "t": "2026-10-18T11:01:29+00:00",
-  "hash": 18446744071547322368
- },
- {
-  "id": "2026-10-18-c",
-  "image": "pool-2026-10-18-c.jpg",
-  "headline": "More attacks as Zelenskiy and Trump trade barbs",
-  "url": "https://www.canberratimes.com.au/story/9370357/more-attacks-as-zelenskiy-and-trump-trade-barbs/",
-  "outlet": "canberratimes.com.au",
-  "t": "2026-10-18T11:01:29+00:00",
-  "hash": 3496507610173192
- },
- {
-  "id": "2026-10-18-1155-0",
-  "image": "pool-2026-10-18-1155-0.jpg",
-  "headline": "7 Best Luxury Railways Through the World Wildest Landscapes",
-  "url": "https://www.latimes.com/eta/travel-themes/adventure/story/luxury-train-journeys-rugged-terrain",
-  "outlet": "latimes.com",
-  "t": "2026-10-18T15:55:19+00:00",
-  "vista": 9.0,
-  "hash": 36253701307644
- },
- {
   "id": "2026-10-18-1155-1",
   "image": "pool-2026-10-18-1155-1.jpg",
   "headline": "Oceanside allocates $8 . 2 million for overdue federal flood - control project",
@@ -170,5 +142,35 @@
   "t": "2026-10-20T13:02:36+00:00",
   "vista": 7.0,
   "hash": 18264612558544595180
+ },
+ {
+  "id": "2026-10-20-1741-0",
+  "image": "pool-2026-10-20-1741-0.jpg",
+  "headline": "Footage shows banned driver in police chase through Basildon",
+  "url": "https://www.brentwoodlive.co.uk/news/26655222.footage-shows-banned-driver-police-chase-basildon/",
+  "outlet": "brentwoodlive.co.uk",
+  "t": "2026-10-20T21:41:28+00:00",
+  "vista": 9.0,
+  "hash": 218159729518327920
+ },
+ {
+  "id": "2026-10-20-1741-1",
+  "image": "pool-2026-10-20-1741-1.jpg",
+  "headline": "VIETNAM - GIA LAI - SOLAR POWER PLANT - CHINESE COMPANY",
+  "url": "http://www.shanghaisun.com/news/279387823/vietnam-gia-lai-solar-power-plant-chinese-company",
+  "outlet": "shanghaisun.com",
+  "t": "2026-10-20T21:41:28+00:00",
+  "vista": 9.0,
+  "hash": 4294967295
+ },
+ {
+  "id": "2026-10-20-1741-2",
+  "image": "pool-2026-10-20-1741-2.jpg",
+  "headline": "The story of Three Creek",
+  "url": "https://www.nuggetnews.com/story/2026/10/21/nature/the-story-of-three-creek/39682.html",
+  "outlet": "nuggetnews.com",
+  "t": "2026-10-20T21:41:28+00:00",
+  "vista": 8.0,
+  "hash": 436390667522932675
  }
 ]
