@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-17-1638-0",
-  "image": "pool-2026-10-17-1638-0.jpg",
-  "headline": "Southern California homes engulfed in flames as multiple fast - moving fires rage",
-  "url": "https://www.independent.co.uk/news/world/americas/california-fires-fire-san-clemente-santa-ana-winds-b3068411.html",
-  "outlet": "independent.co.uk",
-  "t": "2026-10-17T20:38:56+00:00",
-  "vista": 8.0,
-  "hash": 3459612778434589696
- },
- {
   "id": "2026-10-18",
   "image": "pool-2026-10-18.jpg",
   "headline": "Why Starlink matters in Ukrainian warfare",
@@ -169,5 +159,15 @@
   "outlet": "beefcentral.com",
   "t": "2026-10-20T11:33:23+00:00",
   "hash": 4517678496612351
+ },
+ {
+  "id": "2026-10-20-0803-0",
+  "image": "pool-2026-10-20-0803-0.jpg",
+  "headline": "Plans revealed for almost 50 new homes in the New Forest",
+  "url": "https://www.bournemouthecho.co.uk/news/26651633.plans-revealed-almost-50-new-homes-new-forest/",
+  "outlet": "bournemouthecho.co.uk",
+  "t": "2026-10-20T12:03:36+00:00",
+  "vista": 9.0,
+  "hash": 1890324303601745163
  }
 ]
