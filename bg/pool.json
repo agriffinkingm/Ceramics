@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-10-17-0750-1",
-  "image": "pool-2026-10-17-0750-1.jpg",
-  "headline": "Dare County orders visitor evacuation as Noreaster Storm nears Hatteras Island",
-  "url": "https://www.el-balad.com/17058286",
-  "outlet": "el-balad.com",
-  "t": "2026-10-17T11:50:07+00:00",
-  "vista": 7.0,
-  "hash": 288132712890367
- },
- {
-  "id": "2026-10-17-1136-0",
-  "image": "pool-2026-10-17-1136-0.jpg",
-  "headline": "The lost crops of the Himalaya",
-  "url": "https://nepalitimes.com/the-lost-crops-of-the-himalaya",
-  "outlet": "nepalitimes.com",
-  "t": "2026-10-17T15:36:14+00:00",
-  "vista": 8.0,
-  "hash": 18261775690497921
- },
- {
-  "id": "2026-10-17-1136-1",
-  "image": "pool-2026-10-17-1136-1.jpg",
-  "headline": "Latur declared water scarcity zone , borewell curbs imposed",
-  "url": "https://www.siasat.com/latur-declared-water-scarcity-zone-borewell-curbs-imposed-3560076/",
-  "outlet": "siasat.com",
-  "t": "2026-10-17T15:36:14+00:00",
-  "vista": 8.0,
-  "hash": 82678056831
- },
- {
   "id": "2026-10-17-1638-0",
   "image": "pool-2026-10-17-1638-0.jpg",
   "headline": "Southern California homes engulfed in flames as multiple fast - moving fires rage",
@@ -172,5 +142,32 @@
   "t": "2026-10-19T22:26:28+00:00",
   "vista": 9.0,
   "hash": 584372959309725695
+ },
+ {
+  "id": "2026-10-20",
+  "image": "pool-2026-10-20.jpg",
+  "headline": "Kansas Dem Adam Hamilton , who made millions on Big Tech stocks , now running away from AI data center boom",
+  "url": "https://nypost.com/2026/10/20/us-news/kansas-dem-adam-hamilton-who-made-millions-on-big-tech-stocks-now-running-away-from-ai-data-center-boom/",
+  "outlet": "nypost.com",
+  "t": "2026-10-20T11:33:23+00:00",
+  "hash": 2482324224725229343
+ },
+ {
+  "id": "2026-10-20-b",
+  "image": "pool-2026-10-20-b.jpg",
+  "headline": "Aerial Bridge Harbor Side Walkway Closes",
+  "url": "https://radiousa.com/2026/10/20/946608/",
+  "outlet": "radiousa.com",
+  "t": "2026-10-20T11:33:23+00:00",
+  "hash": 36283882929392
+ },
+ {
+  "id": "2026-10-20-c",
+  "image": "pool-2026-10-20-c.jpg",
+  "headline": "How drone mustering delivered a 110pc return in its first year",
+  "url": "https://www.beefcentral.com/news/how-drone-mustering-delivered-a-110pc-return-in-its-first-year/",
+  "outlet": "beefcentral.com",
+  "t": "2026-10-20T11:33:23+00:00",
+  "hash": 4517678496612351
  }
 ]
