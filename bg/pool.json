@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-19-0041-1",
-  "image": "pool-2026-10-19-0041-1.jpg",
-  "headline": "Two Rushed To Hospital After Multi - Vehicle Crash on 110 Freeway",
-  "url": "https://mynewsla.com/life/2026/10/18/two-rushed-to-hospital-after-multi-vehicle-crash-on-110-freeway-2/",
-  "outlet": "mynewsla.com",
-  "t": "2026-10-19T04:41:02+00:00",
-  "vista": 8.0,
-  "hash": 505250748531933183
- },
- {
   "id": "2026-10-19",
   "image": "pool-2026-10-19.jpg",
   "headline": "Erdene Resource Provides Q3 2026 Update and Notice of Conference Call and Webcast",
@@ -169,5 +159,15 @@
   "t": "2026-10-21T17:14:56+00:00",
   "vista": 8.0,
   "hash": 6622919327487
+ },
+ {
+  "id": "2026-10-21-1745-0",
+  "image": "pool-2026-10-21-1745-0.jpg",
+  "headline": "Queens casino backed by Mets owner Steve Cohen delayed as angry socialists flood little - known board meeting",
+  "url": "https://nypost.com/2026/10/21/us-news/nyc-panel-tables-design-for-cohen-hard-rock-casino-project/",
+  "outlet": "nypost.com",
+  "t": "2026-10-21T21:45:29+00:00",
+  "vista": 8.0,
+  "hash": 1166468315703361535
  }
 ]
