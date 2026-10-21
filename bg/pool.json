@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-19-0041-0",
-  "image": "pool-2026-10-19-0041-0.jpg",
-  "headline": "Champi  may re - intensify into super typhoon , to enter PAR Tuesday",
-  "url": "https://www.philstar.com/headlines/weather/2026/10/19/2564255/champi-may-re-intensify-super-typhoon-enter-par-tuesday",
-  "outlet": "philstar.com",
-  "t": "2026-10-19T04:41:02+00:00",
-  "vista": 9.0,
-  "hash": 236385988199317504
- },
- {
   "id": "2026-10-19-0041-1",
   "image": "pool-2026-10-19-0041-1.jpg",
   "headline": "Two Rushed To Hospital After Multi - Vehicle Crash on 110 Freeway",
@@ -169,5 +159,15 @@
   "t": "2026-10-21T12:17:31+00:00",
   "vista": 10.0,
   "hash": 16213243792033888767
+ },
+ {
+  "id": "2026-10-21-1314-0",
+  "image": "pool-2026-10-21-1314-0.jpg",
+  "headline": "Scientists tracked glacier cliffs using 15 , 330 satellite observations and found a surprise : some retreated faster than predicted but then stabilized instead of collapsing endlessly",
+  "url": "https://timesofindia.indiatimes.com/science/earth/scientists-tracked-glacier-cliffs-using-15330-satellite-observations-and-found-a-surprise-some-retreated-faster-than-predicted-but-then-stabilized-instead-of-collapsing-endlessly/articleshow/135061205.cms",
+  "outlet": "timesofindia.indiatimes.com",
+  "t": "2026-10-21T17:14:56+00:00",
+  "vista": 8.0,
+  "hash": 6622919327487
  }
 ]
