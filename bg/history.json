@@ -236,5 +236,12 @@
   "url": "https://nypost.com/2026/10/20/us-news/kansas-dem-adam-hamilton-who-made-millions-on-big-tech-stocks-now-running-away-from-ai-data-center-boom/",
   "outlet": "nypost.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-21",
+  "headline": "Las Vegas officials identify a homicide victim whose body was found in a barrel in Lake Mead",
+  "url": "http://www.idahopress.com/ap_news/us/las-vegas-officials-identify-a-homicide-victim-whose-body-was-found-in-a-barrel-in/article_34edfff7-d3f1-5a98-83c3-95572130dcc6.html",
+  "outlet": "idahopress.com",
+  "method": "crop-flat"
  }
 ]

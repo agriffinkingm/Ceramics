@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-10-18-1155-1",
-  "image": "pool-2026-10-18-1155-1.jpg",
-  "headline": "Oceanside allocates $8 . 2 million for overdue federal flood - control project",
-  "url": "https://www.sandiegouniontribune.com/2026/10/18/with-thousands-of-properties-at-risk-oceanside-allocates-8-2m-for-overdue-federal-flood-control-project/",
-  "outlet": "sandiegouniontribune.com",
-  "t": "2026-10-18T15:55:20+00:00",
-  "vista": 9.0,
-  "hash": 18410723209612886271
- },
- {
-  "id": "2026-10-18-1155-2",
-  "image": "pool-2026-10-18-1155-2.jpg",
-  "headline": "Blaze at St Petersburg oil sites as Kyiv launches drones at Russia",
-  "url": "https://www.business-standard.com/world-news/blaze-at-st-petersburg-oil-sites-as-kyiv-launches-drones-at-russia-126101800383_1.html",
-  "outlet": "business-standard.com",
-  "t": "2026-10-18T15:55:20+00:00",
-  "vista": 8.0,
-  "hash": 246769559007183
- },
- {
-  "id": "2026-10-18-1643-0",
-  "image": "pool-2026-10-18-1643-0.jpg",
-  "headline": "Long March legacy takes root in greener landscapes of revolutionary heartlands",
-  "url": "https://peoplesreview.com.np/2026/10/16/long-march-legacy-takes-root-in-greener-landscapes-of-revolutionary-heartlands/",
-  "outlet": "peoplesreview.com.np",
-  "t": "2026-10-18T20:43:33+00:00",
-  "vista": 9.0,
-  "hash": 7693326680063
- },
- {
   "id": "2026-10-18-1643-1",
   "image": "pool-2026-10-18-1643-1.jpg",
   "headline": "Hurricane Trudy grows stronger , nears Mexico",
@@ -172,5 +142,32 @@
   "t": "2026-10-20T21:41:28+00:00",
   "vista": 8.0,
   "hash": 436390667522932675
+ },
+ {
+  "id": "2026-10-21",
+  "image": "pool-2026-10-21.jpg",
+  "headline": "Las Vegas officials identify a homicide victim whose body was found in a barrel in Lake Mead",
+  "url": "http://www.idahopress.com/ap_news/us/las-vegas-officials-identify-a-homicide-victim-whose-body-was-found-in-a-barrel-in/article_34edfff7-d3f1-5a98-83c3-95572130dcc6.html",
+  "outlet": "idahopress.com",
+  "t": "2026-10-21T11:47:28+00:00",
+  "hash": 264522279419903
+ },
+ {
+  "id": "2026-10-21-b",
+  "image": "pool-2026-10-21-b.jpg",
+  "headline": "Climate change and El Ni\u00f1o pushed explosive hurricane  Polo  to the highest category | Climate",
+  "url": "https://english.elpais.com/climate/2026-10-15/climate-change-and-el-nino-pushed-explosive-hurricane-polo-to-the-highest-category.html",
+  "outlet": "english.elpais.com",
+  "t": "2026-10-21T11:47:28+00:00",
+  "hash": 18155067810810167308
+ },
+ {
+  "id": "2026-10-21-c",
+  "image": "pool-2026-10-21-c.jpg",
+  "headline": "CityWatch LA - Lawn Rebates Wont Fix L . A . Water Crisis But Smarter Landscaping Could",
+  "url": "https://www.citywatchla.com/climate/33580-lawn-rebates-wont-fix-l-a-s-water-crisis-but-smarter-landscaping-could",
+  "outlet": "citywatchla.com",
+  "t": "2026-10-21T11:47:28+00:00",
+  "hash": 1069446856703
  }
 ]
