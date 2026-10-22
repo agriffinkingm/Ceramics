@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-10-20-1741-1",
-  "image": "pool-2026-10-20-1741-1.jpg",
-  "headline": "VIETNAM - GIA LAI - SOLAR POWER PLANT - CHINESE COMPANY",
-  "url": "http://www.shanghaisun.com/news/279387823/vietnam-gia-lai-solar-power-plant-chinese-company",
-  "outlet": "shanghaisun.com",
-  "t": "2026-10-20T21:41:28+00:00",
-  "vista": 9.0,
-  "hash": 4294967295
- },
- {
-  "id": "2026-10-20-1741-2",
-  "image": "pool-2026-10-20-1741-2.jpg",
-  "headline": "The story of Three Creek",
-  "url": "https://www.nuggetnews.com/story/2026/10/21/nature/the-story-of-three-creek/39682.html",
-  "outlet": "nuggetnews.com",
-  "t": "2026-10-20T21:41:28+00:00",
-  "vista": 8.0,
-  "hash": 436390667522932675
- },
- {
-  "id": "2026-10-21",
-  "image": "pool-2026-10-21.jpg",
-  "headline": "Las Vegas officials identify a homicide victim whose body was found in a barrel in Lake Mead",
-  "url": "http://www.idahopress.com/ap_news/us/las-vegas-officials-identify-a-homicide-victim-whose-body-was-found-in-a-barrel-in/article_34edfff7-d3f1-5a98-83c3-95572130dcc6.html",
-  "outlet": "idahopress.com",
-  "t": "2026-10-21T11:47:28+00:00",
-  "hash": 264522279419903
- },
- {
   "id": "2026-10-21-b",
   "image": "pool-2026-10-21-b.jpg",
   "headline": "Climate change and El Ni\u00f1o pushed explosive hurricane  Polo  to the highest category | Climate",
@@ -172,5 +143,35 @@
   "t": "2026-10-22T17:15:08+00:00",
   "vista": 8.0,
   "hash": 153931291947505
+ },
+ {
+  "id": "2026-10-22-1738-0",
+  "image": "pool-2026-10-22-1738-0.jpg",
+  "headline": "Following GPS advice , Mount Shasta climber becomes stranded for 2 nights",
+  "url": "https://www.times-standard.com/2026/10/22/mount-shasta-stranded-hiker/",
+  "outlet": "times-standard.com",
+  "t": "2026-10-22T21:38:40+00:00",
+  "vista": 9.0,
+  "hash": 1008806316547768319
+ },
+ {
+  "id": "2026-10-22-1738-1",
+  "image": "pool-2026-10-22-1738-1.jpg",
+  "headline": "Where are California dead trees going ? A forest advocate turned detective to find out \u2013 The Press Democrat",
+  "url": "https://www.pressdemocrat.com/2026/10/22/where-are-californias-dead-trees-going-a-forest-advocate-turned-detective-to-find-out-2/",
+  "outlet": "pressdemocrat.com",
+  "t": "2026-10-22T21:38:41+00:00",
+  "vista": 8.0,
+  "hash": 26492582558975
+ },
+ {
+  "id": "2026-10-22-1738-2",
+  "image": "pool-2026-10-22-1738-2.jpg",
+  "headline": "Beautifully preserved buildings seen for first time in decades after drought exposes lost village",
+  "url": "https://www.independent.co.uk/news/uk/home-news/drought-uk-weather-lost-village-reappears-for-first-time-decades-b3071660.html",
+  "outlet": "independent.co.uk",
+  "t": "2026-10-22T21:38:41+00:00",
+  "vista": 8.0,
+  "hash": 9143398925397328896
  }
 ]
