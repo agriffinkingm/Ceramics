@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-10-20-0902-0",
-  "image": "pool-2026-10-20-0902-0.jpg",
-  "headline": "Krka National Park : Waterfalls , Tickets , Swimming Rules",
-  "url": "https://www.latimes.com/eta/travel-experiences/story/krka-national-park-croatia-waterfalls-guide",
-  "outlet": "latimes.com",
-  "t": "2026-10-20T13:02:36+00:00",
-  "vista": 7.0,
-  "hash": 18264612558544595180
- },
- {
-  "id": "2026-10-20-1741-0",
-  "image": "pool-2026-10-20-1741-0.jpg",
-  "headline": "Footage shows banned driver in police chase through Basildon",
-  "url": "https://www.brentwoodlive.co.uk/news/26655222.footage-shows-banned-driver-police-chase-basildon/",
-  "outlet": "brentwoodlive.co.uk",
-  "t": "2026-10-20T21:41:28+00:00",
-  "vista": 9.0,
-  "hash": 218159729518327920
- },
- {
   "id": "2026-10-20-1741-1",
   "image": "pool-2026-10-20-1741-1.jpg",
   "headline": "VIETNAM - GIA LAI - SOLAR POWER PLANT - CHINESE COMPANY",
@@ -172,5 +152,25 @@
   "t": "2026-10-22T13:17:06+00:00",
   "vista": 8.0,
   "hash": 6917529031751041023
+ },
+ {
+  "id": "2026-10-22-1315-0",
+  "image": "pool-2026-10-22-1315-0.jpg",
+  "headline": "Black Sea drone attacks add to global energy , shipping strains",
+  "url": "http://www.thailandnews.net/news/279376879/black-sea-drone-attacks-add-to-global-energy-shipping-strains",
+  "outlet": "thailandnews.net",
+  "t": "2026-10-22T17:15:08+00:00",
+  "vista": 9.0,
+  "hash": 36240869501239295
+ },
+ {
+  "id": "2026-10-22-1315-1",
+  "image": "pool-2026-10-22-1315-1.jpg",
+  "headline": "Aiken County Voters To Decide Wastewater Facilities Referendum on November Ballot",
+  "url": "https://kicks99.com/2026/10/22/aiken-county-voters-to-decide-wastewater-facilities-referendum-on-november-ballot/",
+  "outlet": "kicks99.com",
+  "t": "2026-10-22T17:15:08+00:00",
+  "vista": 8.0,
+  "hash": 153931291947505
  }
 ]
