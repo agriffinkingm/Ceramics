@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-20-b",
-  "image": "pool-2026-10-20-b.jpg",
-  "headline": "Aerial Bridge Harbor Side Walkway Closes",
-  "url": "https://radiousa.com/2026/10/20/946608/",
-  "outlet": "radiousa.com",
-  "t": "2026-10-20T11:33:23+00:00",
-  "hash": 36283882929392
- },
- {
   "id": "2026-10-20-c",
   "image": "pool-2026-10-20-c.jpg",
   "headline": "How drone mustering delivered a 110pc return in its first year",
@@ -170,5 +161,15 @@
   "outlet": "en.apa.az",
   "t": "2026-10-22T11:50:15+00:00",
   "hash": 17361932895711069964
+ },
+ {
+  "id": "2026-10-22-0820-0",
+  "image": "pool-2026-10-22-0820-0.jpg",
+  "headline": "Wings Over Ganga : IAF mega air show roars over Varanasi ghats ; Rafale , Sukhoi steal the show",
+  "url": "http://www.indiagazette.com/news/279391845/wings-over-ganga-iaf-mega-air-show-roars-over-varanasi-ghats-rafale-sukhoi-steal-the-show",
+  "outlet": "indiagazette.com",
+  "t": "2026-10-22T12:20:27+00:00",
+  "vista": 7.0,
+  "hash": 519170359039
  }
 ]
