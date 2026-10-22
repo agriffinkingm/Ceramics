@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-10-19",
-  "image": "pool-2026-10-19.jpg",
-  "headline": "Erdene Resource Provides Q3 2026 Update and Notice of Conference Call and Webcast",
-  "url": "https://www.juniorminingnetwork.com/junior-miner-news/press-releases/1079-tsx/erd/213091-erdene-provides-q3-2026-update-and-notice-of-conference-call-and-webcast.html",
-  "outlet": "juniorminingnetwork.com",
-  "t": "2026-10-19T13:07:51+00:00",
-  "hash": 17940362893622968576
- },
- {
-  "id": "2026-10-19-b",
-  "image": "pool-2026-10-19-b.jpg",
-  "headline": "Hezbollah funding plan indicates a new challenge to Lebanon government - Grenada Chronicle \u2013 Daily Grenada And Caribbean News",
-  "url": "https://grenadachronicle.com/hezbollah-funding-plan-indicates-a-new-challenge-to-lebanons-government/",
-  "outlet": "grenadachronicle.com",
-  "t": "2026-10-19T13:07:51+00:00",
-  "hash": 490574867817565758
- },
- {
   "id": "2026-10-19-c",
   "image": "pool-2026-10-19-c.jpg",
   "headline": "Incidents at the Black Sea on the rise - Radio Romania International",
@@ -169,5 +151,25 @@
   "t": "2026-10-21T21:45:29+00:00",
   "vista": 8.0,
   "hash": 1166468315703361535
+ },
+ {
+  "id": "2026-10-22-0043-0",
+  "image": "pool-2026-10-22-0043-0.jpg",
+  "headline": "Typhoon Champi to turn away from Taiwan , will still bring heavy rain",
+  "url": "https://www.taipeitimes.com/News/taiwan/archives/2026/10/20/2003866289",
+  "outlet": "taipeitimes.com",
+  "t": "2026-10-22T04:43:27+00:00",
+  "vista": 9.0,
+  "hash": 415953508269817663
+ },
+ {
+  "id": "2026-10-22-0043-1",
+  "image": "pool-2026-10-22-0043-1.jpg",
+  "headline": "Our 10 Essential Experiences on Kaua\u02bbi",
+  "url": "https://www.hawaiimagazine.com/our-10-essential-experiences-on-kauai/",
+  "outlet": "hawaiimagazine.com",
+  "t": "2026-10-22T04:43:27+00:00",
+  "vista": 9.0,
+  "hash": 8970182576841097999
  }
 ]
