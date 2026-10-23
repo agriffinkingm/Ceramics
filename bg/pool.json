@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-21-1745-0",
-  "image": "pool-2026-10-21-1745-0.jpg",
-  "headline": "Queens casino backed by Mets owner Steve Cohen delayed as angry socialists flood little - known board meeting",
-  "url": "https://nypost.com/2026/10/21/us-news/nyc-panel-tables-design-for-cohen-hard-rock-casino-project/",
-  "outlet": "nypost.com",
-  "t": "2026-10-21T21:45:29+00:00",
-  "vista": 8.0,
-  "hash": 1166468315703361535
- },
- {
   "id": "2026-10-22-0043-0",
   "image": "pool-2026-10-22-0043-0.jpg",
   "headline": "Typhoon Champi to turn away from Taiwan , will still bring heavy rain",
@@ -172,5 +162,15 @@
   "t": "2026-10-23T12:04:56+00:00",
   "vista": 8.0,
   "hash": 9223433884400746495
+ },
+ {
+  "id": "2026-10-23-1309-0",
+  "image": "pool-2026-10-23-1309-0.jpg",
+  "headline": "Part of nature reserve reopens after devastating summer wildfire",
+  "url": "https://www.cambridge-news.co.uk/news/local-news/part-nature-reserve-reopens-after-34806506",
+  "outlet": "cambridge-news.co.uk",
+  "t": "2026-10-23T17:09:05+00:00",
+  "vista": 8.0,
+  "hash": 283137279537407
  }
 ]
