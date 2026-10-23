@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-21-b",
-  "image": "pool-2026-10-21-b.jpg",
-  "headline": "Climate change and El Ni\u00f1o pushed explosive hurricane  Polo  to the highest category | Climate",
-  "url": "https://english.elpais.com/climate/2026-10-15/climate-change-and-el-nino-pushed-explosive-hurricane-polo-to-the-highest-category.html",
-  "outlet": "english.elpais.com",
-  "t": "2026-10-21T11:47:28+00:00",
-  "hash": 18155067810810167308
- },
- {
-  "id": "2026-10-21-c",
-  "image": "pool-2026-10-21-c.jpg",
-  "headline": "CityWatch LA - Lawn Rebates Wont Fix L . A . Water Crisis But Smarter Landscaping Could",
-  "url": "https://www.citywatchla.com/climate/33580-lawn-rebates-wont-fix-l-a-s-water-crisis-but-smarter-landscaping-could",
-  "outlet": "citywatchla.com",
-  "t": "2026-10-21T11:47:28+00:00",
-  "hash": 1069446856703
- },
- {
-  "id": "2026-10-21-0817-0",
-  "image": "pool-2026-10-21-0817-0.jpg",
-  "headline": "UK  needs fire - fighting planesamid rising wildfire risk",
-  "url": "https://www.dudleynews.co.uk/news/26654144.uk-needs-fire-fighting-planesamid-rising-wildfire-risk/",
-  "outlet": "dudleynews.co.uk",
-  "t": "2026-10-21T12:17:31+00:00",
-  "vista": 10.0,
-  "hash": 16213243792033888767
- },
- {
   "id": "2026-10-21-1314-0",
   "image": "pool-2026-10-21-1314-0.jpg",
   "headline": "Scientists tracked glacier cliffs using 15 , 330 satellite observations and found a surprise : some retreated faster than predicted but then stabilized instead of collapsing endlessly",
@@ -173,5 +145,32 @@
   "t": "2026-10-22T21:38:41+00:00",
   "vista": 8.0,
   "hash": 9143398925397328896
+ },
+ {
+  "id": "2026-10-23",
+  "image": "pool-2026-10-23.jpg",
+  "headline": "A 7 . 0 earthquake hits China Tibet , killing 16 and injuring 46",
+  "url": "https://www.akronnewsreporter.com/2026/10/22/china-earthquake/",
+  "outlet": "akronnewsreporter.com",
+  "t": "2026-10-23T11:38:06+00:00",
+  "hash": 5699593399164831
+ },
+ {
+  "id": "2026-10-23-b",
+  "image": "pool-2026-10-23-b.jpg",
+  "headline": "Scots braced for heavy rain and strong winds as two named storms sweep in",
+  "url": "https://www.lancashiretelegraph.co.uk/news/national/26662948.scots-braced-heavy-rain-strong-winds-two-named-storms-sweep/",
+  "outlet": "lancashiretelegraph.co.uk",
+  "t": "2026-10-23T11:38:06+00:00",
+  "hash": 17365457113096188144
+ },
+ {
+  "id": "2026-10-23-c",
+  "image": "pool-2026-10-23-c.jpg",
+  "headline": "Powerful earthquake hits Tibet killing 16 people , reports say",
+  "url": "https://www.the-star.co.ke/news/world/2026-10-23-powerful-earthquake-hits-tibet-killing-16-people-reports-say",
+  "outlet": "the-star.co.ke",
+  "t": "2026-10-23T11:38:06+00:00",
+  "hash": 216738483040863968
  }
 ]

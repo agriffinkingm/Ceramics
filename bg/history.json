@@ -250,5 +250,12 @@
   "url": "https://www.rediff.com/news/report/indian-injured-in-houthi-drone-attack-on-saudi-oilfield/20261022.htm",
   "outlet": "rediff.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-23",
+  "headline": "A 7 . 0 earthquake hits China Tibet , killing 16 and injuring 46",
+  "url": "https://www.akronnewsreporter.com/2026/10/22/china-earthquake/",
+  "outlet": "akronnewsreporter.com",
+  "method": "crop-flat"
  }
 ]
