@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-10-22-1315-0",
-  "image": "pool-2026-10-22-1315-0.jpg",
-  "headline": "Black Sea drone attacks add to global energy , shipping strains",
-  "url": "http://www.thailandnews.net/news/279376879/black-sea-drone-attacks-add-to-global-energy-shipping-strains",
-  "outlet": "thailandnews.net",
-  "t": "2026-10-22T17:15:08+00:00",
-  "vista": 9.0,
-  "hash": 36240869501239295
- },
- {
-  "id": "2026-10-22-1315-1",
-  "image": "pool-2026-10-22-1315-1.jpg",
-  "headline": "Aiken County Voters To Decide Wastewater Facilities Referendum on November Ballot",
-  "url": "https://kicks99.com/2026/10/22/aiken-county-voters-to-decide-wastewater-facilities-referendum-on-november-ballot/",
-  "outlet": "kicks99.com",
-  "t": "2026-10-22T17:15:08+00:00",
-  "vista": 8.0,
-  "hash": 153931291947505
- },
- {
-  "id": "2026-10-22-1738-0",
-  "image": "pool-2026-10-22-1738-0.jpg",
-  "headline": "Following GPS advice , Mount Shasta climber becomes stranded for 2 nights",
-  "url": "https://www.times-standard.com/2026/10/22/mount-shasta-stranded-hiker/",
-  "outlet": "times-standard.com",
-  "t": "2026-10-22T21:38:40+00:00",
-  "vista": 9.0,
-  "hash": 1008806316547768319
- },
- {
   "id": "2026-10-22-1738-1",
   "image": "pool-2026-10-22-1738-1.jpg",
   "headline": "Where are California dead trees going ? A forest advocate turned detective to find out \u2013 The Press Democrat",
@@ -172,5 +142,35 @@
   "t": "2026-10-24T11:31:13+00:00",
   "vista": 8.0,
   "hash": 576323377959887727
+ },
+ {
+  "id": "2026-10-24-0818-0",
+  "image": "pool-2026-10-24-0818-0.jpg",
+  "headline": "Drone Utilized for Rice Spraying in Los Palacios ... But Where the Rice ?",
+  "url": "https://www.cubaheadlines.com/articles/343127",
+  "outlet": "cubaheadlines.com",
+  "t": "2026-10-24T12:18:23+00:00",
+  "vista": 8.0,
+  "hash": 35184372087232
+ },
+ {
+  "id": "2026-10-24-0818-1",
+  "image": "pool-2026-10-24-0818-1.jpg",
+  "headline": "Weekend Showers Expected in Miami : Up to 5 Inches of Rain , 40 mph Gusts , and Flood Risk Through Monday",
+  "url": "https://www.cubaheadlines.com/articles/342970",
+  "outlet": "cubaheadlines.com",
+  "t": "2026-10-24T12:18:24+00:00",
+  "vista": 7.0,
+  "hash": 18156538974688703224
+ },
+ {
+  "id": "2026-10-24-0818-2",
+  "image": "pool-2026-10-24-0818-2.jpg",
+  "headline": "The sinking of HMS Valerian",
+  "url": "https://www.royalgazette.com/opinion-writer/opinion/article/20261024/the-sinking-of-hms-valerian/",
+  "outlet": "royalgazette.com",
+  "t": "2026-10-24T12:18:24+00:00",
+  "vista": 7.0,
+  "hash": 16204198578291277823
  }
 ]
