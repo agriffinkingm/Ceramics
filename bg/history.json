@@ -257,5 +257,12 @@
   "url": "https://www.akronnewsreporter.com/2026/10/22/china-earthquake/",
   "outlet": "akronnewsreporter.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-24",
+  "headline": "Bridge Under Construction Collapses in Bangkok Killing 5 , Injuring 22 Others",
+  "url": "https://www.chiangraitimes.com/bangkok/bridge-collapses-in-bangkok/",
+  "outlet": "chiangraitimes.com",
+  "method": "crop-flat"
  }
 ]

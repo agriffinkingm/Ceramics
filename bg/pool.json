@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-22-b",
-  "image": "pool-2026-10-22-b.jpg",
-  "headline": "Volunteer drones expose catapult - wielding poachers on farmland",
-  "url": "https://www.farminguk.com/news/volunteer-drones-expose-catapult-wielding-poachers-on-farmland_69345.html",
-  "outlet": "farminguk.com",
-  "t": "2026-10-22T11:50:15+00:00",
-  "hash": 17870521858571567875
- },
- {
-  "id": "2026-10-22-c",
-  "image": "pool-2026-10-22-c.jpg",
-  "headline": "Moscow reportedly attacked by 630 drones , injuries reported",
-  "url": "https://en.apa.az/cis-countries/moscow-reportedly-attacked-by-630-drones-injuries-reported-531510",
-  "outlet": "en.apa.az",
-  "t": "2026-10-22T11:50:15+00:00",
-  "hash": 17361932895711069964
- },
- {
-  "id": "2026-10-22-0820-0",
-  "image": "pool-2026-10-22-0820-0.jpg",
-  "headline": "Wings Over Ganga : IAF mega air show roars over Varanasi ghats ; Rafale , Sukhoi steal the show",
-  "url": "http://www.indiagazette.com/news/279391845/wings-over-ganga-iaf-mega-air-show-roars-over-varanasi-ghats-rafale-sukhoi-steal-the-show",
-  "outlet": "indiagazette.com",
-  "t": "2026-10-22T12:20:27+00:00",
-  "vista": 7.0,
-  "hash": 519170359039
- },
- {
   "id": "2026-10-22-0917-0",
   "image": "pool-2026-10-22-0917-0.jpg",
   "headline": "Hiltzik : The war over water starts here - Los Angeles Times",
@@ -173,5 +145,32 @@
   "t": "2026-10-24T04:37:44+00:00",
   "vista": 7.0,
   "hash": 3170893823
+ },
+ {
+  "id": "2026-10-24",
+  "image": "pool-2026-10-24.jpg",
+  "headline": "Bridge Under Construction Collapses in Bangkok Killing 5 , Injuring 22 Others",
+  "url": "https://www.chiangraitimes.com/bangkok/bridge-collapses-in-bangkok/",
+  "outlet": "chiangraitimes.com",
+  "t": "2026-10-24T10:58:33+00:00",
+  "hash": 9282192580076900255
+ },
+ {
+  "id": "2026-10-24-b",
+  "image": "pool-2026-10-24-b.jpg",
+  "headline": "Seven people missing after building collapse in Nairobi Eastleigh",
+  "url": "https://eyeradio.org/seven-people-missing-after-building-collapse-in-nairobis-eastleigh/",
+  "outlet": "eyeradio.org",
+  "t": "2026-10-24T10:58:33+00:00",
+  "hash": 4414747967487
+ },
+ {
+  "id": "2026-10-24-c",
+  "image": "pool-2026-10-24-c.jpg",
+  "headline": "Sakaja blames change of use , unclear approvals in Eastleigh collapsed building",
+  "url": "https://www.standardmedia.co.ke/article/2001560763/sakaja-blames-change-of-use-unclear-approvals-in-eastleigh-collapsed-building",
+  "outlet": "standardmedia.co.ke",
+  "t": "2026-10-24T10:58:33+00:00",
+  "hash": 17401918342666184936
  }
 ]
