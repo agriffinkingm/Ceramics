@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-10-22-0917-0",
-  "image": "pool-2026-10-22-0917-0.jpg",
-  "headline": "Hiltzik : The war over water starts here - Los Angeles Times",
-  "url": "https://www.latimes.com/business/story/2026-10-22/the-arizona-nevada-california-water-war-is-heating-up-and-all-three-states-will-end-up-parched",
-  "outlet": "latimes.com",
-  "t": "2026-10-22T13:17:06+00:00",
-  "vista": 8.0,
-  "hash": 18444923885896893951
- },
- {
-  "id": "2026-10-22-0917-1",
-  "image": "pool-2026-10-22-0917-1.jpg",
-  "headline": "Markshall arboretum closed over Storm Austen forecast",
-  "url": "https://www.thurrockgazette.co.uk/news/26659822.markshall-arboretum-closed-storm-austen-forecast/",
-  "outlet": "thurrockgazette.co.uk",
-  "t": "2026-10-22T13:17:06+00:00",
-  "vista": 8.0,
-  "hash": 6917529031751041023
- },
- {
   "id": "2026-10-22-1315-0",
   "image": "pool-2026-10-22-1315-0.jpg",
   "headline": "Black Sea drone attacks add to global energy , shipping strains",
@@ -172,5 +152,25 @@
   "outlet": "standardmedia.co.ke",
   "t": "2026-10-24T10:58:33+00:00",
   "hash": 17401918342666184936
+ },
+ {
+  "id": "2026-10-24-0731-0",
+  "image": "pool-2026-10-24-0731-0.jpg",
+  "headline": "Sun , sand and snorkelling : A week in the Maldives on two stunning resort islands",
+  "url": "https://www.euronews.com/2026/10/24/sun-sand-and-snorkelling-a-week-in-the-maldives-on-two-stunning-resort-islands",
+  "outlet": "euronews.com",
+  "t": "2026-10-24T11:31:13+00:00",
+  "vista": 9.0,
+  "hash": 16428347363263122444
+ },
+ {
+  "id": "2026-10-24-0731-1",
+  "image": "pool-2026-10-24-0731-1.jpg",
+  "headline": "Wings Over Gange returns to Varanasi today ; IAF aerial spectacle to continue on Oct 25",
+  "url": "https://ianslive.in/wings-over-ganges-returns-to-varanasi-today-iaf-aerial-spectacle-to-continue-on-oct-25--20261024065059",
+  "outlet": "ianslive.in",
+  "t": "2026-10-24T11:31:13+00:00",
+  "vista": 8.0,
+  "hash": 576323377959887727
  }
 ]
