@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-10-22-0043-0",
-  "image": "pool-2026-10-22-0043-0.jpg",
-  "headline": "Typhoon Champi to turn away from Taiwan , will still bring heavy rain",
-  "url": "https://www.taipeitimes.com/News/taiwan/archives/2026/10/20/2003866289",
-  "outlet": "taipeitimes.com",
-  "t": "2026-10-22T04:43:27+00:00",
-  "vista": 9.0,
-  "hash": 415953508269817663
- },
- {
-  "id": "2026-10-22-0043-1",
-  "image": "pool-2026-10-22-0043-1.jpg",
-  "headline": "Our 10 Essential Experiences on Kaua\u02bbi",
-  "url": "https://www.hawaiimagazine.com/our-10-essential-experiences-on-kauai/",
-  "outlet": "hawaiimagazine.com",
-  "t": "2026-10-22T04:43:27+00:00",
-  "vista": 9.0,
-  "hash": 8970182576841097999
- },
- {
-  "id": "2026-10-22",
-  "image": "pool-2026-10-22.jpg",
-  "headline": "Indian national killed , two injured in Dammam airport attack ; Houthi rebels suspected",
-  "url": "https://www.rediff.com/news/report/indian-injured-in-houthi-drone-attack-on-saudi-oilfield/20261022.htm",
-  "outlet": "rediff.com",
-  "t": "2026-10-22T11:50:15+00:00",
-  "hash": 215435291131903
- },
- {
   "id": "2026-10-22-b",
   "image": "pool-2026-10-22-b.jpg",
   "headline": "Volunteer drones expose catapult - wielding poachers on farmland",
@@ -172,5 +143,35 @@
   "t": "2026-10-23T17:09:05+00:00",
   "vista": 8.0,
   "hash": 283137279537407
+ },
+ {
+  "id": "2026-10-24-0037-0",
+  "image": "pool-2026-10-24-0037-0.jpg",
+  "headline": "Hurricane Vance Strengthens to Category 2 Off Mexico Pacific Coast",
+  "url": "https://econotimes.com/Hurricane-Vance-Strengthens-to-Category-2-Off-Mexico-s-Pacific-Coast-1761921",
+  "outlet": "econotimes.com",
+  "t": "2026-10-24T04:37:43+00:00",
+  "vista": 10.0,
+  "hash": 9860767982286575616
+ },
+ {
+  "id": "2026-10-24-0037-1",
+  "image": "pool-2026-10-24-0037-1.jpg",
+  "headline": "The Hill drone patrols missed break - ins due to warehouse focus , report says",
+  "url": "https://www.firstalert4.com/2026/10/23/hill-drone-patrols-missed-break-ins-due-warehouse-focus-report-says/",
+  "outlet": "firstalert4.com",
+  "t": "2026-10-24T04:37:44+00:00",
+  "vista": 7.0,
+  "hash": 38430742429630239
+ },
+ {
+  "id": "2026-10-24-0037-2",
+  "image": "pool-2026-10-24-0037-2.jpg",
+  "headline": "Beyond the beach : Exploring Galle through Otherland local experiences",
+  "url": "https://www.thehindu.com/life-and-style/travel/beyond-the-beach-exploring-galle-through-otherlands-local-experiences/article71574710.ece",
+  "outlet": "thehindu.com",
+  "t": "2026-10-24T04:37:44+00:00",
+  "vista": 7.0,
+  "hash": 3170893823
  }
 ]
