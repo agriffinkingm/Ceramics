@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-22-1738-1",
-  "image": "pool-2026-10-22-1738-1.jpg",
-  "headline": "Where are California dead trees going ? A forest advocate turned detective to find out \u2013 The Press Democrat",
-  "url": "https://www.pressdemocrat.com/2026/10/22/where-are-californias-dead-trees-going-a-forest-advocate-turned-detective-to-find-out-2/",
-  "outlet": "pressdemocrat.com",
-  "t": "2026-10-22T21:38:41+00:00",
-  "vista": 8.0,
-  "hash": 26492582558975
- },
- {
   "id": "2026-10-22-1738-2",
   "image": "pool-2026-10-22-1738-2.jpg",
   "headline": "Beautifully preserved buildings seen for first time in decades after drought exposes lost village",
@@ -172,5 +162,15 @@
   "t": "2026-10-24T12:18:24+00:00",
   "vista": 7.0,
   "hash": 16204198578291277823
+ },
+ {
+  "id": "2026-10-24-1158-0",
+  "image": "pool-2026-10-24-1158-0.jpg",
+  "headline": "Taiwan shuts down ahead of Typhoon Champi , nearly 1 , 000 flights canceled",
+  "url": "https://asia.nikkei.com/economy/natural-disasters/taiwan-shuts-down-ahead-of-typhoon-champi-nearly-1-000-flights-canceled",
+  "outlet": "asia.nikkei.com",
+  "t": "2026-10-24T15:58:52+00:00",
+  "vista": 8.0,
+  "hash": 17926569517401375744
  }
 ]
