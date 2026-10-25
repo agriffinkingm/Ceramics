@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-10-24-0037-1",
-  "image": "pool-2026-10-24-0037-1.jpg",
-  "headline": "The Hill drone patrols missed break - ins due to warehouse focus , report says",
-  "url": "https://www.firstalert4.com/2026/10/23/hill-drone-patrols-missed-break-ins-due-warehouse-focus-report-says/",
-  "outlet": "firstalert4.com",
-  "t": "2026-10-24T04:37:44+00:00",
-  "vista": 7.0,
-  "hash": 38430742429630239
- },
- {
-  "id": "2026-10-24-0037-2",
-  "image": "pool-2026-10-24-0037-2.jpg",
-  "headline": "Beyond the beach : Exploring Galle through Otherland local experiences",
-  "url": "https://www.thehindu.com/life-and-style/travel/beyond-the-beach-exploring-galle-through-otherlands-local-experiences/article71574710.ece",
-  "outlet": "thehindu.com",
-  "t": "2026-10-24T04:37:44+00:00",
-  "vista": 7.0,
-  "hash": 3170893823
- },
- {
   "id": "2026-10-24",
   "image": "pool-2026-10-24.jpg",
   "headline": "Bridge Under Construction Collapses in Bangkok Killing 5 , Injuring 22 Others",
@@ -172,5 +152,25 @@
   "t": "2026-10-25T12:52:34+00:00",
   "vista": 7.0,
   "hash": 4631784433378245685
+ },
+ {
+  "id": "2026-10-25-1652-0",
+  "image": "pool-2026-10-25-1652-0.jpg",
+  "headline": "As Cyclone Arnab nears , Odisha govt braces for its impact",
+  "url": "https://timesofindia.indiatimes.com/city/bhubaneswar/as-cyclone-arnab-nears-odisha-govt-braces-for-its-impact/articleshow/135196892.cms",
+  "outlet": "timesofindia.indiatimes.com",
+  "t": "2026-10-25T20:52:21+00:00",
+  "vista": 10.0,
+  "hash": 9766042546067469919
+ },
+ {
+  "id": "2026-10-25-1652-1",
+  "image": "pool-2026-10-25-1652-1.jpg",
+  "headline": "Hazardous material release triggers evacuation order in Ohio , US",
+  "url": "https://aa.com.tr/en/environment/hazardous-material-release-triggers-evacuation-order-in-ohio-us/4095317",
+  "outlet": "aa.com.tr",
+  "t": "2026-10-25T20:52:21+00:00",
+  "vista": 7.0,
+  "hash": 5703588420201225263
  }
 ]
