@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-10-23-0804-0",
-  "image": "pool-2026-10-23-0804-0.jpg",
-  "headline": "The Big Read : Brazil , Friday 23 October",
-  "url": "https://www.riotimesonline.com/the-big-read-brazil-23-october-2026/",
-  "outlet": "riotimesonline.com",
-  "t": "2026-10-23T12:04:56+00:00",
-  "vista": 8.0,
-  "hash": 9223433884400746495
- },
- {
-  "id": "2026-10-23-1309-0",
-  "image": "pool-2026-10-23-1309-0.jpg",
-  "headline": "Part of nature reserve reopens after devastating summer wildfire",
-  "url": "https://www.cambridge-news.co.uk/news/local-news/part-nature-reserve-reopens-after-34806506",
-  "outlet": "cambridge-news.co.uk",
-  "t": "2026-10-23T17:09:05+00:00",
-  "vista": 8.0,
-  "hash": 283137279537407
- },
- {
   "id": "2026-10-24-0037-0",
   "image": "pool-2026-10-24-0037-0.jpg",
   "headline": "Hurricane Vance Strengthens to Category 2 Off Mexico Pacific Coast",
@@ -172,5 +152,25 @@
   "outlet": "kyivpost.com",
   "t": "2026-10-25T11:23:52+00:00",
   "hash": 2206499072271981630
+ },
+ {
+  "id": "2026-10-25-0800-0",
+  "image": "pool-2026-10-25-0800-0.jpg",
+  "headline": "Black Sea drone attacks add to global energy , shipping strains",
+  "url": "http://www.greekherald.com/news/279376879/black-sea-drone-attacks-add-to-global-energy-shipping-strains",
+  "outlet": "greekherald.com",
+  "t": "2026-10-25T12:00:58+00:00",
+  "vista": 9.0,
+  "hash": 36240869501239295
+ },
+ {
+  "id": "2026-10-25-0800-1",
+  "image": "pool-2026-10-25-0800-1.jpg",
+  "headline": "Volcano Watch : A look back at recent Kilauea eruptions and intrusions",
+  "url": "https://www.hawaiitribune-herald.com/2026/10/25/features/volcano-watch-a-look-back-at-recent-kilauea-eruptions-and-intrusions/",
+  "outlet": "hawaiitribune-herald.com",
+  "t": "2026-10-25T12:00:58+00:00",
+  "vista": 9.0,
+  "hash": 10235577068361271547
  }
 ]
