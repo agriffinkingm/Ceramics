@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-24-0037-0",
-  "image": "pool-2026-10-24-0037-0.jpg",
-  "headline": "Hurricane Vance Strengthens to Category 2 Off Mexico Pacific Coast",
-  "url": "https://econotimes.com/Hurricane-Vance-Strengthens-to-Category-2-Off-Mexico-s-Pacific-Coast-1761921",
-  "outlet": "econotimes.com",
-  "t": "2026-10-24T04:37:43+00:00",
-  "vista": 10.0,
-  "hash": 9860767982286575616
- },
- {
   "id": "2026-10-24-0037-1",
   "image": "pool-2026-10-24-0037-1.jpg",
   "headline": "The Hill drone patrols missed break - ins due to warehouse focus , report says",
@@ -172,5 +162,15 @@
   "t": "2026-10-25T12:00:58+00:00",
   "vista": 9.0,
   "hash": 10235577068361271547
+ },
+ {
+  "id": "2026-10-25-0852-0",
+  "image": "pool-2026-10-25-0852-0.jpg",
+  "headline": "1 in cardiac arrest , 18 others injured in 2 building fires in southern Seoul",
+  "url": "https://www.koreatimes.co.kr/southkorea/society/20261020/1-in-cardiac-arrest-18-others-injured-in-2-building-fires-in-southern-seoul",
+  "outlet": "koreatimes.co.kr",
+  "t": "2026-10-25T12:52:34+00:00",
+  "vista": 7.0,
+  "hash": 4631784433378245685
  }
 ]
