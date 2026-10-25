@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-23",
-  "image": "pool-2026-10-23.jpg",
-  "headline": "A 7 . 0 earthquake hits China Tibet , killing 16 and injuring 46",
-  "url": "https://www.akronnewsreporter.com/2026/10/22/china-earthquake/",
-  "outlet": "akronnewsreporter.com",
-  "t": "2026-10-23T11:38:06+00:00",
-  "hash": 5699593399164831
- },
- {
-  "id": "2026-10-23-b",
-  "image": "pool-2026-10-23-b.jpg",
-  "headline": "Scots braced for heavy rain and strong winds as two named storms sweep in",
-  "url": "https://www.lancashiretelegraph.co.uk/news/national/26662948.scots-braced-heavy-rain-strong-winds-two-named-storms-sweep/",
-  "outlet": "lancashiretelegraph.co.uk",
-  "t": "2026-10-23T11:38:06+00:00",
-  "hash": 17365457113096188144
- },
- {
-  "id": "2026-10-23-c",
-  "image": "pool-2026-10-23-c.jpg",
-  "headline": "Powerful earthquake hits Tibet killing 16 people , reports say",
-  "url": "https://www.the-star.co.ke/news/world/2026-10-23-powerful-earthquake-hits-tibet-killing-16-people-reports-say",
-  "outlet": "the-star.co.ke",
-  "t": "2026-10-23T11:38:06+00:00",
-  "hash": 216738483040863968
- },
- {
   "id": "2026-10-23-0804-0",
   "image": "pool-2026-10-23-0804-0.jpg",
   "headline": "The Big Read : Brazil , Friday 23 October",
@@ -172,5 +145,32 @@
   "t": "2026-10-25T04:40:36+00:00",
   "vista": 7.0,
   "hash": 18014398496597606400
+ },
+ {
+  "id": "2026-10-25",
+  "image": "pool-2026-10-25.jpg",
+  "headline": "Serbia student protests could take power and topple Putin  main ally  in Europe as election polls open",
+  "url": "https://www.aol.co.uk/articles/serbia-student-protests-could-power-095931000.html",
+  "outlet": "aol.co.uk",
+  "t": "2026-10-25T11:23:52+00:00",
+  "hash": 264982218079942
+ },
+ {
+  "id": "2026-10-25-b",
+  "image": "pool-2026-10-25-b.jpg",
+  "headline": "Storm Boelo hits Cumbria with roads blocked by trees and flooding",
+  "url": "https://www.bbc.co.uk/news/articles/c699zk4mn230o",
+  "outlet": "bbc.co.uk",
+  "t": "2026-10-25T11:23:52+00:00",
+  "hash": 224932033830715392
+ },
+ {
+  "id": "2026-10-25-c",
+  "image": "pool-2026-10-25-c.jpg",
+  "headline": "Drones Hit Omsky Kauchuk Deep in Russia , Belgorod Targeted",
+  "url": "https://www.kyivpost.com/post/88099",
+  "outlet": "kyivpost.com",
+  "t": "2026-10-25T11:23:52+00:00",
+  "hash": 2206499072271981630
  }
 ]
