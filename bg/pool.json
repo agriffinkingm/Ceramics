@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-22-1738-2",
-  "image": "pool-2026-10-22-1738-2.jpg",
-  "headline": "Beautifully preserved buildings seen for first time in decades after drought exposes lost village",
-  "url": "https://www.independent.co.uk/news/uk/home-news/drought-uk-weather-lost-village-reappears-for-first-time-decades-b3071660.html",
-  "outlet": "independent.co.uk",
-  "t": "2026-10-22T21:38:41+00:00",
-  "vista": 8.0,
-  "hash": 9143398925397328896
- },
- {
   "id": "2026-10-23",
   "image": "pool-2026-10-23.jpg",
   "headline": "A 7 . 0 earthquake hits China Tibet , killing 16 and injuring 46",
@@ -172,5 +162,15 @@
   "t": "2026-10-24T15:58:52+00:00",
   "vista": 8.0,
   "hash": 17926569517401375744
+ },
+ {
+  "id": "2026-10-25-0040-0",
+  "image": "pool-2026-10-25-0040-0.jpg",
+  "headline": "Global Village Opens Season 31 with new shows , 600 - drone display",
+  "url": "https://tradearabia.com:443/News/488094/Global-Village-Opens-Season-31-with-new-shows-600-drone-display",
+  "outlet": "tradearabia.com",
+  "t": "2026-10-25T04:40:36+00:00",
+  "vista": 7.0,
+  "hash": 18014398496597606400
  }
 ]
