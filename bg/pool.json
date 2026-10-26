@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-24-0731-1",
-  "image": "pool-2026-10-24-0731-1.jpg",
-  "headline": "Wings Over Gange returns to Varanasi today ; IAF aerial spectacle to continue on Oct 25",
-  "url": "https://ianslive.in/wings-over-ganges-returns-to-varanasi-today-iaf-aerial-spectacle-to-continue-on-oct-25--20261024065059",
-  "outlet": "ianslive.in",
-  "t": "2026-10-24T11:31:13+00:00",
-  "vista": 8.0,
-  "hash": 576323377959887727
- },
- {
   "id": "2026-10-24-0818-0",
   "image": "pool-2026-10-24-0818-0.jpg",
   "headline": "Drone Utilized for Rice Spraying in Los Palacios ... But Where the Rice ?",
@@ -172,5 +162,15 @@
   "outlet": "argentinastar.com",
   "t": "2026-10-26T12:56:53+00:00",
   "hash": 36453191260307455
+ },
+ {
+  "id": "2026-10-26-0932-0",
+  "image": "pool-2026-10-26-0932-0.jpg",
+  "headline": "Explosions heard in Saudi capital as airport prepares to reopen",
+  "url": "https://www.thehindu.com/news/international/explosions-heard-in-saudi-capital-as-airport-prepares-to-reopen/article71622928.ece",
+  "outlet": "thehindu.com",
+  "t": "2026-10-26T13:32:58+00:00",
+  "vista": 7.0,
+  "hash": 18374154316991660031
  }
 ]
