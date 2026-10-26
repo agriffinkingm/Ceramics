@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-24",
-  "image": "pool-2026-10-24.jpg",
-  "headline": "Bridge Under Construction Collapses in Bangkok Killing 5 , Injuring 22 Others",
-  "url": "https://www.chiangraitimes.com/bangkok/bridge-collapses-in-bangkok/",
-  "outlet": "chiangraitimes.com",
-  "t": "2026-10-24T10:58:33+00:00",
-  "hash": 9282192580076900255
- },
- {
   "id": "2026-10-24-b",
   "image": "pool-2026-10-24-b.jpg",
   "headline": "Seven people missing after building collapse in Nairobi Eastleigh",
@@ -172,5 +163,15 @@
   "t": "2026-10-25T20:52:21+00:00",
   "vista": 7.0,
   "hash": 5703588420201225263
+ },
+ {
+  "id": "2026-10-26-0045-0",
+  "image": "pool-2026-10-26-0045-0.jpg",
+  "headline": "Iconic Yellowstone collects record 23 , 000 pieces of trash from hot springs",
+  "url": "https://www.foxnews.com/travel/reckless-visitors-destroying-yellowstones-iconic-thermal-pools-trash",
+  "outlet": "foxnews.com",
+  "t": "2026-10-26T04:45:30+00:00",
+  "vista": 8.0,
+  "hash": 17581983845136000192
  }
 ]
