@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-24-b",
-  "image": "pool-2026-10-24-b.jpg",
-  "headline": "Seven people missing after building collapse in Nairobi Eastleigh",
-  "url": "https://eyeradio.org/seven-people-missing-after-building-collapse-in-nairobis-eastleigh/",
-  "outlet": "eyeradio.org",
-  "t": "2026-10-24T10:58:33+00:00",
-  "hash": 4414747967487
- },
- {
-  "id": "2026-10-24-c",
-  "image": "pool-2026-10-24-c.jpg",
-  "headline": "Sakaja blames change of use , unclear approvals in Eastleigh collapsed building",
-  "url": "https://www.standardmedia.co.ke/article/2001560763/sakaja-blames-change-of-use-unclear-approvals-in-eastleigh-collapsed-building",
-  "outlet": "standardmedia.co.ke",
-  "t": "2026-10-24T10:58:33+00:00",
-  "hash": 17401918342666184936
- },
- {
-  "id": "2026-10-24-0731-0",
-  "image": "pool-2026-10-24-0731-0.jpg",
-  "headline": "Sun , sand and snorkelling : A week in the Maldives on two stunning resort islands",
-  "url": "https://www.euronews.com/2026/10/24/sun-sand-and-snorkelling-a-week-in-the-maldives-on-two-stunning-resort-islands",
-  "outlet": "euronews.com",
-  "t": "2026-10-24T11:31:13+00:00",
-  "vista": 9.0,
-  "hash": 16428347363263122444
- },
- {
   "id": "2026-10-24-0731-1",
   "image": "pool-2026-10-24-0731-1.jpg",
   "headline": "Wings Over Gange returns to Varanasi today ; IAF aerial spectacle to continue on Oct 25",
@@ -173,5 +145,32 @@
   "t": "2026-10-26T04:45:30+00:00",
   "vista": 8.0,
   "hash": 17581983845136000192
+ },
+ {
+  "id": "2026-10-26",
+  "image": "pool-2026-10-26.jpg",
+  "headline": "The Rise Of Roghun :  World Tallest  Dam Takes Shape In Tajikistan",
+  "url": "http://www.argentinastar.com/news/279390395/the-rise-of-roghun-world-tallest-dam-takes-shape-in-tajikistan",
+  "outlet": "argentinastar.com",
+  "t": "2026-10-26T12:56:53+00:00",
+  "hash": 2022066568298495
+ },
+ {
+  "id": "2026-10-26-b",
+  "image": "pool-2026-10-26-b.jpg",
+  "headline": "New storm in the United States : it could hit the East Coast from October 19 with heavy rain and strong winds for several days",
+  "url": "https://www.cronista.com/en/today/new-storm-in-the-united-states-it-could-hit-the-east-coast-from-october-19-with-heavy-rain-and-strong-winds-for-several-days/",
+  "outlet": "cronista.com",
+  "t": "2026-10-26T12:56:53+00:00",
+  "hash": 129906999102
+ },
+ {
+  "id": "2026-10-26-c",
+  "image": "pool-2026-10-26-c.jpg",
+  "headline": "Iran Says Supertanker Hit Mine In Strait of Hormuz",
+  "url": "http://www.argentinastar.com/news/279380774/iran-says-supertanker-hit-mine-in-strait-of-hormuz",
+  "outlet": "argentinastar.com",
+  "t": "2026-10-26T12:56:53+00:00",
+  "hash": 36453191260307455
  }
 ]
