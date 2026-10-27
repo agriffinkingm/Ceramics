@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-10-24-0818-0",
-  "image": "pool-2026-10-24-0818-0.jpg",
-  "headline": "Drone Utilized for Rice Spraying in Los Palacios ... But Where the Rice ?",
-  "url": "https://www.cubaheadlines.com/articles/343127",
-  "outlet": "cubaheadlines.com",
-  "t": "2026-10-24T12:18:23+00:00",
-  "vista": 8.0,
-  "hash": 35184372087232
- },
- {
-  "id": "2026-10-24-0818-1",
-  "image": "pool-2026-10-24-0818-1.jpg",
-  "headline": "Weekend Showers Expected in Miami : Up to 5 Inches of Rain , 40 mph Gusts , and Flood Risk Through Monday",
-  "url": "https://www.cubaheadlines.com/articles/342970",
-  "outlet": "cubaheadlines.com",
-  "t": "2026-10-24T12:18:24+00:00",
-  "vista": 7.0,
-  "hash": 18156538974688703224
- },
- {
-  "id": "2026-10-24-0818-2",
-  "image": "pool-2026-10-24-0818-2.jpg",
-  "headline": "The sinking of HMS Valerian",
-  "url": "https://www.royalgazette.com/opinion-writer/opinion/article/20261024/the-sinking-of-hms-valerian/",
-  "outlet": "royalgazette.com",
-  "t": "2026-10-24T12:18:24+00:00",
-  "vista": 7.0,
-  "hash": 16204198578291277823
- },
- {
   "id": "2026-10-24-1158-0",
   "image": "pool-2026-10-24-1158-0.jpg",
   "headline": "Taiwan shuts down ahead of Typhoon Champi , nearly 1 , 000 flights canceled",
@@ -172,5 +142,32 @@
   "t": "2026-10-26T13:32:58+00:00",
   "vista": 7.0,
   "hash": 18374154316991660031
+ },
+ {
+  "id": "2026-10-27",
+  "image": "pool-2026-10-27.jpg",
+  "headline": "Drought , fire and high diesel prices  addin  up tough  for Oregon ranchers",
+  "url": "https://knpr.org/npr/2026-10-24/drought-fire-and-high-diesel-prices-addin-up-tough-for-oregon-ranchers",
+  "outlet": "knpr.org",
+  "t": "2026-10-27T12:06:25+00:00",
+  "hash": 4633192742833126652
+ },
+ {
+  "id": "2026-10-27-b",
+  "image": "pool-2026-10-27-b.jpg",
+  "headline": "Three questions for the Pittsburgh Pirates this offseason",
+  "url": "https://www.yardbarker.com/mlb/articles/three_questions_for_the_pittsburgh_pirates_this_offseason/s1_13132_44477531",
+  "outlet": "yardbarker.com",
+  "t": "2026-10-27T12:06:25+00:00",
+  "hash": 3323094416843915731
+ },
+ {
+  "id": "2026-10-27-c",
+  "image": "pool-2026-10-27-c.jpg",
+  "headline": "Hassan Omar Makes Fresh Pledge After IEBC Summons Over Dead Voters",
+  "url": "https://nairobiwire.com/2026/10/hassan-omar-iebc-summons-dead-voters-remarks.html",
+  "outlet": "nairobiwire.com",
+  "t": "2026-10-27T12:06:25+00:00",
+  "hash": 4340975527988717567
  }
 ]

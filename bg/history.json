@@ -278,5 +278,12 @@
   "url": "http://www.argentinastar.com/news/279390395/the-rise-of-roghun-world-tallest-dam-takes-shape-in-tajikistan",
   "outlet": "argentinastar.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-10-27",
+  "headline": "Drought , fire and high diesel prices  addin  up tough  for Oregon ranchers",
+  "url": "https://knpr.org/npr/2026-10-24/drought-fire-and-high-diesel-prices-addin-up-tough-for-oregon-ranchers",
+  "outlet": "knpr.org",
+  "method": "crop-fallback"
  }
 ]
