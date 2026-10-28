@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-25-c",
-  "image": "pool-2026-10-25-c.jpg",
-  "headline": "Drones Hit Omsky Kauchuk Deep in Russia , Belgorod Targeted",
-  "url": "https://www.kyivpost.com/post/88099",
-  "outlet": "kyivpost.com",
-  "t": "2026-10-25T11:23:52+00:00",
-  "hash": 2206499072271981630
- },
- {
   "id": "2026-10-25-0800-0",
   "image": "pool-2026-10-25-0800-0.jpg",
   "headline": "Black Sea drone attacks add to global energy , shipping strains",
@@ -168,5 +159,15 @@
   "t": "2026-10-28T13:27:32+00:00",
   "vista": 9.0,
   "hash": 292204142145764991
+ },
+ {
+  "id": "2026-10-28-1034-0",
+  "image": "pool-2026-10-28-1034-0.jpg",
+  "headline": "Flooding in Socorro County claims one life , shuts down Highway 60",
+  "url": "https://www.kob.com/new-mexico/flooding-in-socorro-county-claims-one-life-shuts-down-highway-60/",
+  "outlet": "kob.com",
+  "t": "2026-10-28T14:34:14+00:00",
+  "vista": 7.0,
+  "hash": 18014194557255615
  }
 ]
