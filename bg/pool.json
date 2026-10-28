@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-25-b",
-  "image": "pool-2026-10-25-b.jpg",
-  "headline": "Storm Boelo hits Cumbria with roads blocked by trees and flooding",
-  "url": "https://www.bbc.co.uk/news/articles/c699zk4mn230o",
-  "outlet": "bbc.co.uk",
-  "t": "2026-10-25T11:23:52+00:00",
-  "hash": 224932033830715392
- },
- {
   "id": "2026-10-25-c",
   "image": "pool-2026-10-25-c.jpg",
   "headline": "Drones Hit Omsky Kauchuk Deep in Russia , Belgorod Targeted",
@@ -167,5 +158,15 @@
   "outlet": "myanmarnews.net",
   "t": "2026-10-28T12:48:20+00:00",
   "hash": 85867465206626167
+ },
+ {
+  "id": "2026-10-28-0927-0",
+  "image": "pool-2026-10-28-0927-0.jpg",
+  "headline": "Typhoon Champi batters Taiwan , injuring more than 500",
+  "url": "http://www.afghanistannews.net/news/279396655/typhoon-champi-batters-taiwan-injuring-more-than-500",
+  "outlet": "afghanistannews.net",
+  "t": "2026-10-28T13:27:32+00:00",
+  "vista": 9.0,
+  "hash": 292204142145764991
  }
 ]
