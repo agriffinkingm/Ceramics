@@ -285,5 +285,12 @@
   "url": "https://knpr.org/npr/2026-10-24/drought-fire-and-high-diesel-prices-addin-up-tough-for-oregon-ranchers",
   "outlet": "knpr.org",
   "method": "crop-fallback"
+ },
+ {
+  "id": "2026-10-28",
+  "headline": "Train services between Rambukkana , Gampola suspended until further notice - Breaking News",
+  "url": "https://www.dailymirror.lk/latest-news/Train-services-between-Rambukkana-Gampola-suspended-until-further-notice/342-353358",
+  "outlet": "dailymirror.lk",
+  "method": "crop"
  }
 ]

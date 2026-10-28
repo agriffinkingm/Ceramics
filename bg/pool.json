@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-10-24-1158-0",
-  "image": "pool-2026-10-24-1158-0.jpg",
-  "headline": "Taiwan shuts down ahead of Typhoon Champi , nearly 1 , 000 flights canceled",
-  "url": "https://asia.nikkei.com/economy/natural-disasters/taiwan-shuts-down-ahead-of-typhoon-champi-nearly-1-000-flights-canceled",
-  "outlet": "asia.nikkei.com",
-  "t": "2026-10-24T15:58:52+00:00",
-  "vista": 8.0,
-  "hash": 17926569517401375744
- },
- {
-  "id": "2026-10-25-0040-0",
-  "image": "pool-2026-10-25-0040-0.jpg",
-  "headline": "Global Village Opens Season 31 with new shows , 600 - drone display",
-  "url": "https://tradearabia.com:443/News/488094/Global-Village-Opens-Season-31-with-new-shows-600-drone-display",
-  "outlet": "tradearabia.com",
-  "t": "2026-10-25T04:40:36+00:00",
-  "vista": 7.0,
-  "hash": 18014398496597606400
- },
- {
-  "id": "2026-10-25",
-  "image": "pool-2026-10-25.jpg",
-  "headline": "Serbia student protests could take power and topple Putin  main ally  in Europe as election polls open",
-  "url": "https://www.aol.co.uk/articles/serbia-student-protests-could-power-095931000.html",
-  "outlet": "aol.co.uk",
-  "t": "2026-10-25T11:23:52+00:00",
-  "hash": 264982218079942
- },
- {
   "id": "2026-10-25-b",
   "image": "pool-2026-10-25-b.jpg",
   "headline": "Storm Boelo hits Cumbria with roads blocked by trees and flooding",
@@ -169,5 +140,32 @@
   "outlet": "nairobiwire.com",
   "t": "2026-10-27T12:06:25+00:00",
   "hash": 4340975527988717567
+ },
+ {
+  "id": "2026-10-28",
+  "image": "pool-2026-10-28.jpg",
+  "headline": "Train services between Rambukkana , Gampola suspended until further notice - Breaking News",
+  "url": "https://www.dailymirror.lk/latest-news/Train-services-between-Rambukkana-Gampola-suspended-until-further-notice/342-353358",
+  "outlet": "dailymirror.lk",
+  "t": "2026-10-28T12:48:20+00:00",
+  "hash": 9439897266344230141
+ },
+ {
+  "id": "2026-10-28-b",
+  "image": "pool-2026-10-28-b.jpg",
+  "headline": "Arizona lawmaker urges Gov . Hobbs to declare state of emergency after Heber - Overgaard tornado",
+  "url": "https://www.fox10phoenix.com/news/arizona-lawmaker-urges-gov-hobbs-declare-state-emergency-after-heber-overgaard-tornado",
+  "outlet": "fox10phoenix.com",
+  "t": "2026-10-28T12:48:20+00:00",
+  "hash": 76902585564816950
+ },
+ {
+  "id": "2026-10-28-c",
+  "image": "pool-2026-10-28-c.jpg",
+  "headline": "Expelled Afghan refugees recount police harassment , extortion amid emergency in Pakistan Khyber Pakhtunkhwa",
+  "url": "http://www.myanmarnews.net/news/279399039/expelled-afghan-refugees-recount-police-harassment-extortion-amid-emergency-in-pakistan-khyber-pakhtunkhwa",
+  "outlet": "myanmarnews.net",
+  "t": "2026-10-28T12:48:20+00:00",
+  "hash": 85867465206626167
  }
 ]
