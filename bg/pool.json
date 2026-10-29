@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-25-1652-0",
-  "image": "pool-2026-10-25-1652-0.jpg",
-  "headline": "As Cyclone Arnab nears , Odisha govt braces for its impact",
-  "url": "https://timesofindia.indiatimes.com/city/bhubaneswar/as-cyclone-arnab-nears-odisha-govt-braces-for-its-impact/articleshow/135196892.cms",
-  "outlet": "timesofindia.indiatimes.com",
-  "t": "2026-10-25T20:52:21+00:00",
-  "vista": 10.0,
-  "hash": 9766042546067469919
- },
- {
   "id": "2026-10-25-1652-1",
   "image": "pool-2026-10-25-1652-1.jpg",
   "headline": "Hazardous material release triggers evacuation order in Ohio , US",
@@ -166,5 +156,15 @@
   "outlet": "dailyecho.co.uk",
   "t": "2026-10-29T12:58:11+00:00",
   "hash": 291586435071
+ },
+ {
+  "id": "2026-10-29-0936-0",
+  "image": "pool-2026-10-29-0936-0.jpg",
+  "headline": "Volcano Watch : A look back at recent Kilauea eruptions and intrusions",
+  "url": "https://www.hawaiitribune-herald.com/2026/10/25/features/volcano-watch-a-look-back-at-recent-kilauea-eruptions-and-intrusions/",
+  "outlet": "hawaiitribune-herald.com",
+  "t": "2026-10-29T13:36:21+00:00",
+  "vista": 9.0,
+  "hash": 10235577068361271547
  }
 ]
