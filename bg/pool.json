@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-10-25-0800-0",
-  "image": "pool-2026-10-25-0800-0.jpg",
-  "headline": "Black Sea drone attacks add to global energy , shipping strains",
-  "url": "http://www.greekherald.com/news/279376879/black-sea-drone-attacks-add-to-global-energy-shipping-strains",
-  "outlet": "greekherald.com",
-  "t": "2026-10-25T12:00:58+00:00",
-  "vista": 9.0,
-  "hash": 36240869501239295
- },
- {
-  "id": "2026-10-25-0800-1",
-  "image": "pool-2026-10-25-0800-1.jpg",
-  "headline": "Volcano Watch : A look back at recent Kilauea eruptions and intrusions",
-  "url": "https://www.hawaiitribune-herald.com/2026/10/25/features/volcano-watch-a-look-back-at-recent-kilauea-eruptions-and-intrusions/",
-  "outlet": "hawaiitribune-herald.com",
-  "t": "2026-10-25T12:00:58+00:00",
-  "vista": 9.0,
-  "hash": 10235577068361271547
- },
- {
-  "id": "2026-10-25-0852-0",
-  "image": "pool-2026-10-25-0852-0.jpg",
-  "headline": "1 in cardiac arrest , 18 others injured in 2 building fires in southern Seoul",
-  "url": "https://www.koreatimes.co.kr/southkorea/society/20261020/1-in-cardiac-arrest-18-others-injured-in-2-building-fires-in-southern-seoul",
-  "outlet": "koreatimes.co.kr",
-  "t": "2026-10-25T12:52:34+00:00",
-  "vista": 7.0,
-  "hash": 4631784433378245685
- },
- {
   "id": "2026-10-25-1652-0",
   "image": "pool-2026-10-25-1652-0.jpg",
   "headline": "As Cyclone Arnab nears , Odisha govt braces for its impact",
@@ -169,5 +139,32 @@
   "t": "2026-10-28T14:34:14+00:00",
   "vista": 7.0,
   "hash": 18014194557255615
+ },
+ {
+  "id": "2026-10-29",
+  "image": "pool-2026-10-29.jpg",
+  "headline": "subsidence the gradual lowering of urban landscapes is not irreversible",
+  "url": "https://www.repubblica.it/en/europe/news/2026/10/26/news/subsidence_in_italy_venice_and_ravenna_are_sinking_but_there_is_a_solution-425670989/",
+  "outlet": "repubblica.it",
+  "t": "2026-10-29T12:58:11+00:00",
+  "hash": 68946251009228799
+ },
+ {
+  "id": "2026-10-29-b",
+  "image": "pool-2026-10-29-b.jpg",
+  "headline": "PM Modi attends  Wings over Gange aerial show by Air Force",
+  "url": "https://www.siasat.com/pm-modi-attends-wings-over-ganges-aerial-show-by-air-force-3564241/",
+  "outlet": "siasat.com",
+  "t": "2026-10-29T12:58:11+00:00",
+  "hash": 212154202980351
+ },
+ {
+  "id": "2026-10-29-c",
+  "image": "pool-2026-10-29-c.jpg",
+  "headline": "Southampton Above Bar history and why traffic was banned",
+  "url": "https://www.dailyecho.co.uk/news/26671342.southampton-bar-history-traffic-banned/",
+  "outlet": "dailyecho.co.uk",
+  "t": "2026-10-29T12:58:11+00:00",
+  "hash": 291586435071
  }
 ]
