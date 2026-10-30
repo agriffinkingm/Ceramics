@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-27",
-  "image": "pool-2026-10-27.jpg",
-  "headline": "Drought , fire and high diesel prices  addin  up tough  for Oregon ranchers",
-  "url": "https://knpr.org/npr/2026-10-24/drought-fire-and-high-diesel-prices-addin-up-tough-for-oregon-ranchers",
-  "outlet": "knpr.org",
-  "t": "2026-10-27T12:06:25+00:00",
-  "hash": 4633192742833126652
- },
- {
   "id": "2026-10-27-b",
   "image": "pool-2026-10-27-b.jpg",
   "headline": "Three questions for the Pittsburgh Pirates this offseason",
@@ -166,5 +157,15 @@
   "outlet": "en.antaranews.com",
   "t": "2026-10-30T12:53:07+00:00",
   "hash": 18091391173058302
+ },
+ {
+  "id": "2026-10-30-0924-0",
+  "image": "pool-2026-10-30-0924-0.jpg",
+  "headline": "Saudi - led coalition intercepts drone in Riyadh region",
+  "url": "https://www.middle-east-online.com/en/saudi-led-coalition-intercepts-drone-riyadh-region",
+  "outlet": "middle-east-online.com",
+  "t": "2026-10-30T13:24:41+00:00",
+  "vista": 8.0,
+  "hash": 18446743681082851327
  }
 ]
