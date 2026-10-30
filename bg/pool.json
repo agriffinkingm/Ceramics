@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-26-b",
-  "image": "pool-2026-10-26-b.jpg",
-  "headline": "New storm in the United States : it could hit the East Coast from October 19 with heavy rain and strong winds for several days",
-  "url": "https://www.cronista.com/en/today/new-storm-in-the-united-states-it-could-hit-the-east-coast-from-october-19-with-heavy-rain-and-strong-winds-for-several-days/",
-  "outlet": "cronista.com",
-  "t": "2026-10-26T12:56:53+00:00",
-  "hash": 129906999102
- },
- {
-  "id": "2026-10-26-c",
-  "image": "pool-2026-10-26-c.jpg",
-  "headline": "Iran Says Supertanker Hit Mine In Strait of Hormuz",
-  "url": "http://www.argentinastar.com/news/279380774/iran-says-supertanker-hit-mine-in-strait-of-hormuz",
-  "outlet": "argentinastar.com",
-  "t": "2026-10-26T12:56:53+00:00",
-  "hash": 36453191260307455
- },
- {
-  "id": "2026-10-26-0932-0",
-  "image": "pool-2026-10-26-0932-0.jpg",
-  "headline": "Explosions heard in Saudi capital as airport prepares to reopen",
-  "url": "https://www.thehindu.com/news/international/explosions-heard-in-saudi-capital-as-airport-prepares-to-reopen/article71622928.ece",
-  "outlet": "thehindu.com",
-  "t": "2026-10-26T13:32:58+00:00",
-  "vista": 7.0,
-  "hash": 18374154316991660031
- },
- {
   "id": "2026-10-27",
   "image": "pool-2026-10-27.jpg",
   "headline": "Drought , fire and high diesel prices  addin  up tough  for Oregon ranchers",
@@ -167,5 +139,32 @@
   "t": "2026-10-30T05:46:12+00:00",
   "vista": 7.0,
   "hash": 508694824866481920
+ },
+ {
+  "id": "2026-10-30",
+  "image": "pool-2026-10-30.jpg",
+  "headline": "Rooftop rescues and evacuations as severe flooding soaks Four Corners region",
+  "url": "https://www.dailydemocrat.com/2026/10/23/extreme-weather-flooding/",
+  "outlet": "dailydemocrat.com",
+  "t": "2026-10-30T12:53:07+00:00",
+  "hash": 4646853352395699191
+ },
+ {
+  "id": "2026-10-30-b",
+  "image": "pool-2026-10-30-b.jpg",
+  "headline": "Elon Musk says SpaceX closed Ukraine Starlink  loophole  after limits hit drone operations",
+  "url": "https://www.nbcnews.com/world/ukraine/elon-musk-spacex-closed-ukraine-starlink-loophole-limits-hit-drone-rcna605494",
+  "outlet": "nbcnews.com",
+  "t": "2026-10-30T12:53:07+00:00",
+  "hash": 1736164165900189246
+ },
+ {
+  "id": "2026-10-30-c",
+  "image": "pool-2026-10-30-c.jpg",
+  "headline": "Indonesian police use sonar , drone to seek missing Komodo diver",
+  "url": "https://en.antaranews.com/news/437703/indonesian-police-use-sonar-drone-to-seek-missing-komodo-diver",
+  "outlet": "en.antaranews.com",
+  "t": "2026-10-30T12:53:07+00:00",
+  "hash": 18091391173058302
  }
 ]

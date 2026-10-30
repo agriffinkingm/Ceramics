@@ -299,5 +299,12 @@
   "url": "https://www.repubblica.it/en/europe/news/2026/10/26/news/subsidence_in_italy_venice_and_ravenna_are_sinking_but_there_is_a_solution-425670989/",
   "outlet": "repubblica.it",
   "method": "crop"
+ },
+ {
+  "id": "2026-10-30",
+  "headline": "Rooftop rescues and evacuations as severe flooding soaks Four Corners region",
+  "url": "https://www.dailydemocrat.com/2026/10/23/extreme-weather-flooding/",
+  "outlet": "dailydemocrat.com",
+  "method": "outpaint"
  }
 ]
