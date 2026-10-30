@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-26",
-  "image": "pool-2026-10-26.jpg",
-  "headline": "The Rise Of Roghun :  World Tallest  Dam Takes Shape In Tajikistan",
-  "url": "http://www.argentinastar.com/news/279390395/the-rise-of-roghun-world-tallest-dam-takes-shape-in-tajikistan",
-  "outlet": "argentinastar.com",
-  "t": "2026-10-26T12:56:53+00:00",
-  "hash": 2022066568298495
- },
- {
   "id": "2026-10-26-b",
   "image": "pool-2026-10-26-b.jpg",
   "headline": "New storm in the United States : it could hit the East Coast from October 19 with heavy rain and strong winds for several days",
@@ -166,5 +157,15 @@
   "t": "2026-10-29T22:51:22+00:00",
   "vista": 9.0,
   "hash": 17734725271551
+ },
+ {
+  "id": "2026-10-30-0146-0",
+  "image": "pool-2026-10-30-0146-0.jpg",
+  "headline": "Very severe cyclone  Arnab to hit Andhra coast on Oct 28",
+  "url": "https://www.rediff.com/news/report/very-severe-cyclone-arnab-to-hit-andhra-coast-on-oct-28/20261027.htm",
+  "outlet": "rediff.com",
+  "t": "2026-10-30T05:46:12+00:00",
+  "vista": 7.0,
+  "hash": 508694824866481920
  }
 ]
