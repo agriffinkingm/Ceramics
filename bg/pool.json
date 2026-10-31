@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-28-b",
-  "image": "pool-2026-10-28-b.jpg",
-  "headline": "Arizona lawmaker urges Gov . Hobbs to declare state of emergency after Heber - Overgaard tornado",
-  "url": "https://www.fox10phoenix.com/news/arizona-lawmaker-urges-gov-hobbs-declare-state-emergency-after-heber-overgaard-tornado",
-  "outlet": "fox10phoenix.com",
-  "t": "2026-10-28T12:48:20+00:00",
-  "hash": 76902585564816950
- },
- {
   "id": "2026-10-28-c",
   "image": "pool-2026-10-28-c.jpg",
   "headline": "Expelled Afghan refugees recount police harassment , extortion amid emergency in Pakistan Khyber Pakhtunkhwa",
@@ -167,5 +158,15 @@
   "outlet": "timesofindia.indiatimes.com",
   "t": "2026-10-31T12:20:16+00:00",
   "hash": 7383148780752272620
+ },
+ {
+  "id": "2026-10-31-0955-0",
+  "image": "pool-2026-10-31-0955-0.jpg",
+  "headline": "Iconic Yellowstone collects record 23 , 000 pieces of trash from hot springs",
+  "url": "https://www.foxnews.com/travel/reckless-visitors-destroying-yellowstones-iconic-thermal-pools-trash",
+  "outlet": "foxnews.com",
+  "t": "2026-10-31T13:55:37+00:00",
+  "vista": 8.0,
+  "hash": 17581983845136000192
  }
 ]
