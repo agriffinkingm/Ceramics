@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-27-b",
-  "image": "pool-2026-10-27-b.jpg",
-  "headline": "Three questions for the Pittsburgh Pirates this offseason",
-  "url": "https://www.yardbarker.com/mlb/articles/three_questions_for_the_pittsburgh_pirates_this_offseason/s1_13132_44477531",
-  "outlet": "yardbarker.com",
-  "t": "2026-10-27T12:06:25+00:00",
-  "hash": 3323094416843915731
- },
- {
-  "id": "2026-10-27-c",
-  "image": "pool-2026-10-27-c.jpg",
-  "headline": "Hassan Omar Makes Fresh Pledge After IEBC Summons Over Dead Voters",
-  "url": "https://nairobiwire.com/2026/10/hassan-omar-iebc-summons-dead-voters-remarks.html",
-  "outlet": "nairobiwire.com",
-  "t": "2026-10-27T12:06:25+00:00",
-  "hash": 4340975527988717567
- },
- {
-  "id": "2026-10-28",
-  "image": "pool-2026-10-28.jpg",
-  "headline": "Train services between Rambukkana , Gampola suspended until further notice - Breaking News",
-  "url": "https://www.dailymirror.lk/latest-news/Train-services-between-Rambukkana-Gampola-suspended-until-further-notice/342-353358",
-  "outlet": "dailymirror.lk",
-  "t": "2026-10-28T12:48:20+00:00",
-  "hash": 9439897266344230141
- },
- {
   "id": "2026-10-28-b",
   "image": "pool-2026-10-28-b.jpg",
   "headline": "Arizona lawmaker urges Gov . Hobbs to declare state of emergency after Heber - Overgaard tornado",
@@ -167,5 +140,32 @@
   "t": "2026-10-30T13:24:41+00:00",
   "vista": 8.0,
   "hash": 18446743681082851327
+ },
+ {
+  "id": "2026-10-31",
+  "image": "pool-2026-10-31.jpg",
+  "headline": "The stunning village with 70 independent shops -  Britain prettiest",
+  "url": "https://www.aol.co.uk/articles/stunning-village-70-independent-shops-115900000.html",
+  "outlet": "aol.co.uk",
+  "t": "2026-10-31T12:20:16+00:00",
+  "hash": 2310399523780852860
+ },
+ {
+  "id": "2026-10-31-b",
+  "image": "pool-2026-10-31-b.jpg",
+  "headline": "3 killed in another gun attack in Cotabato City",
+  "url": "https://www.philstar.com/nation/2026/10/23/2565241/3-killed-another-gun-attack-cotabato-city",
+  "outlet": "philstar.com",
+  "t": "2026-10-31T12:20:16+00:00",
+  "hash": 18446450160776053056
+ },
+ {
+  "id": "2026-10-31-c",
+  "image": "pool-2026-10-31-c.jpg",
+  "headline": "India , Australia troops train for coastal , island warfare in AUSTRAHIND 2026",
+  "url": "https://timesofindia.indiatimes.com/defence/news/india-australia-troops-train-for-coastal-island-warfare-in-austrahind-2026/articleshow/135188221.cms",
+  "outlet": "timesofindia.indiatimes.com",
+  "t": "2026-10-31T12:20:16+00:00",
+  "hash": 7383148780752272620
  }
 ]

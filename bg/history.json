@@ -306,5 +306,12 @@
   "url": "https://www.dailydemocrat.com/2026/10/23/extreme-weather-flooding/",
   "outlet": "dailydemocrat.com",
   "method": "outpaint"
+ },
+ {
+  "id": "2026-10-31",
+  "headline": "The stunning village with 70 independent shops -  Britain prettiest",
+  "url": "https://www.aol.co.uk/articles/stunning-village-70-independent-shops-115900000.html",
+  "outlet": "aol.co.uk",
+  "method": "crop-flat"
  }
 ]
