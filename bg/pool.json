@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-29",
-  "image": "pool-2026-10-29.jpg",
-  "headline": "subsidence the gradual lowering of urban landscapes is not irreversible",
-  "url": "https://www.repubblica.it/en/europe/news/2026/10/26/news/subsidence_in_italy_venice_and_ravenna_are_sinking_but_there_is_a_solution-425670989/",
-  "outlet": "repubblica.it",
-  "t": "2026-10-29T12:58:11+00:00",
-  "hash": 68946251009228799
- },
- {
   "id": "2026-10-29-b",
   "image": "pool-2026-10-29-b.jpg",
   "headline": "PM Modi attends  Wings over Gange aerial show by Air Force",
@@ -166,5 +157,15 @@
   "outlet": "business-standard.com",
   "t": "2026-11-01T13:17:38+00:00",
   "hash": 248455268138752
+ },
+ {
+  "id": "2026-11-01-0847-0",
+  "image": "pool-2026-11-01-0847-0.jpg",
+  "headline": "Typhoon Champi leaves one dead , hundreds injured in Taiwan",
+  "url": "http://www.sierraleonetimes.com/news/279396655/typhoon-champi-leaves-one-dead-hundreds-injured-in-taiwan",
+  "outlet": "sierraleonetimes.com",
+  "t": "2026-11-01T13:47:11+00:00",
+  "vista": 9.0,
+  "hash": 292204142145764991
  }
 ]
