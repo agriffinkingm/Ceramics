@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-29-b",
-  "image": "pool-2026-10-29-b.jpg",
-  "headline": "PM Modi attends  Wings over Gange aerial show by Air Force",
-  "url": "https://www.siasat.com/pm-modi-attends-wings-over-ganges-aerial-show-by-air-force-3564241/",
-  "outlet": "siasat.com",
-  "t": "2026-10-29T12:58:11+00:00",
-  "hash": 212154202980351
- },
- {
   "id": "2026-10-29-c",
   "image": "pool-2026-10-29-c.jpg",
   "headline": "Southampton Above Bar history and why traffic was banned",
@@ -167,5 +158,15 @@
   "t": "2026-11-01T13:47:11+00:00",
   "vista": 9.0,
   "hash": 292204142145764991
+ },
+ {
+  "id": "2026-11-01-0935-0",
+  "image": "pool-2026-11-01-0935-0.jpg",
+  "headline": "Every Wiltshire white horse rated from best to worst | Stroud News and Journal",
+  "url": "https://www.stroudnewsandjournal.co.uk/news/26664984.every-wiltshire-white-horse-rated-best-worst/",
+  "outlet": "stroudnewsandjournal.co.uk",
+  "t": "2026-11-01T14:35:24+00:00",
+  "vista": 9.0,
+  "hash": 48569578817039
  }
 ]
