@@ -313,5 +313,12 @@
   "url": "https://www.aol.co.uk/articles/stunning-village-70-independent-shops-115900000.html",
   "outlet": "aol.co.uk",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-11-01",
+  "headline": "Two Varanasi - bound IndiGo flights diverted to Lucknow due to air show",
+  "url": "https://www.thehindubusinessline.com/economy/logistics/two-varanasi-bound-indigo-flights-diverted-to-lucknow-due-to-air-show/article71622729.ece",
+  "outlet": "thehindubusinessline.com",
+  "method": "crop"
  }
 ]
