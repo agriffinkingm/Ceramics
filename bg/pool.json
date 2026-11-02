@@ -1,24 +1,5 @@
 [
  {
-  "id": "2026-10-29-c",
-  "image": "pool-2026-10-29-c.jpg",
-  "headline": "Southampton Above Bar history and why traffic was banned",
-  "url": "https://www.dailyecho.co.uk/news/26671342.southampton-bar-history-traffic-banned/",
-  "outlet": "dailyecho.co.uk",
-  "t": "2026-10-29T12:58:11+00:00",
-  "hash": 291586435071
- },
- {
-  "id": "2026-10-29-0936-0",
-  "image": "pool-2026-10-29-0936-0.jpg",
-  "headline": "Volcano Watch : A look back at recent Kilauea eruptions and intrusions",
-  "url": "https://www.hawaiitribune-herald.com/2026/10/25/features/volcano-watch-a-look-back-at-recent-kilauea-eruptions-and-intrusions/",
-  "outlet": "hawaiitribune-herald.com",
-  "t": "2026-10-29T13:36:21+00:00",
-  "vista": 9.0,
-  "hash": 10235577068361271547
- },
- {
   "id": "2026-10-29-1851-0",
   "image": "pool-2026-10-29-1851-0.jpg",
   "headline": "Two storms slam northern Europe , cut power to 150 , 000 homes",
@@ -168,5 +149,23 @@
   "t": "2026-11-01T14:35:24+00:00",
   "vista": 9.0,
   "hash": 48569578817039
+ },
+ {
+  "id": "2026-11-02",
+  "image": "pool-2026-11-02.jpg",
+  "headline": "Navdeep Singh credits JLN Stadium training for Asian Para Games bronze",
+  "url": "http://www.bangladeshsun.com/news/279395959/navdeep-singh-credits-jln-stadium-training-for-asian-para-games-bronze",
+  "outlet": "bangladeshsun.com",
+  "t": "2026-11-02T15:45:12+00:00",
+  "hash": 9331882296651004923
+ },
+ {
+  "id": "2026-11-02-b",
+  "image": "pool-2026-11-02-b.jpg",
+  "headline": "Travis Head wants Australia to find collective batting effort after recent Test struggles",
+  "url": "http://www.bangladeshsun.com/news/279395641/travis-head-wants-australia-to-find-collective-batting-effort-after-recent-test-struggles",
+  "outlet": "bangladeshsun.com",
+  "t": "2026-11-02T15:45:12+00:00",
+  "hash": 15625406301265783008
  }
 ]
