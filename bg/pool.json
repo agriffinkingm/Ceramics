@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-29-1851-0",
-  "image": "pool-2026-10-29-1851-0.jpg",
-  "headline": "Two storms slam northern Europe , cut power to 150 , 000 homes",
-  "url": "https://www.aljazeera.com/news/2026/10/26/two-storms-slam-northern-europe-cut-power-to-150000-homes",
-  "outlet": "aljazeera.com",
-  "t": "2026-10-29T22:51:22+00:00",
-  "vista": 9.0,
-  "hash": 63191256724930559
- },
- {
   "id": "2026-10-29-1851-1",
   "image": "pool-2026-10-29-1851-1.jpg",
   "headline": "Montgomery Reef cruise detours offer rare wildlife views | Milton Ulladulla Times",
@@ -167,5 +157,15 @@
   "outlet": "bangladeshsun.com",
   "t": "2026-11-02T15:45:12+00:00",
   "hash": 15625406301265783008
+ },
+ {
+  "id": "2026-11-02-1230-0",
+  "image": "pool-2026-11-02-1230-0.jpg",
+  "headline": "Volcano Watch : A look back at recent Kilauea eruptions and intrusions",
+  "url": "https://www.hawaiitribune-herald.com/2026/10/25/features/volcano-watch-a-look-back-at-recent-kilauea-eruptions-and-intrusions/",
+  "outlet": "hawaiitribune-herald.com",
+  "t": "2026-11-02T17:30:24+00:00",
+  "vista": 9.0,
+  "hash": 10235577068361271547
  }
 ]
