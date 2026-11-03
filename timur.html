@@ -127,7 +127,7 @@
     <div id="guide" class="hidden">
       <div class="pick"></div>
       <div class="desc"></div>
-      <div class="row"><button id="guide-done">back</button></div>
+      <div class="row"><button id="guide-reset">reset</button><button id="guide-done">back</button></div>
     </div>
     <div id="controls">
       <div id="actions">
@@ -167,7 +167,7 @@
 
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-03d";
+const BUILD = "2026-11-03e";
 
 // ===================== engine =====================
 // Squares 0..109 are the 11×10 camp (index = rank*11 + file, a1 = 0). 110 = White's citadel (right of k2), 111 = Black's (left of a9).
@@ -490,6 +490,7 @@ function render(targets) {
   const chk = mode !== "guide" && !g.over && inCheck(s, s.turn) ? royalSq(s.b, s.turn) : -1;
   const movers = new Set(lm.map(m => m.f));
   const tl = targets || (sel >= 0 ? lm.filter(m => m.f === sel) : []);
+  if (mode === "guide" && !targets) return;
   const tmap = {}; for (const m of tl) tmap[m.t] = m.k;
   for (const k in cells) {
     const i = +k, d = cells[k], p = s.b[i];
@@ -531,7 +532,7 @@ function render(targets) {
 }
 boardEl.addEventListener("click", e => {
   const d = e.target.closest(".cell"); if (!d || d.dataset.i === undefined) return; const i = +d.dataset.i;
-  if (mode === "guide") return;
+  if (mode === "guide") return guideClick(i);
   if (g.over || !myTurn() || (mode === "room" && !g.players[1])) return;
   const s = st, p = s.b[i];
   if (sel >= 0) {
@@ -592,19 +593,47 @@ function showGuide() {
   pick.querySelectorAll("button").forEach(b => b.onclick = () => guidePiece(b.dataset.t));
   guidePiece("Z");
 }
+// The guide is a sandbox: your piece sits mid-board with a few black pieces parked exactly where it can capture them;
+// tap a marked square to move it there, and the marks follow. Black never moves.
+let guideT = "Z";
+function guideMoves(i) { const out = []; pieceMoves(st, i, out); return out.filter(m => m.k !== "s" && m.k !== "c" && m.k !== "h"); }
 function guidePiece(t) {
-  document.querySelectorAll("#guide .pick button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+  guideT = t; document.querySelectorAll("#guide .pick button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
   const b = new Array(112).fill(null); const at = nsq(5, 4);
-  if (t === "p") { b[at] = { c: 0, t: "p", pt: "R", n: 0 }; b[nsq(4, 5)] = { c: 1, t: "N" }; b[nsq(6, 5)] = { c: 1, t: "C" }; }
-  else { b[at] = { c: 0, t }; b[nsq(3, 2)] = { c: 1, t: "p", pt: "E", n: 0 }; b[nsq(7, 1)] = { c: 1, t: "p", pt: "E", n: 0 }; }
+  b[at] = t === "p" ? { c: 0, t: "p", pt: "R", n: 0 } : { c: 0, t };
   st = { b, turn: 0, swap: [false, false], over: null, last: null };
-  const out = []; pieceMoves(st, at, out);
-  sel = at; render(out.filter(m => m.k !== "s"));
+  // targets: two of the piece's own reachable squares get an enemy pawn — one near, one far — so every piece shows a capture
+  const reach = guideMoves(at).map(m => m.t).filter(j => j < 110);
+  const far = i => Math.abs(xy(i)[0] - 5) + Math.abs(xy(i)[1] - 4);
+  const sorted = reach.slice().sort((a, c) => far(a) - far(c));
+  const picks = t === "p" ? [] : [sorted[Math.floor(sorted.length * .25)], sorted[sorted.length - 1]].filter((x, k, arr) => x !== undefined && arr.indexOf(x) === k);
+  if (t === "p") { b[nsq(6, 5)] = { c: 1, t: "N" }; b[nsq(4, 5)] = { c: 1, t: "C" }; }
+  const kinds = ["R", "E", "D", "C", "G", "V", "N"]; picks.forEach((j, k) => { b[j] = { c: 1, t: "p", pt: kinds[k % kinds.length], n: 0 }; });
+  // a bystander off the lines, to show what doesn't get hit
+  for (const j of [nsq(2, 7), nsq(8, 1), nsq(1, 3)]) if (!b[j] && !reach.includes(j)) { b[j] = { c: 1, t: "p", pt: "Z", n: 0 }; break; }
+  sel = at; render(guideMoves(at));
   for (const i of [0, 1]) $("p" + i).querySelector(".nm").textContent = ""; $("midl").textContent = "the pieces"; $("midb").textContent = NAME[t] + " · " + PERSIAN[t];
-  const e = GUIDE.find(x => x[0] === t); say("");
+  const e = GUIDE.find(x => x[0] === t); say("Tap a marked square to move it. Rings are captures.");
   document.querySelector("#guide .desc").innerHTML = `<b>${NAME[t]}</b> <span style="color:var(--clay-dark)">${PERSIAN[t]}</span><br>${e[1]}`;
 }
+function guideClick(i) {
+  const p = st.b[i];
+  if (sel >= 0) {
+    const m = guideMoves(sel).find(q => q.t === i);
+    if (m) {
+      const was = st.b[sel], taken = st.b[i]; make(st, m); st.turn = 0;
+      const np = st.b[i]; sel = i;
+      let note = taken ? "Took the " + (taken.t === "p" ? "pawn of " + NAME[taken.pt] + "s" : NAME[taken.t]) + ". " : "";
+      if (was.t === "p" && np.t !== "p") note += "Promoted to a " + NAME[np.t] + "! ";
+      say(note + (guideMoves(i).length ? "Tap another square to keep going, or reset." : "No moves from here — reset to try again."));
+      render(guideMoves(i)); return;
+    }
+  }
+  if (p && p.c === 0) { sel = i; render(guideMoves(i)); return; }
+  sel = -1; render([]);
+}
 $("guidebtn").onclick = showGuide;
+$("guide-reset").onclick = () => guidePiece(guideT);
 $("piecesbtn").onclick = e => { e.preventDefault(); showGuide(); };
 $("guide-done").onclick = () => { location.hash = ""; location.reload(); };
 
