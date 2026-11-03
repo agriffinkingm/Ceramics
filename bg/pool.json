@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-30-0146-0",
-  "image": "pool-2026-10-30-0146-0.jpg",
-  "headline": "Very severe cyclone  Arnab to hit Andhra coast on Oct 28",
-  "url": "https://www.rediff.com/news/report/very-severe-cyclone-arnab-to-hit-andhra-coast-on-oct-28/20261027.htm",
-  "outlet": "rediff.com",
-  "t": "2026-10-30T05:46:12+00:00",
-  "vista": 7.0,
-  "hash": 508694824866481920
- },
- {
-  "id": "2026-10-30",
-  "image": "pool-2026-10-30.jpg",
-  "headline": "Rooftop rescues and evacuations as severe flooding soaks Four Corners region",
-  "url": "https://www.dailydemocrat.com/2026/10/23/extreme-weather-flooding/",
-  "outlet": "dailydemocrat.com",
-  "t": "2026-10-30T12:53:07+00:00",
-  "hash": 4646853352395699191
- },
- {
-  "id": "2026-10-30-b",
-  "image": "pool-2026-10-30-b.jpg",
-  "headline": "Elon Musk says SpaceX closed Ukraine Starlink  loophole  after limits hit drone operations",
-  "url": "https://www.nbcnews.com/world/ukraine/elon-musk-spacex-closed-ukraine-starlink-loophole-limits-hit-drone-rcna605494",
-  "outlet": "nbcnews.com",
-  "t": "2026-10-30T12:53:07+00:00",
-  "hash": 1736164165900189246
- },
- {
   "id": "2026-10-30-c",
   "image": "pool-2026-10-30-c.jpg",
   "headline": "Indonesian police use sonar , drone to seek missing Komodo diver",
@@ -167,5 +139,32 @@
   "t": "2026-11-03T00:58:55+00:00",
   "vista": 9.0,
   "hash": 63191256724930559
+ },
+ {
+  "id": "2026-11-03",
+  "image": "pool-2026-11-03.jpg",
+  "headline": "Cerro de Pasco Resources Advances Comprehensive Phase 2 Drilling Across the Quiulacocha Tailings Facility",
+  "url": "https://www.manilatimes.net/2026/11/03/tmt-newswire/globenewswire/cerro-de-pasco-resources-advances-comprehensive-phase-2-drilling-across-the-quiulacocha-tailings-facility/2460379",
+  "outlet": "manilatimes.net",
+  "t": "2026-11-03T14:09:12+00:00",
+  "hash": 7380968884049829952
+ },
+ {
+  "id": "2026-11-03-b",
+  "image": "pool-2026-11-03-b.jpg",
+  "headline": "Experts reveal chilling  coffin corner  theory before Florida plane plunged to the ground",
+  "url": "https://www.aol.co.uk/articles/experts-reveal-chilling-coffin-corner-103800000.html",
+  "outlet": "aol.co.uk",
+  "t": "2026-11-03T14:09:12+00:00",
+  "hash": 18302630545704875007
+ },
+ {
+  "id": "2026-11-03-c",
+  "image": "pool-2026-11-03-c.jpg",
+  "headline": "Deadly RSF drone attacks reveal deep divisions between Sudan and Ethiopia",
+  "url": "https://www.aljazeera.com/news/2026/11/3/deadly-rsf-drone-strikes-reveal-deep-divisions-between-sudan-and-ethiopia",
+  "outlet": "aljazeera.com",
+  "t": "2026-11-03T14:09:12+00:00",
+  "hash": 4540472849332436991
  }
 ]

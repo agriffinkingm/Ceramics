@@ -327,5 +327,12 @@
   "url": "http://www.bangladeshsun.com/news/279395959/navdeep-singh-credits-jln-stadium-training-for-asian-para-games-bronze",
   "outlet": "bangladeshsun.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-11-03",
+  "headline": "Cerro de Pasco Resources Advances Comprehensive Phase 2 Drilling Across the Quiulacocha Tailings Facility",
+  "url": "https://www.manilatimes.net/2026/11/03/tmt-newswire/globenewswire/cerro-de-pasco-resources-advances-comprehensive-phase-2-drilling-across-the-quiulacocha-tailings-facility/2460379",
+  "outlet": "manilatimes.net",
+  "method": "outpaint"
  }
 ]
