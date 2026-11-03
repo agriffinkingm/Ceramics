@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-10-30-c",
-  "image": "pool-2026-10-30-c.jpg",
-  "headline": "Indonesian police use sonar , drone to seek missing Komodo diver",
-  "url": "https://en.antaranews.com/news/437703/indonesian-police-use-sonar-drone-to-seek-missing-komodo-diver",
-  "outlet": "en.antaranews.com",
-  "t": "2026-10-30T12:53:07+00:00",
-  "hash": 18091391173058302
- },
- {
   "id": "2026-10-30-0924-0",
   "image": "pool-2026-10-30-0924-0.jpg",
   "headline": "Saudi - led coalition intercepts drone in Riyadh region",
@@ -166,5 +157,15 @@
   "outlet": "aljazeera.com",
   "t": "2026-11-03T14:09:12+00:00",
   "hash": 4540472849332436991
+ },
+ {
+  "id": "2026-11-03-0938-0",
+  "image": "pool-2026-11-03-0938-0.jpg",
+  "headline": "More than a third of western state glacial cover has been lost since 1950s as planet warms | News",
+  "url": "http://www.heraldandnews.com/news/more-than-a-third-of-western-states-glacial-cover-has-been-lost-since-1950s-as/article_79b14d7e-d845-470d-9ac1-b258095bfa51.html",
+  "outlet": "heraldandnews.com",
+  "t": "2026-11-03T14:38:49+00:00",
+  "vista": 9.0,
+  "hash": 4859366302519730176
  }
 ]
