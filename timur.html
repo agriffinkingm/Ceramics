@@ -164,241 +164,12 @@
   </div>
 </main>
 
+<script src="timur-engine.js"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
 const BUILD = "2026-11-03h";
 
-// ===================== engine =====================
-// Squares 0..109 are the 11×10 camp (index = rank*11 + file, a1 = 0). 110 = White's citadel (right of k2), 111 = Black's (left of a9).
-const CIT_W = 110, CIT_B = 111, FILES = "abcdefghijk";
-const ROYAL = { K: 1, P: 1, A: 1 };
-const NAME = { K: "king", P: "prince", A: "adventitious king", G: "general", V: "vizier", Z: "giraffe", T: "picket", N: "knight", R: "rook", E: "elephant", C: "camel", D: "war engine", p: "pawn" };
-const PERSIAN = { K: "shah", P: "shahzada", A: "shah", G: "ferz", V: "wazir", Z: "zurafa", T: "tali'a", N: "faras", R: "rukh", E: "pil", C: "jamal", D: "dabbaba", p: "baidaq" };
-const DIRS8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-const ORTH = [[1, 0], [-1, 0], [0, 1], [0, -1]], DIAG = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-const KN = [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]];
-const CAM = [[1, 3], [3, 1], [-1, 3], [-3, 1], [1, -3], [3, -1], [-1, -3], [-3, -1]];
-const ELE = [[2, 2], [2, -2], [-2, 2], [-2, -2]], DAB = [[2, 0], [-2, 0], [0, 2], [0, -2]];
-const nsq = (x, y) => (x >= 0 && x < 11 && y >= 0 && y < 10) ? y * 11 + x : -1;          // camp only
-const asq = (x, y) => { const i = nsq(x, y); if (i >= 0) return i; if (x === 11 && y === 1) return CIT_W; if (x === -1 && y === 8) return CIT_B; return -1; }; // incl. citadels
-const xy = i => i === CIT_W ? [11, 1] : i === CIT_B ? [-1, 8] : [i % 11, Math.floor(i / 11)];
-const sqName = i => i === CIT_W ? "citadel" : i === CIT_B ? "citadel" : FILES[i % 11] + (Math.floor(i / 11) + 1);
-const fwd = c => c === 0 ? 1 : -1, lastRank = c => c === 0 ? 9 : 0;
-const home = (c, arr) => arr === "f" ? (c === 0 ? nsq(5, 1) : nsq(5, 8)) : (c === 0 ? nsq(5, 2) : nsq(5, 7));   // where the pawn of kings starts
-const enemyCit = c => c === 0 ? CIT_B : CIT_W, ownCit = c => c === 0 ? CIT_W : CIT_B;
-
-// Two historical arrays (Murray / Wikipedia): "masculine" — leapers on the back rank, king on the second;
-// "feminine" — the king, general and vizier drop to the back rank between the camels, the war engines take the pickets'
-// old squares, and the pawn of kings stands on f2 directly in front of the king. Lower-case letters in a row are pawns.
-const ARRAYS = {
-  m: ["E.C.D.D.C.E", "RNTZGKVZTNR", "pdcegkvztnr"],
-  f: ["E.C.GKV.C.E", "RNDTZkZTDNR", "pdceg.vztnr"],
-};
-function initialBoard(arr = "m") {
-  const b = new Array(112).fill(null), rows = ARRAYS[arr] || ARRAYS.m;
-  rows.forEach((row, y) => { for (let x = 0; x < 11; x++) {
-    const ch = row[x]; if (ch === ".") continue;
-    const mk = c => { if (ch === ch.toLowerCase()) { const pt = ch.toUpperCase() === "P" ? "p" : ch.toUpperCase(); const q = { c, t: "p", pt }; if (pt === "p") q.n = 0; return q; } return { c, t: ch }; };
-    b[nsq(x, y)] = mk(0); b[nsq(10 - x, 9 - y)] = mk(1);
-  } });
-  return b;
-}
-function newState(arr = "m") { return { b: initialBoard(arr), turn: 0, swap: [false, false], over: null, last: null, arr }; }
-function pack(b) { return b.map(p => p ? (p.c ? "b" : "w") + p.t + (p.t === "p" ? p.pt + (p.pt === "p" ? (p.n || 0) + (p.park ? "*" : "") : "") : "") : ".").join(" "); }
-function unpack(s) {
-  return s.split(" ").map(t => { if (t === ".") return null; const p = { c: t[0] === "b" ? 1 : 0, t: t[1] }; if (p.t === "p") { p.pt = t[2]; if (p.pt === "p") { p.n = +t[3] || 0; if (t[4] === "*") p.park = true; } } return p; });
-}
-function royals(b, c) { let n = 0; for (let i = 0; i < 112; i++) { const p = b[i]; if (p && p.c === c && ROYAL[p.t]) n++; } return n; }
-function highest(b, c) { let h = null; for (let i = 0; i < 112; i++) { const p = b[i]; if (p && p.c === c && ROYAL[p.t]) { if (p.t === "K") return "K"; if (p.t === "P") h = "P"; else if (!h) h = "A"; } } return h; }
-function royalSq(b, c) { for (let i = 0; i < 112; i++) { const p = b[i]; if (p && p.c === c && ROYAL[p.t]) return i; } return -1; }
-const immune = (b, i) => { const p = b[i]; return !!(p.park || (p.t === "A" && i === ownCit(p.c))); };
-
-function giraffeTargets(b, i) {   // every square a giraffe on i reaches, the first occupied square of each line included
-  const out = [], [x, y] = xy(i);
-  for (const [dx, dy] of DIAG) {
-    const s1 = nsq(x + dx, y + dy); if (s1 < 0 || b[s1]) continue;
-    for (const [ex, ey] of [[dx, 0], [0, dy]]) {
-      let cx = x + dx, cy = y + dy, ok = true;
-      for (let k = 1; k <= 2; k++) { cx += ex; cy += ey; const j = nsq(cx, cy); if (j < 0 || b[j]) { ok = false; break; } }
-      if (!ok) continue;
-      for (; ;) { cx += ex; cy += ey; const j = nsq(cx, cy); if (j < 0) break; out.push(j); if (b[j]) break; }
-    }
-  }
-  return out;
-}
-function ray(b, x, y, dx, dy, skipFirst, fn) {   // fn(j, piece) → false to stop
-  let cx = x, cy = y, k = 0;
-  for (; ;) { cx += dx; cy += dy; k++; const j = nsq(cx, cy); if (j < 0) return; const q = b[j]; if (skipFirst && k === 1) { if (q) return; continue; } if (fn(j, q) === false) return; if (q) return; }
-}
-function attacked(b, i, by) {   // is square i attacked by colour `by`?
-  const [x, y] = xy(i);
-  const has = (j, ts) => { if (j < 0) return false; const q = b[j]; return !!(q && q.c === by && ts.includes(q.t)); };
-  for (const [dx, dy] of DIRS8) { const j = asq(x + dx, y + dy); if (has(j, "KPA")) return true; }
-  for (const [dx, dy] of DIAG) if (has(nsq(x + dx, y + dy), "G")) return true;
-  for (const [dx, dy] of ORTH) if (has(nsq(x + dx, y + dy), "V")) return true;
-  for (const [dx, dy] of KN) if (has(nsq(x + dx, y + dy), "N")) return true;
-  for (const [dx, dy] of CAM) if (has(nsq(x + dx, y + dy), "C")) return true;
-  for (const [dx, dy] of ELE) if (has(nsq(x + dx, y + dy), "E")) return true;
-  for (const [dx, dy] of DAB) if (has(nsq(x + dx, y + dy), "D")) return true;
-  const f = fwd(by);
-  for (const dx of [-1, 1]) { const j = nsq(x + dx, y - f); const q = j >= 0 && b[j]; if (q && q.c === by && q.t === "p" && !q.park) return true; }
-  let hit = false;
-  for (const [dx, dy] of ORTH) { ray(b, x, y, dx, dy, false, (j, q) => { if (q && q.c === by && q.t === "R") hit = true; }); if (hit) return true; }
-  for (const [dx, dy] of DIAG) { ray(b, x, y, dx, dy, true, (j, q) => { if (q && q.c === by && q.t === "T") hit = true; }); if (hit) return true; }
-  for (let j = 0; j < 110; j++) { const q = b[j]; if (q && q.c === by && q.t === "Z" && giraffeTargets(b, j).includes(i)) return true; }
-  return false;
-}
-// pseudo-legal moves of the piece on i. kinds: m move/capture, c into the enemy citadel (draw), h adventitious king home, s king swap, r pawn-of-pawns drop
-function pieceMoves(st, i, out) {
-  const b = st.b, p = b[i], c = p.c, [x, y] = xy(i), er = royals(b, 1 - c);
-  const canCap = j => { const q = b[j]; return q.c !== c && !immune(b, j) && !(ROYAL[q.t] && er < 2); };
-  const add = (j, k = "m") => out.push({ f: i, t: j, k });
-  const step = j => { if (j < 0) return; const q = b[j]; if (!q) add(j); else if (canCap(j)) add(j); };
-  const slide = (dirs, skip) => { for (const [dx, dy] of dirs) ray(b, x, y, dx, dy, skip, (j, q) => { if (!q) add(j); else if (canCap(j)) add(j); }); };
-  switch (p.t) {
-    case "K": case "P": case "A": {
-      const hi = highest(b, c);
-      for (const [dx, dy] of DIRS8) {
-        const j = asq(x + dx, y + dy); if (j < 0) continue;
-        if (j === CIT_W || j === CIT_B) { if (b[j]) continue; if (j === enemyCit(c)) { if (p.t === hi) add(j, "c"); } else if (p.t === "A") add(j, "h"); continue; }
-        step(j);
-      }
-      if (p.t === "K" && !st.swap[c] && attacked(b, i, 1 - c)) {
-        for (let j = 0; j < 110; j++) { const q = b[j]; if (!q || q.c !== c || ROYAL[q.t]) continue; if (q.t === "p" && (q.park || y === lastRank(c))) continue; add(j, "s"); }
-      }
-      break;
-    }
-    case "G": for (const [dx, dy] of DIAG) step(nsq(x + dx, y + dy)); break;
-    case "V": for (const [dx, dy] of ORTH) step(nsq(x + dx, y + dy)); break;
-    case "N": for (const [dx, dy] of KN) step(nsq(x + dx, y + dy)); break;
-    case "C": for (const [dx, dy] of CAM) step(nsq(x + dx, y + dy)); break;
-    case "E": for (const [dx, dy] of ELE) step(nsq(x + dx, y + dy)); break;
-    case "D": for (const [dx, dy] of DAB) step(nsq(x + dx, y + dy)); break;
-    case "R": slide(ORTH, false); break;
-    case "T": slide(DIAG, true); break;
-    case "Z": for (const j of giraffeTargets(b, i)) { if (!b[j]) add(j); else if (canCap(j)) add(j); } break;
-    case "p": {
-      if (p.park) { dropSquares(st, i, out); break; }
-      const f = fwd(c), ty = y + f, last = ty === lastRank(c);
-      const okProm = () => { if (!last || p.pt !== "p" || p.n !== 1) return true; const h = b[home(c, st.arr)]; return !(h && ROYAL[h.t]); };   // second promotion lands on f3/f8
-      const j = nsq(x, ty); if (j >= 0 && !b[j] && okProm()) add(j);
-      for (const dx of [-1, 1]) { const k = nsq(x + dx, ty); if (k >= 0 && b[k] && canCap(k) && okProm()) add(k); }
-      break;
-    }
-  }
-}
-function dropSquares(st, i, out) {   // parked pawn of pawns: squares where it would fork two pieces, or attack one that cannot move
-  const b = st.b, p = b[i], c = p.c, f = fwd(c);
-  for (let j = 0; j < 110; j++) {
-    if (j === i) continue; const [tx, ty] = xy(j); if (ty === lastRank(c)) continue;
-    if (b[j] && ROYAL[b[j].t]) continue;
-    const hits = [];
-    for (const dx of [-1, 1]) { const k = nsq(tx + dx, ty + f); if (k >= 0 && b[k] && b[k].c !== c && !immune(b, k)) hits.push(k); }
-    if (hits.length >= 2) out.push({ f: i, t: j, k: "r" });
-    else if (hits.length === 1) { const tmp = []; pieceMoves(st, hits[0], tmp); if (!tmp.length) out.push({ f: i, t: j, k: "r" }); }
-  }
-}
-function gen(st, c = st.turn) { const out = []; for (let i = 0; i < 112; i++) { const p = st.b[i]; if (p && p.c === c) pieceMoves(st, i, out); } return out; }
-function make(st, m) {
-  const b = st.b, u = { ch: [], turn: st.turn, swap: st.swap.slice(), over: st.over, last: st.last };
-  const set = (i, p) => { u.ch.push([i, b[i]]); b[i] = p; };
-  const p = b[m.f], c = p.c;
-  if (m.k === "s") { const q = b[m.t]; set(m.t, p); set(m.f, q); st.swap[c] = true; }
-  else if (m.k === "r") { set(m.f, null); set(m.t, { c, t: "p", pt: "p", n: p.n }); }
-  else {
-    const ty = xy(m.t)[1]; let np = p, relocate = false;
-    if (p.t === "p" && ty === lastRank(c)) {
-      if (p.pt === "K") np = { c, t: "P" };
-      else if (p.pt === "p") { if (p.n === 0) np = { c, t: "p", pt: "p", n: 1, park: true }; else if (p.n === 1) relocate = true; else np = { c, t: "A" }; }
-      else np = { c, t: p.pt };
-    }
-    set(m.f, null);
-    if (relocate) { set(m.t, null); set(home(c, st.arr), { c, t: "p", pt: "p", n: 2 }); }
-    else set(m.t, np);
-    if (m.k === "c") st.over = { result: "d", why: "the king reached the citadel" };
-  }
-  st.last = [m.f, m.t]; st.turn = 1 - c; return u;
-}
-function unmake(st, u) { for (let k = u.ch.length - 1; k >= 0; k--) st.b[u.ch[k][0]] = u.ch[k][1]; st.turn = u.turn; st.swap = u.swap; st.over = u.over; st.last = u.last; }
-function inCheck(st, c) {
-  const b = st.b; if (royals(b, c) !== 1) return false;
-  const r = royalSq(b, c); if (r === ownCit(c) || r === enemyCit(c)) return false;
-  return attacked(b, r, 1 - c);
-}
-function legal(st) {
-  const c = st.turn, out = [];
-  for (const m of gen(st, c)) { const u = make(st, m); const bad = !st.over && inCheck(st, c); unmake(st, u); if (!bad) out.push(m); }
-  return out;
-}
-function status(st) {   // null while the game goes on
-  if (st.over) return st.over;
-  const c = st.turn, other = c ? "w" : "b";
-  if (royals(st.b, c) === 0) return { result: other, why: "no king left" };
-  if (!legal(st).length) return { result: other, why: inCheck(st, c) ? "checkmate" : "stalemate" };
-  return null;
-}
-function notation(st, m) {
-  const p = st.b[m.f], q = st.b[m.t], nm = p.t === "p" ? "p" + (p.pt === "p" ? "p" : p.pt.toLowerCase()) : p.t;
-  if (m.k === "s") return "K⇄" + (q.t === "p" ? "p" : q.t) + " " + sqName(m.t);
-  if (m.k === "r") return "pp→" + sqName(m.t) + (q ? "×" : "");
-  if (m.k === "c") return p.t + " " + sqName(m.f) + "→citadel ½";
-  if (m.k === "h") return "A " + sqName(m.f) + "→citadel";
-  let s = nm + " " + sqName(m.f) + (q ? "×" : "–") + sqName(m.t);
-  if (p.t === "p" && xy(m.t)[1] === lastRank(p.c)) s += p.pt === "K" ? "=P" : p.pt === "p" ? (p.n === 0 ? " parks" : p.n === 1 ? " →" + sqName(home(p.c, st.arr)) : "=A") : "=" + p.pt;
-  return s;
-}
-
-// ---------- the computer: alpha-beta over legal moves, captures-only quiescence, iterative deepening on a time budget ----------
-const VAL = { K: 0, P: 2.5, A: 2.5, G: 2.1, V: 2.2, Z: 6.5, T: 3.2, N: 3.6, R: 7, E: 1.4, C: 2.1, D: 1.4, p: 1 };
-function evaluate(st) {
-  const b = st.b; let s = 0; const rc = [0, 0];
-  for (let i = 0; i < 112; i++) {
-    const p = b[i]; if (!p) continue; let v = VAL[p.t];
-    if (ROYAL[p.t]) rc[p.c]++;
-    if (p.t === "p") { const y = xy(i)[1], adv = p.c === 0 ? y - 2 : 7 - y; v += adv * 0.12 + (p.pt === "K" ? .6 : p.pt === "p" ? .4 : VAL[p.pt] * 0.06) + (p.park ? .8 : 0); }
-    s += p.c === 0 ? v : -v;
-  }
-  s += (Math.max(0, rc[0] - 1) - Math.max(0, rc[1] - 1)) * 9;
-  return st.turn === 0 ? s : -s;
-}
-let nodes = 0, deadline = 0, aborted = false;
-function orderMoves(st, ms) { const b = st.b; return ms.map(m => { const q = b[m.t]; let sc = 0; if (q && m.k !== "s") sc = 10 + VAL[q.t] * 10 - VAL[b[m.f].t]; if (m.k === "r") sc += 15; return [sc, m]; }).sort((a, c) => c[0] - a[0]).map(x => x[1]); }
-function quiesce(st, alpha, beta, d) {
-  nodes++;
-  if (st.over) return st.over.result === "d" ? 0 : -1000;
-  const stand = evaluate(st); if (stand >= beta || d <= 0) return stand; if (stand > alpha) alpha = stand;
-  const ms = orderMoves(st, legal(st).filter(m => st.b[m.t] && m.k !== "s"));
-  for (const m of ms) { const u = make(st, m); const v = -quiesce(st, -beta, -alpha, d - 1); unmake(st, u); if (v >= beta) return v; if (v > alpha) alpha = v; }
-  return alpha;
-}
-function search(st, depth, alpha, beta) {
-  nodes++; if ((nodes & 255) === 0 && performance.now() > deadline) aborted = true;
-  if (st.over) return st.over.result === "d" ? 0 : -1000;
-  if (depth <= 0) return quiesce(st, alpha, beta, 2);
-  const ms = legal(st); if (!ms.length) return -(1000 + depth);
-  let best = -Infinity;
-  for (const m of orderMoves(st, ms)) {
-    const u = make(st, m); const v = -search(st, depth - 1, -beta, -alpha); unmake(st, u);
-    if (v > best) best = v; if (v > alpha) alpha = v; if (alpha >= beta || aborted) break;
-  }
-  return best;
-}
-function think(st, level) {
-  const ms = legal(st); if (!ms.length) return null;
-  const budget = level === "easy" ? 250 : level === "normal" ? 900 : 2600, maxD = level === "easy" ? 1 : level === "normal" ? 3 : 5;
-  deadline = performance.now() + budget; aborted = false; nodes = 0;
-  let scored = ms.map(m => [0, m]);
-  for (let d = 1; d <= maxD && !aborted; d++) {
-    const trial = [];
-    for (const m of orderMoves(st, ms)) { const u = make(st, m); const v = -search(st, d - 1, -Infinity, Infinity); unmake(st, u); if (aborted) break; trial.push([v, m]); }
-    if (aborted) break;
-    trial.sort((a, b) => b[0] - a[0]); scored = trial;
-    if (scored[0][0] > 900) break;
-  }
-  if (level === "easy") { const top = scored.filter(x => x[0] >= scored[0][0] - 1.5); return top[Math.floor(Math.random() * top.length)][1]; }
-  const ties = scored.filter(x => x[0] >= scored[0][0] - 0.05); return ties[Math.floor(Math.random() * ties.length)][1];
-}
-// ===================== end engine =====================
+// engine: see timur-engine.js (loaded above, and in a worker for the computer's thinking)
 
 // ---------- game record (what rooms sync) ----------
 let g = null, st = null, mode = "", me = 0, flipped = false, sel = -1, legalNow = [], undoStack = [];
@@ -442,10 +213,22 @@ async function commit(fn) {
 }
 function afterCommit() { sel = -1; render(); scheduleBot(); }
 function scheduleBot() { if (g && !g.over && BOTS[g.turn] && mode !== "room") setTimeout(botTurn, mode === "watch" ? 500 : 350); }
+// the computer thinks in a Web Worker so the page stays responsive; falls back to thinking inline if workers aren't available
+let worker = null, pendingBot = 0;
+function getWorker() {
+  if (worker === undefined) return null; if (worker) return worker;
+  try {
+    worker = new Worker("timur-engine.js");
+    worker.onmessage = e => { const { id, m } = e.data; if (id !== pendingBot || !g || g.over || !BOTS[g.turn]) return; pendingBot = 0; if (m) commit(x => applyMove(x, m)); };
+    worker.onerror = err => { console.warn("worker", err.message || err); worker = undefined; pendingBot = 0; botTurn(); };
+  } catch (e) { worker = undefined; }
+  return worker;
+}
 function botTurn() {
   if (!g || g.over || !BOTS[g.turn]) return;
-  const s = toState(g); const m = think(s, BOTS[g.turn]); if (!m) return;
-  commit(x => applyMove(x, m));
+  const w = getWorker();
+  if (w) { pendingBot = Date.now() + Math.random(); w.postMessage({ id: pendingBot, board: g.board, turn: g.turn, swap: g.swap, arr: g.arr || "m", level: BOTS[g.turn] }); return; }
+  const s = toState(g); const m = think(s, BOTS[g.turn]); if (m) commit(x => applyMove(x, m));
 }
 async function createRoom(pname) {
   await loadFirebase(); key = Math.random().toString(36).slice(2, 8);
@@ -515,7 +298,7 @@ function render(targets) {
     const r = g.over.result; say(r === "d" ? "<b>Draw</b> — " + g.over.why + "." : "<b>" + pname(r === "w" ? 0 : 1) + " wins</b> — " + g.over.why + ".");
   } else if (mode === "room" && !g.players[1]) say("Waiting for someone to open your link…");
   else {
-    let t = (s.turn ? "Black" : "White") + " to move";
+    let t = (s.turn ? "Black" : "White") + " to move" + (BOTS[s.turn] ? " — thinking…" : "");
     if (mode === "room") t = me === s.turn ? "Your move" : me < 0 ? t : "Waiting for " + pname(s.turn);
     if (chk >= 0) t += " — <b>check</b>" + (!s.swap[s.turn] && lm.some(m => m.k === "s") ? " (the king may swap places)" : "");
     if (g.draw != null && g.draw !== me && mode === "room") t += " · " + pname(g.draw) + " offers a draw";
@@ -545,7 +328,7 @@ boardEl.addEventListener("click", e => {
   render();
 });
 function pushUndo() { if (mode === "hot" || mode === "bot") { undoStack.push(cleanse(g)); if (undoStack.length > 200) undoStack.shift(); } }
-$("undo").onclick = () => { if (!undoStack.length) return; let x = undoStack.pop(); if (mode === "bot" && undoStack.length && x.turn !== me) x = undoStack.pop(); g = norm(x); sel = -1; render(); };
+$("undo").onclick = () => { if (!undoStack.length) return; pendingBot = 0; let x = undoStack.pop(); if (mode === "bot" && undoStack.length && x.turn !== me) x = undoStack.pop(); g = norm(x); sel = -1; render(); scheduleBot(); };
 $("flip").onclick = () => { flipped = !flipped; buildBoard(); render(); };
 $("resign").onclick = () => { if (!confirm("Resign this game?")) return; const loser = mode === "room" ? me : st.turn; commit(x => { x.over = { result: loser === 0 ? "b" : "w", why: pname(loser) + " resigned" }; x.v = (x.v || 0) + 1; return x; }); };
 $("draw").onclick = () => { commit(x => { if (x.draw != null && x.draw !== me) { x.over = { result: "d", why: "agreed" }; x.draw = null; } else x.draw = me; x.v = (x.v || 0) + 1; return x; }); };
@@ -558,7 +341,7 @@ $("rules-close").onclick = () => $("rules").classList.add("hidden");
 $("name").value = nameMem.get();
 const getName = () => { const v = $("name").value.trim() || "anon"; nameMem.set(v); return v; };
 function startLocal(m, lv) {
-  mode = m; undoStack = []; BOTS[0] = null; BOTS[1] = null; flipped = false;
+  mode = m; undoStack = []; BOTS[0] = null; BOTS[1] = null; flipped = false; pendingBot = 0;
   const rep = true, arr = $("arr").value;
   if (m === "hot") { me = 0; g = norm(newGame([{ uid: "a", name: getName() }, { uid: "b", name: "player 2" }], rep, arr)); }
   else if (m === "bot") { const black = Math.random() < 0.5; me = black ? 1 : 0; flipped = black; BOTS[me ? 0 : 1] = lv; const bot = { uid: "bot", name: "computer (" + lv + ")" }, you = { uid: "a", name: getName() }; g = norm(newGame(black ? [bot, you] : [you, bot], rep, arr)); }
