@@ -64,6 +64,7 @@
   .cell.last { background: rgba(255,230,170,.42); }
   .cell.sel { background: rgba(255,214,130,.6); }
   .cell.chk { box-shadow: inset 0 0 0 2px var(--terracotta); }
+  .cell.hint::after { content: ""; position: absolute; left: 50%; bottom: 4%; width: 18%; height: 4%; margin-left: -9%; border-radius: 50%; background: rgba(150,45,25,.6); pointer-events: none; }
   .cell .dot { position: absolute; width: 26%; height: 26%; border-radius: 50%; background: rgba(120,40,20,.5); pointer-events: none; }
   .cell.cap::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px solid rgba(150,45,25,.75); pointer-events: none; z-index: 2; }
   .cell.swp::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px dashed rgba(74,66,56,.6); pointer-events: none; z-index: 2; }
@@ -131,6 +132,7 @@
     <div id="controls">
       <div id="actions">
         <button id="undo">undo</button>
+        <button id="hints" class="on">hints</button>
         <button id="flip">flip</button>
         <button id="draw">offer a draw</button>
         <button id="resign">resign</button>
@@ -165,7 +167,7 @@
 
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-03f";
+const BUILD = "2026-11-03g";
 
 // ===================== engine =====================
 // Squares 0..109 are the 11×10 camp (index = rank*11 + file, a1 = 0). 110 = White's citadel (right of k2), 111 = Black's (left of a9).
@@ -395,7 +397,7 @@ function think(st, level) {
 // ===================== end engine =====================
 
 // ---------- game record (what rooms sync) ----------
-let g = null, st = null, mode = "", me = 0, flipped = false, sel = -1, legalNow = [], undoStack = [];
+let g = null, st = null, mode = "", me = 0, flipped = false, sel = -1, legalNow = [], undoStack = [], hints = true;
 const BOTS = { 0: null, 1: null };
 const uidSelf = (() => { let u = localStorage.getItem("agkm-uid"); if (!u) { u = Math.random().toString(36).slice(2, 10); localStorage.setItem("agkm-uid", u); } return u; })();
 const nameMem = { get: () => localStorage.getItem("agkm-name") || "", set: v => localStorage.setItem("agkm-name", v) };
@@ -486,6 +488,7 @@ function render(targets) {
   const s = mode === "guide" ? st : (st = toState(g));
   const lm = mode === "guide" ? [] : (legalNow = (g.over ? [] : legal(s)));
   const chk = mode !== "guide" && !g.over && inCheck(s, s.turn) ? royalSq(s.b, s.turn) : -1;
+  const movers = new Set(lm.map(m => m.f));
   const tl = targets || (sel >= 0 ? lm.filter(m => m.f === sel) : []);
   if (mode === "guide" && !targets) return;
   const tmap = {}; for (const m of tl) tmap[m.t] = m.k;
@@ -494,6 +497,7 @@ function render(targets) {
     d.className = "cell " + (i >= 110 ? "cit" : "sq");
     if (s.last && (s.last[0] === i || s.last[1] === i)) d.classList.add("last");
     if (i === sel) d.classList.add("sel"); if (i === chk) d.classList.add("chk");
+    if (hints && mode !== "guide" && movers.has(i) && (mode === "hot" || me === s.turn) && !g.over) d.classList.add("hint");
     const k2 = tmap[i];
     let html = p ? tokHtml(p) : "";
     if (k2) { if (k2 === "s") d.classList.add("swp"); else if (k2 === "r") d.classList.add("red"); else if (p) d.classList.add("cap"); else { html += `<div class="dot"></div>`; if (k2 === "c") d.classList.add("drw"); } }
@@ -540,6 +544,7 @@ boardEl.addEventListener("click", e => {
 });
 function pushUndo() { if (mode === "hot" || mode === "bot") { undoStack.push(cleanse(g)); if (undoStack.length > 200) undoStack.shift(); } }
 $("undo").onclick = () => { if (!undoStack.length) return; let x = undoStack.pop(); if (mode === "bot" && undoStack.length && x.turn !== me) x = undoStack.pop(); g = norm(x); sel = -1; render(); };
+$("hints").onclick = () => { hints = !hints; $("hints").classList.toggle("on", hints); render(); };
 $("flip").onclick = () => { flipped = !flipped; buildBoard(); render(); };
 $("resign").onclick = () => { if (!confirm("Resign this game?")) return; const loser = mode === "room" ? me : st.turn; commit(x => { x.over = { result: loser === 0 ? "b" : "w", why: pname(loser) + " resigned" }; x.v = (x.v || 0) + 1; return x; }); };
 $("draw").onclick = () => { commit(x => { if (x.draw != null && x.draw !== me) { x.over = { result: "d", why: "agreed" }; x.draw = null; } else x.draw = me; x.v = (x.v || 0) + 1; return x; }); };
