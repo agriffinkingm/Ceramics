@@ -55,27 +55,26 @@
 
   /* board: 13 columns — the citadels poke out left of rank 9 and right of rank 2 */
   #board-wrap { width: 100%; }
-  #board { display: grid; grid-template-columns: repeat(13, 1fr); width: 100%; user-select: none; -webkit-user-select: none; touch-action: manipulation; --cs: calc((min(100vw, 700px) - 1rem) / 13); }
+  #board { display: grid; grid-template-columns: repeat(13, 1fr); width: 100%; user-select: none; -webkit-user-select: none; touch-action: manipulation; --cs: calc((min(100vw, 700px) - 1rem) / 13); background: url(images/timur/wood.jpg) center / 520px auto; }
   .cell { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
-  .cell.sq { background: var(--sq); box-shadow: inset 0 0 0 .5px var(--sq-line); cursor: pointer; }
-  .cell.cit { background: var(--cit); box-shadow: inset 0 0 0 1px var(--clay-dark); cursor: pointer; }
-  .cell.cit::after { content: ""; position: absolute; inset: 18%; border: 1px dashed var(--clay-dark); border-radius: 50%; opacity: .6; pointer-events: none; }
-  .cell.void { visibility: hidden; }
-  .cell.last { background: #EADFC9; }
-  .cell.sel { background: #E5D2B3; }
+  .cell.sq { background: rgba(255,245,225,.10); box-shadow: inset 0 0 0 1px rgba(60,36,14,.35); cursor: pointer; }
+  .cell.cit { background: rgba(60,36,14,.18); box-shadow: inset 0 0 0 1px rgba(60,36,14,.5); cursor: pointer; }
+  .cell.cit::after { content: ""; position: absolute; inset: 18%; border: 1px dashed rgba(60,36,14,.6); border-radius: 50%; pointer-events: none; }
+  .cell.void { visibility: visible; background: var(--plaster); }
+  .cell.last { background: rgba(255,230,170,.42); }
+  .cell.sel { background: rgba(255,214,130,.6); }
   .cell.chk { box-shadow: inset 0 0 0 2px var(--terracotta); }
-  .cell.hint::after { content: ""; position: absolute; left: 50%; bottom: 4%; width: 18%; height: 4%; margin-left: -9%; border-radius: 50%; background: rgba(198,123,92,.55); pointer-events: none; }
-  .cell .dot { position: absolute; width: 26%; height: 26%; border-radius: 50%; background: rgba(198,123,92,.55); pointer-events: none; }
-  .cell.cap::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px solid rgba(198,123,92,.7); pointer-events: none; z-index: 2; }
+  .cell.hint::after { content: ""; position: absolute; left: 50%; bottom: 4%; width: 18%; height: 4%; margin-left: -9%; border-radius: 50%; background: rgba(150,45,25,.6); pointer-events: none; }
+  .cell .dot { position: absolute; width: 26%; height: 26%; border-radius: 50%; background: rgba(120,40,20,.5); pointer-events: none; }
+  .cell.cap::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px solid rgba(150,45,25,.75); pointer-events: none; z-index: 2; }
   .cell.swp::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px dashed rgba(74,66,56,.6); pointer-events: none; z-index: 2; }
   .cell.red::before { content: ""; position: absolute; inset: 14%; border-radius: 20%; border: 2px dotted var(--terracotta); pointer-events: none; z-index: 2; }
-  .cell.drw .dot { background: rgba(74,66,56,.35); }
-  .tok { width: 92%; height: 92%; display: block; position: relative; z-index: 1; pointer-events: none; -webkit-user-drag: none; }
+  .cell.drw .dot { background: rgba(60,36,14,.4); }
+  .tok { width: 92%; height: 92%; display: block; position: relative; z-index: 1; pointer-events: none; -webkit-user-drag: none; filter: drop-shadow(0 1px 1px rgba(40,20,5,.35)); }
   .tok.pawn { width: 84%; height: 84%; }
   .tok.wide { width: 100%; height: 100%; }
   .tok.prince { width: 74%; height: 74%; }
   .tok.park { filter: drop-shadow(0 0 2px var(--terracotta)) drop-shadow(0 0 1px var(--terracotta)); }
-  .cell.sel .tok, .cell.last .tok { filter: drop-shadow(0 1px 1px rgba(44,40,32,.35)); }
 
   #msg { text-align: center; font-size: .9rem; color: var(--stone); min-height: 1.4em; margin: .55rem 0 .3rem; line-height: 1.4; }
   #msg b { color: var(--terracotta); font-weight: 500; }
@@ -168,7 +167,7 @@
 
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-03a";
+const BUILD = "2026-11-03b";
 
 // ===================== engine =====================
 // Squares 0..109 are the 11×10 camp (index = rank*11 + file, a1 = 0). 110 = White's citadel (right of k2), 111 = Black's (left of a9).
