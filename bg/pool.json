@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-30-0924-0",
-  "image": "pool-2026-10-30-0924-0.jpg",
-  "headline": "Saudi - led coalition intercepts drone in Riyadh region",
-  "url": "https://www.middle-east-online.com/en/saudi-led-coalition-intercepts-drone-riyadh-region",
-  "outlet": "middle-east-online.com",
-  "t": "2026-10-30T13:24:41+00:00",
-  "vista": 8.0,
-  "hash": 18446743681082851327
- },
- {
   "id": "2026-10-31",
   "image": "pool-2026-10-31.jpg",
   "headline": "The stunning village with 70 independent shops -  Britain prettiest",
@@ -167,5 +157,15 @@
   "t": "2026-11-03T14:38:49+00:00",
   "vista": 9.0,
   "hash": 4859366302519730176
+ },
+ {
+  "id": "2026-11-03-1821-0",
+  "image": "pool-2026-11-03-1821-0.jpg",
+  "headline": "Schools closed today in Andhra Pradesh and Chennai due to Cyclone Murasu : Check latest school holiday updates and affected areas",
+  "url": "https://www.educationtimes.com/news/schools-closed-today-in-andhra-pradesh-and-chennai-due-to-cyclone-murasu-check-latest-school-holiday-updates-and-affected-areas/articleshow/135478609.cms",
+  "outlet": "educationtimes.com",
+  "t": "2026-11-03T23:21:56+00:00",
+  "vista": 10.0,
+  "hash": 1166564762373226256
  }
 ]
