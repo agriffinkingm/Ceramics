@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timur's chess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Karla:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --plaster: #E4DBD0; --plaster-deep: #D6CBBE; --ivory: #FAF8F5; --clay-dark: #8B7968;
+    --terracotta: #C67B5C; --stone: #4A4238; --charcoal: #2C2820;
+    --sq: #F6F0E4; --sq-line: #D9CDB9; --cit: #E9DFCB;
+    --tok-w: #FCF8EE; --tok-b: #3B342B;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { min-height: 100%; }
+  body { font-family: 'Karla', sans-serif; font-weight: 300; background: var(--plaster); color: var(--charcoal); -webkit-tap-highlight-color: transparent; }
+  header { display: flex; justify-content: space-between; align-items: baseline; padding: .9rem 1rem 0; font-size: .85rem; letter-spacing: .08em; gap: .6rem; flex-wrap: wrap; }
+  header a { color: var(--stone); text-decoration: none; }
+  header a:hover { color: var(--terracotta); }
+  header .title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; font-style: italic; letter-spacing: .02em; }
+  header .right { display: flex; gap: .9rem; align-items: baseline; }
+  button { font: inherit; font-weight: 400; letter-spacing: .06em; font-size: .78rem; color: var(--stone); background: var(--ivory); border: 1px solid var(--plaster-deep); border-radius: 3px; padding: .45rem .7rem; cursor: pointer; }
+  button:hover { color: var(--terracotta); border-color: var(--terracotta); }
+  button:disabled { opacity: .4; cursor: default; }
+  button.primary { background: var(--terracotta); color: var(--ivory); border-color: var(--terracotta); }
+  button.primary:hover { background: #b56a4c; }
+  button.link { background: none; border: none; padding: .2rem .3rem; text-decoration: underline; text-underline-offset: 3px; }
+  button.on { border-color: var(--terracotta); color: var(--terracotta); }
+  input[type=text] { font: inherit; font-size: .9rem; padding: .45rem .6rem; border: 1px solid var(--plaster-deep); border-radius: 3px; background: var(--ivory); color: var(--charcoal); outline: none; }
+  input[type=text]:focus { border-color: var(--terracotta); }
+  select { font: inherit; font-size: .8rem; padding: .4rem; border: 1px solid var(--plaster-deep); border-radius: 3px; background: var(--ivory); color: var(--stone); }
+  main { max-width: 700px; margin: 0 auto; padding: .6rem .5rem 3rem; }
+  .hidden { display: none !important; }
+  label { font-size: .8rem; color: var(--stone); letter-spacing: .03em; }
+
+  /* lobby */
+  #lobby { text-align: center; padding: 1.5rem .5rem; }
+  #lobby h1 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 2.6rem; font-style: italic; }
+  #lobby p { color: var(--stone); font-size: .95rem; line-height: 1.5; max-width: 34rem; margin: .6rem auto 1.4rem; }
+  .row { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin: .6rem 0; align-items: center; }
+  .row.cols { flex-direction: column; }
+  #lobbymsg { color: var(--terracotta); min-height: 1.2em; }
+
+  /* top strip */
+  #top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem; padding: .3rem .3rem .5rem; }
+  .pl { font-size: .85rem; letter-spacing: .04em; color: var(--stone); display: flex; align-items: center; gap: .45rem; }
+  .pl .nm { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-style: italic; }
+  .pl .swatch { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--sq-line); }
+  .pl.right { justify-content: flex-end; }
+  .pl.turn .nm { color: var(--terracotta); }
+  #mid { text-align: center; font-size: .72rem; letter-spacing: .1em; color: var(--clay-dark); text-transform: uppercase; }
+  #mid b { display: block; font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--stone); }
+
+  /* board: 13 columns — the citadels poke out left of rank 9 and right of rank 2 */
+  #board-wrap { width: 100%; }
+  #board { display: grid; grid-template-columns: repeat(13, 1fr); width: 100%; user-select: none; -webkit-user-select: none; touch-action: manipulation; --cs: calc((min(100vw, 700px) - 1rem) / 13); }
+  .cell { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
+  .cell.sq { background: var(--sq); box-shadow: inset 0 0 0 .5px var(--sq-line); cursor: pointer; }
+  .cell.cit { background: var(--cit); box-shadow: inset 0 0 0 1px var(--clay-dark); cursor: pointer; }
+  .cell.cit::after { content: "citadel"; position: absolute; bottom: 4%; left: 0; right: 0; text-align: center; font-size: calc(var(--cs) * .22); letter-spacing: .04em; color: var(--clay-dark); pointer-events: none; }
+  .cell.void { visibility: hidden; }
+  .cell .lbl { position: absolute; left: 5%; top: 2%; font-size: calc(var(--cs) * .26); color: var(--clay-dark); pointer-events: none; line-height: 1; }
+  .cell .lbl.f { left: auto; right: 6%; top: auto; bottom: 3%; }
+  .cell.last { background: #EADFC9; }
+  .cell.sel { background: #E5D2B3; }
+  .cell.chk { box-shadow: inset 0 0 0 2px var(--terracotta); }
+  .cell.hint .tok { box-shadow: 0 0 0 2px rgba(198,123,92,.45), 0 1px 2px rgba(44,40,32,.35); }
+  .cell .dot { position: absolute; width: 26%; height: 26%; border-radius: 50%; background: rgba(198,123,92,.55); pointer-events: none; }
+  .cell.cap::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px solid rgba(198,123,92,.7); pointer-events: none; z-index: 2; }
+  .cell.swp::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px dashed rgba(74,66,56,.6); pointer-events: none; z-index: 2; }
+  .cell.red::before { content: ""; position: absolute; inset: 14%; border-radius: 20%; border: 2px dotted var(--terracotta); pointer-events: none; z-index: 2; }
+  .cell.drw .dot { background: rgba(74,66,56,.35); }
+  .tok { width: 78%; height: 78%; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: calc(var(--cs) * .5); line-height: 1; position: relative; z-index: 1; }
+  .tok.w { background: var(--tok-w); color: var(--charcoal); box-shadow: inset 0 0 0 1px var(--sq-line), 0 1px 2px rgba(44,40,32,.35); }
+  .tok.b { background: var(--tok-b); color: var(--ivory); box-shadow: 0 1px 2px rgba(44,40,32,.45); }
+  .tok.pawn { width: 60%; height: 60%; border-radius: 24%; font-size: calc(var(--cs) * .36); font-weight: 500; }
+  .tok.pawn .p { position: absolute; right: -8%; bottom: -10%; font-family: 'Karla', sans-serif; font-size: calc(var(--cs) * .2); font-weight: 500; background: var(--sq); color: var(--clay-dark); border-radius: 50%; width: 1.3em; height: 1.3em; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 1px var(--sq-line); }
+  .tok.park { box-shadow: 0 0 0 2px var(--terracotta), 0 1px 2px rgba(44,40,32,.35); }
+  .tok.royal.b { color: #F2D9A3; } .tok.royal.w { color: #9A5B3C; }
+
+  #msg { text-align: center; font-size: .9rem; color: var(--stone); min-height: 1.4em; margin: .55rem 0 .3rem; line-height: 1.4; }
+  #msg b { color: var(--terracotta); font-weight: 500; }
+  #actions { display: flex; justify-content: center; gap: .4rem; flex-wrap: wrap; margin-top: .3rem; }
+  #share { text-align: center; margin: .6rem 0; }
+  #share-link { width: min(100%, 24rem); font-size: .8rem; }
+  #log { margin-top: .9rem; font-size: .82rem; color: var(--stone); border-top: 1px solid var(--plaster-deep); padding-top: .5rem; display: grid; grid-template-columns: auto 1fr 1fr; column-gap: .8rem; row-gap: .12rem; max-height: 40vh; overflow: auto; }
+  #log .n { color: var(--clay-dark); text-align: right; }
+  #log .mv { font-family: 'Cormorant Garamond', serif; font-size: 1rem; }
+
+  /* guide */
+  #guide { margin-top: .5rem; }
+  #guide .pick { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: center; margin-bottom: .5rem; }
+  #guide .pick button { padding: .35rem .5rem; font-size: .74rem; }
+  #guide .desc { font-size: .92rem; line-height: 1.55; color: var(--stone); text-align: center; max-width: 36rem; margin: .4rem auto; }
+  #guide .desc b { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-style: italic; font-weight: 400; color: var(--charcoal); }
+
+  /* rules */
+  .panel { margin: 1rem auto 0; max-width: 40rem; font-size: .9rem; line-height: 1.55; color: var(--stone); background: var(--ivory); border: 1px solid var(--plaster-deep); border-radius: 4px; padding: 1rem 1.1rem; }
+  .panel h3 { font-family: 'Cormorant Garamond', serif; font-weight: 400; font-style: italic; font-size: 1.4rem; margin-bottom: .4rem; color: var(--charcoal); }
+  .panel h4 { font-weight: 500; letter-spacing: .06em; font-size: .78rem; text-transform: uppercase; color: var(--clay-dark); margin: .9rem 0 .2rem; }
+  .panel p { margin: .35rem 0; }
+  .panel li { margin: .2rem 0 .2rem 1.1rem; }
+  .panel b { font-weight: 500; color: var(--charcoal); }
+  .panel .x { text-align: right; }
+</style>
+</head>
+<body>
+<header>
+  <a class="title" href="index.html">Timur's chess</a>
+  <div class="right"><a href="#" id="piecesbtn">the pieces</a><a href="#" id="rulesbtn">rules</a><a href="#" id="homebtn" class="hidden">lobby</a></div>
+</header>
+<main>
+  <section id="lobby">
+    <h1>Shatranj al-kabir</h1>
+    <p>The great chess played at Tamerlane's court around 1400: eleven files, ten ranks, two citadels, twenty-eight pieces a side, and a pawn for every kind of piece — each of which promotes into the thing it is named for.</p>
+    <div class="row"><input id="name" type="text" placeholder="your name" maxlength="20"></div>
+    <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
+    <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
+    <div class="row"><label><input type="checkbox" id="rep" checked> the same position three times is a draw (house rule)</label></div>
+    <div class="row"><button id="guidebtn" class="link">learn the pieces first</button></div>
+    <div id="joinrow" class="row cols hidden"><span id="joininfo"></span><button id="joinbtn" class="primary">join the game</button></div>
+    <p id="lobbymsg"></p>
+  </section>
+
+  <section id="arena" class="hidden">
+    <div id="top"><div class="pl" id="p0"><span class="swatch" style="background:var(--tok-w)"></span><span class="nm"></span></div><div id="mid"><span id="midl"></span><b id="midb"></b></div><div class="pl right" id="p1"><span class="nm"></span><span class="swatch" style="background:var(--tok-b)"></span></div></div>
+    <div id="board-wrap"><div id="board"></div></div>
+    <div id="msg"></div>
+    <div id="guide" class="hidden">
+      <div class="pick"></div>
+      <div class="desc"></div>
+      <div class="row"><button id="guide-done">back</button></div>
+    </div>
+    <div id="controls">
+      <div id="actions">
+        <button id="undo">undo</button>
+        <button id="hints" class="on">hints</button>
+        <button id="flip">flip</button>
+        <button id="draw">offer a draw</button>
+        <button id="resign">resign</button>
+        <button id="newbtn" class="hidden">new game</button>
+      </div>
+      <div id="share" class="hidden"><input id="share-link" type="text" readonly> <button id="copy">copy link</button> <button id="sharebtn" class="hidden">share…</button></div>
+      <div id="log"></div>
+    </div>
+  </section>
+
+  <div id="rules" class="panel hidden">
+    <h3>How Timur's chess works</h3>
+    <p>Also called Tamerlane chess, shatranj al-kabir (large chess) or shatranj kamil (perfect chess). The rules here follow Gollon and Murray as summarised by Bodlaender and Wikipedia; where the old sources are silent, this page's choices are marked.</p>
+    <h4>The board</h4>
+    <p>Eleven files (a–k) by ten ranks, uncheckered, plus two <b>citadels</b>: one sticking out left of the ninth rank (Black's), one right of the second rank (White's). Only a king may enter a citadel.</p>
+    <h4>Setting up</h4>
+    <p>White, from the bottom: rank 1 — elephant, ·, camel, ·, war engine, ·, war engine, ·, camel, ·, elephant (the gaps stay empty). Rank 2 — rook, knight, picket, giraffe, general, king, vizier, giraffe, picket, knight, rook. Rank 3 — the eleven pawns: of pawns, of war engines, of camels, of elephants, of generals, of kings, of viziers, of giraffes, of pickets, of knights, of rooks. Black's army is the same turned through a half-turn, so the kings face each other on the f-file. White moves first.</p>
+    <h4>Moving</h4>
+    <p>Tap the pieces guide for diagrams. In short: the <b>king</b> steps one square any way; the <b>general</b> one square diagonally; the <b>vizier</b> one square straight. The <b>rook</b> and <b>knight</b> are the modern ones. The <b>picket</b> is a bishop that must move at least two squares. The <b>giraffe</b> steps one square diagonally, then at least three squares straight on, with nothing in the way. The <b>elephant</b> jumps exactly two squares diagonally, the <b>war engine</b> exactly two straight, and the <b>camel</b> jumps one-and-three like a stretched knight — none of the three can be blocked. <b>Pawns</b> move one square forward and capture one square diagonally forward; there is no double step, no en passant, no castling.</p>
+    <h4>Promotion</h4>
+    <p>A pawn that reaches the far rank becomes the piece it is named for — the pawn of rooks a rook, the pawn of camels a camel. Two are special. The <b>pawn of kings</b> becomes a <b>prince</b>, which moves like a king and counts as a second king: while you have more than one royal piece you may be captured like anything else and you may even walk into check — only your last royal piece has to be mated.</p>
+    <p>The <b>pawn of pawns</b> is the strange one. The first time it reaches the far rank it parks there, uncapturable, until a chance comes: whenever a square exists from which it would fork two enemy pieces, or attack a piece that cannot move, you may (on your turn) drop it on that square — even if the square is occupied, by anyone but a king; whatever stood there is removed — and it carries on as a pawn from there. The second time it promotes, it is lifted straight back to f3 (f8 for Black), the pawn of kings' starting square. The third time, it becomes an <b>adventitious king</b>, another royal piece, and the only one that may sit in its own citadel, where it cannot be taken.</p>
+    <h4>The citadels</h4>
+    <p>If your highest king (king outranks prince outranks adventitious king) can step into the <i>opponent's</i> citadel, the game is a draw — the escape hatch for a losing side. Nothing else may enter either citadel, except your own adventitious king into your own.</p>
+    <h4>The king's privilege</h4>
+    <p>Once in the game, when your king is in check, you may swap it with any one of your other, non-royal pieces instead of moving. Tap the checked king: the pieces it can trade places with get a dashed ring.</p>
+    <h4>Winning</h4>
+    <p>Checkmate wins. So does <b>stalemate</b>: a player who has no legal move loses. Baring the king is nothing. The old game has no repetition or 50-move draws; the lobby's house rule (on by default) calls a position seen three times a draw so computer games end. You can also resign, or offer a draw.</p>
+    <p class="x"><button class="link" id="rules-close">close</button></p>
+  </div>
+</main>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const BUILD = "2026-11-02a";
+
+// ===================== engine =====================
+// Squares 0..109 are the 11×10 camp (index = rank*11 + file, a1 = 0). 110 = White's citadel (right of k2), 111 = Black's (left of a9).
+const CIT_W = 110, CIT_B = 111, FILES = "abcdefghijk";
+const ROYAL = { K: 1, P: 1, A: 1 };
+const NAME = { K: "king", P: "prince", A: "adventitious king", G: "general", V: "vizier", Z: "giraffe", T: "picket", N: "knight", R: "rook", E: "elephant", C: "camel", D: "war engine", p: "pawn" };
+const PERSIAN = { K: "shah", P: "shahzada", A: "shah", G: "ferz", V: "wazir", Z: "zurafa", T: "tali'a", N: "faras", R: "rukh", E: "pil", C: "jamal", D: "dabbaba", p: "baidaq" };
+const DIRS8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+const ORTH = [[1, 0], [-1, 0], [0, 1], [0, -1]], DIAG = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+const KN = [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]];
+const CAM = [[1, 3], [3, 1], [-1, 3], [-3, 1], [1, -3], [3, -1], [-1, -3], [-3, -1]];
+const ELE = [[2, 2], [2, -2], [-2, 2], [-2, -2]], DAB = [[2, 0], [-2, 0], [0, 2], [0, -2]];
+const nsq = (x, y) => (x >= 0 && x < 11 && y >= 0 && y < 10) ? y * 11 + x : -1;          // camp only
+const asq = (x, y) => { const i = nsq(x, y); if (i >= 0) return i; if (x === 11 && y === 1) return CIT_W; if (x === -1 && y === 8) return CIT_B; return -1; }; // incl. citadels
+const xy = i => i === CIT_W ? [11, 1] : i === CIT_B ? [-1, 8] : [i % 11, Math.floor(i / 11)];
+const sqName = i => i === CIT_W ? "citadel" : i === CIT_B ? "citadel" : FILES[i % 11] + (Math.floor(i / 11) + 1);
+const fwd = c => c === 0 ? 1 : -1, lastRank = c => c === 0 ? 9 : 0;
+const home = c => c === 0 ? nsq(5, 2) : nsq(5, 7);            // where the pawn of kings starts
+const enemyCit = c => c === 0 ? CIT_B : CIT_W, ownCit = c => c === 0 ? CIT_W : CIT_B;
+
+function initialBoard() {
+  const b = new Array(112).fill(null);
+  const r1 = "E.C.D.D.C.E", r2 = "RNTZGKVZTNR", r3 = "pDCEGKVZTNR";
+  for (let x = 0; x < 11; x++) {
+    if (r1[x] !== ".") { b[nsq(x, 0)] = { c: 0, t: r1[x] }; b[nsq(10 - x, 9)] = { c: 1, t: r1[x] }; }
+    b[nsq(x, 1)] = { c: 0, t: r2[x] }; b[nsq(10 - x, 8)] = { c: 1, t: r2[x] };
+    const pw = { c: 0, t: "p", pt: r3[x] }, pb = { c: 1, t: "p", pt: r3[x] }; if (r3[x] === "p") { pw.n = 0; pb.n = 0; }
+    b[nsq(x, 2)] = pw; b[nsq(10 - x, 7)] = pb;
+  }
+  return b;
+}
+function newState() { return { b: initialBoard(), turn: 0, swap: [false, false], over: null, last: null }; }
+function pack(b) { return b.map(p => p ? (p.c ? "b" : "w") + p.t + (p.t === "p" ? p.pt + (p.pt === "p" ? (p.n || 0) + (p.park ? "*" : "") : "") : "") : ".").join(" "); }
+function unpack(s) {
+  return s.split(" ").map(t => { if (t === ".") return null; const p = { c: t[0] === "b" ? 1 : 0, t: t[1] }; if (p.t === "p") { p.pt = t[2]; if (p.pt === "p") { p.n = +t[3] || 0; if (t[4] === "*") p.park = true; } } return p; });
+}
+function royals(b, c) { let n = 0; for (let i = 0; i < 112; i++) { const p = b[i]; if (p && p.c === c && ROYAL[p.t]) n++; } return n; }
+function highest(b, c) { let h = null; for (let i = 0; i < 112; i++) { const p = b[i]; if (p && p.c === c && ROYAL[p.t]) { if (p.t === "K") return "K"; if (p.t === "P") h = "P"; else if (!h) h = "A"; } } return h; }
+function royalSq(b, c) { for (let i = 0; i < 112; i++) { const p = b[i]; if (p && p.c === c && ROYAL[p.t]) return i; } return -1; }
+const immune = (b, i) => { const p = b[i]; return !!(p.park || (p.t === "A" && i === ownCit(p.c))); };
+
+function giraffeTargets(b, i) {   // every square a giraffe on i reaches, the first occupied square of each line included
+  const out = [], [x, y] = xy(i);
+  for (const [dx, dy] of DIAG) {
+    const s1 = nsq(x + dx, y + dy); if (s1 < 0 || b[s1]) continue;
+    for (const [ex, ey] of [[dx, 0], [0, dy]]) {
+      let cx = x + dx, cy = y + dy, ok = true;
+      for (let k = 1; k <= 2; k++) { cx += ex; cy += ey; const j = nsq(cx, cy); if (j < 0 || b[j]) { ok = false; break; } }
+      if (!ok) continue;
+      for (; ;) { cx += ex; cy += ey; const j = nsq(cx, cy); if (j < 0) break; out.push(j); if (b[j]) break; }
+    }
+  }
+  return out;
+}
+function ray(b, x, y, dx, dy, skipFirst, fn) {   // fn(j, piece) → false to stop
+  let cx = x, cy = y, k = 0;
+  for (; ;) { cx += dx; cy += dy; k++; const j = nsq(cx, cy); if (j < 0) return; const q = b[j]; if (skipFirst && k === 1) { if (q) return; continue; } if (fn(j, q) === false) return; if (q) return; }
+}
+function attacked(b, i, by) {   // is square i attacked by colour `by`?
+  const [x, y] = xy(i);
+  const has = (j, ts) => { if (j < 0) return false; const q = b[j]; return !!(q && q.c === by && ts.includes(q.t)); };
+  for (const [dx, dy] of DIRS8) { const j = asq(x + dx, y + dy); if (has(j, "KPA")) return true; }
+  for (const [dx, dy] of DIAG) if (has(nsq(x + dx, y + dy), "G")) return true;
+  for (const [dx, dy] of ORTH) if (has(nsq(x + dx, y + dy), "V")) return true;
+  for (const [dx, dy] of KN) if (has(nsq(x + dx, y + dy), "N")) return true;
+  for (const [dx, dy] of CAM) if (has(nsq(x + dx, y + dy), "C")) return true;
+  for (const [dx, dy] of ELE) if (has(nsq(x + dx, y + dy), "E")) return true;
+  for (const [dx, dy] of DAB) if (has(nsq(x + dx, y + dy), "D")) return true;
+  const f = fwd(by);
+  for (const dx of [-1, 1]) { const j = nsq(x + dx, y - f); const q = j >= 0 && b[j]; if (q && q.c === by && q.t === "p" && !q.park) return true; }
+  let hit = false;
+  for (const [dx, dy] of ORTH) { ray(b, x, y, dx, dy, false, (j, q) => { if (q && q.c === by && q.t === "R") hit = true; }); if (hit) return true; }
+  for (const [dx, dy] of DIAG) { ray(b, x, y, dx, dy, true, (j, q) => { if (q && q.c === by && q.t === "T") hit = true; }); if (hit) return true; }
+  for (let j = 0; j < 110; j++) { const q = b[j]; if (q && q.c === by && q.t === "Z" && giraffeTargets(b, j).includes(i)) return true; }
+  return false;
+}
+// pseudo-legal moves of the piece on i. kinds: m move/capture, c into the enemy citadel (draw), h adventitious king home, s king swap, r pawn-of-pawns drop
+function pieceMoves(st, i, out) {
+  const b = st.b, p = b[i], c = p.c, [x, y] = xy(i), er = royals(b, 1 - c);
+  const canCap = j => { const q = b[j]; return q.c !== c && !immune(b, j) && !(ROYAL[q.t] && er < 2); };
+  const add = (j, k = "m") => out.push({ f: i, t: j, k });
+  const step = j => { if (j < 0) return; const q = b[j]; if (!q) add(j); else if (canCap(j)) add(j); };
+  const slide = (dirs, skip) => { for (const [dx, dy] of dirs) ray(b, x, y, dx, dy, skip, (j, q) => { if (!q) add(j); else if (canCap(j)) add(j); }); };
+  switch (p.t) {
+    case "K": case "P": case "A": {
+      const hi = highest(b, c);
+      for (const [dx, dy] of DIRS8) {
+        const j = asq(x + dx, y + dy); if (j < 0) continue;
+        if (j === CIT_W || j === CIT_B) { if (b[j]) continue; if (j === enemyCit(c)) { if (p.t === hi) add(j, "c"); } else if (p.t === "A") add(j, "h"); continue; }
+        step(j);
+      }
+      if (p.t === "K" && !st.swap[c] && attacked(b, i, 1 - c)) {
+        for (let j = 0; j < 110; j++) { const q = b[j]; if (!q || q.c !== c || ROYAL[q.t]) continue; if (q.t === "p" && (q.park || y === lastRank(c))) continue; add(j, "s"); }
+      }
+      break;
+    }
+    case "G": for (const [dx, dy] of DIAG) step(nsq(x + dx, y + dy)); break;
+    case "V": for (const [dx, dy] of ORTH) step(nsq(x + dx, y + dy)); break;
+    case "N": for (const [dx, dy] of KN) step(nsq(x + dx, y + dy)); break;
+    case "C": for (const [dx, dy] of CAM) step(nsq(x + dx, y + dy)); break;
+    case "E": for (const [dx, dy] of ELE) step(nsq(x + dx, y + dy)); break;
+    case "D": for (const [dx, dy] of DAB) step(nsq(x + dx, y + dy)); break;
+    case "R": slide(ORTH, false); break;
+    case "T": slide(DIAG, true); break;
+    case "Z": for (const j of giraffeTargets(b, i)) { if (!b[j]) add(j); else if (canCap(j)) add(j); } break;
+    case "p": {
+      if (p.park) { dropSquares(st, i, out); break; }
+      const f = fwd(c), ty = y + f, last = ty === lastRank(c);
+      const okProm = () => { if (!last || p.pt !== "p" || p.n !== 1) return true; const h = b[home(c)]; return !(h && ROYAL[h.t]); };   // second promotion lands on f3/f8
+      const j = nsq(x, ty); if (j >= 0 && !b[j] && okProm()) add(j);
+      for (const dx of [-1, 1]) { const k = nsq(x + dx, ty); if (k >= 0 && b[k] && canCap(k) && okProm()) add(k); }
+      break;
+    }
+  }
+}
+function dropSquares(st, i, out) {   // parked pawn of pawns: squares where it would fork two pieces, or attack one that cannot move
+  const b = st.b, p = b[i], c = p.c, f = fwd(c);
+  for (let j = 0; j < 110; j++) {
+    if (j === i) continue; const [tx, ty] = xy(j); if (ty === lastRank(c)) continue;
+    if (b[j] && ROYAL[b[j].t]) continue;
+    const hits = [];
+    for (const dx of [-1, 1]) { const k = nsq(tx + dx, ty + f); if (k >= 0 && b[k] && b[k].c !== c && !immune(b, k)) hits.push(k); }
+    if (hits.length >= 2) out.push({ f: i, t: j, k: "r" });
+    else if (hits.length === 1) { const tmp = []; pieceMoves(st, hits[0], tmp); if (!tmp.length) out.push({ f: i, t: j, k: "r" }); }
+  }
+}
+function gen(st, c = st.turn) { const out = []; for (let i = 0; i < 112; i++) { const p = st.b[i]; if (p && p.c === c) pieceMoves(st, i, out); } return out; }
+function make(st, m) {
+  const b = st.b, u = { ch: [], turn: st.turn, swap: st.swap.slice(), over: st.over, last: st.last };
+  const set = (i, p) => { u.ch.push([i, b[i]]); b[i] = p; };
+  const p = b[m.f], c = p.c;
+  if (m.k === "s") { const q = b[m.t]; set(m.t, p); set(m.f, q); st.swap[c] = true; }
+  else if (m.k === "r") { set(m.f, null); set(m.t, { c, t: "p", pt: "p", n: p.n }); }
+  else {
+    const ty = xy(m.t)[1]; let np = p, relocate = false;
+    if (p.t === "p" && ty === lastRank(c)) {
+      if (p.pt === "K") np = { c, t: "P" };
+      else if (p.pt === "p") { if (p.n === 0) np = { c, t: "p", pt: "p", n: 1, park: true }; else if (p.n === 1) relocate = true; else np = { c, t: "A" }; }
+      else np = { c, t: p.pt };
+    }
+    set(m.f, null);
+    if (relocate) { set(m.t, null); set(home(c), { c, t: "p", pt: "p", n: 2 }); }
+    else set(m.t, np);
+    if (m.k === "c") st.over = { result: "d", why: "the king reached the citadel" };
+  }
+  st.last = [m.f, m.t]; st.turn = 1 - c; return u;
+}
+function unmake(st, u) { for (let k = u.ch.length - 1; k >= 0; k--) st.b[u.ch[k][0]] = u.ch[k][1]; st.turn = u.turn; st.swap = u.swap; st.over = u.over; st.last = u.last; }
+function inCheck(st, c) {
+  const b = st.b; if (royals(b, c) !== 1) return false;
+  const r = royalSq(b, c); if (r === ownCit(c) || r === enemyCit(c)) return false;
+  return attacked(b, r, 1 - c);
+}
+function legal(st) {
+  const c = st.turn, out = [];
+  for (const m of gen(st, c)) { const u = make(st, m); const bad = !st.over && inCheck(st, c); unmake(st, u); if (!bad) out.push(m); }
+  return out;
+}
+function status(st) {   // null while the game goes on
+  if (st.over) return st.over;
+  const c = st.turn, other = c ? "w" : "b";
+  if (royals(st.b, c) === 0) return { result: other, why: "no king left" };
+  if (!legal(st).length) return { result: other, why: inCheck(st, c) ? "checkmate" : "stalemate" };
+  return null;
+}
+function notation(st, m) {
+  const p = st.b[m.f], q = st.b[m.t], nm = p.t === "p" ? "p" + (p.pt === "p" ? "p" : p.pt.toLowerCase()) : p.t;
+  if (m.k === "s") return "K⇄" + (q.t === "p" ? "p" : q.t) + " " + sqName(m.t);
+  if (m.k === "r") return "pp→" + sqName(m.t) + (q ? "×" : "");
+  if (m.k === "c") return p.t + " " + sqName(m.f) + "→citadel ½";
+  if (m.k === "h") return "A " + sqName(m.f) + "→citadel";
+  let s = nm + " " + sqName(m.f) + (q ? "×" : "–") + sqName(m.t);
+  if (p.t === "p" && xy(m.t)[1] === lastRank(p.c)) s += p.pt === "K" ? "=P" : p.pt === "p" ? (p.n === 0 ? " parks" : p.n === 1 ? " →" + sqName(home(p.c)) : "=A") : "=" + p.pt;
+  return s;
+}
+
+// ---------- the computer: alpha-beta over legal moves, captures-only quiescence, iterative deepening on a time budget ----------
+const VAL = { K: 0, P: 2.5, A: 2.5, G: 2.1, V: 2.2, Z: 6.5, T: 3.2, N: 3.6, R: 7, E: 1.4, C: 2.1, D: 1.4, p: 1 };
+function evaluate(st) {
+  const b = st.b; let s = 0; const rc = [0, 0];
+  for (let i = 0; i < 112; i++) {
+    const p = b[i]; if (!p) continue; let v = VAL[p.t];
+    if (ROYAL[p.t]) rc[p.c]++;
+    if (p.t === "p") { const y = xy(i)[1], adv = p.c === 0 ? y - 2 : 7 - y; v += adv * 0.12 + (p.pt === "K" ? .6 : p.pt === "p" ? .4 : VAL[p.pt] * 0.06) + (p.park ? .8 : 0); }
+    s += p.c === 0 ? v : -v;
+  }
+  s += (Math.max(0, rc[0] - 1) - Math.max(0, rc[1] - 1)) * 9;
+  return st.turn === 0 ? s : -s;
+}
+let nodes = 0, deadline = 0, aborted = false;
+function orderMoves(st, ms) { const b = st.b; return ms.map(m => { const q = b[m.t]; let sc = 0; if (q && m.k !== "s") sc = 10 + VAL[q.t] * 10 - VAL[b[m.f].t]; if (m.k === "r") sc += 15; return [sc, m]; }).sort((a, c) => c[0] - a[0]).map(x => x[1]); }
+function quiesce(st, alpha, beta, d) {
+  nodes++;
+  if (st.over) return st.over.result === "d" ? 0 : -1000;
+  const stand = evaluate(st); if (stand >= beta || d <= 0) return stand; if (stand > alpha) alpha = stand;
+  const ms = orderMoves(st, legal(st).filter(m => st.b[m.t] && m.k !== "s"));
+  for (const m of ms) { const u = make(st, m); const v = -quiesce(st, -beta, -alpha, d - 1); unmake(st, u); if (v >= beta) return v; if (v > alpha) alpha = v; }
+  return alpha;
+}
+function search(st, depth, alpha, beta) {
+  nodes++; if ((nodes & 255) === 0 && performance.now() > deadline) aborted = true;
+  if (st.over) return st.over.result === "d" ? 0 : -1000;
+  if (depth <= 0) return quiesce(st, alpha, beta, 2);
+  const ms = legal(st); if (!ms.length) return -(1000 + depth);
+  let best = -Infinity;
+  for (const m of orderMoves(st, ms)) {
+    const u = make(st, m); const v = -search(st, depth - 1, -beta, -alpha); unmake(st, u);
+    if (v > best) best = v; if (v > alpha) alpha = v; if (alpha >= beta || aborted) break;
+  }
+  return best;
+}
+function think(st, level) {
+  const ms = legal(st); if (!ms.length) return null;
+  const budget = level === "easy" ? 250 : level === "normal" ? 900 : 2600, maxD = level === "easy" ? 1 : level === "normal" ? 3 : 5;
+  deadline = performance.now() + budget; aborted = false; nodes = 0;
+  let scored = ms.map(m => [0, m]);
+  for (let d = 1; d <= maxD && !aborted; d++) {
+    const trial = [];
+    for (const m of orderMoves(st, ms)) { const u = make(st, m); const v = -search(st, d - 1, -Infinity, Infinity); unmake(st, u); if (aborted) break; trial.push([v, m]); }
+    if (aborted) break;
+    trial.sort((a, b) => b[0] - a[0]); scored = trial;
+    if (scored[0][0] > 900) break;
+  }
+  if (level === "easy") { const top = scored.filter(x => x[0] >= scored[0][0] - 1.5); return top[Math.floor(Math.random() * top.length)][1]; }
+  const ties = scored.filter(x => x[0] >= scored[0][0] - 0.05); return ties[Math.floor(Math.random() * ties.length)][1];
+}
+// ===================== end engine =====================
+
+// ---------- game record (what rooms sync) ----------
+let g = null, st = null, mode = "", me = 0, flipped = false, sel = -1, legalNow = [], undoStack = [], hints = true;
+const BOTS = { 0: null, 1: null };
+const uidSelf = (() => { let u = localStorage.getItem("agkm-uid"); if (!u) { u = Math.random().toString(36).slice(2, 10); localStorage.setItem("agkm-uid", u); } return u; })();
+const nameMem = { get: () => localStorage.getItem("agkm-name") || "", set: v => localStorage.setItem("agkm-name", v) };
+function newGame(players, rep) { const s = newState(); return { v: 0, board: pack(s.b), turn: 0, swap: [false, false], over: null, last: null, log: [], hist: {}, players, rep: !!rep, draw: null, resigned: null }; }
+function norm(x) { x.swap = x.swap || [false, false]; x.log = x.log || []; x.hist = x.hist || {}; x.players = x.players || []; if (x.last && !Array.isArray(x.last)) x.last = [x.last[0], x.last[1]]; if (x.draw === undefined) x.draw = null; return x; }
+function toState(x) { return { b: unpack(x.board), turn: x.turn, swap: x.swap.slice(), over: x.over || null, last: x.last }; }
+const posKey = s => pack(s.b) + "|" + s.turn;
+function applyMove(x, m) {   // pure: x is a copy of the record
+  const s = toState(x); const lm = legal(s); const ok = lm.find(q => q.f === m.f && q.t === m.t && q.k === m.k); if (!ok) return null;
+  const note = notation(s, m); make(s, m);
+  x.board = pack(s.b); x.turn = s.turn; x.swap = s.swap; x.last = [m.f, m.t]; x.log.push(note); x.v = (x.v || 0) + 1; x.draw = null;
+  let over = s.over;
+  if (!over) { const k = hash(posKey(s)); x.hist[k] = (x.hist[k] || 0) + 1; if (x.rep && x.hist[k] >= 3) over = { result: "d", why: "the same position three times" }; }
+  if (!over) over = status(s);
+  x.over = over; return x;
+}
+function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
+
+// ---------- networking (same Firebase project as the wall) ----------
+const firebaseConfig = { apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I", authDomain: "griffgraff-baa46.firebaseapp.com", databaseURL: "https://griffgraff-baa46-default-rtdb.firebaseio.com", projectId: "griffgraff-baa46", storageBucket: "griffgraff-baa46.firebasestorage.app", messagingSenderId: "354313176929", appId: "1:354313176929:web:65aa8467f9aad220026720" };
+const DB_ROOT = "walls/timur/games";
+let fb = null, gref = null, key = null;
+async function loadFirebase() {
+  if (fb) return fb;
+  if (window.__fakeFb) return fb = window.__fakeFb();
+  const o = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"); const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+  const app = initializeApp(firebaseConfig); const db = o.getDatabase(app); return fb = { db, ...o };
+}
+const cleanse = x => JSON.parse(JSON.stringify(x));
+async function commit(fn) {
+  if (mode !== "room") { const nx = fn(cleanse(g)); if (!nx) return false; g = norm(nx); afterCommit(); return true; }
+  const base = g.v; let applied = false;
+  try {
+    const res = await fb.runTransaction(gref, cur => { if (!cur) return cur; if ((cur.v || 0) !== base) return; const nx = fn(norm(cleanse(cur))); if (!nx) return; applied = true; return nx; });
+    if (!res.committed || !applied) { say("The board changed — have another look.", true); return false; }
+    g = norm(cleanse(res.snapshot.val())); afterCommit(); return true;
+  } catch (e) { console.error(e); say("Couldn't reach the game server.", true); return false; }
+}
+function afterCommit() { sel = -1; render(); scheduleBot(); }
+function scheduleBot() { if (g && !g.over && BOTS[g.turn] && mode !== "room") setTimeout(botTurn, mode === "watch" ? 500 : 350); }
+function botTurn() {
+  if (!g || g.over || !BOTS[g.turn]) return;
+  const s = toState(g); const m = think(s, BOTS[g.turn]); if (!m) return;
+  commit(x => applyMove(x, m));
+}
+async function createRoom(pname) {
+  await loadFirebase(); key = Math.random().toString(36).slice(2, 8);
+  g = norm(newGame([{ uid: uidSelf, name: pname }, null], $("rep").checked)); me = 0; mode = "room"; flipped = false;
+  gref = fb.ref(fb.db, DB_ROOT + "/" + key); await fb.set(gref, cleanse(g));
+  location.hash = "g=" + key; listen(); $("share").classList.remove("hidden"); $("share-link").value = location.href; enterGame();
+}
+async function openRoom(k2, pname) {
+  await loadFirebase(); key = k2; gref = fb.ref(fb.db, DB_ROOT + "/" + key);
+  const snap = await fb.get(gref); if (!snap.exists()) { lobbyMsg("No game at that link."); location.hash = ""; return; }
+  g = norm(cleanse(snap.val())); mode = "room";
+  const seat = g.players.findIndex(p => p && p.uid === uidSelf);
+  if (seat >= 0) me = seat; else if (!g.players[1]) { me = 1; g.players[1] = { uid: uidSelf, name: pname }; await fb.set(fb.child(gref, "players/1"), g.players[1]); } else me = -1;
+  flipped = me === 1; $("share").classList.remove("hidden"); $("share-link").value = location.href; listen(); enterGame();
+}
+function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (g && nx.v === g.v && nx.draw === g.draw && nx.over === g.over && nx.players.every((p, i) => !!p === !!g.players[i])) return; g = nx; sel = -1; render(); }); }
+
+// ---------- UI ----------
+const say = (t, warn) => { $("msg").innerHTML = t; $("msg").style.color = warn ? "var(--terracotta)" : ""; };
+const lobbyMsg = t => { $("lobbymsg").textContent = t; };
+const pname = i => (g.players[i] && g.players[i].name) || (i ? "black" : "white");
+const myTurn = () => mode === "hot" ? true : mode === "watch" || mode === "guide" ? false : me === g.turn;
+function enterGame() { $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("guide").classList.add("hidden"); $("controls").classList.remove("hidden"); $("homebtn").classList.remove("hidden"); $("newbtn").classList.toggle("hidden", mode === "room"); sel = -1; render(); scheduleBot(); }
+
+const boardEl = $("board"), cells = {};
+function buildBoard() {
+  boardEl.innerHTML = ""; for (const k in cells) delete cells[k];
+  for (let r = 0; r < 10; r++) for (let cI = 0; cI < 13; cI++) {
+    const y = flipped ? r : 9 - r, x = flipped ? 11 - cI : cI - 1;
+    const i = asq(x, y), d = document.createElement("div");
+    if (i < 0) d.className = "cell void";
+    else { d.className = "cell " + (i >= 110 ? "cit" : "sq"); d.dataset.i = i; cells[i] = d; if (i < 110) { if (x === 0) d.insertAdjacentHTML("beforeend", `<span class="lbl">${y + 1}</span>`); if (y === 0) d.insertAdjacentHTML("beforeend", `<span class="lbl f">${FILES[x]}</span>`); } }
+    boardEl.appendChild(d);
+  }
+}
+function tokHtml(p) {
+  if (p.t === "p") return `<div class="tok pawn ${p.c ? "b" : "w"}${p.park ? " park" : ""}">${p.pt === "p" ? "p" : p.pt}<span class="p">p</span></div>`;
+  return `<div class="tok ${p.c ? "b" : "w"}${ROYAL[p.t] ? " royal" : ""}">${p.t}</div>`;
+}
+function render(targets) {
+  if (!Object.keys(cells).length) buildBoard();
+  const s = mode === "guide" ? st : (st = toState(g));
+  const lm = mode === "guide" ? [] : (legalNow = (g.over ? [] : legal(s)));
+  const chk = mode !== "guide" && !g.over && inCheck(s, s.turn) ? royalSq(s.b, s.turn) : -1;
+  const movers = new Set(lm.map(m => m.f));
+  const tl = targets || (sel >= 0 ? lm.filter(m => m.f === sel) : []);
+  const tmap = {}; for (const m of tl) tmap[m.t] = m.k;
+  for (const k in cells) {
+    const i = +k, d = cells[k], p = s.b[i];
+    d.className = "cell " + (i >= 110 ? "cit" : "sq");
+    if (s.last && (s.last[0] === i || s.last[1] === i)) d.classList.add("last");
+    if (i === sel) d.classList.add("sel"); if (i === chk) d.classList.add("chk");
+    if (hints && mode !== "guide" && movers.has(i) && (mode === "hot" || me === s.turn) && !g.over) d.classList.add("hint");
+    const k2 = tmap[i];
+    let html = p ? tokHtml(p) : "";
+    if (k2) { if (k2 === "s") d.classList.add("swp"); else if (k2 === "r") d.classList.add("red"); else if (p) d.classList.add("cap"); else { html += `<div class="dot"></div>`; if (k2 === "c") d.classList.add("drw"); } }
+    d.innerHTML = (d.querySelector(".lbl") ? Array.from(d.querySelectorAll(".lbl")).map(e => e.outerHTML).join("") : "") + html;
+  }
+  if (mode === "guide") return;
+  // top strip
+  for (const i of [0, 1]) { const el = $("p" + i); el.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); el.classList.toggle("turn", !g.over && s.turn === i); }
+  $("midl").textContent = mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer";
+  $("midb").textContent = g.over ? "" : g.log.length ? "move " + (Math.floor(g.log.length / 2) + 1) : "";
+  // message
+  if (g.over) {
+    const r = g.over.result; say(r === "d" ? "<b>Draw</b> — " + g.over.why + "." : "<b>" + pname(r === "w" ? 0 : 1) + " wins</b> — " + g.over.why + ".");
+  } else if (mode === "room" && !g.players[1]) say("Waiting for someone to open your link…");
+  else {
+    let t = (s.turn ? "Black" : "White") + " to move";
+    if (mode === "room") t = me === s.turn ? "Your move" : me < 0 ? t : "Waiting for " + pname(s.turn);
+    if (chk >= 0) t += " — <b>check</b>" + (!s.swap[s.turn] && lm.some(m => m.k === "s") ? " (the king may swap places)" : "");
+    if (g.draw != null && g.draw !== me && mode === "room") t += " · " + pname(g.draw) + " offers a draw";
+    if (sel >= 0 && s.b[sel] && s.b[sel].park && tl.length === 0) t += " — no square to drop the pawn of pawns on yet";
+    say(t);
+  }
+  // actions
+  $("undo").classList.toggle("hidden", mode === "room" || mode === "watch"); $("undo").disabled = !undoStack.length;
+  $("draw").classList.toggle("hidden", mode !== "room" || me < 0 || !!g.over);
+  $("draw").textContent = g.draw != null && g.draw !== me ? "accept the draw" : g.draw === me ? "draw offered" : "offer a draw";
+  $("resign").classList.toggle("hidden", !!g.over || mode === "watch" || (mode === "room" && me < 0));
+  $("newbtn").classList.toggle("hidden", mode === "room" ? !g.over : false);
+  // log
+  const L = g.log; let h = ""; for (let i = 0; i < L.length; i += 2) h += `<span class="n">${i / 2 + 1}.</span><span class="mv">${L[i]}</span><span class="mv">${L[i + 1] || ""}</span>`;
+  $("log").innerHTML = h; $("log").scrollTop = 1e9;
+}
+boardEl.addEventListener("click", e => {
+  const d = e.target.closest(".cell"); if (!d || d.dataset.i === undefined) return; const i = +d.dataset.i;
+  if (mode === "guide") return;
+  if (g.over || !myTurn() || (mode === "room" && !g.players[1])) return;
+  const s = st, p = s.b[i];
+  if (sel >= 0) {
+    const m = legalNow.find(q => q.f === sel && q.t === i);
+    if (m) { pushUndo(); commit(x => applyMove(x, m)); return; }
+  }
+  if (p && p.c === s.turn && legalNow.some(q => q.f === i)) { sel = sel === i ? -1 : i; } else sel = -1;
+  render();
+});
+function pushUndo() { if (mode === "hot" || mode === "bot") { undoStack.push(cleanse(g)); if (undoStack.length > 200) undoStack.shift(); } }
+$("undo").onclick = () => { if (!undoStack.length) return; let x = undoStack.pop(); if (mode === "bot" && undoStack.length && x.turn !== me) x = undoStack.pop(); g = norm(x); sel = -1; render(); };
+$("hints").onclick = () => { hints = !hints; $("hints").classList.toggle("on", hints); render(); };
+$("flip").onclick = () => { flipped = !flipped; buildBoard(); render(); };
+$("resign").onclick = () => { if (!confirm("Resign this game?")) return; const loser = mode === "room" ? me : st.turn; commit(x => { x.over = { result: loser === 0 ? "b" : "w", why: pname(loser) + " resigned" }; x.v = (x.v || 0) + 1; return x; }); };
+$("draw").onclick = () => { commit(x => { if (x.draw != null && x.draw !== me) { x.over = { result: "d", why: "agreed" }; x.draw = null; } else x.draw = me; x.v = (x.v || 0) + 1; return x; }); };
+$("newbtn").onclick = () => { if (mode === "room") { location.hash = ""; location.reload(); return; } startLocal(mode, BOTS[1] || BOTS[0]); };
+$("homebtn").onclick = e => { e.preventDefault(); location.hash = ""; location.reload(); };
+$("copy").onclick = () => { navigator.clipboard?.writeText($("share-link").value).then(() => { $("copy").textContent = "copied"; }); $("share-link").select(); };
+if (navigator.share) { $("sharebtn").classList.remove("hidden"); $("sharebtn").onclick = () => navigator.share({ title: "Timur's chess", text: "Play me at Timur's chess", url: $("share-link").value }).catch(() => { }); }
+$("rulesbtn").onclick = e => { e.preventDefault(); $("rules").classList.toggle("hidden"); if (!$("rules").classList.contains("hidden")) $("rules").scrollIntoView({ behavior: "smooth" }); };
+$("rules-close").onclick = () => $("rules").classList.add("hidden");
+$("name").value = nameMem.get();
+const getName = () => { const v = $("name").value.trim() || "anon"; nameMem.set(v); return v; };
+function startLocal(m, lv) {
+  mode = m; undoStack = []; BOTS[0] = null; BOTS[1] = null; flipped = false;
+  const rep = $("rep").checked;
+  if (m === "hot") { me = 0; g = norm(newGame([{ uid: "a", name: getName() }, { uid: "b", name: "player 2" }], rep)); }
+  else if (m === "bot") { const black = Math.random() < 0.5; me = black ? 1 : 0; flipped = black; BOTS[me ? 0 : 1] = lv; const bot = { uid: "bot", name: "computer (" + lv + ")" }, you = { uid: "a", name: getName() }; g = norm(newGame(black ? [bot, you] : [you, bot], rep)); }
+  else { me = -1; BOTS[0] = lv; BOTS[1] = lv; g = norm(newGame([{ uid: "b0", name: "computer A" }, { uid: "b1", name: "computer B" }], rep)); }
+  enterGame();
+}
+$("hot").onclick = () => startLocal("hot");
+$("bot").onclick = () => startLocal("bot", $("level").value);
+$("watch").onclick = () => startLocal("watch", $("level").value);
+$("mk").onclick = async () => { try { await createRoom(getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server — try pass & play."); } };
+$("joinbtn").onclick = async () => { const m = location.hash.match(/g=(\w+)/); if (!m) return; try { await openRoom(m[1], getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server."); } };
+
+// ---------- the pieces guide: the real board, one piece at a time ----------
+const GUIDE = [
+  ["K", "Steps one square in any direction. Checkmate it (or leave it with no move at all) and the game is over — unless its owner has a prince or adventitious king too, in which case it can simply be captured and the junior king takes over. Once a game, when it's in check, it may swap places with any non-royal piece."],
+  ["G", "The ferz of old shatranj: one square diagonally. Slow, but it covers the squares around the king that the vizier doesn't."],
+  ["V", "One square straight — up, down, left or right. With the general beside it the pair cover all eight neighbours of the king."],
+  ["R", "The rook of modern chess: any distance straight, stopping at the first piece. The strongest piece on the board."],
+  ["N", "The knight of modern chess: one straight and two across, jumping over anything in the way."],
+  ["T", "A bishop that may not stop on the adjacent square: any distance diagonally, but at least two squares, and the first square of the line must be empty."],
+  ["Z", "One square diagonally, then at least three squares straight on in either of the two directions that continue away — every square passed over must be empty. Strange, long-legged and surprisingly dangerous once the board opens up."],
+  ["E", "The alfil: a jump of exactly two squares diagonally, over whatever is in between. Each elephant can only ever reach a sixteenth of the board."],
+  ["C", "A jump of one square across and three along, like a stretched knight, over anything in between. Camels always land on the same colour they left, if the board were checkered."],
+  ["D", "A jump of exactly two squares straight, over whatever is in between. The straight twin of the elephant."],
+  ["p", "One square forward; captures one square diagonally forward. No double step, no en passant. On the far rank it becomes the piece it is named for — so the little letter on each pawn tells you what it will grow into. The pawn of kings becomes a prince, and the pawn of pawns (marked p) has the three-stage story in the rules."],
+  ["P", "The prince (shahzada), a promoted pawn of kings: moves like a king and is a second royal piece. While you hold more than one royal piece, any of them can be captured — only the last must be mated."],
+  ["A", "The adventitious king: the pawn of pawns after its third promotion. Moves like a king, counts as a royal piece, and is the only piece allowed into its own citadel, where it can't be touched."],
+];
+function showGuide() {
+  $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("controls").classList.add("hidden"); $("guide").classList.remove("hidden"); $("homebtn").classList.remove("hidden");
+  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch").forEach(e => e.classList.add("hidden"));
+  const pick = document.querySelector("#guide .pick"); pick.innerHTML = GUIDE.map(([t]) => `<button data-t="${t}">${NAME[t]}</button>`).join("");
+  pick.querySelectorAll("button").forEach(b => b.onclick = () => guidePiece(b.dataset.t));
+  guidePiece("Z");
+}
+function guidePiece(t) {
+  document.querySelectorAll("#guide .pick button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+  const b = new Array(112).fill(null); const at = nsq(5, 4);
+  if (t === "p") { b[at] = { c: 0, t: "p", pt: "R", n: 0 }; b[nsq(4, 5)] = { c: 1, t: "N" }; b[nsq(6, 5)] = { c: 1, t: "C" }; }
+  else { b[at] = { c: 0, t }; b[nsq(3, 2)] = { c: 1, t: "p", pt: "E", n: 0 }; b[nsq(7, 1)] = { c: 1, t: "p", pt: "E", n: 0 }; }
+  st = { b, turn: 0, swap: [false, false], over: null, last: null };
+  const out = []; pieceMoves(st, at, out);
+  sel = at; render(out.filter(m => m.k !== "s"));
+  for (const i of [0, 1]) $("p" + i).querySelector(".nm").textContent = ""; $("midl").textContent = "the pieces"; $("midb").textContent = NAME[t] + " · " + PERSIAN[t];
+  const e = GUIDE.find(x => x[0] === t); say("");
+  document.querySelector("#guide .desc").innerHTML = `<b>${NAME[t]}</b> <span style="color:var(--clay-dark)">${PERSIAN[t]}</span><br>${e[1]}`;
+}
+$("guidebtn").onclick = showGuide;
+$("piecesbtn").onclick = e => { e.preventDefault(); showGuide(); };
+$("guide-done").onclick = () => { location.hash = ""; location.reload(); };
+
+// ---------- boot ----------
+const hm = location.hash.match(/g=(\w+)/);
+if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("rep").parentElement.parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
+window.__tm = { get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, nsq, asq, render, startLocal, pieceMoves, notation, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, CIT_W, CIT_B, evaluate, showGuide, BUILD };
+</script>
+</body>
+</html>
