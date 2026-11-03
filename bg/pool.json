@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-10-29-1851-1",
-  "image": "pool-2026-10-29-1851-1.jpg",
-  "headline": "Montgomery Reef cruise detours offer rare wildlife views | Milton Ulladulla Times",
-  "url": "https://www.ulladullatimes.com.au/story/9369643/montgomery-reef-cruise-detours-offer-rare-wildlife-views/",
-  "outlet": "ulladullatimes.com.au",
-  "t": "2026-10-29T22:51:22+00:00",
-  "vista": 9.0,
-  "hash": 17734725271551
- },
- {
   "id": "2026-10-30-0146-0",
   "image": "pool-2026-10-30-0146-0.jpg",
   "headline": "Very severe cyclone  Arnab to hit Andhra coast on Oct 28",
@@ -167,5 +157,15 @@
   "t": "2026-11-02T17:30:24+00:00",
   "vista": 9.0,
   "hash": 10235577068361271547
+ },
+ {
+  "id": "2026-11-02-1958-0",
+  "image": "pool-2026-11-02-1958-0.jpg",
+  "headline": "Two storms slam northern Europe , cut power to 150 , 000 homes",
+  "url": "https://www.aljazeera.com/news/2026/10/26/two-storms-slam-northern-europe-cut-power-to-150000-homes",
+  "outlet": "aljazeera.com",
+  "t": "2026-11-03T00:58:55+00:00",
+  "vista": 9.0,
+  "hash": 63191256724930559
  }
 ]
