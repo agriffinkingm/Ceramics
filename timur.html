@@ -115,7 +115,6 @@
     <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
     <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
     <div class="row"><label>setup <select id="arr"><option value="m" selected>masculine — king on the second rank</option><option value="f">feminine — king on the back rank</option></select></label></div>
-    <div class="row"><label><input type="checkbox" id="rep" checked> the same position three times is a draw (house rule)</label></div>
     <div class="row"><button id="guidebtn" class="link">learn the pieces first</button></div>
     <div id="joinrow" class="row cols hidden"><span id="joininfo"></span><button id="joinbtn" class="primary">join the game</button></div>
     <p id="lobbymsg"></p>
@@ -160,7 +159,7 @@
     <h4>The king's privilege</h4>
     <p>Once in the game, when your king is in check, you may swap it with any one of your other, non-royal pieces instead of moving. Tap the checked king: the pieces it can trade places with get a dashed ring.</p>
     <h4>Winning</h4>
-    <p>Checkmate wins. So does <b>stalemate</b>: a player who has no legal move loses. Baring the king is nothing. The old game has no repetition or 50-move draws; the lobby's house rule (on by default) calls a position seen three times a draw so computer games end. You can also resign, or offer a draw.</p>
+    <p>Checkmate wins. So does <b>stalemate</b>: a player who has no legal move loses. Baring the king is nothing. The old game has no repetition or 50-move draws; here, as a house rule, a position seen three times is a draw so games against the computer can end. You can also resign, or offer a draw.</p>
     <p class="x"><button class="link" id="rules-close">close</button></p>
   </div>
 </main>
@@ -450,7 +449,7 @@ function botTurn() {
 }
 async function createRoom(pname) {
   await loadFirebase(); key = Math.random().toString(36).slice(2, 8);
-  g = norm(newGame([{ uid: uidSelf, name: pname }, null], $("rep").checked, $("arr").value)); me = 0; mode = "room"; flipped = false;
+  g = norm(newGame([{ uid: uidSelf, name: pname }, null], true, $("arr").value)); me = 0; mode = "room"; flipped = false;
   gref = fb.ref(fb.db, DB_ROOT + "/" + key); await fb.set(gref, cleanse(g));
   location.hash = "g=" + key; listen(); $("share").classList.remove("hidden"); $("share-link").value = location.href; enterGame();
 }
@@ -560,7 +559,7 @@ $("name").value = nameMem.get();
 const getName = () => { const v = $("name").value.trim() || "anon"; nameMem.set(v); return v; };
 function startLocal(m, lv) {
   mode = m; undoStack = []; BOTS[0] = null; BOTS[1] = null; flipped = false;
-  const rep = $("rep").checked, arr = $("arr").value;
+  const rep = true, arr = $("arr").value;
   if (m === "hot") { me = 0; g = norm(newGame([{ uid: "a", name: getName() }, { uid: "b", name: "player 2" }], rep, arr)); }
   else if (m === "bot") { const black = Math.random() < 0.5; me = black ? 1 : 0; flipped = black; BOTS[me ? 0 : 1] = lv; const bot = { uid: "bot", name: "computer (" + lv + ")" }, you = { uid: "a", name: getName() }; g = norm(newGame(black ? [bot, you] : [you, bot], rep, arr)); }
   else { me = -1; BOTS[0] = lv; BOTS[1] = lv; g = norm(newGame([{ uid: "b0", name: "computer A" }, { uid: "b1", name: "computer B" }], rep, arr)); }
@@ -643,7 +642,7 @@ $("guide-done").onclick = () => { location.hash = ""; location.reload(); };
 for (const n of [...new Set(Object.values(IMG))]) for (const side of ["w", "b"]) { new Image().src = "images/timur/" + n + "-" + side + ".png"; if (n !== "advking" && n !== "king") new Image().src = "images/timur/pawn-" + n + "-" + side + ".png"; }
 new Image().src = "images/timur/pawn-king-w.png"; new Image().src = "images/timur/pawn-king-b.png";
 const hm = location.hash.match(/g=(\w+)/);
-if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("rep").parentElement.parentElement.classList.add("hidden"); $("arr").parentElement.parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
+if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("arr").parentElement.parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
 window.__tm = { ARRAYS, get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, nsq, asq, render, startLocal, pieceMoves, notation, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, CIT_W, CIT_B, evaluate, showGuide, BUILD };
 </script>
 </body>
