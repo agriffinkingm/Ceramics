@@ -57,7 +57,8 @@
   #board-wrap { width: 100%; }
   #board { display: grid; grid-template-columns: repeat(13, 1fr); width: 100%; user-select: none; -webkit-user-select: none; touch-action: manipulation; --cs: calc((min(100vw, 700px) - 1rem) / 13); background: url(images/timur/wood.jpg) center / 520px auto; }
   .cell { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
-  .cell.sq { background: rgba(255,245,225,.10); box-shadow: inset 0 0 0 1px rgba(60,36,14,.35); cursor: pointer; }
+  .cell.sq { background: rgba(255,245,225,.12); box-shadow: inset 0 0 0 1px rgba(60,36,14,.35); cursor: pointer; }
+  .cell.sq.dk { background: rgba(60,36,14,.16); }
   .cell.cit { background: rgba(60,36,14,.18); box-shadow: inset 0 0 0 1px rgba(60,36,14,.5); cursor: pointer; }
   .cell.cit::after { content: ""; position: absolute; inset: 18%; border: 1px dashed rgba(60,36,14,.6); border-radius: 50%; pointer-events: none; }
   .cell.void { visibility: visible; background: var(--plaster); }
@@ -113,6 +114,7 @@
     <div class="row"><input id="name" type="text" placeholder="your name" maxlength="20"></div>
     <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
     <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
+    <div class="row"><label>setup <select id="arr"><option value="m" selected>masculine — king on the second rank</option><option value="f">feminine — king on the back rank</option></select></label></div>
     <div class="row"><label><input type="checkbox" id="rep" checked> the same position three times is a draw (house rule)</label></div>
     <div class="row"><button id="guidebtn" class="link">learn the pieces first</button></div>
     <div id="joinrow" class="row cols hidden"><span id="joininfo"></span><button id="joinbtn" class="primary">join the game</button></div>
@@ -147,12 +149,12 @@
     <h4>The board</h4>
     <p>Eleven files (a–k) by ten ranks, uncheckered, plus two <b>citadels</b>: one sticking out left of the ninth rank (Black's), one right of the second rank (White's). Only a king may enter a citadel.</p>
     <h4>Setting up</h4>
-    <p>White, from the bottom: rank 1 — elephant, ·, camel, ·, war engine, ·, war engine, ·, camel, ·, elephant (the gaps stay empty). Rank 2 — rook, knight, picket, giraffe, general, king, vizier, giraffe, picket, knight, rook. Rank 3 — the eleven pawns: of pawns, of war engines, of camels, of elephants, of generals, of kings, of viziers, of giraffes, of pickets, of knights, of rooks. Black's army is the same turned through a half-turn, so the kings face each other on the f-file. White moves first.</p>
+    <p>The old manuscripts give more than one array; the lobby offers two. <b>Masculine</b> (the usual one) — White from the bottom: rank 1 — elephant, ·, camel, ·, war engine, ·, war engine, ·, camel, ·, elephant (the gaps stay empty). Rank 2 — rook, knight, picket, giraffe, general, king, vizier, giraffe, picket, knight, rook. Rank 3 — the eleven pawns: of pawns, of war engines, of camels, of elephants, of generals, of kings, of viziers, of giraffes, of pickets, of knights, of rooks. <b>Feminine</b> — the king, general and vizier drop to the back rank between the camels (general e1, king f1, vizier g1), the war engines move up to c2 and i2 with the pickets beside them on d2 and h2, and the pawn of kings stands on f2, right in front of the king, leaving f3 empty. Either way Black's army is the same turned through a half-turn, so the kings face each other on the f-file. White moves first.</p>
     <h4>Moving</h4>
     <p>Tap "the pieces" for diagrams. Each pawn wears a sign of the piece it will become; the plain pawn is the pawn of pawns. The prince is a smaller crown; the adventitious king is a pawn wearing the crown. In short: the <b>king</b> steps one square any way; the <b>general</b> one square diagonally; the <b>vizier</b> one square straight. The <b>rook</b> and <b>knight</b> are the modern ones. The <b>picket</b> is a bishop that must move at least two squares. The <b>giraffe</b> steps one square diagonally, then at least three squares straight on, with nothing in the way. The <b>elephant</b> jumps exactly two squares diagonally, the <b>war engine</b> exactly two straight, and the <b>camel</b> jumps one-and-three like a stretched knight — none of the three can be blocked. <b>Pawns</b> move one square forward and capture one square diagonally forward; there is no double step, no en passant, no castling.</p>
     <h4>Promotion</h4>
     <p>A pawn that reaches the far rank becomes the piece it is named for — the pawn of rooks a rook, the pawn of camels a camel. Two are special. The <b>pawn of kings</b> becomes a <b>prince</b>, which moves like a king and counts as a second king: while you have more than one royal piece you may be captured like anything else and you may even walk into check — only your last royal piece has to be mated.</p>
-    <p>The <b>pawn of pawns</b> is the strange one. The first time it reaches the far rank it parks there, uncapturable, until a chance comes: whenever a square exists from which it would fork two enemy pieces, or attack a piece that cannot move, you may (on your turn) drop it on that square — even if the square is occupied, by anyone but a king; whatever stood there is removed — and it carries on as a pawn from there. The second time it promotes, it is lifted straight back to f3 (f8 for Black), the pawn of kings' starting square. The third time, it becomes an <b>adventitious king</b>, another royal piece, and the only one that may sit in its own citadel, where it cannot be taken.</p>
+    <p>The <b>pawn of pawns</b> is the strange one. The first time it reaches the far rank it parks there, uncapturable, until a chance comes: whenever a square exists from which it would fork two enemy pieces, or attack a piece that cannot move, you may (on your turn) drop it on that square — even if the square is occupied, by anyone but a king; whatever stood there is removed — and it carries on as a pawn from there. The second time it promotes, it is lifted straight back to the pawn of kings' starting square (f3 / f8 in the masculine array, f2 / f9 in the feminine). The third time, it becomes an <b>adventitious king</b>, another royal piece, and the only one that may sit in its own citadel, where it cannot be taken.</p>
     <h4>The citadels</h4>
     <p>If your highest king (king outranks prince outranks adventitious king) can step into the <i>opponent's</i> citadel, the game is a draw — the escape hatch for a losing side. Nothing else may enter either citadel, except your own adventitious king into your own.</p>
     <h4>The king's privilege</h4>
@@ -183,21 +185,26 @@ const asq = (x, y) => { const i = nsq(x, y); if (i >= 0) return i; if (x === 11 
 const xy = i => i === CIT_W ? [11, 1] : i === CIT_B ? [-1, 8] : [i % 11, Math.floor(i / 11)];
 const sqName = i => i === CIT_W ? "citadel" : i === CIT_B ? "citadel" : FILES[i % 11] + (Math.floor(i / 11) + 1);
 const fwd = c => c === 0 ? 1 : -1, lastRank = c => c === 0 ? 9 : 0;
-const home = c => c === 0 ? nsq(5, 2) : nsq(5, 7);            // where the pawn of kings starts
+const home = (c, arr) => arr === "f" ? (c === 0 ? nsq(5, 1) : nsq(5, 8)) : (c === 0 ? nsq(5, 2) : nsq(5, 7));   // where the pawn of kings starts
 const enemyCit = c => c === 0 ? CIT_B : CIT_W, ownCit = c => c === 0 ? CIT_W : CIT_B;
 
-function initialBoard() {
-  const b = new Array(112).fill(null);
-  const r1 = "E.C.D.D.C.E", r2 = "RNTZGKVZTNR", r3 = "pDCEGKVZTNR";
-  for (let x = 0; x < 11; x++) {
-    if (r1[x] !== ".") { b[nsq(x, 0)] = { c: 0, t: r1[x] }; b[nsq(10 - x, 9)] = { c: 1, t: r1[x] }; }
-    b[nsq(x, 1)] = { c: 0, t: r2[x] }; b[nsq(10 - x, 8)] = { c: 1, t: r2[x] };
-    const pw = { c: 0, t: "p", pt: r3[x] }, pb = { c: 1, t: "p", pt: r3[x] }; if (r3[x] === "p") { pw.n = 0; pb.n = 0; }
-    b[nsq(x, 2)] = pw; b[nsq(10 - x, 7)] = pb;
-  }
+// Two historical arrays (Murray / Wikipedia): "masculine" — leapers on the back rank, king on the second;
+// "feminine" — the king, general and vizier drop to the back rank between the camels, the war engines take the pickets'
+// old squares, and the pawn of kings stands on f2 directly in front of the king. Lower-case letters in a row are pawns.
+const ARRAYS = {
+  m: ["E.C.D.D.C.E", "RNTZGKVZTNR", "pdcegkvztnr"],
+  f: ["E.C.GKV.C.E", "RNDTZkZTDNR", "pdceg.vztnr"],
+};
+function initialBoard(arr = "m") {
+  const b = new Array(112).fill(null), rows = ARRAYS[arr] || ARRAYS.m;
+  rows.forEach((row, y) => { for (let x = 0; x < 11; x++) {
+    const ch = row[x]; if (ch === ".") continue;
+    const mk = c => { if (ch === ch.toLowerCase()) { const pt = ch.toUpperCase() === "P" ? "p" : ch.toUpperCase(); const q = { c, t: "p", pt }; if (pt === "p") q.n = 0; return q; } return { c, t: ch }; };
+    b[nsq(x, y)] = mk(0); b[nsq(10 - x, 9 - y)] = mk(1);
+  } });
   return b;
 }
-function newState() { return { b: initialBoard(), turn: 0, swap: [false, false], over: null, last: null }; }
+function newState(arr = "m") { return { b: initialBoard(arr), turn: 0, swap: [false, false], over: null, last: null, arr }; }
 function pack(b) { return b.map(p => p ? (p.c ? "b" : "w") + p.t + (p.t === "p" ? p.pt + (p.pt === "p" ? (p.n || 0) + (p.park ? "*" : "") : "") : "") : ".").join(" "); }
 function unpack(s) {
   return s.split(" ").map(t => { if (t === ".") return null; const p = { c: t[0] === "b" ? 1 : 0, t: t[1] }; if (p.t === "p") { p.pt = t[2]; if (p.pt === "p") { p.n = +t[3] || 0; if (t[4] === "*") p.park = true; } } return p; });
@@ -274,7 +281,7 @@ function pieceMoves(st, i, out) {
     case "p": {
       if (p.park) { dropSquares(st, i, out); break; }
       const f = fwd(c), ty = y + f, last = ty === lastRank(c);
-      const okProm = () => { if (!last || p.pt !== "p" || p.n !== 1) return true; const h = b[home(c)]; return !(h && ROYAL[h.t]); };   // second promotion lands on f3/f8
+      const okProm = () => { if (!last || p.pt !== "p" || p.n !== 1) return true; const h = b[home(c, st.arr)]; return !(h && ROYAL[h.t]); };   // second promotion lands on f3/f8
       const j = nsq(x, ty); if (j >= 0 && !b[j] && okProm()) add(j);
       for (const dx of [-1, 1]) { const k = nsq(x + dx, ty); if (k >= 0 && b[k] && canCap(k) && okProm()) add(k); }
       break;
@@ -307,7 +314,7 @@ function make(st, m) {
       else np = { c, t: p.pt };
     }
     set(m.f, null);
-    if (relocate) { set(m.t, null); set(home(c), { c, t: "p", pt: "p", n: 2 }); }
+    if (relocate) { set(m.t, null); set(home(c, st.arr), { c, t: "p", pt: "p", n: 2 }); }
     else set(m.t, np);
     if (m.k === "c") st.over = { result: "d", why: "the king reached the citadel" };
   }
@@ -338,7 +345,7 @@ function notation(st, m) {
   if (m.k === "c") return p.t + " " + sqName(m.f) + "→citadel ½";
   if (m.k === "h") return "A " + sqName(m.f) + "→citadel";
   let s = nm + " " + sqName(m.f) + (q ? "×" : "–") + sqName(m.t);
-  if (p.t === "p" && xy(m.t)[1] === lastRank(p.c)) s += p.pt === "K" ? "=P" : p.pt === "p" ? (p.n === 0 ? " parks" : p.n === 1 ? " →" + sqName(home(p.c)) : "=A") : "=" + p.pt;
+  if (p.t === "p" && xy(m.t)[1] === lastRank(p.c)) s += p.pt === "K" ? "=P" : p.pt === "p" ? (p.n === 0 ? " parks" : p.n === 1 ? " →" + sqName(home(p.c, st.arr)) : "=A") : "=" + p.pt;
   return s;
 }
 
@@ -399,9 +406,9 @@ let g = null, st = null, mode = "", me = 0, flipped = false, sel = -1, legalNow 
 const BOTS = { 0: null, 1: null };
 const uidSelf = (() => { let u = localStorage.getItem("agkm-uid"); if (!u) { u = Math.random().toString(36).slice(2, 10); localStorage.setItem("agkm-uid", u); } return u; })();
 const nameMem = { get: () => localStorage.getItem("agkm-name") || "", set: v => localStorage.setItem("agkm-name", v) };
-function newGame(players, rep) { const s = newState(); return { v: 0, board: pack(s.b), turn: 0, swap: [false, false], over: null, last: null, log: [], hist: {}, players, rep: !!rep, draw: null, resigned: null }; }
+function newGame(players, rep, arr = "m") { const s = newState(arr); return { v: 0, board: pack(s.b), turn: 0, swap: [false, false], over: null, last: null, log: [], hist: {}, players, rep: !!rep, arr, draw: null, resigned: null }; }
 function norm(x) { x.swap = x.swap || [false, false]; x.log = x.log || []; x.hist = x.hist || {}; x.players = x.players || []; if (x.last && !Array.isArray(x.last)) x.last = [x.last[0], x.last[1]]; if (x.draw === undefined) x.draw = null; return x; }
-function toState(x) { return { b: unpack(x.board), turn: x.turn, swap: x.swap.slice(), over: x.over || null, last: x.last }; }
+function toState(x) { return { b: unpack(x.board), turn: x.turn, swap: x.swap.slice(), over: x.over || null, last: x.last, arr: x.arr || "m" }; }
 const posKey = s => pack(s.b) + "|" + s.turn;
 function applyMove(x, m) {   // pure: x is a copy of the record
   const s = toState(x); const lm = legal(s); const ok = lm.find(q => q.f === m.f && q.t === m.t && q.k === m.k); if (!ok) return null;
@@ -443,7 +450,7 @@ function botTurn() {
 }
 async function createRoom(pname) {
   await loadFirebase(); key = Math.random().toString(36).slice(2, 8);
-  g = norm(newGame([{ uid: uidSelf, name: pname }, null], $("rep").checked)); me = 0; mode = "room"; flipped = false;
+  g = norm(newGame([{ uid: uidSelf, name: pname }, null], $("rep").checked, $("arr").value)); me = 0; mode = "room"; flipped = false;
   gref = fb.ref(fb.db, DB_ROOT + "/" + key); await fb.set(gref, cleanse(g));
   location.hash = "g=" + key; listen(); $("share").classList.remove("hidden"); $("share-link").value = location.href; enterGame();
 }
@@ -471,14 +478,14 @@ function buildBoard() {
     const y = flipped ? r : 9 - r, x = flipped ? 11 - cI : cI - 1;
     const i = asq(x, y), d = document.createElement("div");
     if (i < 0) d.className = "cell void";
-    else { d.className = "cell " + (i >= 110 ? "cit" : "sq"); d.dataset.i = i; cells[i] = d; if (i >= 110) d.title = "citadel"; }
+    else { d.className = "cell " + (i >= 110 ? "cit" : "sq" + ((x + y) % 2 ? "" : " dk")); d.dataset.i = i; cells[i] = d; if (i >= 110) d.title = "citadel"; }
     boardEl.appendChild(d);
   }
 }
-const IMG = { K: "king", P: "king", A: "advking", G: "general", V: "vizier", Z: "giraffe", T: "picket", N: "knight", R: "rook", E: "elephant", C: "camel", D: "warengine", p: "pawn" };
+const IMG = { K: "king", P: "king", A: "advking", G: "general", V: "vizier", Z: "giraffe", T: "picket", N: "knight", R: "warengine", E: "elephant", C: "camel", D: "rook", p: "pawn" };
 const imgOf = p => "images/timur/" + (p.t === "p" ? "pawn-" + IMG[p.pt] : IMG[p.t]) + (p.c ? "-b" : "-w") + ".png";
 function tokHtml(p) {
-  const cls = "tok" + (p.t === "p" ? " pawn" : "") + (p.t === "D" ? " wide" : "") + (p.park ? " park" : "") + (p.t === "P" ? " prince" : "");
+  const cls = "tok" + (p.t === "p" ? " pawn" : "") + (p.t === "R" ? " wide" : "") + (p.park ? " park" : "") + (p.t === "P" ? " prince" : "");
   return `<img class="${cls}" src="${imgOf(p)}" alt="${p.c ? "black" : "white"} ${p.t === "p" ? "pawn of " + NAME[p.pt] + "s" : NAME[p.t]}" draggable="false">`;
 }
 function render(targets) {
@@ -491,7 +498,7 @@ function render(targets) {
   const tmap = {}; for (const m of tl) tmap[m.t] = m.k;
   for (const k in cells) {
     const i = +k, d = cells[k], p = s.b[i];
-    d.className = "cell " + (i >= 110 ? "cit" : "sq");
+    d.className = "cell " + (i >= 110 ? "cit" : "sq" + ((i % 11 + Math.floor(i / 11)) % 2 ? "" : " dk"));
     if (s.last && (s.last[0] === i || s.last[1] === i)) d.classList.add("last");
     if (i === sel) d.classList.add("sel"); if (i === chk) d.classList.add("chk");
     const k2 = tmap[i];
@@ -553,10 +560,10 @@ $("name").value = nameMem.get();
 const getName = () => { const v = $("name").value.trim() || "anon"; nameMem.set(v); return v; };
 function startLocal(m, lv) {
   mode = m; undoStack = []; BOTS[0] = null; BOTS[1] = null; flipped = false;
-  const rep = $("rep").checked;
-  if (m === "hot") { me = 0; g = norm(newGame([{ uid: "a", name: getName() }, { uid: "b", name: "player 2" }], rep)); }
-  else if (m === "bot") { const black = Math.random() < 0.5; me = black ? 1 : 0; flipped = black; BOTS[me ? 0 : 1] = lv; const bot = { uid: "bot", name: "computer (" + lv + ")" }, you = { uid: "a", name: getName() }; g = norm(newGame(black ? [bot, you] : [you, bot], rep)); }
-  else { me = -1; BOTS[0] = lv; BOTS[1] = lv; g = norm(newGame([{ uid: "b0", name: "computer A" }, { uid: "b1", name: "computer B" }], rep)); }
+  const rep = $("rep").checked, arr = $("arr").value;
+  if (m === "hot") { me = 0; g = norm(newGame([{ uid: "a", name: getName() }, { uid: "b", name: "player 2" }], rep, arr)); }
+  else if (m === "bot") { const black = Math.random() < 0.5; me = black ? 1 : 0; flipped = black; BOTS[me ? 0 : 1] = lv; const bot = { uid: "bot", name: "computer (" + lv + ")" }, you = { uid: "a", name: getName() }; g = norm(newGame(black ? [bot, you] : [you, bot], rep, arr)); }
+  else { me = -1; BOTS[0] = lv; BOTS[1] = lv; g = norm(newGame([{ uid: "b0", name: "computer A" }, { uid: "b1", name: "computer B" }], rep, arr)); }
   enterGame();
 }
 $("hot").onclick = () => startLocal("hot");
@@ -636,8 +643,8 @@ $("guide-done").onclick = () => { location.hash = ""; location.reload(); };
 for (const n of [...new Set(Object.values(IMG))]) for (const side of ["w", "b"]) { new Image().src = "images/timur/" + n + "-" + side + ".png"; if (n !== "advking" && n !== "king") new Image().src = "images/timur/pawn-" + n + "-" + side + ".png"; }
 new Image().src = "images/timur/pawn-king-w.png"; new Image().src = "images/timur/pawn-king-b.png";
 const hm = location.hash.match(/g=(\w+)/);
-if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("rep").parentElement.parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
-window.__tm = { get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, nsq, asq, render, startLocal, pieceMoves, notation, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, CIT_W, CIT_B, evaluate, showGuide, BUILD };
+if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("rep").parentElement.parentElement.classList.add("hidden"); $("arr").parentElement.parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
+window.__tm = { ARRAYS, get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, nsq, asq, render, startLocal, pieceMoves, notation, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, CIT_W, CIT_B, evaluate, showGuide, BUILD };
 </script>
 </body>
 </html>
