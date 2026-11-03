@@ -59,26 +59,23 @@
   .cell { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
   .cell.sq { background: var(--sq); box-shadow: inset 0 0 0 .5px var(--sq-line); cursor: pointer; }
   .cell.cit { background: var(--cit); box-shadow: inset 0 0 0 1px var(--clay-dark); cursor: pointer; }
-  .cell.cit::after { content: "citadel"; position: absolute; bottom: 4%; left: 0; right: 0; text-align: center; font-size: calc(var(--cs) * .22); letter-spacing: .04em; color: var(--clay-dark); pointer-events: none; }
+  .cell.cit::after { content: ""; position: absolute; inset: 18%; border: 1px dashed var(--clay-dark); border-radius: 50%; opacity: .6; pointer-events: none; }
   .cell.void { visibility: hidden; }
-  .cell .lbl { position: absolute; left: 5%; top: 2%; font-size: calc(var(--cs) * .26); color: var(--clay-dark); pointer-events: none; line-height: 1; }
-  .cell .lbl.f { left: auto; right: 6%; top: auto; bottom: 3%; }
   .cell.last { background: #EADFC9; }
   .cell.sel { background: #E5D2B3; }
   .cell.chk { box-shadow: inset 0 0 0 2px var(--terracotta); }
-  .cell.hint .tok { box-shadow: 0 0 0 2px rgba(198,123,92,.45), 0 1px 2px rgba(44,40,32,.35); }
+  .cell.hint::after { content: ""; position: absolute; left: 50%; bottom: 4%; width: 18%; height: 4%; margin-left: -9%; border-radius: 50%; background: rgba(198,123,92,.55); pointer-events: none; }
   .cell .dot { position: absolute; width: 26%; height: 26%; border-radius: 50%; background: rgba(198,123,92,.55); pointer-events: none; }
   .cell.cap::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px solid rgba(198,123,92,.7); pointer-events: none; z-index: 2; }
   .cell.swp::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px dashed rgba(74,66,56,.6); pointer-events: none; z-index: 2; }
   .cell.red::before { content: ""; position: absolute; inset: 14%; border-radius: 20%; border: 2px dotted var(--terracotta); pointer-events: none; z-index: 2; }
   .cell.drw .dot { background: rgba(74,66,56,.35); }
-  .tok { width: 78%; height: 78%; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: calc(var(--cs) * .5); line-height: 1; position: relative; z-index: 1; }
-  .tok.w { background: var(--tok-w); color: var(--charcoal); box-shadow: inset 0 0 0 1px var(--sq-line), 0 1px 2px rgba(44,40,32,.35); }
-  .tok.b { background: var(--tok-b); color: var(--ivory); box-shadow: 0 1px 2px rgba(44,40,32,.45); }
-  .tok.pawn { width: 60%; height: 60%; border-radius: 24%; font-size: calc(var(--cs) * .36); font-weight: 500; }
-  .tok.pawn .p { position: absolute; right: -8%; bottom: -10%; font-family: 'Karla', sans-serif; font-size: calc(var(--cs) * .2); font-weight: 500; background: var(--sq); color: var(--clay-dark); border-radius: 50%; width: 1.3em; height: 1.3em; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 1px var(--sq-line); }
-  .tok.park { box-shadow: 0 0 0 2px var(--terracotta), 0 1px 2px rgba(44,40,32,.35); }
-  .tok.royal.b { color: #F2D9A3; } .tok.royal.w { color: #9A5B3C; }
+  .tok { width: 92%; height: 92%; display: block; position: relative; z-index: 1; pointer-events: none; -webkit-user-drag: none; }
+  .tok.pawn { width: 84%; height: 84%; }
+  .tok.wide { width: 100%; height: 100%; }
+  .tok.prince { width: 74%; height: 74%; }
+  .tok.park { filter: drop-shadow(0 0 2px var(--terracotta)) drop-shadow(0 0 1px var(--terracotta)); }
+  .cell.sel .tok, .cell.last .tok { filter: drop-shadow(0 1px 1px rgba(44,40,32,.35)); }
 
   #msg { text-align: center; font-size: .9rem; color: var(--stone); min-height: 1.4em; margin: .55rem 0 .3rem; line-height: 1.4; }
   #msg b { color: var(--terracotta); font-weight: 500; }
@@ -155,7 +152,7 @@
     <h4>Setting up</h4>
     <p>White, from the bottom: rank 1 — elephant, ·, camel, ·, war engine, ·, war engine, ·, camel, ·, elephant (the gaps stay empty). Rank 2 — rook, knight, picket, giraffe, general, king, vizier, giraffe, picket, knight, rook. Rank 3 — the eleven pawns: of pawns, of war engines, of camels, of elephants, of generals, of kings, of viziers, of giraffes, of pickets, of knights, of rooks. Black's army is the same turned through a half-turn, so the kings face each other on the f-file. White moves first.</p>
     <h4>Moving</h4>
-    <p>Tap the pieces guide for diagrams. In short: the <b>king</b> steps one square any way; the <b>general</b> one square diagonally; the <b>vizier</b> one square straight. The <b>rook</b> and <b>knight</b> are the modern ones. The <b>picket</b> is a bishop that must move at least two squares. The <b>giraffe</b> steps one square diagonally, then at least three squares straight on, with nothing in the way. The <b>elephant</b> jumps exactly two squares diagonally, the <b>war engine</b> exactly two straight, and the <b>camel</b> jumps one-and-three like a stretched knight — none of the three can be blocked. <b>Pawns</b> move one square forward and capture one square diagonally forward; there is no double step, no en passant, no castling.</p>
+    <p>Tap "the pieces" for diagrams. Each pawn wears a miniature of the piece it will become; the plain pawn is the pawn of kings, and the one wearing a tiny pawn is the pawn of pawns. The prince is a smaller crown; the adventitious king is a pawn wearing the crown. In short: the <b>king</b> steps one square any way; the <b>general</b> one square diagonally; the <b>vizier</b> one square straight. The <b>rook</b> and <b>knight</b> are the modern ones. The <b>picket</b> is a bishop that must move at least two squares. The <b>giraffe</b> steps one square diagonally, then at least three squares straight on, with nothing in the way. The <b>elephant</b> jumps exactly two squares diagonally, the <b>war engine</b> exactly two straight, and the <b>camel</b> jumps one-and-three like a stretched knight — none of the three can be blocked. <b>Pawns</b> move one square forward and capture one square diagonally forward; there is no double step, no en passant, no castling.</p>
     <h4>Promotion</h4>
     <p>A pawn that reaches the far rank becomes the piece it is named for — the pawn of rooks a rook, the pawn of camels a camel. Two are special. The <b>pawn of kings</b> becomes a <b>prince</b>, which moves like a king and counts as a second king: while you have more than one royal piece you may be captured like anything else and you may even walk into check — only your last royal piece has to be mated.</p>
     <p>The <b>pawn of pawns</b> is the strange one. The first time it reaches the far rank it parks there, uncapturable, until a chance comes: whenever a square exists from which it would fork two enemy pieces, or attack a piece that cannot move, you may (on your turn) drop it on that square — even if the square is occupied, by anyone but a king; whatever stood there is removed — and it carries on as a pawn from there. The second time it promotes, it is lifted straight back to f3 (f8 for Black), the pawn of kings' starting square. The third time, it becomes an <b>adventitious king</b>, another royal piece, and the only one that may sit in its own citadel, where it cannot be taken.</p>
@@ -171,7 +168,7 @@
 
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-02a";
+const BUILD = "2026-11-03a";
 
 // ===================== engine =====================
 // Squares 0..109 are the 11×10 camp (index = rank*11 + file, a1 = 0). 110 = White's citadel (right of k2), 111 = Black's (left of a9).
@@ -477,13 +474,15 @@ function buildBoard() {
     const y = flipped ? r : 9 - r, x = flipped ? 11 - cI : cI - 1;
     const i = asq(x, y), d = document.createElement("div");
     if (i < 0) d.className = "cell void";
-    else { d.className = "cell " + (i >= 110 ? "cit" : "sq"); d.dataset.i = i; cells[i] = d; if (i < 110) { if (x === 0) d.insertAdjacentHTML("beforeend", `<span class="lbl">${y + 1}</span>`); if (y === 0) d.insertAdjacentHTML("beforeend", `<span class="lbl f">${FILES[x]}</span>`); } }
+    else { d.className = "cell " + (i >= 110 ? "cit" : "sq"); d.dataset.i = i; cells[i] = d; if (i >= 110) d.title = "citadel"; }
     boardEl.appendChild(d);
   }
 }
+const IMG = { K: "king", P: "king", A: "advking", G: "general", V: "vizier", Z: "giraffe", T: "picket", N: "knight", R: "rook", E: "elephant", C: "camel", D: "warengine", p: "pawn" };
+const imgOf = p => "images/timur/" + (p.t === "p" ? "pawn-" + IMG[p.pt] : IMG[p.t]) + (p.c ? "-b" : "-w") + ".png";
 function tokHtml(p) {
-  if (p.t === "p") return `<div class="tok pawn ${p.c ? "b" : "w"}${p.park ? " park" : ""}">${p.pt === "p" ? "p" : p.pt}<span class="p">p</span></div>`;
-  return `<div class="tok ${p.c ? "b" : "w"}${ROYAL[p.t] ? " royal" : ""}">${p.t}</div>`;
+  const cls = "tok" + (p.t === "p" ? " pawn" : "") + (p.t === "D" ? " wide" : "") + (p.park ? " park" : "") + (p.t === "P" ? " prince" : "");
+  return `<img class="${cls}" src="${imgOf(p)}" alt="${p.c ? "black" : "white"} ${p.t === "p" ? "pawn of " + NAME[p.pt] + "s" : NAME[p.t]}" draggable="false">`;
 }
 function render(targets) {
   if (!Object.keys(cells).length) buildBoard();
@@ -502,7 +501,7 @@ function render(targets) {
     const k2 = tmap[i];
     let html = p ? tokHtml(p) : "";
     if (k2) { if (k2 === "s") d.classList.add("swp"); else if (k2 === "r") d.classList.add("red"); else if (p) d.classList.add("cap"); else { html += `<div class="dot"></div>`; if (k2 === "c") d.classList.add("drw"); } }
-    d.innerHTML = (d.querySelector(".lbl") ? Array.from(d.querySelectorAll(".lbl")).map(e => e.outerHTML).join("") : "") + html;
+    d.innerHTML = html;
   }
   if (mode === "guide") return;
   // top strip
@@ -583,7 +582,7 @@ const GUIDE = [
   ["E", "The alfil: a jump of exactly two squares diagonally, over whatever is in between. Each elephant can only ever reach a sixteenth of the board."],
   ["C", "A jump of one square across and three along, like a stretched knight, over anything in between. Camels always land on the same colour they left, if the board were checkered."],
   ["D", "A jump of exactly two squares straight, over whatever is in between. The straight twin of the elephant."],
-  ["p", "One square forward; captures one square diagonally forward. No double step, no en passant. On the far rank it becomes the piece it is named for — so the little letter on each pawn tells you what it will grow into. The pawn of kings becomes a prince, and the pawn of pawns (marked p) has the three-stage story in the rules."],
+  ["p", "One square forward; captures one square diagonally forward. No double step, no en passant. On the far rank it becomes the piece it is named for — so each pawn carries a small figure of what it will grow into. The pawn of kings is the plain pawn and becomes a prince; the pawn of pawns, the one with a tiny pawn on its head, has the three-stage story in the rules."],
   ["P", "The prince (shahzada), a promoted pawn of kings: moves like a king and is a second royal piece. While you hold more than one royal piece, any of them can be captured — only the last must be mated."],
   ["A", "The adventitious king: the pawn of pawns after its third promotion. Moves like a king, counts as a royal piece, and is the only piece allowed into its own citadel, where it can't be touched."],
 ];
@@ -611,6 +610,8 @@ $("piecesbtn").onclick = e => { e.preventDefault(); showGuide(); };
 $("guide-done").onclick = () => { location.hash = ""; location.reload(); };
 
 // ---------- boot ----------
+for (const n of [...new Set(Object.values(IMG))]) for (const side of ["w", "b"]) { new Image().src = "images/timur/" + n + "-" + side + ".png"; if (n !== "advking" && n !== "king") new Image().src = "images/timur/pawn-" + n + "-" + side + ".png"; }
+new Image().src = "images/timur/pawn-king-w.png"; new Image().src = "images/timur/pawn-king-b.png";
 const hm = location.hash.match(/g=(\w+)/);
 if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("rep").parentElement.parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
 window.__tm = { get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, nsq, asq, render, startLocal, pieceMoves, notation, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, CIT_W, CIT_B, evaluate, showGuide, BUILD };
