@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-10-31",
-  "image": "pool-2026-10-31.jpg",
-  "headline": "The stunning village with 70 independent shops -  Britain prettiest",
-  "url": "https://www.aol.co.uk/articles/stunning-village-70-independent-shops-115900000.html",
-  "outlet": "aol.co.uk",
-  "t": "2026-10-31T12:20:16+00:00",
-  "hash": 2310399523780852860
- },
- {
-  "id": "2026-10-31-b",
-  "image": "pool-2026-10-31-b.jpg",
-  "headline": "3 killed in another gun attack in Cotabato City",
-  "url": "https://www.philstar.com/nation/2026/10/23/2565241/3-killed-another-gun-attack-cotabato-city",
-  "outlet": "philstar.com",
-  "t": "2026-10-31T12:20:16+00:00",
-  "hash": 18446450160776053056
- },
- {
-  "id": "2026-10-31-c",
-  "image": "pool-2026-10-31-c.jpg",
-  "headline": "India , Australia troops train for coastal , island warfare in AUSTRAHIND 2026",
-  "url": "https://timesofindia.indiatimes.com/defence/news/india-australia-troops-train-for-coastal-island-warfare-in-austrahind-2026/articleshow/135188221.cms",
-  "outlet": "timesofindia.indiatimes.com",
-  "t": "2026-10-31T12:20:16+00:00",
-  "hash": 7383148780752272620
- },
- {
   "id": "2026-10-31-0955-0",
   "image": "pool-2026-10-31-0955-0.jpg",
   "headline": "Iconic Yellowstone collects record 23 , 000 pieces of trash from hot springs",
@@ -167,5 +140,32 @@
   "t": "2026-11-03T23:21:56+00:00",
   "vista": 10.0,
   "hash": 1166564762373226256
+ },
+ {
+  "id": "2026-11-04",
+  "image": "pool-2026-11-04.jpg",
+  "headline": "Intercepted missile after Houthis hit Riyadh airport , says Saudi coalition",
+  "url": "https://www.thehindu.com/news/international/intercepted-missile-after-houthis-hit-riyadh-airport-says-saudi-coalition/article71625586.ece",
+  "outlet": "thehindu.com",
+  "t": "2026-11-04T14:28:05+00:00",
+  "hash": 17869208995062284544
+ },
+ {
+  "id": "2026-11-04-b",
+  "image": "pool-2026-11-04-b.jpg",
+  "headline": "Tribal Members Proven Right as Border Wall Contractors Desecrate Ancestor Remains",
+  "url": "https://truthout.org/articles/tribal-members-proven-right-as-border-wall-contractors-uproot-ancestors-remains/",
+  "outlet": "truthout.org",
+  "t": "2026-11-04T14:28:05+00:00",
+  "hash": 2666130987993267975
+ },
+ {
+  "id": "2026-11-04-c",
+  "image": "pool-2026-11-04-c.jpg",
+  "headline": "Spanish F - 18 fighter jets scrambled after drones detected near Romania",
+  "url": "http://www.bgnes.com/politics/spanish-f-18-fighter-jets-scrambled-after-drones-detected-near-romania",
+  "outlet": "bgnes.com",
+  "t": "2026-11-04T14:28:05+00:00",
+  "hash": 18446681984653328376
  }
 ]
