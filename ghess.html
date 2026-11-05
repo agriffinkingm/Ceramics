@@ -50,6 +50,10 @@
   .pl .swatch { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--sq-line); }
   .pl.right { justify-content: flex-end; }
   .pl.turn .nm { color: var(--terracotta); }
+  .pl .hand { width: 34px; height: 34px; opacity: .45; filter: drop-shadow(0 1px 1px rgba(40,20,5,.3)); cursor: default; -webkit-user-drag: none; }
+  .pl .hand.ready { opacity: 1; cursor: pointer; animation: hover 1.6s ease-in-out infinite; }
+  .pl .hand.sel { filter: drop-shadow(0 0 3px var(--terracotta)) drop-shadow(0 0 1px var(--terracotta)); }
+  @keyframes hover { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
   #mid { text-align: center; font-size: .72rem; letter-spacing: .1em; color: var(--clay-dark); text-transform: uppercase; }
   #mid b { display: block; font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--stone); }
 
@@ -69,6 +73,9 @@
   .tok.pawn { width: 72%; height: 72%; margin-top: 10%; }
   .tok.wide { width: 100%; height: 100%; }
   .tok.queen { width: 84%; height: 84%; }
+  .tok.griffin { width: 100%; height: 100%; }
+  .tok.griffin.l1 { opacity: .62; }
+  .cell.rest::after { content: ""; position: absolute; bottom: 6%; right: 6%; width: 18%; height: 18%; border-radius: 50%; border: 2px dotted rgba(60,36,14,.6); pointer-events: none; z-index: 2; }
 
   /* promotion picker */
   #promo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(228,219,208,.55); z-index: 5; }
@@ -109,7 +116,7 @@
 <main>
   <section id="lobby">
     <h1>Ghess</h1>
-    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns can only ever become camels, and no other pawn can.</p>
+    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns can only ever become camels, and no other pawn can. Two house rules on top: a checked king may, once a game, trade places with another piece; and each side has a griffin waiting off the board, which from move eleven may swoop in and kill a pawn, hunt for two moves, and fly off.</p>
     <div class="row"><input id="name" type="text" placeholder="your name" maxlength="20"></div>
     <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
     <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
@@ -120,7 +127,7 @@
   </section>
 
   <section id="arena" class="hidden">
-    <div id="top"><div class="pl" id="p0"><span class="swatch" style="background:var(--tok-w)"></span><span class="nm"></span></div><div id="mid"><span id="midl"></span><b id="midb"></b></div><div class="pl right" id="p1"><span class="nm"></span><span class="swatch" style="background:var(--tok-b)"></span></div></div>
+    <div id="top"><div class="pl" id="p0"><span class="swatch" style="background:var(--tok-w)"></span><span class="nm"></span><img class="hand hidden" id="h0" src="images/ghess/griffin-w.png" alt="white griffin in hand" draggable="false"></div><div id="mid"><span id="midl"></span><b id="midb"></b></div><div class="pl right" id="p1"><img class="hand hidden" id="h1" src="images/ghess/griffin-b.png" alt="black griffin in hand" draggable="false"><span class="nm"></span><span class="swatch" style="background:var(--tok-b)"></span></div></div>
     <div id="board-wrap"><div id="board"></div><div id="promo" class="hidden"><div class="box"></div></div></div>
     <div id="msg"></div>
     <div id="guide" class="hidden">
@@ -153,8 +160,14 @@
     <p>One square forward, two from the starting rank; captures diagonally; en passant works. A pawn that reaches the far rank promotes — to a queen, rook, bishop or knight, your choice. Except the two <b>camel pawns</b>, the ones that start in front of the camels: they wear a camel's head, and they can only ever promote to a camel. No other pawn can.</p>
     <h4>Castling</h4>
     <p>As in chess, with the king and rook unmoved, nothing between them, and the king not in, through or into check. The king ends on the c- or i-file and the rook lands beside it on the d- or h-file — in a 960 setup too, wherever they started. Tap the king, then the rook (or the king's landing square).</p>
+    <h4>The king's privilege</h4>
+    <p>Borrowed from Timur's chess, where Murray calls it the king's privilege. Once a game, when your king is in check, instead of moving it you may <b>swap it with any other piece of yours</b> — the king goes to that piece's square and the piece to the king's. The swap has to get you out of check like any other move, a pawn can't be swapped onto the last rank, and castling rights are gone afterwards. Tap the checked king: the pieces it can trade places with get a dashed ring.</p>
+    <h4>The griffin</h4>
+    <p>Each side has one griffin, off the board, shown beside the player's name. From <b>move eleven</b> on (once both sides have made ten moves), on your turn you may <b>swoop</b>: the griffin lands on any enemy pawn and kills it. That is its whole turn, and it can only ever come in on a pawn. Tap the griffin beside your name to see the pawns it can take.</p>
+    <p>It then <b>stays for two of your moves</b>. On each it may move — and capture — <b>one square diagonally</b>, or you may move something else; it gives check like any piece. After your second move it <b>flies away</b> for good (the griffin fades once it has one move left). It comes only once a game.</p>
+    <p>If the griffin is <b>killed</b> while it's on the board, the pawn it took isn't lost for good: it <b>comes back on the square where the griffin died</b>, as soon as the piece that killed it moves away — a camel pawn comes back as a camel pawn. (If that square happens to be the pawn's last rank, it stays gone.)</p>
     <h4>Ending</h4>
-    <p>Checkmate wins. Stalemate, bare kings, fifty moves without a capture or a pawn move, or the same position three times, is a draw. You can also resign or offer a draw.</p>
+    <p>Checkmate wins. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. You can also resign or offer a draw.</p>
     <p class="x"><button class="link" id="rules-close">close</button></p>
   </div>
 </main>
@@ -162,25 +175,29 @@
 <script src="ghess-engine.js"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04a";
+const BUILD = "2026-11-04b";
 
 // engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
 
 // ---------- game record (what rooms sync) ----------
 let g = null, st = null, mode = "", me = 0, flipped = false, sel = -1, legalNow = [], undoStack = [];
+const HSEL = "hand";   // sel value while the griffin in hand is picked (the engine's HAND is -1, which is also "nothing selected")
+const selFrom = () => sel === HSEL ? HAND : sel;
 const BOTS = { 0: null, 1: null };
 const uidSelf = (() => { let u = localStorage.getItem("agkm-uid"); if (!u) { u = Math.random().toString(36).slice(2, 10); localStorage.setItem("agkm-uid", u); } return u; })();
 const nameMem = { get: () => localStorage.getItem("agkm-name") || "", set: v => localStorage.setItem("agkm-name", v) };
-function newGame(players, rep, seed = 0) { const setup = setupFor(seed); const s = newState(setup); return { v: 0, board: pack(s.b), turn: 0, cr: s.cr, ep: -1, half: 0, over: null, last: null, log: [], hist: {}, players, rep: !!rep, setup, seed, draw: null }; }
-function norm(x) { x.cr = x.cr && x.cr.length === 2 ? [[!!x.cr[0][0], !!x.cr[0][1]], [!!x.cr[1][0], !!x.cr[1][1]]] : [[true, true], [true, true]]; if (x.ep === undefined) x.ep = -1; x.half = x.half || 0; x.log = x.log || []; x.hist = x.hist || {}; x.players = x.players || []; x.setup = x.setup || CLASSIC; x.seed = x.seed || 0; if (x.last && !Array.isArray(x.last)) x.last = [x.last[0], x.last[1]]; if (x.draw === undefined) x.draw = null; return x; }
-function toState(x) { return { b: unpack(x.board), turn: x.turn, cr: [x.cr[0].slice(), x.cr[1].slice()], ep: x.ep, half: x.half, over: x.over || null, last: x.last, setup: x.setup }; }
-const posKey = s => pack(s.b) + "|" + s.turn + "|" + s.ep + "|" + s.cr.flat().map(v => v ? 1 : 0).join("");
+function newGame(players, rep, seed = 0) { const setup = setupFor(seed); const s = newState(setup); return { v: 0, board: pack(s.b), turn: 0, cr: s.cr, ep: -1, half: 0, swap: [false, false], hand: [true, true], ply: 0, rest: [], over: null, last: null, log: [], hist: {}, players, rep: !!rep, setup, seed, draw: null }; }
+function norm(x) { x.cr = x.cr && x.cr.length === 2 ? [[!!x.cr[0][0], !!x.cr[0][1]], [!!x.cr[1][0], !!x.cr[1][1]]] : [[true, true], [true, true]]; if (x.ep === undefined) x.ep = -1; x.half = x.half || 0; x.swap = x.swap ? [!!x.swap[0], !!x.swap[1]] : [false, false]; x.hand = x.hand ? [!!x.hand[0], !!x.hand[1]] : [true, true]; x.ply = x.ply || x.log && x.log.length || 0; x.rest = (x.rest || []).map(r => [r[0], r[1], r[2]]); x.log = x.log || []; x.hist = x.hist || {}; x.players = x.players || []; x.setup = x.setup || CLASSIC; x.seed = x.seed || 0; if (x.last && !Array.isArray(x.last)) x.last = [x.last[0], x.last[1]]; if (x.draw === undefined) x.draw = null; return x; }
+function toState(x) { return { b: unpack(x.board), turn: x.turn, cr: [x.cr[0].slice(), x.cr[1].slice()], ep: x.ep, half: x.half, swap: x.swap.slice(), hand: x.hand.slice(), ply: x.ply, rest: cloneRest(x.rest), over: x.over || null, last: x.last, setup: x.setup }; }
+const posKey = s => pack(s.b) + "|" + s.turn + "|" + s.ep + "|" + s.cr.flat().concat(s.swap, s.hand).map(v => v ? 1 : 0).join("") + (s.ply >= SWOOP_PLY ? "+" : "") + s.rest.map(r => r.join("")).join(",");
 function applyMove(x, m) {   // pure: x is a copy of the record
   const s = toState(x); const lm = legal(s); const ok = lm.find(q => sameMove(q, m)); if (!ok) return null;
-  let note = notation(s, m); make(s, m);
+  let note = notation(s, m); const griffBefore = s.b.some(p => p && p.c === s.turn && p.t === "G" && m.k !== "g"), restBefore = s.rest.length; make(s, m);
+  if (griffBefore && !s.b.some(p => p && p.c === 1 - s.turn && p.t === "G")) note += " ↗G";   // the griffin flew away
+  if (s.rest.length < restBefore) note += " ↩p";                                               // a pawn came back
   let over = status(s);
   if (inCheck(s, s.turn)) note += over && over.why === "checkmate" ? "#" : "+";
-  x.board = pack(s.b); x.turn = s.turn; x.cr = s.cr; x.ep = s.ep; x.half = s.half; x.last = [m.f, m.t]; x.log.push(note); x.v = (x.v || 0) + 1; x.draw = null;
+  x.board = pack(s.b); x.turn = s.turn; x.cr = s.cr; x.ep = s.ep; x.half = s.half; x.swap = s.swap; x.hand = s.hand; x.ply = s.ply; x.rest = s.rest; x.last = [m.f, m.t]; x.log.push(note); x.v = (x.v || 0) + 1; x.draw = null;
   if (!over) { const k = hash(posKey(s)); x.hist[k] = (x.hist[k] || 0) + 1; if (x.rep && x.hist[k] >= 3) over = { result: "d", why: "the same position three times" }; }
   x.over = over; return x;
 }
@@ -221,7 +238,7 @@ function getWorker() {
 function botTurn() {
   if (!g || g.over || !BOTS[g.turn]) return;
   const w = getWorker();
-  if (w) { pendingBot = Date.now() + Math.random(); w.postMessage({ id: pendingBot, board: g.board, turn: g.turn, cr: g.cr, ep: g.ep, half: g.half, setup: g.setup, level: BOTS[g.turn] }); return; }
+  if (w) { pendingBot = Date.now() + Math.random(); w.postMessage({ id: pendingBot, board: g.board, turn: g.turn, cr: g.cr, ep: g.ep, half: g.half, swap: g.swap, hand: g.hand, ply: g.ply, rest: g.rest, setup: g.setup, level: BOTS[g.turn] }); return; }
   const s = toState(g); const m = think(s, BOTS[g.turn]); if (m) commit(x => applyMove(x, m));
 }
 const pickSeed = () => $("setup").value === "960" ? (Math.max(1, Math.min(9999, +$("seed").value)) || 1 + Math.floor(Math.random() * 9999)) : 0;
@@ -258,11 +275,11 @@ function buildBoard() {
     boardEl.appendChild(d);
   }
 }
-const IMG = { K: "timur/king", Q: "ghess/queen", R: "timur/rook", B: "timur/picket", N: "timur/knight", C: "timur/camel" };
+const IMG = { K: "timur/king", Q: "ghess/queen", R: "timur/rook", B: "timur/picket", N: "timur/knight", C: "timur/camel", G: "ghess/griffin" };
 const imgOf = p => "images/" + (p.t === "p" ? (p.pt === "c" ? "timur/pawn-camel" : "timur/pawn-pawn") : IMG[p.t]) + (p.c ? "-b" : "-w") + ".png";
 const pieceName = p => p.t === "p" ? (p.pt === "c" ? "camel pawn" : "pawn") : NAME[p.t];
 function tokHtml(p) {
-  const cls = "tok" + (p.t === "p" ? " pawn" : "") + (p.t === "R" ? " wide" : "") + (p.t === "Q" ? " queen" : "");
+  const cls = "tok" + (p.t === "p" ? " pawn" : "") + (p.t === "R" ? " wide" : "") + (p.t === "Q" ? " queen" : "") + (p.t === "G" ? " griffin" + (p.life === 1 ? " l1" : "") : "");
   return `<img class="${cls}" src="${imgOf(p)}" alt="${p.c ? "black" : "white"} ${pieceName(p)}" draggable="false">`;
 }
 // castling is "king takes rook" underneath; the UI also offers the king's landing square when it is free
@@ -276,7 +293,7 @@ function render(targets) {
   const s = mode === "guide" ? st : (st = toState(g));
   const lm = mode === "guide" ? [] : (legalNow = (g.over ? [] : legal(s)));
   const chk = mode !== "guide" && !g.over && inCheck(s, s.turn) ? kingSq(s.b, s.turn) : -1;
-  const tl = targets || (sel >= 0 ? lm.filter(m => m.f === sel) : []);
+  const tl = targets || (sel >= 0 || sel === HSEL ? lm.filter(m => m.f === selFrom()) : []);
   if (mode === "guide" && !targets) return;
   const tmap = targetMap(s, tl);
   for (const k in cells) {
@@ -284,13 +301,18 @@ function render(targets) {
     d.className = "cell" + ((i % 10 + Math.floor(i / 10)) % 2 ? "" : " dk");
     if (s.last && (s.last[0] === i || s.last[1] === i)) d.classList.add("last");
     if (i === sel) d.classList.add("sel"); if (i === chk) d.classList.add("chk");
+    if (s.rest.some(r => r[0] === i)) { d.classList.add("rest"); d.title = "a pawn comes back here when this piece moves away"; } else d.title = "";
     const m = tmap[i];
     let html = p ? tokHtml(p) : "";
-    if (m) { if (m.k === "c" && p && p.t === "R") d.classList.add("cas"); else if (p || m.k === "e") d.classList.add("cap"); else html += `<div class="dot"></div>`; }
+    if (m) { if ((m.k === "c" && p && p.t === "R") || m.k === "s") d.classList.add("cas"); else if (p || m.k === "e") d.classList.add("cap"); else html += `<div class="dot"></div>`; }
     d.innerHTML = html;
   }
   if (mode === "guide") return;
-  for (const i of [0, 1]) { const el = $("p" + i); el.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); el.classList.toggle("turn", !g.over && s.turn === i); }
+  for (const i of [0, 1]) {
+    const el = $("p" + i); el.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); el.classList.toggle("turn", !g.over && s.turn === i);
+    const h = $("h" + i); h.classList.toggle("hidden", !s.hand[i]); h.classList.toggle("ready", !g.over && s.turn === i && myTurn() && lm.some(m => m.k === "g")); h.classList.toggle("sel", sel === HSEL && s.turn === i);
+    h.title = s.hand[i] ? (s.ply >= SWOOP_PLY ? "the griffin is ready to swoop" : "the griffin may swoop from move 11") : "";
+  }
   $("midl").textContent = (mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer") + (g.seed ? " · 960 #" + g.seed : "");
   $("midb").textContent = g.over ? "" : g.log.length ? "move " + (Math.floor(g.log.length / 2) + 1) : "";
   if (g.over) {
@@ -299,7 +321,9 @@ function render(targets) {
   else {
     let t = (s.turn ? "Black" : "White") + " to move" + (BOTS[s.turn] ? " — thinking…" : "");
     if (mode === "room") t = me === s.turn ? "Your move" : me < 0 ? t : "Waiting for " + pname(s.turn);
-    if (chk >= 0) t += " — <b>check</b>";
+    if (chk >= 0) t += " — <b>check</b>" + (!s.swap[s.turn] && lm.some(m => m.k === "s") ? " (the king may swap places)" : "");
+    else if (sel === HSEL) t = "Pick a pawn for the griffin to take.";
+    else if (myTurn() && lm.some(m => m.k === "g")) t += " — the griffin is ready";
     if (g.draw != null && g.draw !== me && mode === "room") t += " · " + pname(g.draw) + " offers a draw";
     say(t);
   }
@@ -327,8 +351,8 @@ boardEl.addEventListener("click", async e => {
   if (mode === "guide") return guideClick(i);
   if (g.over || !myTurn() || (mode === "room" && !g.players[1]) || promoResolve) return;
   const s = st, p = s.b[i];
-  if (sel >= 0) {
-    const tm = targetMap(s, legalNow.filter(m => m.f === sel)); let m = tm[i];
+  if (sel >= 0 || sel === HSEL) {
+    const tm = targetMap(s, legalNow.filter(m => m.f === selFrom())); let m = tm[i];
     if (m) {
       const alts = legalNow.filter(q => q.f === m.f && q.t === m.t && (q.k || "") === (m.k || ""));
       if (alts.length > 1) { m = await pickPromotion(alts, s.turn); if (!m) { render(); return; } }
@@ -338,6 +362,7 @@ boardEl.addEventListener("click", async e => {
   if (p && p.c === s.turn && legalNow.some(q => q.f === i)) { sel = sel === i ? -1 : i; } else sel = -1;
   render();
 });
+for (const i of [0, 1]) $("h" + i).onclick = () => { if (!g || g.over || mode === "guide" || !myTurn() || st.turn !== i || !legalNow.some(m => m.k === "g")) return; sel = sel === HSEL ? -1 : HSEL; render(); };
 function pushUndo() { if (mode === "hot" || mode === "bot") { undoStack.push(cleanse(g)); if (undoStack.length > 200) undoStack.shift(); } }
 $("undo").onclick = () => { if (!undoStack.length) return; pendingBot = 0; let x = undoStack.pop(); if (mode === "bot" && undoStack.length && x.turn !== me) x = undoStack.pop(); g = norm(x); sel = -1; render(); scheduleBot(); };
 $("flip").onclick = () => { flipped = !flipped; buildBoard(); render(); };
@@ -374,6 +399,7 @@ const GUIDE = [
   ["B", "Any distance diagonally, stopping at the first piece. Each bishop lives on one colour for the whole game."],
   ["N", "One straight and two across, jumping over anything in the way. Switches colour every move."],
   ["C", "The camel from Timur's chess: one across and three along, a stretched knight, over anything in between. Slow to re-route — it takes two moves to reach a neighbouring square — but it forks from far away, and nothing can block it. Always lands on the colour it left."],
+  ["G", "Off the board until move eleven, then once a game it may swoop onto any enemy pawn and kill it. It stays for two of your moves, moving and capturing one square diagonally, then flies away. If it's killed first, the pawn it took comes back on that square once the killer moves off it."],
   ["p", "One square forward, or two from its starting rank; captures one square diagonally forward; en passant works. On the far rank it becomes a queen, rook, bishop or knight. The two pawns that start in front of the camels wear a camel's head: they can only become camels, and nothing else can."],
 ];
 function showGuide() {
@@ -388,14 +414,14 @@ function guideMoves(i) { const out = []; pieceMoves(st, i, out); return out.filt
 function guidePiece(t) {
   guideT = t; document.querySelectorAll("#guide .pick button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
   const b = new Array(100).fill(null); const at = t === "p" ? sq(4, 1) : sq(4, 4);
-  b[at] = t === "p" ? { c: 0, t: "p", pt: "p" } : { c: 0, t };
-  st = { b, turn: 0, cr: [[false, false], [false, false]], ep: -1, half: 0, over: null, last: null, setup: CLASSIC };
+  b[at] = t === "p" ? { c: 0, t: "p", pt: "p" } : t === "G" ? { c: 0, t, v: "p", life: 9 } : { c: 0, t };
+  st = { b, turn: 0, cr: [[false, false], [false, false]], ep: -1, half: 0, swap: [true, true], hand: [false, false], ply: 0, rest: [], over: null, last: null, setup: CLASSIC };
   const reach = guideMoves(at).map(m => m.t);
   const far = i => Math.abs(xy(i)[0] - 4) + Math.abs(xy(i)[1] - 4);
   const sorted = reach.slice().sort((a, c) => far(a) - far(c));
   const picks = t === "p" ? [] : [sorted[Math.floor(sorted.length * .25)], sorted[sorted.length - 1]].filter((x, k, arr) => x !== undefined && arr.indexOf(x) === k);
   if (t === "p") { b[sq(5, 2)] = { c: 1, t: "N" }; b[sq(3, 2)] = { c: 1, t: "C" }; b[sq(4, 8)] = { c: 1, t: "p", pt: "c" }; }
-  const kinds = ["N", "C", "B", "R"]; picks.forEach((j, k) => { b[j] = { c: 1, t: kinds[k % kinds.length] }; });
+  const kinds = t === "G" ? ["p", "p"] : ["N", "C", "B", "R"]; picks.forEach((j, k) => { const kt = kinds[k % kinds.length]; b[j] = kt === "p" ? { c: 1, t: "p", pt: "p" } : { c: 1, t: kt }; });
   for (const j of [sq(1, 7), sq(8, 1), sq(0, 3)]) if (!b[j] && !reach.includes(j)) { b[j] = { c: 1, t: "p", pt: "p" }; break; }
   sel = at; render(guideMoves(at));
   for (const i of [0, 1]) $("p" + i).querySelector(".nm").textContent = ""; $("midl").textContent = "the pieces"; $("midb").textContent = NAME[t];
