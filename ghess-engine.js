@@ -3,7 +3,7 @@
 // camels are giraffe pawns: they promote only to a giraffe (Timur's giraffe move plus the camel's leap). Behind each king sits a
 // citadel square; the enemy king wins by stepping into it.
 // Plus two house rules: the shah's privilege (once a game, a checked king may swap places with one of its pieces, not a pawn) and the griffin
-// (one per side, off the board; from move 11 it may swoop onto an enemy pawn and kill it, stays for two of its owner's moves —
+// (one per side, off the board; from move 41 it may swoop onto an enemy pawn and kill it, stays for two of its owner's moves —
 // moving and capturing one square diagonally — then flies away. If it is killed, the pawn comes back on that square once the
 // piece that killed it moves away).
 "use strict";
@@ -12,7 +12,7 @@
 const CIT_W = 100, CIT_B = 101, NSQ = 102;
 const FILES = "abcdefghij";
 const NAME = { K: "king", Q: "queen", R: "rook", B: "bishop", N: "knight", C: "camel", Z: "giraffe", G: "griffin", p: "pawn" };
-const SWOOP_PLY = 20;   // the griffin may come in once both sides have made ten moves
+const SWOOP_PLY = 80;   // the griffin may come in once both sides have made forty moves
 const HAND = -1;        // m.f of a griffin drop
 const LIFE = 2;         // the griffin stays for this many of its owner's moves after the swoop
 const DIRS8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
