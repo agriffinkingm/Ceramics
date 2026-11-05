@@ -66,14 +66,24 @@
   #board-wrap { width: 100%; position: relative; }
   #board { display: grid; grid-template-columns: repeat(10, 1fr); width: 100%; user-select: none; -webkit-user-select: none; touch-action: manipulation; background: url(images/timur/wood.jpg) center / 520px auto; box-shadow: 0 1px 4px rgba(40,20,5,.3); }
   .cell { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,245,225,.22); box-shadow: inset 0 0 0 1px rgba(60,36,14,.18); }
-  .cell.dk { background: rgba(60,36,14,.3); }
-  .cell.last { background: rgba(255,230,170,.45); }
-  .cell.dk.last { background: rgba(200,150,70,.42); }
-  .cell.sel { background: rgba(255,214,130,.65); }
+  .cell.void { background: var(--plaster); box-shadow: none; cursor: default; }
+  .cell.cit { background: rgba(60,36,14,.22); box-shadow: inset 0 0 0 1px rgba(60,36,14,.45); }
+  .cell.cit::after { content: ""; position: absolute; inset: 16%; border: 1px dashed rgba(60,36,14,.65); border-radius: 50%; pointer-events: none; }
+  #board { box-shadow: none; background: none; }
+  #board .cell:not(.void) { background-image: url(images/timur/wood.jpg); background-size: 520px auto; background-position: center; }
+  .cell.dk:not(.void) { background-color: transparent; }
+  .cell:not(.void)::before { content: ""; position: absolute; inset: 0; background: rgba(255,245,225,.22); pointer-events: none; }
+  .cell.dk::before { background: rgba(60,36,14,.3); }
+  .cell.last::before { background: rgba(255,230,170,.45); }
+  .cell.dk.last::before { background: rgba(200,150,70,.42); }
+  .cell.sel::before { background: rgba(255,214,130,.65); }
+  .cell.cit::before { background: rgba(60,36,14,.22); }
+
   .cell.chk { box-shadow: inset 0 0 0 3px var(--terracotta); }
   .cell .dot { position: absolute; width: 28%; height: 28%; border-radius: 50%; background: rgba(120,40,20,.5); pointer-events: none; }
-  .cell.cap::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px solid rgba(150,45,25,.75); pointer-events: none; z-index: 2; }
-  .cell.cas::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px dashed rgba(74,66,56,.65); pointer-events: none; z-index: 2; }
+  .cell .dot.win { width: 40%; height: 40%; background: var(--terracotta); box-shadow: 0 0 0 3px rgba(198,123,92,.35); }
+  .cell .ring { position: absolute; inset: 6%; border-radius: 50%; border: 3px solid rgba(150,45,25,.75); pointer-events: none; z-index: 2; }
+  .cell .ring.cas { border-style: dashed; border-color: rgba(74,66,56,.65); }
   .tok { width: 90%; height: 90%; display: block; position: relative; z-index: 1; pointer-events: none; -webkit-user-drag: none; filter: drop-shadow(0 1px 1px rgba(40,20,5,.35)); }
   .tok.pawn { width: 72%; height: 72%; margin-top: 10%; }
   .tok.wide { width: 100%; height: 100%; }
@@ -129,7 +139,7 @@
 <main>
   <section id="lobby">
     <h1>Ghess</h1>
-    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns can only ever become camels, and no other pawn can. Two house rules on top: a checked king may, once a game, trade places with one of its pieces (the shah’s privilege); and each side has a griffin waiting off the board, which from move eleven may swoop in and kill a pawn, hunt for two moves, and fly off.</p>
+    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns are giraffe pawns and can only ever become giraffes. Behind each king sits a citadel: get your king into the other one and you win. Two house rules on top: a checked king may, once a game, trade places with one of its pieces (the shah’s privilege); and each side has a griffin waiting off the board, which from move eleven may swoop in and kill a pawn, hunt for two moves, and fly off.</p>
     <div class="row"><input id="name" type="text" placeholder="your name" maxlength="20"></div>
     <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
     <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
@@ -171,8 +181,10 @@
     <p>Choose <b>960</b> in the lobby and the back rank is shuffled instead — the bishops on opposite colours, the king somewhere between the rooks — the same for both sides. Each shuffle has a number, shown as game #N, so a setup can be played again.</p>
     <h4>Moving</h4>
     <p>Tap "the pieces" for diagrams. The king, queen, rook, bishop, knight and pawns move exactly as in chess. The <b>camel</b> jumps one square across and three along — a stretched knight — over anything in the way. Like a bishop it always stays on the colour it started on.</p>
-    <h4>Pawns</h4>
-    <p>One square forward, two from the starting rank; captures diagonally; en passant works. A pawn that reaches the far rank promotes — to a queen, rook, bishop or knight, your choice. Except the two <b>camel pawns</b>, the ones that start in front of the camels: they wear a camel's head, and they can only ever promote to a camel. No other pawn can.</p>
+    <h4>Pawns and the giraffe</h4>
+    <p>One square forward, two from the starting rank; captures diagonally; en passant works. A pawn that reaches the far rank promotes — to a queen, rook, bishop or knight, your choice. Except the two <b>giraffe pawns</b>, the ones that start in front of the camels: they wear a giraffe's head, and they can only ever promote to a <b>giraffe</b>. No other pawn can. The giraffe isn't on the board at the start; it moves as Timur's giraffe — <b>one square diagonally, then at least three squares straight on outward</b>, every square on the way empty — <b>and</b> it has the camel's leap of one across and three along.</p>
+    <h4>The citadels</h4>
+    <p>Behind each king's starting square, off the edge of the board, sits a <b>citadel</b> (the dashed ring). Only a king can enter it, and only the <i>enemy</i> king: step into it from any of the three squares in front of it and you <b>win on the spot</b> — even out of check. Your own king can't go in. In a 960 setup the citadels sit behind wherever the kings start.</p>
     <h4>Castling</h4>
     <p>As in chess, with the king and rook unmoved, nothing between them, and the king not in, through or into check. The king ends on the c- or i-file and the rook lands beside it on the d- or h-file — in a 960 setup too, wherever they started. Tap the king, then the rook (or the king's landing square).</p>
     <h4>The shah's privilege</h4>
@@ -182,7 +194,7 @@
     <p>It then <b>stays for two of your moves</b>. On each it may move — and capture — <b>one square diagonally</b>, or you may move something else; it gives check like any piece. After your second move it <b>flies away</b> for good (the griffin fades once it has one move left). It comes only once a game.</p>
     <p>If the griffin is <b>killed</b> while it's on the board, the pawn it took isn't lost for good: it <b>comes back on the square where the griffin died</b>, as soon as the piece that killed it moves away — a camel pawn comes back as a camel pawn. (If that square happens to be the pawn's last rank, it stays gone.)</p>
     <h4>Ending</h4>
-    <p>Checkmate wins. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. The strip under the board shows what each side has taken and who is ahead, counting the queen 9, rook 5, bishop 3, knight 3, <b>camel 2</b>, griffin 1 (in hand or on the board), pawn 1. You can also resign or offer a draw. In a <b>timed</b> game each side has the same minutes on the clock and gets the increment back after every move; run out and you lose on time. In a shared game the clocks start with White's first move.</p>
+    <p>Checkmate wins; so does walking your king into the enemy citadel. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. The strip under the board shows what each side has taken and who is ahead, counting the queen 9, rook 5, bishop 3, knight 3, <b>camel 2</b>, <b>giraffe 4</b>, griffin 1 (in hand or on the board), pawn 1. You can also resign or offer a draw. In a <b>timed</b> game each side has the same minutes on the clock and gets the increment back after every move; run out and you lose on time. In a shared game the clocks start with White's first move.</p>
     <p class="x"><button class="link" id="rules-close">close</button></p>
   </div>
 </main>
@@ -190,7 +202,7 @@
 <script src="ghess-engine.js"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04e";
+const BUILD = "2026-11-04f";
 
 // engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
 
@@ -309,23 +321,24 @@ const say = (t, warn) => { $("msg").innerHTML = t; $("msg").style.color = warn ?
 const lobbyMsg = t => { $("lobbymsg").textContent = t; };
 const pname = i => (g.players[i] && g.players[i].name) || (i ? "black" : "white");
 const myTurn = () => mode === "hot" ? true : mode === "watch" || mode === "guide" ? false : me === g.turn;
-function enterGame() { $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("guide").classList.add("hidden"); $("controls").classList.remove("hidden"); $("homebtn").classList.remove("hidden"); $("newbtn").classList.toggle("hidden", mode === "room"); sel = -1; hidePromo(); render(); scheduleBot(); }
+function enterGame() { buildBoard(); $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("guide").classList.add("hidden"); $("controls").classList.remove("hidden"); $("homebtn").classList.remove("hidden"); $("newbtn").classList.toggle("hidden", mode === "room"); sel = -1; hidePromo(); render(); scheduleBot(); }
 
 const boardEl = $("board"), cells = {};
 function buildBoard() {
   boardEl.innerHTML = ""; for (const k in cells) delete cells[k];
-  for (let r = 0; r < 10; r++) for (let cI = 0; cI < 10; cI++) {
-    const y = flipped ? r : 9 - r, x = flipped ? 9 - cI : cI;
-    const i = sq(x, y), d = document.createElement("div");
-    d.className = "cell" + ((x + y) % 2 ? "" : " dk"); d.dataset.i = i; cells[i] = d;
+  const kf = kingFile(g ? g.setup : CLASSIC);
+  for (let r = 0; r < 12; r++) for (let cI = 0; cI < 10; cI++) {
+    const y = flipped ? r - 1 : 10 - r, x = flipped ? 9 - cI : cI, d = document.createElement("div");
+    if (y < 0 || y > 9) { const cit = x === kf; d.className = "cell " + (cit ? "cit" : "void"); if (cit) { const i = y < 0 ? CIT_W : CIT_B; d.dataset.i = i; cells[i] = d; d.title = (y < 0 ? "White" : "Black") + "'s citadel — the other king wins by reaching it"; } }
+    else { const i = sq(x, y); d.className = "cell" + ((x + y) % 2 ? "" : " dk"); d.dataset.i = i; cells[i] = d; }
     boardEl.appendChild(d);
   }
 }
-const IMG = { K: "timur/king", Q: "ghess/queen", R: "timur/rook", B: "timur/picket", N: "timur/knight", C: "timur/camel", G: "ghess/griffin" };
-const imgOf = p => "images/" + (p.t === "p" ? (p.pt === "c" ? "timur/pawn-camel" : "timur/pawn-pawn") : IMG[p.t]) + (p.c ? "-b" : "-w") + ".png";
-const pieceName = p => p.t === "p" ? (p.pt === "c" ? "camel pawn" : "pawn") : NAME[p.t];
+const IMG = { K: "timur/king", Q: "ghess/queen", R: "timur/rook", B: "timur/picket", N: "timur/knight", C: "timur/camel", Z: "timur/giraffe", G: "ghess/griffin" };
+const imgOf = p => "images/" + (p.t === "p" ? (p.pt === "z" ? "timur/pawn-giraffe" : "timur/pawn-pawn") : IMG[p.t]) + (p.c ? "-b" : "-w") + ".png";
+const pieceName = p => p.t === "p" ? (p.pt === "z" ? "giraffe pawn" : "pawn") : NAME[p.t];
 function tokHtml(p) {
-  const cls = "tok" + (p.t === "p" ? " pawn" : "") + (p.t === "R" ? " wide" : "") + (p.t === "Q" ? " queen" : "") + (p.t === "G" ? " griffin" + (p.life === 1 ? " l1" : "") : "");
+  const cls = "tok" + (p.t === "p" ? " pawn" : "") + (p.t === "R" ? " wide" : "") + (p.t === "Q" || p.t === "Z" ? " queen" : "") + (p.t === "G" ? " griffin" + (p.life === 1 ? " l1" : "") : "");
   return `<img class="${cls}" src="${imgOf(p)}" alt="${p.c ? "black" : "white"} ${pieceName(p)}" draggable="false">`;
 }
 // castling is "king takes rook" underneath; the UI also offers the king's landing square when it is free
@@ -335,17 +348,17 @@ function targetMap(s, tl) {
   return tmap;
 }
 // material: points on the board (+1 for a griffin still in hand); the icons are what the other side has lost, by comparing with the starting army
-const PTS = { K: 0, Q: 9, R: 5, B: 3, N: 3, C: 2, G: 1, p: 1 };
-const ORDER = ["Q", "R", "B", "N", "C", "G", "p", "pc"];
+const PTS = { K: 0, Q: 9, R: 5, B: 3, N: 3, C: 2, Z: 4, G: 1, p: 1 };
+const ORDER = ["Q", "R", "Z", "B", "N", "C", "G", "p", "pz"];
 function paintMaterial(s) {
   const have = [{}, {}], pts = [0, 0];
-  for (let i = 0; i < 100; i++) { const p = s.b[i]; if (!p) continue; const k = p.t === "p" ? (p.pt === "c" ? "pc" : "p") : p.t; have[p.c][k] = (have[p.c][k] || 0) + 1; pts[p.c] += PTS[p.t]; }
+  for (let i = 0; i < 100; i++) { const p = s.b[i]; if (!p) continue; const k = p.t === "p" ? (p.pt === "z" ? "pz" : "p") : p.t; have[p.c][k] = (have[p.c][k] || 0) + 1; pts[p.c] += PTS[p.t]; }
   for (const c of [0, 1]) if (s.hand[c]) { have[c].G = (have[c].G || 0) + 1; pts[c] += 1; }
-  for (const r of s.rest) { have[r[1]][r[2] === "c" ? "pc" : "p"] = (have[r[1]][r[2] === "c" ? "pc" : "p"] || 0) + 1; pts[r[1]] += 1; }   // a pawn on its way back still counts
-  const start = { Q: 1, R: 2, B: 2, N: 2, C: 2, G: 1, p: 8, pc: 2 };
+  for (const r of s.rest) { const k = r[2] === "z" ? "pz" : "p"; have[r[1]][k] = (have[r[1]][k] || 0) + 1; pts[r[1]] += 1; }   // a pawn on its way back still counts
+  const start = { Q: 1, R: 2, Z: 0, B: 2, N: 2, C: 2, G: 1, p: 8, pz: 2 };
   for (const c of [0, 1]) {
     const o = 1 - c; let h = "";   // what colour c has taken from colour o
-    for (const k of ORDER) { const n = Math.max(0, start[k] - (have[o][k] || 0)); const img = k === "p" ? "timur/pawn-pawn" : k === "pc" ? "timur/pawn-camel" : IMG[k]; for (let i = 0; i < n; i++) h += `<img class="${k === "p" || k === "pc" ? "sm" : ""}" src="images/${img}${o ? "-b" : "-w"}.png" alt="" draggable="false">`; }
+    for (const k of ORDER) { const n = Math.max(0, start[k] - (have[o][k] || 0)); const img = k === "p" ? "timur/pawn-pawn" : k === "pz" ? "timur/pawn-giraffe" : IMG[k]; for (let i = 0; i < n; i++) h += `<img class="${k === "p" || k === "pz" ? "sm" : ""}" src="images/${img}${o ? "-b" : "-w"}.png" alt="" draggable="false">`; }
     const d = pts[c] - pts[o]; h += `<span class="lead${d > 0 ? " on" : ""}">${d > 0 ? "+" + d : ""}</span>`;
     const el = $("m" + c); el.innerHTML = c ? h.replace(/^(.*)(<span[^>]*>.*<\/span>)$/s, "$2$1") : h;
   }
@@ -360,13 +373,13 @@ function render(targets) {
   const tmap = targetMap(s, tl);
   for (const k in cells) {
     const i = +k, d = cells[k], p = s.b[i];
-    d.className = "cell" + ((i % 10 + Math.floor(i / 10)) % 2 ? "" : " dk");
+    d.className = i >= 100 ? "cell cit" : "cell" + ((i % 10 + Math.floor(i / 10)) % 2 ? "" : " dk");
     if (s.last && (s.last[0] === i || s.last[1] === i)) d.classList.add("last");
     if (i === sel) d.classList.add("sel"); if (i === chk) d.classList.add("chk");
     if (s.rest.some(r => r[0] === i)) { d.classList.add("rest"); d.title = "a pawn comes back here when this piece moves away"; } else d.title = "";
     const m = tmap[i];
     let html = p ? tokHtml(p) : "";
-    if (m) { if ((m.k === "c" && p && p.t === "R") || m.k === "s") d.classList.add("cas"); else if (p || m.k === "e") d.classList.add("cap"); else html += `<div class="dot"></div>`; }
+    if (m) { if ((m.k === "c" && p && p.t === "R") || m.k === "s") html += `<div class="ring cas"></div>`; else if (p || m.k === "e") html += `<div class="ring"></div>`; else html += `<div class="dot${m.k === "w" ? " win" : ""}"></div>`; }
     d.innerHTML = html;
   }
   if (mode === "guide") return;
@@ -465,8 +478,9 @@ const GUIDE = [
   ["B", "Any distance diagonally, stopping at the first piece. Each bishop lives on one colour for the whole game."],
   ["N", "One straight and two across, jumping over anything in the way. Switches colour every move."],
   ["C", "The camel from Timur's chess: one across and three along, a stretched knight, over anything in between. Slow to re-route — it takes two moves to reach a neighbouring square — but it forks from far away, and nothing can block it. Always lands on the colour it left."],
+  ["Z", "Only ever born from a giraffe pawn. Timur's giraffe — one square diagonally, then at least three squares straight on outward, with every square on the way empty — plus the camel's leap of one across and three along. Long-legged, strange, and worth about four."],
   ["G", "Off the board until move eleven, then once a game it may swoop onto any enemy pawn and kill it. It stays for two of your moves, moving and capturing one square diagonally, then flies away. If it's killed first, the pawn it took comes back on that square once the killer moves off it."],
-  ["p", "One square forward, or two from its starting rank; captures one square diagonally forward; en passant works. On the far rank it becomes a queen, rook, bishop or knight. The two pawns that start in front of the camels wear a camel's head: they can only become camels, and nothing else can."],
+  ["p", "One square forward, or two from its starting rank; captures one square diagonally forward; en passant works. On the far rank it becomes a queen, rook, bishop or knight. The two pawns that start in front of the camels are giraffe pawns, marked with a giraffe's head: they can only become giraffes, and nothing else can."],
 ];
 function showGuide() {
   $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("controls").classList.add("hidden"); $("guide").classList.remove("hidden"); $("homebtn").classList.remove("hidden");
@@ -476,17 +490,18 @@ function showGuide() {
   guidePiece("C");
 }
 let guideT = "C";
-function guideMoves(i) { const out = []; pieceMoves(st, i, out); return out.filter(m => m.k !== "c"); }
+function guideMoves(i) { const out = []; pieceMoves(st, i, out); return out.filter(m => m.k !== "c" && m.k !== "w"); }
 function guidePiece(t) {
   guideT = t; document.querySelectorAll("#guide .pick button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
-  const b = new Array(100).fill(null); const at = t === "p" ? sq(4, 1) : sq(4, 4);
+  const b = new Array(NSQ).fill(null); const at = t === "p" ? sq(4, 1) : sq(4, 4);
   b[at] = t === "p" ? { c: 0, t: "p", pt: "p" } : t === "G" ? { c: 0, t, v: "p", life: 9 } : { c: 0, t };
+  if (t === "Z") { b[sq(6, 7)] = { c: 1, t: "p", pt: "z" }; b[sq(2, 6)] = { c: 1, t: "N" }; }
   st = { b, turn: 0, cr: [[false, false], [false, false]], ep: -1, half: 0, swap: [true, true], hand: [false, false], ply: 0, rest: [], over: null, last: null, setup: CLASSIC };
   const reach = guideMoves(at).map(m => m.t);
   const far = i => Math.abs(xy(i)[0] - 4) + Math.abs(xy(i)[1] - 4);
   const sorted = reach.slice().sort((a, c) => far(a) - far(c));
   const picks = t === "p" ? [] : [sorted[Math.floor(sorted.length * .25)], sorted[sorted.length - 1]].filter((x, k, arr) => x !== undefined && arr.indexOf(x) === k);
-  if (t === "p") { b[sq(5, 2)] = { c: 1, t: "N" }; b[sq(3, 2)] = { c: 1, t: "C" }; b[sq(4, 8)] = { c: 1, t: "p", pt: "c" }; }
+  if (t === "p") { b[sq(5, 2)] = { c: 1, t: "N" }; b[sq(3, 2)] = { c: 1, t: "C" }; b[sq(4, 8)] = { c: 1, t: "p", pt: "z" }; }
   const kinds = t === "G" ? ["p", "p"] : ["N", "C", "B", "R"]; picks.forEach((j, k) => { const kt = kinds[k % kinds.length]; b[j] = kt === "p" ? { c: 1, t: "p", pt: "p" } : { c: 1, t: kt }; });
   for (const j of [sq(1, 7), sq(8, 1), sq(0, 3)]) if (!b[j] && !reach.includes(j)) { b[j] = { c: 1, t: "p", pt: "p" }; break; }
   sel = at; render(guideMoves(at));
@@ -516,7 +531,7 @@ $("piecesbtn").onclick = e => { e.preventDefault(); showGuide(); };
 $("guide-done").onclick = () => { location.hash = ""; location.reload(); };
 
 // ---------- boot ----------
-for (const n of [...Object.values(IMG), "timur/pawn-pawn", "timur/pawn-camel"]) for (const side of ["w", "b"]) new Image().src = "images/" + n + "-" + side + ".png";
+for (const n of [...Object.values(IMG), "timur/pawn-pawn", "timur/pawn-giraffe"]) for (const side of ["w", "b"]) new Image().src = "images/" + n + "-" + side + ".png";
 const hm = location.hash.match(/g=(\w+)/);
 if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("setup").parentElement.parentElement.classList.add("hidden"); $("clockrow").classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
 window.__gh = { applyFlag, chargeClock, paintClocks, get serverOffset() { return serverOffset; }, set serverOffset(v) { serverOffset = v; }, get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, sq, render, startLocal, pieceMoves, notation, setupFor, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, evaluate, showGuide, BUILD };

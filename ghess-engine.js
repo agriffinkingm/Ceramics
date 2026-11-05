@@ -1,14 +1,17 @@
 // Ghess — rules engine and computer player. Loaded by ghess.html on the page and again inside a Web Worker.
-// Ordinary chess on a 10×10 board with a camel beside each knight: R N C B Q K B C N R, pawns in front.
+// Ordinary chess on a 10×10 board with a camel beside each knight: R N C B Q K B C N R, pawns in front. The pawns in front of the
+// camels are giraffe pawns: they promote only to a giraffe (Timur's giraffe move plus the camel's leap). Behind each king sits a
+// citadel square; the enemy king wins by stepping into it.
 // Plus two house rules: the shah's privilege (once a game, a checked king may swap places with one of its pieces, not a pawn) and the griffin
 // (one per side, off the board; from move 11 it may swoop onto an enemy pawn and kill it, stays for two of its owner's moves —
 // moving and capturing one square diagonally — then flies away. If it is killed, the pawn comes back on that square once the
 // piece that killed it moves away).
 "use strict";
 // ===================== engine =====================
-// Squares 0..99: index = rank*10 + file, a1 = 0, j10 = 99.
+// Squares 0..99: index = rank*10 + file, a1 = 0, j10 = 99. 100 = White's citadel (behind White's king), 101 = Black's.
+const CIT_W = 100, CIT_B = 101, NSQ = 102;
 const FILES = "abcdefghij";
-const NAME = { K: "king", Q: "queen", R: "rook", B: "bishop", N: "knight", C: "camel", G: "griffin", p: "pawn" };
+const NAME = { K: "king", Q: "queen", R: "rook", B: "bishop", N: "knight", C: "camel", Z: "giraffe", G: "griffin", p: "pawn" };
 const SWOOP_PLY = 20;   // the griffin may come in once both sides have made ten moves
 const HAND = -1;        // m.f of a griffin drop
 const LIFE = 2;         // the griffin stays for this many of its owner's moves after the swoop
@@ -18,7 +21,9 @@ const KN = [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -
 const CAM = [[1, 3], [3, 1], [-1, 3], [-3, 1], [1, -3], [3, -1], [-1, -3], [-3, -1]];
 const sq = (x, y) => (x >= 0 && x < 10 && y >= 0 && y < 10) ? y * 10 + x : -1;
 const xy = i => [i % 10, Math.floor(i / 10)];
-const sqName = i => FILES[i % 10] + (Math.floor(i / 10) + 1);
+const sqName = i => i >= 100 ? "citadel" : FILES[i % 10] + (Math.floor(i / 10) + 1);
+const kingFile = setup => setup.indexOf("K");
+const enemyCit = c => c === 0 ? CIT_B : CIT_W;
 const fwd = c => c === 0 ? 1 : -1, lastRank = c => c === 0 ? 9 : 0, homeRank = c => c === 0 ? 0 : 9, pawnRank = c => c === 0 ? 1 : 8;
 const PROMO = ["Q", "R", "B", "N"];
 const CLASSIC = "RNCBQKBCNR";
@@ -39,9 +44,9 @@ function setupFor(seed) {
 }
 function rookFiles(setup) { const r = []; for (let i = 0; i < 10; i++) if (setup[i] === "R") r.push(i); return r; }   // [queenside, kingside]
 function initialBoard(setup = CLASSIC) {
-  const b = new Array(100).fill(null);
+  const b = new Array(NSQ).fill(null);
   for (let x = 0; x < 10; x++) {
-    const t = setup[x], pt = t === "C" ? "c" : "p";
+    const t = setup[x], pt = t === "C" ? "z" : "p";
     b[sq(x, 0)] = { c: 0, t }; b[sq(x, 9)] = { c: 1, t };
     b[sq(x, 1)] = { c: 0, t: "p", pt }; b[sq(x, 8)] = { c: 1, t: "p", pt };
   }
@@ -50,7 +55,7 @@ function initialBoard(setup = CLASSIC) {
 function newState(setup = CLASSIC) { return { b: initialBoard(setup), turn: 0, cr: [[true, true], [true, true]], ep: -1, half: 0, swap: [false, false], hand: [true, true], ply: 0, rest: [], over: null, last: null, setup }; }
 // board tokens: wK, bpc (camel pawn), wGc2 (griffin that killed a camel pawn, two moves of life left)
 function pack(b) { return b.map(p => p ? (p.c ? "b" : "w") + p.t + (p.t === "p" ? p.pt : p.t === "G" ? p.v + p.life : "") : ".").join(" "); }
-function unpack(s) { return s.split(" ").map(t => { if (t === ".") return null; const p = { c: t[0] === "b" ? 1 : 0, t: t[1] }; if (p.t === "p") p.pt = t[2] || "p"; if (p.t === "G") { p.v = t[2] || "p"; p.life = +t[3] || 0; } return p; }); }
+function unpack(s) { const b = s.split(" ").map(t => { if (t === ".") return null; const p = { c: t[0] === "b" ? 1 : 0, t: t[1] }; if (p.t === "p") p.pt = t[2] || "p"; if (p.t === "G") { p.v = t[2] || "p"; p.life = +t[3] || 0; } return p; }); while (b.length < NSQ) b.push(null); return b; }
 // rest: pawns waiting to come back — [square, colour, pawn type] — placed as soon as the square empties
 const cloneRest = r => r.map(x => x.slice());
 function kingSq(b, c) { for (let i = 0; i < 100; i++) { const p = b[i]; if (p && p.c === c && p.t === "K") return i; } return -1; }
@@ -59,7 +64,21 @@ function ray(b, x, y, dx, dy, fn) {   // fn(j, piece) → false to stop
   let cx = x, cy = y;
   for (; ;) { cx += dx; cy += dy; const j = sq(cx, cy); if (j < 0) return; const q = b[j]; if (fn(j, q) === false) return; if (q) return; }
 }
+function giraffeTargets(b, i) {   // Timur's giraffe: one diagonal step (empty), then at least three squares straight on outward, nothing in the way
+  const out = [], [x, y] = xy(i);
+  for (const [dx, dy] of DIAG) {
+    const s1 = sq(x + dx, y + dy); if (s1 < 0 || b[s1]) continue;
+    for (const [ex, ey] of [[dx, 0], [0, dy]]) {
+      let cx = x + dx, cy = y + dy, ok = true;
+      for (let k = 1; k <= 2; k++) { cx += ex; cy += ey; const j = sq(cx, cy); if (j < 0 || b[j]) { ok = false; break; } }
+      if (!ok) continue;
+      for (; ;) { cx += ex; cy += ey; const j = sq(cx, cy); if (j < 0) break; out.push(j); if (b[j]) break; }
+    }
+  }
+  return out;
+}
 function attacked(b, i, by) {   // is square i attacked by colour `by`?
+  if (i >= 100) return false;
   const [x, y] = xy(i);
   const has = (j, ts) => { if (j < 0) return false; const q = b[j]; return !!(q && q.c === by && ts.includes(q.t)); };
   for (const [dx, dy] of DIRS8) if (has(sq(x + dx, y + dy), "K")) return true;
@@ -71,9 +90,20 @@ function attacked(b, i, by) {   // is square i attacked by colour `by`?
   for (const [dx, dy] of ORTH) { ray(b, x, y, dx, dy, (j, q) => { if (q && q.c === by && (q.t === "R" || q.t === "Q")) hit = true; }); if (hit) return true; }
   for (const [dx, dy] of DIAG) { ray(b, x, y, dx, dy, (j, q) => { if (q && q.c === by && (q.t === "B" || q.t === "Q")) hit = true; }); if (hit) return true; }
   for (const [dx, dy] of DIAG) if (has(sq(x + dx, y + dy), "G")) return true;
+  // giraffe: the camel leap, or walk back ≥3 straight squares (all empty) then one diagonal step back — that square empty too
+  for (const [dx, dy] of CAM) if (has(sq(x + dx, y + dy), "Z")) return true;
+  for (const [ex, ey] of ORTH) {
+    let cx = x, cy = y;
+    for (let k = 1; ; k++) {
+      cx -= ex; cy -= ey; const j = sq(cx, cy); if (j < 0 || b[j]) break;
+      if (k < 3) continue;
+      for (const perp of [-1, 1]) { const gx = ex ? cx - ex : cx - perp, gy = ey ? cy - ey : cy - perp; if (has(sq(gx, gy), "Z")) return true; }
+    }
+  }
   return false;
 }
-// pseudo-legal moves of the piece on i. kinds: (none) plain, "e" en passant, "c" castling (t = the rook's square), pr = promotion piece
+// pseudo-legal moves of the piece on i. kinds: (none) plain, "e" en passant, "c" castling (t = the rook's square), "s" king swap,
+// "g" griffin swoop, "w" king into the enemy citadel (wins), pr = promotion piece
 function pieceMoves(st, i, out) {
   const b = st.b, p = b[i], c = p.c, [x, y] = xy(i);
   const add = (j, extra) => out.push(Object.assign({ f: i, t: j }, extra || {}));
@@ -82,6 +112,7 @@ function pieceMoves(st, i, out) {
   switch (p.t) {
     case "K": {
       for (const [dx, dy] of DIRS8) step(sq(x + dx, y + dy));
+      { const kf = kingFile(st.setup), cy = c === 0 ? 10 : -1; if (Math.abs(x - kf) <= 1 && y + (c === 0 ? 1 : -1) === cy) add(enemyCit(c), { k: "w" }); }
       if (!st.swap[c] && attacked(b, i, 1 - c)) {   // the shah's privilege: trade places with any other piece of yours — pieces only, not pawns
         for (let j = 0; j < 100; j++) { const q = b[j]; if (!q || q.c !== c || q.t === "K" || q.t === "p") continue; add(j, { k: "s" }); }
       }
@@ -106,10 +137,11 @@ function pieceMoves(st, i, out) {
     case "B": slide(DIAG); break;
     case "N": for (const [dx, dy] of KN) step(sq(x + dx, y + dy)); break;
     case "C": for (const [dx, dy] of CAM) step(sq(x + dx, y + dy)); break;
+    case "Z": for (const [dx, dy] of CAM) step(sq(x + dx, y + dy)); for (const j of giraffeTargets(b, i)) step(j); break;
     case "G": for (const [dx, dy] of DIAG) step(sq(x + dx, y + dy)); break;
     case "p": {
       const f = fwd(c), ty = y + f, last = ty === lastRank(c);
-      const prs = last ? (p.pt === "c" ? ["C"] : PROMO) : [null];
+      const prs = last ? (p.pt === "z" ? ["Z"] : PROMO) : [null];
       const addP = (j, extra) => { for (const pr of prs) add(j, pr ? Object.assign({ pr }, extra || {}) : extra); };
       const j = sq(x, ty);
       if (j >= 0 && !b[j]) { addP(j); if (y === pawnRank(c)) { const j2 = sq(x, ty + f); if (j2 >= 0 && !b[j2]) add(j2); } }
@@ -130,6 +162,7 @@ function make(st, m) {
   st.ep = -1; st.half++; st.ply++;
   if (q && q.t === "G" && m.k !== "s") st.rest = st.rest.concat([[m.t, q.c === 0 ? 1 : 0, q.v]]);   // a killed griffin: its victim waits under the killer
   if (m.k === "g") { set(m.t, p); st.hand[c] = false; st.half = 0; }
+  else if (m.k === "w") { set(m.f, null); set(m.t, p); st.over = { result: c === 0 ? "w" : "b", why: "the king reached the citadel" }; }
   else if (m.k === "s") { set(m.t, p); set(m.f, q); st.swap[c] = true; st.cr[c] = [false, false]; }
   else if (m.k === "c") {
     const side = m.t === sq(rf[1], homeRank(c)) ? 1 : 0, y = homeRank(c);
@@ -155,7 +188,7 @@ function unmake(st, u) { for (let k = u.ch.length - 1; k >= 0; k--) st.b[u.ch[k]
 function inCheck(st, c) { const k = kingSq(st.b, c); return k >= 0 && attacked(st.b, k, 1 - c); }
 function legal(st) {
   const c = st.turn, out = [];
-  for (const m of gen(st, c)) { const u = make(st, m); const bad = inCheck(st, c); unmake(st, u); if (!bad) out.push(m); }
+  for (const m of gen(st, c)) { const u = make(st, m); const bad = !st.over && inCheck(st, c); unmake(st, u); if (!bad) out.push(m); }
   return out;
 }
 function bare(st) { if (st.hand[0] || st.hand[1] || st.rest.length) return false; for (let i = 0; i < 100; i++) { const p = st.b[i]; if (p && p.t !== "K") return false; } return true; }
@@ -173,6 +206,7 @@ function notation(st, m) {
   if (m.k === "g") return "G↓" + sqName(m.t) + "×";
   const p = b[m.f];
   if (m.k === "s") return "K⇄" + (q.t === "p" ? "p" : q.t) + " " + sqName(m.t);
+  if (m.k === "w") return "K" + sqName(m.f) + "→citadel";
   if (m.k === "c") return m.t % 10 > m.f % 10 ? "O-O" : "O-O-O";
   let s = p.t === "p" ? "" : p.t;
   s += sqName(m.f) + (q || m.k === "e" ? "×" : "–") + sqName(m.t);
@@ -181,14 +215,14 @@ function notation(st, m) {
 }
 
 // ---------- the computer: alpha-beta over legal moves, captures-only quiescence, iterative deepening on a time budget ----------
-const VAL = { K: 0, Q: 9.5, R: 5.2, B: 3.4, N: 3, C: 2.2, G: 1.3, p: 1 };
+const VAL = { K: 0, Q: 9.5, R: 5.2, B: 3.4, N: 3, C: 2.2, Z: 4.5, G: 1.3, p: 1 };
 const HAND_VAL = 1.1;   // a griffin still in hand: a pawn to be taken, give or take
 function evaluate(st) {
   const b = st.b; let s = 0; const mat = [0, 0], ksq = [-1, -1];
   for (let i = 0; i < 100; i++) {
     const p = b[i]; if (!p) continue; let v = VAL[p.t]; const x = i % 10, y = Math.floor(i / 10);
     if (p.t === "K") ksq[p.c] = i; else if (p.t !== "p") mat[p.c] += v;
-    if (p.t === "p") { const adv = p.c === 0 ? y - 1 : 8 - y; v += adv * adv * 0.03 + (p.pt === "c" ? -0.1 : 0); }
+    if (p.t === "p") { const adv = p.c === 0 ? y - 1 : 8 - y; v += adv * adv * 0.03 + (p.pt === "z" ? 0.05 : 0); }
     else if (p.t === "N" || p.t === "C" || p.t === "B") v += 0.25 - 0.05 * (Math.abs(x - 4.5) + Math.abs(y - 4.5)) / 2;   // minor pieces like the middle of a big board
     else if (p.t === "R" || p.t === "Q") v += y === homeRank(p.c) ? 0 : 0.05;
     s += p.c === 0 ? v : -v;
@@ -246,9 +280,9 @@ function orderMoves(st, ms, ply, pv) {
     return [sc, m];
   }).sort((a, c) => c[0] - a[0]).map(x => x[1]);
 }
-function tryMove(st, m) { const c = st.turn, u = make(st, m); if (inCheck(st, c)) { unmake(st, u); return null; } return u; }
+function tryMove(st, m) { const c = st.turn, u = make(st, m); if (!st.over && inCheck(st, c)) { unmake(st, u); return null; } return u; }
 function quiesce(st, alpha, beta, d, ply) {
-  nodes++;
+  nodes++; if (st.over) return -(MATE + 50 - ply);
   const c = st.turn, check = inCheck(st, c);
   if (check && d > -3) {
     let any = false, best = -Infinity;
@@ -263,13 +297,14 @@ function quiesce(st, alpha, beta, d, ply) {
 }
 function search(st, depth, alpha, beta, ply, ext) {
   nodes++; if ((nodes & 1023) === 0 && performance.now() > deadline) aborted = true;
+  if (st.over) return -(MATE + 50 - ply);
   if (depth <= 0) return quiesce(st, alpha, beta, 3, ply);
   const key = zkey(st), tt = TT.get(key), alpha0 = alpha;
   if (tt && tt.depth >= depth) { if (tt.flag === 0) return tt.v; if (tt.flag === 1 && tt.v >= beta) return tt.v; if (tt.flag === 2 && tt.v <= alpha) return tt.v; }
   const c = st.turn; let any = false, best = -Infinity, bestM = null;
   for (const m of orderMoves(st, gen(st, c), ply, tt && tt.m)) {
     const u = tryMove(st, m); if (!u) continue; any = true;
-    const givesCheck = inCheck(st, st.turn);
+    const givesCheck = !st.over && inCheck(st, st.turn);
     const e = givesCheck && ext < 3 ? 1 : 0;
     const v = -search(st, depth - 1 + e, -beta, -alpha, ply + 1, ext + e); unmake(st, u);
     if (aborted) return best;
