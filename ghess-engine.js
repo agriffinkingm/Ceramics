@@ -316,12 +316,9 @@ function search(st, depth, alpha, beta, ply, ext) {
   if (!aborted) { if (TT.size > TT_MAX) TT.clear(); TT.set(key, { depth, v: best, flag: best <= alpha0 ? 2 : best >= beta ? 1 : 0, m: bestM }); }
   return best;
 }
-function think(st, level, maxMs) {   // maxMs: a cap on thinking time, so a bot on a clock doesn't flag itself
-  const ms = legal(st); if (!ms.length) return null;
-  let budget = level === "easy" ? 200 : level === "normal" ? 1500 : 5000; if (maxMs) budget = Math.max(50, Math.min(budget, maxMs));
-  const maxD = level === "easy" ? 1 : level === "normal" ? 8 : 12;
+function searchRoot(st, ms, budget, maxD) {   // iterative deepening over the root moves; returns [[score, move]...] best first, and the depth reached
   deadline = performance.now() + budget; aborted = false; nodes = 0; killers = []; history = {}; TT = new Map();
-  let scored = ms.map(m => [0, m]), pv = null;
+  let scored = ms.map(m => [0, m]), pv = null, depth = 0;
   for (let d = 1; d <= maxD && !aborted; d++) {
     const trial = []; let alpha = -Infinity;
     for (const m of orderMoves(st, ms, 0, pv)) {
@@ -330,17 +327,35 @@ function think(st, level, maxMs) {   // maxMs: a cap on thinking time, so a bot 
       trial.push([v > alpha ? v : Math.min(v, alpha - 0.1), m]); if (v > alpha) alpha = v;
     }
     if (aborted) { if (trial.length && trial[0][0] >= scored[0][0]) scored = trial.concat(scored.filter(x => !trial.some(t => t[1] === x[1]))); break; }
-    trial.sort((a, b) => b[0] - a[0]); scored = trial; pv = scored[0][1];
+    trial.sort((a, b) => b[0] - a[0]); scored = trial; pv = scored[0][1]; depth = d;
     if (Math.abs(scored[0][0]) > MATE - 100) break;
   }
+  return { scored, depth };
+}
+function think(st, level, maxMs) {   // maxMs: a cap on thinking time, so a bot on a clock doesn't flag itself
+  const ms = legal(st); if (!ms.length) return null;
+  let budget = level === "easy" ? 200 : level === "normal" ? 1500 : 5000; if (maxMs) budget = Math.max(50, Math.min(budget, maxMs));
+  const maxD = level === "easy" ? 1 : level === "normal" ? 8 : 12;
+  const { scored } = searchRoot(st, ms, budget, maxD);
   if (level === "easy") { const top = scored.filter(x => x[0] >= scored[0][0] - 1.5); return top[Math.floor(Math.random() * top.length)][1]; }
   const ties = scored.filter(x => x[0] >= scored[0][0] - 0.05); return ties[Math.floor(Math.random() * ties.length)][1];
 }
-// ---- worker entry point: the page posts a position, gets a move back ----
+// analysis for the eval bar: the position's value from White's side in pawns, or a mate distance, plus the best move found
+function analyse(st, budget) {
+  const over = status(st);
+  if (over) return { v: over.result === "d" ? 0 : over.result === "w" ? Infinity : -Infinity, mate: 0, m: null, depth: 0 };
+  const { scored, depth } = searchRoot(st, legal(st), budget || 800, 10);
+  let v = scored[0][0], mate = null;
+  if (Math.abs(v) > MATE - 100) { const plies = MATE + 50 - Math.abs(v); mate = Math.sign(v) * Math.ceil(plies / 2); }   // from the side to move
+  if (st.turn === 1) { v = -v; if (mate !== null) mate = -mate; }
+  return { v, mate, m: scored[0][1], depth };
+}
+// ---- worker entry point: the page posts a position, gets a move (or an evaluation) back ----
 if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) {
   self.onmessage = e => {
-    const { id, board, turn, cr, ep, half, swap, hand, ply, rest, setup, level, maxMs } = e.data;
+    const { id, board, turn, cr, ep, half, swap, hand, ply, rest, setup, level, maxMs, kind, budget } = e.data;
     const st = { b: unpack(board), turn, cr: [cr[0].slice(), cr[1].slice()], ep, half, swap: (swap || [false, false]).slice(), hand: (hand || [true, true]).slice(), ply: ply || 0, rest: cloneRest(rest || []), over: null, last: null, setup: setup || CLASSIC };
+    if (kind === "eval") { const r = analyse(st, budget); self.postMessage({ id, kind, v: r.v === Infinity ? 1e9 : r.v === -Infinity ? -1e9 : r.v, mate: r.mate, m: r.m, depth: r.depth, nodes }); return; }
     const m = think(st, level, maxMs);
     self.postMessage({ id, m, nodes });
   };

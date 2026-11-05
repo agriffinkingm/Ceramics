@@ -64,6 +64,16 @@
 
   /* board: ten by ten, checkered over the wood */
   #board-wrap { width: 100%; position: relative; }
+  /* eval bar: a strip beside the board, white's share filled from the bottom (top when flipped) */
+  #boardrow { display: flex; gap: 6px; align-items: stretch; }
+  #boardrow #board-wrap { flex: 1; min-width: 0; }
+  #evalbar { width: 18px; flex: none; position: relative; border-radius: 3px; background: var(--tok-b); overflow: hidden; box-shadow: inset 0 0 0 1px rgba(60,36,14,.35); }
+  #evalbar .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 50%; background: var(--tok-w); transition: height .5s ease; }
+  #evalbar.flip .fill { bottom: auto; top: 0; }
+  #evalbar .num { position: absolute; left: 0; right: 0; text-align: center; font-size: .56rem; letter-spacing: .02em; font-weight: 500; font-variant-numeric: tabular-nums; writing-mode: vertical-rl; transform: rotate(180deg); pointer-events: none; }
+  #evalbar .num.top { top: 4px; color: var(--tok-w); } #evalbar .num.bot { bottom: 4px; color: var(--tok-b); }
+  #evalbar.flip .num.top { color: var(--tok-b); } #evalbar.flip .num.bot { color: var(--tok-w); }
+  #evalbar.thinking .fill { opacity: .85; }
   #board { display: grid; grid-template-columns: repeat(10, 1fr); width: 100%; user-select: none; -webkit-user-select: none; touch-action: manipulation; background: url(images/timur/wood.jpg) center / 520px auto; box-shadow: 0 1px 4px rgba(40,20,5,.3); }
   .cell { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,245,225,.22); box-shadow: inset 0 0 0 1px rgba(60,36,14,.18); }
   .cell.void { background: var(--plaster); box-shadow: none; cursor: default; }
@@ -113,7 +123,11 @@
   #share-link { width: min(100%, 24rem); font-size: .8rem; }
   #log { margin-top: .9rem; font-size: .82rem; color: var(--stone); border-top: 1px solid var(--plaster-deep); padding-top: .5rem; display: grid; grid-template-columns: auto 1fr 1fr; column-gap: .8rem; row-gap: .12rem; max-height: 40vh; overflow: auto; }
   #log .n { color: var(--clay-dark); text-align: right; }
-  #log .mv { font-family: 'Cormorant Garamond', serif; font-size: 1rem; }
+  #log .mv { font-family: 'Cormorant Garamond', serif; font-size: 1rem; cursor: pointer; padding: 0 .2rem; border-radius: 3px; }
+  #log .mv:hover { color: var(--terracotta); }
+  #log .mv.cur { background: var(--ivory); box-shadow: inset 0 0 0 1px var(--plaster-deep); color: var(--charcoal); }
+  #log .mv.var { font-style: italic; color: var(--terracotta); }
+  #anbar { text-align: center; font-size: .82rem; color: var(--clay-dark); letter-spacing: .04em; margin-top: .3rem; }
 
   /* guide */
   #guide { margin-top: .5rem; }
@@ -152,7 +166,7 @@
 
   <section id="arena" class="hidden">
     <div id="top"><div class="pl" id="p0"><span class="swatch" style="background:var(--tok-w)"></span><span class="nm"></span><span class="clk hidden" id="c0"></span><img class="hand hidden" id="h0" src="images/ghess/griffin-w.png" alt="white griffin in hand" draggable="false"></div><div id="mid"><span id="midl"></span><b id="midb"></b></div><div class="pl right" id="p1"><img class="hand hidden" id="h1" src="images/ghess/griffin-b.png" alt="black griffin in hand" draggable="false"><span class="clk hidden" id="c1"></span><span class="nm"></span><span class="swatch" style="background:var(--tok-b)"></span></div></div>
-    <div id="board-wrap"><div id="board"></div><div id="promo" class="hidden"><div class="box"></div></div></div>
+    <div id="boardrow"><div id="evalbar" class="hidden" title="the computer's view of the position"><div class="fill"></div><div class="num top"></div><div class="num bot"></div></div><div id="board-wrap"><div id="board"></div><div id="promo" class="hidden"><div class="box"></div></div></div></div>
     <div id="mat"><div class="side" id="m0"></div><div class="side r" id="m1"></div></div>
     <div id="msg"></div>
     <div id="guide" class="hidden">
@@ -164,9 +178,12 @@
       <div id="actions">
         <button id="undo">undo</button>
         <button id="flip">flip</button>
+        <button id="evalbtn">eval bar</button>
         <button id="draw">offer a draw</button>
         <button id="resign">resign</button>
         <button id="newbtn" class="hidden">new game</button>
+        <button id="anbtn" class="hidden">analyze</button>
+        <button id="backbtn" class="hidden primary">back to the game</button>
       </div>
       <div id="share" class="hidden"><input id="share-link" type="text" readonly> <button id="copy">copy link</button> <button id="sharebtn" class="hidden">share…</button></div>
       <div id="log"></div>
@@ -194,7 +211,7 @@
     <p>It then <b>stays for two of your moves</b>. On each it may move — and capture — <b>one square diagonally</b>, or you may move something else; it gives check like any piece. After your second move it <b>flies away</b> for good (the griffin fades once it has one move left). It comes only once a game.</p>
     <p>If the griffin is <b>killed</b> while it's on the board, the pawn it took isn't lost for good: it <b>comes back on the square where the griffin died</b>, as soon as the piece that killed it moves away — a camel pawn comes back as a camel pawn. (If that square happens to be the pawn's last rank, it stays gone.)</p>
     <h4>Ending</h4>
-    <p>Checkmate wins; so does walking your king into the enemy citadel. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. The strip under the board shows what each side has taken and who is ahead, counting the queen 9, rook 5, bishop 3, knight 3, <b>camel 2</b>, <b>giraffe 4</b>, griffin 1 (in hand or on the board), pawn 1. You can also resign or offer a draw. In a <b>timed</b> game each side has the same minutes on the clock and gets the increment back after every move; run out and you lose on time. In a shared game the clocks start with White's first move.</p>
+    <p>Checkmate wins; so does walking your king into the enemy citadel. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. <b>Analysis:</b> tap any move in the list to go back to that position; from there you can move the pieces for either side and the eval bar follows — the game itself is untouched, and "back to the game" returns you to it. When a game is over, tapping the board (or "analyze") opens the final position the same way. The <b>eval bar</b> button shows the computer's opinion of the position beside the board — white's share of the bar, with the score in pawns or a mate distance — recomputed after every move (a second or so of thinking, so take it as a hint, not a verdict). The strip under the board shows what each side has taken and who is ahead, counting the queen 9, rook 5, bishop 3, knight 3, <b>camel 2</b>, <b>giraffe 4</b>, griffin 1 (in hand or on the board), pawn 1. You can also resign or offer a draw. In a <b>timed</b> game each side has the same minutes on the clock and gets the increment back after every move; run out and you lose on time. In a shared game the clocks start with White's first move.</p>
     <p class="x"><button class="link" id="rules-close">close</button></p>
   </div>
 </main>
@@ -202,7 +219,7 @@
 <script src="ghess-engine.js"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04i";
+const BUILD = "2026-11-04k";
 
 // engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
 
@@ -213,8 +230,8 @@ const selFrom = () => sel === HSEL ? HAND : sel;
 const BOTS = { 0: null, 1: null };
 const uidSelf = (() => { let u = localStorage.getItem("agkm-uid"); if (!u) { u = Math.random().toString(36).slice(2, 10); localStorage.setItem("agkm-uid", u); } return u; })();
 const nameMem = { get: () => localStorage.getItem("agkm-name") || "", set: v => localStorage.setItem("agkm-name", v) };
-function newGame(players, rep, seed = 0, clock = null) { const setup = setupFor(seed); const s = newState(setup); return { v: 0, board: pack(s.b), turn: 0, cr: s.cr, ep: -1, half: 0, swap: [false, false], hand: [true, true], ply: 0, rest: [], over: null, last: null, log: [], hist: {}, players, rep: !!rep, setup, seed, draw: null, clock, times: clock ? [clock.base, clock.base] : [0, 0], tick: 0 }; }
-function norm(x) { x.cr = x.cr && x.cr.length === 2 ? [[!!x.cr[0][0], !!x.cr[0][1]], [!!x.cr[1][0], !!x.cr[1][1]]] : [[true, true], [true, true]]; if (x.ep === undefined) x.ep = -1; x.half = x.half || 0; x.swap = x.swap ? [!!x.swap[0], !!x.swap[1]] : [false, false]; x.hand = x.hand ? [!!x.hand[0], !!x.hand[1]] : [true, true]; x.ply = x.ply || x.log && x.log.length || 0; x.rest = (x.rest || []).map(r => [r[0], r[1], r[2]]); x.log = x.log || []; x.hist = x.hist || {}; x.players = x.players || []; x.setup = x.setup || CLASSIC; x.seed = x.seed || 0; if (x.last && !Array.isArray(x.last)) x.last = [x.last[0], x.last[1]]; if (x.draw === undefined) x.draw = null; x.clock = x.clock && x.clock.base ? { base: +x.clock.base, inc: +x.clock.inc || 0 } : null; x.times = x.times && x.times.length === 2 ? [+x.times[0] || 0, +x.times[1] || 0] : [0, 0]; x.tick = +x.tick || 0; return x; }
+function newGame(players, rep, seed = 0, clock = null) { const setup = setupFor(seed); const s = newState(setup); return { v: 0, board: pack(s.b), turn: 0, cr: s.cr, ep: -1, half: 0, swap: [false, false], hand: [true, true], ply: 0, rest: [], over: null, last: null, log: [], hist: {}, players, rep: !!rep, setup, seed, draw: null, clock, times: clock ? [clock.base, clock.base] : [0, 0], tick: 0, moves: [] }; }
+function norm(x) { x.cr = x.cr && x.cr.length === 2 ? [[!!x.cr[0][0], !!x.cr[0][1]], [!!x.cr[1][0], !!x.cr[1][1]]] : [[true, true], [true, true]]; if (x.ep === undefined) x.ep = -1; x.half = x.half || 0; x.swap = x.swap ? [!!x.swap[0], !!x.swap[1]] : [false, false]; x.hand = x.hand ? [!!x.hand[0], !!x.hand[1]] : [true, true]; x.ply = x.ply || x.log && x.log.length || 0; x.rest = (x.rest || []).map(r => [r[0], r[1], r[2]]); x.log = x.log || []; x.moves = (x.moves || []).map(m => [m[0], m[1], m[2] || "", m[3] || ""]); x.hist = x.hist || {}; x.players = x.players || []; x.setup = x.setup || CLASSIC; x.seed = x.seed || 0; if (x.last && !Array.isArray(x.last)) x.last = [x.last[0], x.last[1]]; if (x.draw === undefined) x.draw = null; x.clock = x.clock && x.clock.base ? { base: +x.clock.base, inc: +x.clock.inc || 0 } : null; x.times = x.times && x.times.length === 2 ? [+x.times[0] || 0, +x.times[1] || 0] : [0, 0]; x.tick = +x.tick || 0; return x; }
 // ---------- clocks: times[] in ms, tick = server time the running clock started (0 = not running) ----------
 let serverOffset = 0;
 const now = () => Date.now() + serverOffset;
@@ -239,7 +256,7 @@ function applyMove(x, m) {   // pure: x is a copy of the record
   if (s.rest.length < restBefore) note += " ↩p";                                               // a pawn came back
   let over = status(s);
   if (inCheck(s, s.turn)) note += over && over.why === "checkmate" ? "#" : "+";
-  x.board = pack(s.b); x.turn = s.turn; x.cr = s.cr; x.ep = s.ep; x.half = s.half; x.swap = s.swap; x.hand = s.hand; x.ply = s.ply; x.rest = s.rest; x.last = [m.f, m.t]; x.log.push(note); x.v = (x.v || 0) + 1; x.draw = null;
+  x.board = pack(s.b); x.turn = s.turn; x.cr = s.cr; x.ep = s.ep; x.half = s.half; x.swap = s.swap; x.hand = s.hand; x.ply = s.ply; x.rest = s.rest; x.last = [m.f, m.t]; x.log.push(note); x.moves.push([m.f, m.t, m.k || "", m.pr || ""]); x.v = (x.v || 0) + 1; x.draw = null;
   if (!over) { const k = hash(posKey(s)); x.hist[k] = (x.hist[k] || 0) + 1; if (x.rep && x.hist[k] >= 3) over = { result: "d", why: "the same position three times" }; }
   x.over = over; restartClock(x, 1 - s.turn); return x;
 }
@@ -280,13 +297,49 @@ function paintClocks() {
 }
 setInterval(paintClocks, 200);
 function afterCommit() { sel = -1; render(); paintClocks(); scheduleBot(); }
-function scheduleBot() { if (g && !g.over && BOTS[g.turn] && mode !== "room") setTimeout(botTurn, mode === "watch" ? 500 : 350); }
+// ---------- eval bar: a second worker scores the position after every move ----------
+let evalOn = false, evalWorker = null, evalId = 0, evalKey = "", evalLast = null;
+try { evalOn = localStorage.getItem("agkm-ghess-eval") === "1"; } catch (e) { }
+function getEvalWorker() {
+  if (evalWorker === undefined) return null; if (evalWorker) return evalWorker;
+  try {
+    evalWorker = new Worker("ghess-engine.js");
+    evalWorker.onmessage = e => { const r = e.data; if (r.kind !== "eval" || r.id !== evalId) return; evalLast = r; $("evalbar").classList.remove("thinking"); paintEval(); };
+    evalWorker.onerror = err => { console.warn("eval worker", err.message || err); evalWorker = undefined; };
+  } catch (e) { evalWorker = undefined; }
+  return evalWorker;
+}
+function requestEval() {
+  if (!evalOn || !g || mode === "guide") return;
+  const k = g.board + "|" + g.turn + "|" + g.ply + "|" + (g.over ? "x" : ""); if (k === evalKey) return; evalKey = k;
+  if (g.over) { evalLast = { v: g.over.result === "d" ? 0 : g.over.result === "w" ? 1e9 : -1e9, mate: 0, depth: 0 }; paintEval(); return; }
+  const w = getEvalWorker(); if (!w) return;
+  evalId = Date.now() + Math.random(); $("evalbar").classList.add("thinking");
+  w.postMessage({ kind: "eval", id: evalId, board: g.board, turn: g.turn, cr: g.cr, ep: g.ep, half: g.half, swap: g.swap, hand: g.hand, ply: g.ply, rest: g.rest, setup: g.setup, budget: 900 });
+}
+function paintEval() {
+  const bar = $("evalbar"); bar.classList.toggle("hidden", !evalOn || mode === "guide"); bar.classList.toggle("flip", flipped); if (!evalOn) return;
+  const r = evalLast; if (!r) { bar.querySelector(".fill").style.height = "50%"; bar.querySelector(".num.top").textContent = ""; bar.querySelector(".num.bot").textContent = ""; return; }
+  let frac, label;
+  if (r.mate) { frac = r.mate > 0 ? 1 : 0; label = "M" + Math.abs(r.mate); }
+  else if (Math.abs(r.v) >= 1e8) { frac = r.v > 0 ? 1 : 0; label = r.v > 0 ? "1–0" : "0–1"; if (g && g.over && g.over.result === "d") { frac = .5; label = "½"; } }
+  else { frac = 1 / (1 + Math.pow(10, -r.v / 4)); label = (r.v > 0 ? "+" : "") + r.v.toFixed(1); }
+  frac = Math.min(.97, Math.max(.03, frac));
+  bar.querySelector(".fill").style.height = (frac * 100).toFixed(1) + "%";
+  const whiteAhead = frac >= .5, topEl = bar.querySelector(".num.top"), botEl = bar.querySelector(".num.bot");
+  // the number sits in the bigger half: white's half is at the bottom, or the top when flipped
+  const whiteAtBottom = !flipped; const putBottom = whiteAhead === whiteAtBottom;
+  topEl.textContent = putBottom ? "" : label; botEl.textContent = putBottom ? label : "";
+}
+$("evalbtn").onclick = () => { evalOn = !evalOn; try { localStorage.setItem("agkm-ghess-eval", evalOn ? "1" : "0"); } catch (e) { } $("evalbtn").classList.toggle("on", evalOn); evalKey = ""; evalLast = null; paintEval(); requestEval(); };
+$("evalbtn").classList.toggle("on", evalOn);
+function scheduleBot() { if (g && !g.over && BOTS[g.turn] && mode !== "room" && mode !== "analysis") setTimeout(botTurn, mode === "watch" ? 500 : 350); }
 let worker = null, pendingBot = 0;
 function getWorker() {
   if (worker === undefined) return null; if (worker) return worker;
   try {
     worker = new Worker("ghess-engine.js");
-    worker.onmessage = e => { const { id, m } = e.data; if (id !== pendingBot || !g || g.over || !BOTS[g.turn]) return; pendingBot = 0; if (m) commit(x => applyMove(x, m)); };
+    worker.onmessage = e => { const { id, m } = e.data; if (id !== pendingBot || !g || g.over || !BOTS[g.turn] || mode === "analysis") return; pendingBot = 0; if (m) commit(x => applyMove(x, m)); };
     worker.onerror = err => { console.warn("worker", err.message || err); worker = undefined; pendingBot = 0; botTurn(); };
   } catch (e) { worker = undefined; }
   return worker;
@@ -314,13 +367,13 @@ async function openRoom(k2, pname) {
   if (seat >= 0) me = seat; else if (!g.players[1]) { me = 1; g.players[1] = { uid: uidSelf, name: pname }; await fb.set(fb.child(gref, "players/1"), g.players[1]); } else me = -1;
   flipped = me === 1; $("share").classList.remove("hidden"); $("share-link").value = location.href; listen(); enterGame();
 }
-function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (g && nx.v === g.v && nx.draw === g.draw && nx.over === g.over && nx.players.every((p, i) => !!p === !!g.players[i])) return; g = nx; sel = -1; hidePromo(); render(); }); }
+function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (mode === "analysis") { an.live = nx; return; } if (g && nx.v === g.v && nx.draw === g.draw && nx.over === g.over && nx.players.every((p, i) => !!p === !!g.players[i])) return; g = nx; sel = -1; hidePromo(); render(); }); }
 
 // ---------- UI ----------
 const say = (t, warn) => { $("msg").innerHTML = t; $("msg").style.color = warn ? "var(--terracotta)" : ""; };
 const lobbyMsg = t => { $("lobbymsg").textContent = t; };
 const pname = i => (g.players[i] && g.players[i].name) || (i ? "black" : "white");
-const myTurn = () => mode === "hot" ? true : mode === "watch" || mode === "guide" ? false : me === g.turn;
+const myTurn = () => mode === "hot" || mode === "analysis" ? true : mode === "watch" || mode === "guide" ? false : me === g.turn;
 function enterGame() { buildBoard(); $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("guide").classList.add("hidden"); $("controls").classList.remove("hidden"); $("homebtn").classList.remove("hidden"); $("newbtn").classList.toggle("hidden", mode === "room"); sel = -1; hidePromo(); render(); scheduleBot(); }
 
 const boardEl = $("board"), cells = {};
@@ -389,7 +442,7 @@ function render(targets) {
     const h = $("h" + i); h.classList.toggle("hidden", !s.hand[i]); h.classList.toggle("ready", !g.over && s.turn === i && myTurn() && lm.some(m => m.k === "g")); h.classList.toggle("sel", sel === HSEL && s.turn === i);
     h.title = s.hand[i] ? (s.ply >= SWOOP_PLY ? "the griffin is ready to swoop" : "the griffin may swoop from move 25") : "";
   }
-  $("midl").textContent = (mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer") + (g.seed ? " · 960 #" + g.seed : "") + (g.clock ? " · " + g.clock.base / 60000 + "+" + g.clock.inc / 1000 : "");
+  $("midl").textContent = (mode === "analysis" ? "analysis" : mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer") + (g.seed ? " · 960 #" + g.seed : "") + (g.clock ? " · " + g.clock.base / 60000 + "+" + g.clock.inc / 1000 : "");
   $("midb").textContent = g.over ? "" : g.log.length ? "move " + (Math.floor(g.log.length / 2) + 1) : "";
   if (g.over) {
     const r = g.over.result; say(r === "d" ? "<b>Draw</b> — " + g.over.why + "." : "<b>" + pname(r === "w" ? 0 : 1) + " wins</b> — " + g.over.why + ".");
@@ -404,13 +457,17 @@ function render(targets) {
     say(t);
   }
   $("undo").classList.toggle("hidden", mode === "room" || mode === "watch"); $("undo").disabled = !undoStack.length;
+  $("anbtn").classList.toggle("hidden", mode === "analysis" || !g.over || !g.moves.length); $("backbtn").classList.toggle("hidden", mode !== "analysis");
   $("draw").classList.toggle("hidden", mode !== "room" || me < 0 || !!g.over);
   $("draw").textContent = g.draw != null && g.draw !== me ? "accept the draw" : g.draw === me ? "draw offered" : "offer a draw";
-  $("resign").classList.toggle("hidden", !!g.over || mode === "watch" || (mode === "room" && me < 0));
-  $("newbtn").classList.toggle("hidden", mode === "room" ? !g.over : false);
-  const L = g.log; let h = ""; for (let i = 0; i < L.length; i += 2) h += `<span class="n">${i / 2 + 1}.</span><span class="mv">${L[i]}</span><span class="mv">${L[i + 1] || ""}</span>`;
+  $("resign").classList.toggle("hidden", !!g.over || mode === "watch" || mode === "analysis" || (mode === "room" && me < 0));
+  $("draw").classList.toggle("hidden", $("draw").classList.contains("hidden") || mode === "analysis");
+  $("newbtn").classList.toggle("hidden", mode === "analysis" ? true : mode === "room" ? !g.over : false);
+  const L = g.log, base = mode === "analysis" ? an.i : L.length; let h = "";
+  const mv = i => i < L.length ? `<span class="mv${mode === "analysis" && i === L.length - 1 ? " cur" : ""}${i >= base ? " var" : ""}" data-k="${i}">${L[i]}</span>` : `<span class="mv"></span>`;
+  for (let i = 0; i < L.length; i += 2) h += `<span class="n">${i / 2 + 1}.</span>${mv(i)}${mv(i + 1)}`;
   $("log").innerHTML = h; $("log").scrollTop = 1e9;
-  paintClocks();
+  paintClocks(); paintEval(); requestEval();
 }
 // promotion: several legal moves share a from/to and differ only in the piece — ask which
 let promoResolve = null;
@@ -426,6 +483,7 @@ $("promo").addEventListener("click", e => { if (e.target === $("promo")) { const
 boardEl.addEventListener("click", async e => {
   const d = e.target.closest(".cell"); if (!d || d.dataset.i === undefined) return; const i = +d.dataset.i;
   if (mode === "guide") return guideClick(i);
+  if (g.over && mode !== "analysis" && g.moves.length && mode !== "watch") { goTo(g.moves.length); return; }
   if (g.over || !myTurn() || (mode === "room" && !g.players[1]) || promoResolve) return;
   const s = st, p = s.b[i];
   if (sel >= 0 || sel === HSEL) {
@@ -440,11 +498,28 @@ boardEl.addEventListener("click", async e => {
   render();
 });
 for (const i of [0, 1]) $("h" + i).onclick = () => { if (!g || g.over || mode === "guide" || !myTurn() || st.turn !== i || !legalNow.some(m => m.k === "g")) return; sel = sel === HSEL ? -1 : HSEL; render(); };
-function pushUndo() { if (mode === "hot" || mode === "bot") { undoStack.push(cleanse(g)); if (undoStack.length > 200) undoStack.shift(); } }
+function pushUndo() { if (mode === "hot" || mode === "bot" || mode === "analysis") { undoStack.push(cleanse(g)); if (undoStack.length > 200) undoStack.shift(); } }
 $("undo").onclick = () => { if (!undoStack.length) return; pendingBot = 0; let x = undoStack.pop(); if (mode === "bot" && undoStack.length && x.turn !== me) x = undoStack.pop(); g = norm(x); if (g.clock && !g.over) g.tick = now(); sel = -1; render(); scheduleBot(); };
 $("flip").onclick = () => { flipped = !flipped; buildBoard(); render(); };
 $("resign").onclick = () => { if (!confirm("Resign this game?")) return; const loser = mode === "room" ? me : st.turn; commit(x => { x.over = { result: loser === 0 ? "b" : "w", why: pname(loser) + " resigned" }; x.tick = 0; x.v = (x.v || 0) + 1; return x; }); };
 $("draw").onclick = () => { commit(x => { if (x.draw != null && x.draw !== me) { x.over = { result: "d", why: "agreed" }; x.draw = null; x.tick = 0; } else x.draw = me; x.v = (x.v || 0) + 1; return x; }); };
+// ---------- analysis: replay the game to a move and play on from there ----------
+let an = null;   // { live: the real game record, prev: the mode it was in, undo: its undo stack, i: moves of the real game kept }
+const mvObj = a => { const m = { f: a[0], t: a[1] }; if (a[2]) m.k = a[2]; if (a[3]) m.pr = a[3]; return m; };
+function replay(src, i) {
+  let x = norm(newGame(src.players, false, src.seed, null));
+  for (let k = 0; k < i && k < src.moves.length; k++) { const nx = applyMove(cleanse(x), mvObj(src.moves[k])); if (!nx) break; x = norm(nx); }
+  return x;
+}
+function goTo(i) {
+  const src = g; if (!src.moves || !src.moves.length) return; i = Math.max(0, Math.min(i, src.moves.length));
+  if (mode !== "analysis") { an = { live: g, prev: mode, undo: undoStack, i }; mode = "analysis"; undoStack = []; pendingBot = 0; }
+  else an.i = Math.min(an.i, i);
+  g = replay(src, i); sel = -1; hidePromo(); render();
+}
+$("log").addEventListener("click", e => { const el = e.target.closest(".mv[data-k]"); if (!el || mode === "guide") return; goTo(+el.dataset.k + 1); });
+$("anbtn").onclick = () => goTo(g.moves.length);
+$("backbtn").onclick = () => { if (!an) return; g = an.live; mode = an.prev; undoStack = an.undo; an = null; sel = -1; hidePromo(); render(); scheduleBot(); };
 $("newbtn").onclick = () => { if (mode === "room") { location.hash = ""; location.reload(); return; } startLocal(mode, BOTS[1] || BOTS[0]); };
 $("homebtn").onclick = e => { e.preventDefault(); location.hash = ""; location.reload(); };
 $("copy").onclick = () => { navigator.clipboard?.writeText($("share-link").value).then(() => { $("copy").textContent = "copied"; }); $("share-link").select(); };
@@ -487,7 +562,7 @@ const GUIDE = [
 ];
 function showGuide() {
   $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("controls").classList.add("hidden"); $("guide").classList.remove("hidden"); $("homebtn").classList.remove("hidden");
-  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch, #top .clk").forEach(e => e.classList.add("hidden")); $("mat").classList.add("hidden");
+  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch, #top .clk").forEach(e => e.classList.add("hidden")); $("mat").classList.add("hidden"); $("evalbar").classList.add("hidden");
   const pick = document.querySelector("#guide .pick"); pick.innerHTML = GUIDE.map(([t]) => `<button data-t="${t}">${NAME[t]}</button>`).join("");
   pick.querySelectorAll("button").forEach(b => b.onclick = () => guidePiece(b.dataset.t));
   guidePiece("C");
@@ -537,7 +612,7 @@ $("guide-done").onclick = () => { location.hash = ""; location.reload(); };
 for (const n of [...Object.values(IMG), "timur/pawn-pawn", "timur/pawn-giraffe"]) for (const side of ["w", "b"]) new Image().src = "images/" + n + "-" + side + ".png";
 const hm = location.hash.match(/g=(\w+)/);
 if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("setup").parentElement.parentElement.classList.add("hidden"); $("clockrow").classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
-window.__gh = { applyFlag, chargeClock, paintClocks, get serverOffset() { return serverOffset; }, set serverOffset(v) { serverOffset = v; }, get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, sq, render, startLocal, pieceMoves, notation, setupFor, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, evaluate, showGuide, BUILD };
+window.__gh = { goTo, replay, get an() { return an; }, get evalLast() { return evalLast; }, requestEval, applyFlag, chargeClock, paintClocks, get serverOffset() { return serverOffset; }, set serverOffset(v) { serverOffset = v; }, get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, sq, render, startLocal, pieceMoves, notation, setupFor, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, evaluate, showGuide, BUILD };
 </script>
 </body>
 </html>
