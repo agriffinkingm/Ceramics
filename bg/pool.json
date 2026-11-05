@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-11-01-c",
-  "image": "pool-2026-11-01-c.jpg",
-  "headline": "Sukhoi , Tejas , Prachand headline IAF grand air show in Varanasi",
-  "url": "https://www.business-standard.com/india-news/sukhoi-tejas-prachand-headline-iaf-s-grand-air-show-in-varanasi-126102500274_1.html",
-  "outlet": "business-standard.com",
-  "t": "2026-11-01T13:17:38+00:00",
-  "hash": 248455268138752
- },
- {
   "id": "2026-11-01-0847-0",
   "image": "pool-2026-11-01-0847-0.jpg",
   "headline": "Typhoon Champi leaves one dead , hundreds injured in Taiwan",
@@ -166,5 +157,15 @@
   "outlet": "keyt.com",
   "t": "2026-11-05T14:55:46+00:00",
   "hash": 9493799638247865592
+ },
+ {
+  "id": "2026-11-05-1501-0",
+  "image": "pool-2026-11-05-1501-0.jpg",
+  "headline": "Orange Beach reviewing possible joint response agreement at SR 181 roundabout with Gulf Shores",
+  "url": "http://www.gulfcoastmedia.com/stories/orange-beach-reviewing-possible-joint-response-agreement-at-sr-181-roundabout-with-gulf-shores,356077",
+  "outlet": "gulfcoastmedia.com",
+  "t": "2026-11-05T20:01:06+00:00",
+  "vista": 9.0,
+  "hash": 4666154958981038333
  }
 ]
