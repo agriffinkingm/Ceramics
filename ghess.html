@@ -94,6 +94,7 @@
   .cell .dot.win { width: 40%; height: 40%; background: var(--terracotta); box-shadow: 0 0 0 3px rgba(198,123,92,.35); }
   .cell .ring { position: absolute; inset: 6%; border-radius: 50%; border: 3px solid rgba(150,45,25,.75); pointer-events: none; z-index: 2; }
   .cell .ring.cas { border-style: dashed; border-color: rgba(74,66,56,.65); }
+  .cell.pv .dot, .cell.pv .ring { opacity: .55; }
   .tok { width: 90%; height: 90%; display: block; position: relative; z-index: 1; pointer-events: none; -webkit-user-drag: none; filter: drop-shadow(0 1px 1px rgba(40,20,5,.35)); }
   .tok.pawn { width: 72%; height: 72%; margin-top: 10%; }
   .tok.wide { width: 100%; height: 100%; }
@@ -229,10 +230,10 @@
   </div>
 </main>
 
-<script src="ghess-engine.js?v=2026-11-05a"></script>
+<script src="ghess-engine.js?v=2026-11-05b"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-05a";
+const BUILD = "2026-11-05b";
 
 // engine: see ghess-engine.js (loaded above, and in workers for the computer's thinking and the eval bar). The ?v= keeps browsers from
 // pairing a fresh page with a cached old engine — bump it with BUILD whenever the engine changes.
@@ -462,14 +463,22 @@ function paintMaterial(s) {
     const el = $("m" + c); el.innerHTML = c ? h.replace(/^(.*)(<span[^>]*>.*<\/span>)$/s, "$2$1") : h;
   }
 }
+// what a tapped piece can do: its legal moves when its side is to move, otherwise a preview of where it could go (checks ignored)
+const canAct = () => !g.over && myTurn() && !(mode === "room" && !g.players[1]);
+function previewMoves(s, lm) {
+  if (sel === HSEL) return lm.filter(m => m.f === HAND);
+  const p = s.b[sel]; if (!p) return [];
+  if (p.c === s.turn) return lm.length ? lm.filter(m => m.f === sel) : (() => { const out = []; pieceMoves(s, sel, out); return out; })();
+  const out = []; pieceMoves(s, sel, out); return out.filter(m => m.k !== "s");
+}
 function render(targets) {
   if (!Object.keys(cells).length) buildBoard();
   const s = mode === "guide" ? st : (st = toState(g));
   const lm = mode === "guide" ? [] : (legalNow = (g.over ? [] : legal(s)));
   const chk = mode !== "guide" && !g.over && inCheck(s, s.turn) ? kingSq(s.b, s.turn) : -1;
-  const tl = targets || (sel >= 0 || sel === HSEL ? lm.filter(m => m.f === selFrom()) : []);
+  const tl = targets || (sel >= 0 || sel === HSEL ? previewMoves(s, lm) : []);
   if (mode === "guide" && !targets) return;
-  const tmap = targetMap(s, tl);
+  const tmap = targetMap(s, tl), preview = mode !== "guide" && !targets && (sel >= 0 && s.b[sel] && s.b[sel].c !== s.turn || !canAct());
   for (const k in cells) {
     const i = +k, d = cells[k], p = s.b[i];
     d.className = i >= 100 ? "cell cit" : "cell" + ((i % 10 + Math.floor(i / 10)) % 2 ? "" : " dk");
@@ -479,6 +488,7 @@ function render(targets) {
     const m = tmap[i];
     let html = p ? tokHtml(p) : "";
     if (m) { if ((m.k === "c" && p && p.t === "R") || m.k === "s") html += `<div class="ring cas"></div>`; else if (p || m.k === "e") html += `<div class="ring"></div>`; else html += `<div class="dot${m.k === "w" ? " win" : ""}"></div>`; }
+    if (m && preview) d.classList.add("pv");
     d.innerHTML = html;
   }
   if (mode === "guide") return;
@@ -530,8 +540,11 @@ boardEl.addEventListener("click", async e => {
   const d = e.target.closest(".cell"); if (!d || d.dataset.i === undefined) return; const i = +d.dataset.i;
   if (mode === "guide") return guideClick(i);
   if (g.over && mode !== "analysis" && g.moves.length && mode !== "watch") { goTo(g.moves.length); return; }
-  if (g.over || !myTurn() || (mode === "room" && !g.players[1]) || promoResolve) return;
+  if (promoResolve) return;
   const s = st, p = s.b[i];
+  if (!canAct()) {   // not your move: tap a piece to see where it could go, tap again (or elsewhere) to clear
+    sel = p && sel !== i ? i : -1; render(); return;
+  }
   if (sel >= 0 || sel === HSEL) {
     const tm = targetMap(s, legalNow.filter(m => m.f === selFrom())); let m = tm[i];
     if (m) {
@@ -540,7 +553,7 @@ boardEl.addEventListener("click", async e => {
       pushUndo(); commit(x => applyMove(x, m)); return;
     }
   }
-  if (p && p.c === s.turn && legalNow.some(q => q.f === i)) { sel = sel === i ? -1 : i; } else sel = -1;
+  if (p && (p.c === s.turn ? legalNow.some(q => q.f === i) : true)) { sel = sel === i ? -1 : i; } else sel = -1;
   render();
 });
 for (const i of [0, 1]) $("h" + i).onclick = () => { if (!g || g.over || mode === "guide" || !myTurn() || st.turn !== i || !legalNow.some(m => m.k === "g")) return; sel = sel === HSEL ? -1 : HSEL; render(); };
