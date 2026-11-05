@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ghess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Karla:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --plaster: #E4DBD0; --plaster-deep: #D6CBBE; --ivory: #FAF8F5; --clay-dark: #8B7968;
+    --terracotta: #C67B5C; --stone: #4A4238; --charcoal: #2C2820;
+    --sq-line: #D9CDB9; --tok-w: #FCF8EE; --tok-b: #3B342B;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { min-height: 100%; }
+  body { font-family: 'Karla', sans-serif; font-weight: 300; background: var(--plaster); color: var(--charcoal); -webkit-tap-highlight-color: transparent; }
+  header { display: flex; justify-content: space-between; align-items: baseline; padding: .9rem 1rem 0; font-size: .85rem; letter-spacing: .08em; gap: .6rem; flex-wrap: wrap; }
+  header a { color: var(--stone); text-decoration: none; }
+  header a:hover { color: var(--terracotta); }
+  header .title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; font-style: italic; letter-spacing: .02em; }
+  header .right { display: flex; gap: .9rem; align-items: baseline; }
+  button { font: inherit; font-weight: 400; letter-spacing: .06em; font-size: .78rem; color: var(--stone); background: var(--ivory); border: 1px solid var(--plaster-deep); border-radius: 3px; padding: .45rem .7rem; cursor: pointer; }
+  button:hover { color: var(--terracotta); border-color: var(--terracotta); }
+  button:disabled { opacity: .4; cursor: default; }
+  button.primary { background: var(--terracotta); color: var(--ivory); border-color: var(--terracotta); }
+  button.primary:hover { background: #b56a4c; }
+  button.link { background: none; border: none; padding: .2rem .3rem; text-decoration: underline; text-underline-offset: 3px; }
+  button.on { border-color: var(--terracotta); color: var(--terracotta); }
+  input[type=text], input[type=number] { font: inherit; font-size: .9rem; padding: .45rem .6rem; border: 1px solid var(--plaster-deep); border-radius: 3px; background: var(--ivory); color: var(--charcoal); outline: none; }
+  input:focus { border-color: var(--terracotta); }
+  input[type=number] { width: 5.5rem; }
+  select { font: inherit; font-size: .8rem; padding: .4rem; border: 1px solid var(--plaster-deep); border-radius: 3px; background: var(--ivory); color: var(--stone); }
+  main { max-width: 680px; margin: 0 auto; padding: .6rem .5rem 3rem; }
+  .hidden { display: none !important; }
+  label { font-size: .8rem; color: var(--stone); letter-spacing: .03em; }
+
+  /* lobby */
+  #lobby { text-align: center; padding: 1.5rem .5rem; }
+  #lobby h1 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 2.6rem; font-style: italic; }
+  #lobby p { color: var(--stone); font-size: .95rem; line-height: 1.5; max-width: 34rem; margin: .6rem auto 1.4rem; }
+  .row { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin: .6rem 0; align-items: center; }
+  .row.cols { flex-direction: column; }
+  #lobbymsg { color: var(--terracotta); min-height: 1.2em; }
+
+  /* top strip */
+  #top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .6rem; padding: .3rem .3rem .5rem; }
+  .pl { font-size: .85rem; letter-spacing: .04em; color: var(--stone); display: flex; align-items: center; gap: .45rem; }
+  .pl .nm { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-style: italic; }
+  .pl .swatch { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--sq-line); }
+  .pl.right { justify-content: flex-end; }
+  .pl.turn .nm { color: var(--terracotta); }
+  #mid { text-align: center; font-size: .72rem; letter-spacing: .1em; color: var(--clay-dark); text-transform: uppercase; }
+  #mid b { display: block; font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--stone); }
+
+  /* board: ten by ten, checkered over the wood */
+  #board-wrap { width: 100%; position: relative; }
+  #board { display: grid; grid-template-columns: repeat(10, 1fr); width: 100%; user-select: none; -webkit-user-select: none; touch-action: manipulation; background: url(images/timur/wood.jpg) center / 520px auto; box-shadow: 0 1px 4px rgba(40,20,5,.3); }
+  .cell { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,245,225,.22); box-shadow: inset 0 0 0 1px rgba(60,36,14,.18); }
+  .cell.dk { background: rgba(60,36,14,.3); }
+  .cell.last { background: rgba(255,230,170,.45); }
+  .cell.dk.last { background: rgba(200,150,70,.42); }
+  .cell.sel { background: rgba(255,214,130,.65); }
+  .cell.chk { box-shadow: inset 0 0 0 3px var(--terracotta); }
+  .cell .dot { position: absolute; width: 28%; height: 28%; border-radius: 50%; background: rgba(120,40,20,.5); pointer-events: none; }
+  .cell.cap::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px solid rgba(150,45,25,.75); pointer-events: none; z-index: 2; }
+  .cell.cas::before { content: ""; position: absolute; inset: 6%; border-radius: 50%; border: 3px dashed rgba(74,66,56,.65); pointer-events: none; z-index: 2; }
+  .tok { width: 90%; height: 90%; display: block; position: relative; z-index: 1; pointer-events: none; -webkit-user-drag: none; filter: drop-shadow(0 1px 1px rgba(40,20,5,.35)); }
+  .tok.pawn { width: 72%; height: 72%; margin-top: 10%; }
+  .tok.wide { width: 100%; height: 100%; }
+  .tok.queen { width: 84%; height: 84%; }
+
+  /* promotion picker */
+  #promo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(228,219,208,.55); z-index: 5; }
+  #promo .box { background: var(--ivory); border: 1px solid var(--plaster-deep); border-radius: 6px; padding: .6rem .7rem; display: flex; gap: .4rem; box-shadow: 0 4px 18px rgba(40,30,20,.25); }
+  #promo button { width: 64px; height: 64px; padding: 4px; display: flex; align-items: center; justify-content: center; }
+  #promo button img { width: 90%; height: 90%; }
+
+  #msg { text-align: center; font-size: .9rem; color: var(--stone); min-height: 1.4em; margin: .55rem 0 .3rem; line-height: 1.4; }
+  #msg b { color: var(--terracotta); font-weight: 500; }
+  #actions { display: flex; justify-content: center; gap: .4rem; flex-wrap: wrap; margin-top: .3rem; }
+  #share { text-align: center; margin: .6rem 0; }
+  #share-link { width: min(100%, 24rem); font-size: .8rem; }
+  #log { margin-top: .9rem; font-size: .82rem; color: var(--stone); border-top: 1px solid var(--plaster-deep); padding-top: .5rem; display: grid; grid-template-columns: auto 1fr 1fr; column-gap: .8rem; row-gap: .12rem; max-height: 40vh; overflow: auto; }
+  #log .n { color: var(--clay-dark); text-align: right; }
+  #log .mv { font-family: 'Cormorant Garamond', serif; font-size: 1rem; }
+
+  /* guide */
+  #guide { margin-top: .5rem; }
+  #guide .pick { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: center; margin-bottom: .5rem; }
+  #guide .pick button { padding: .35rem .5rem; font-size: .74rem; }
+  #guide .desc { font-size: .92rem; line-height: 1.55; color: var(--stone); text-align: center; max-width: 36rem; margin: .4rem auto; }
+  #guide .desc b { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-style: italic; font-weight: 400; color: var(--charcoal); }
+
+  /* rules */
+  .panel { margin: 1rem auto 0; max-width: 40rem; font-size: .9rem; line-height: 1.55; color: var(--stone); background: var(--ivory); border: 1px solid var(--plaster-deep); border-radius: 4px; padding: 1rem 1.1rem; }
+  .panel h3 { font-family: 'Cormorant Garamond', serif; font-weight: 400; font-style: italic; font-size: 1.4rem; margin-bottom: .4rem; color: var(--charcoal); }
+  .panel h4 { font-weight: 500; letter-spacing: .06em; font-size: .78rem; text-transform: uppercase; color: var(--clay-dark); margin: .9rem 0 .2rem; }
+  .panel p { margin: .35rem 0; }
+  .panel b { font-weight: 500; color: var(--charcoal); }
+  .panel .x { text-align: right; }
+</style>
+</head>
+<body>
+<header>
+  <a class="title" href="index.html">Ghess</a>
+  <div class="right"><a href="#" id="piecesbtn">the pieces</a><a href="#" id="rulesbtn">rules</a><a href="#" id="homebtn" class="hidden">lobby</a></div>
+</header>
+<main>
+  <section id="lobby">
+    <h1>Ghess</h1>
+    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns can only ever become camels, and no other pawn can.</p>
+    <div class="row"><input id="name" type="text" placeholder="your name" maxlength="20"></div>
+    <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
+    <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
+    <div class="row"><label>setup <select id="setup"><option value="classic" selected>classic — R N C B Q K B C N R</option><option value="960">960 — shuffled back rank</option></select></label><label id="seedrow" class="hidden">#<input id="seed" type="number" min="1" max="9999" placeholder="random"></label></div>
+    <div class="row"><button id="guidebtn" class="link">learn the pieces first</button></div>
+    <div id="joinrow" class="row cols hidden"><span id="joininfo"></span><button id="joinbtn" class="primary">join the game</button></div>
+    <p id="lobbymsg"></p>
+  </section>
+
+  <section id="arena" class="hidden">
+    <div id="top"><div class="pl" id="p0"><span class="swatch" style="background:var(--tok-w)"></span><span class="nm"></span></div><div id="mid"><span id="midl"></span><b id="midb"></b></div><div class="pl right" id="p1"><span class="nm"></span><span class="swatch" style="background:var(--tok-b)"></span></div></div>
+    <div id="board-wrap"><div id="board"></div><div id="promo" class="hidden"><div class="box"></div></div></div>
+    <div id="msg"></div>
+    <div id="guide" class="hidden">
+      <div class="pick"></div>
+      <div class="desc"></div>
+      <div class="row"><button id="guide-reset">reset</button><button id="guide-done">back</button></div>
+    </div>
+    <div id="controls">
+      <div id="actions">
+        <button id="undo">undo</button>
+        <button id="flip">flip</button>
+        <button id="draw">offer a draw</button>
+        <button id="resign">resign</button>
+        <button id="newbtn" class="hidden">new game</button>
+      </div>
+      <div id="share" class="hidden"><input id="share-link" type="text" readonly> <button id="copy">copy link</button> <button id="sharebtn" class="hidden">share…</button></div>
+      <div id="log"></div>
+    </div>
+  </section>
+
+  <div id="rules" class="panel hidden">
+    <h3>How Ghess works</h3>
+    <p>Ghess is ordinary chess stretched to a ten-by-ten board, with one piece borrowed from Timur's chess: the camel.</p>
+    <h4>Setting up</h4>
+    <p>White's back rank, from the left: <b>rook, knight, camel, bishop, queen, king, bishop, camel, knight, rook</b> — the queen on e1 and the king on f1. Ten pawns stand in front. Black mirrors it on ranks nine and ten, so the kings face each other on the f-file and the queens on the e-file. White moves first.</p>
+    <p>Choose <b>960</b> in the lobby and the back rank is shuffled instead — the bishops on opposite colours, the king somewhere between the rooks — the same for both sides. Each shuffle has a number, shown as game #N, so a setup can be played again.</p>
+    <h4>Moving</h4>
+    <p>Tap "the pieces" for diagrams. The king, queen, rook, bishop, knight and pawns move exactly as in chess. The <b>camel</b> jumps one square across and three along — a stretched knight — over anything in the way. Like a bishop it always stays on the colour it started on.</p>
+    <h4>Pawns</h4>
+    <p>One square forward, two from the starting rank; captures diagonally; en passant works. A pawn that reaches the far rank promotes — to a queen, rook, bishop or knight, your choice. Except the two <b>camel pawns</b>, the ones that start in front of the camels: they wear a camel's head, and they can only ever promote to a camel. No other pawn can.</p>
+    <h4>Castling</h4>
+    <p>As in chess, with the king and rook unmoved, nothing between them, and the king not in, through or into check. The king ends on the c- or i-file and the rook lands beside it on the d- or h-file — in a 960 setup too, wherever they started. Tap the king, then the rook (or the king's landing square).</p>
+    <h4>Ending</h4>
+    <p>Checkmate wins. Stalemate, bare kings, fifty moves without a capture or a pawn move, or the same position three times, is a draw. You can also resign or offer a draw.</p>
+    <p class="x"><button class="link" id="rules-close">close</button></p>
+  </div>
+</main>
+
+<script src="ghess-engine.js"></script>
+<script type="module">
+const $ = id => document.getElementById(id);
+const BUILD = "2026-11-04a";
+
+// engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
+
+// ---------- game record (what rooms sync) ----------
+let g = null, st = null, mode = "", me = 0, flipped = false, sel = -1, legalNow = [], undoStack = [];
+const BOTS = { 0: null, 1: null };
+const uidSelf = (() => { let u = localStorage.getItem("agkm-uid"); if (!u) { u = Math.random().toString(36).slice(2, 10); localStorage.setItem("agkm-uid", u); } return u; })();
+const nameMem = { get: () => localStorage.getItem("agkm-name") || "", set: v => localStorage.setItem("agkm-name", v) };
+function newGame(players, rep, seed = 0) { const setup = setupFor(seed); const s = newState(setup); return { v: 0, board: pack(s.b), turn: 0, cr: s.cr, ep: -1, half: 0, over: null, last: null, log: [], hist: {}, players, rep: !!rep, setup, seed, draw: null }; }
+function norm(x) { x.cr = x.cr && x.cr.length === 2 ? [[!!x.cr[0][0], !!x.cr[0][1]], [!!x.cr[1][0], !!x.cr[1][1]]] : [[true, true], [true, true]]; if (x.ep === undefined) x.ep = -1; x.half = x.half || 0; x.log = x.log || []; x.hist = x.hist || {}; x.players = x.players || []; x.setup = x.setup || CLASSIC; x.seed = x.seed || 0; if (x.last && !Array.isArray(x.last)) x.last = [x.last[0], x.last[1]]; if (x.draw === undefined) x.draw = null; return x; }
+function toState(x) { return { b: unpack(x.board), turn: x.turn, cr: [x.cr[0].slice(), x.cr[1].slice()], ep: x.ep, half: x.half, over: x.over || null, last: x.last, setup: x.setup }; }
+const posKey = s => pack(s.b) + "|" + s.turn + "|" + s.ep + "|" + s.cr.flat().map(v => v ? 1 : 0).join("");
+function applyMove(x, m) {   // pure: x is a copy of the record
+  const s = toState(x); const lm = legal(s); const ok = lm.find(q => sameMove(q, m)); if (!ok) return null;
+  let note = notation(s, m); make(s, m);
+  let over = status(s);
+  if (inCheck(s, s.turn)) note += over && over.why === "checkmate" ? "#" : "+";
+  x.board = pack(s.b); x.turn = s.turn; x.cr = s.cr; x.ep = s.ep; x.half = s.half; x.last = [m.f, m.t]; x.log.push(note); x.v = (x.v || 0) + 1; x.draw = null;
+  if (!over) { const k = hash(posKey(s)); x.hist[k] = (x.hist[k] || 0) + 1; if (x.rep && x.hist[k] >= 3) over = { result: "d", why: "the same position three times" }; }
+  x.over = over; return x;
+}
+function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
+
+// ---------- networking (same Firebase project as the wall) ----------
+const firebaseConfig = { apiKey: "AIzaSyBFhPRrarZGldaVHuDgtm6htTM7HoHNz8I", authDomain: "griffgraff-baa46.firebaseapp.com", databaseURL: "https://griffgraff-baa46-default-rtdb.firebaseio.com", projectId: "griffgraff-baa46", storageBucket: "griffgraff-baa46.firebasestorage.app", messagingSenderId: "354313176929", appId: "1:354313176929:web:65aa8467f9aad220026720" };
+const DB_ROOT = "walls/ghess/games";
+let fb = null, gref = null, key = null;
+async function loadFirebase() {
+  if (fb) return fb;
+  if (window.__fakeFb) return fb = window.__fakeFb();
+  const o = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"); const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+  const app = initializeApp(firebaseConfig); const db = o.getDatabase(app); return fb = { db, ...o };
+}
+const cleanse = x => JSON.parse(JSON.stringify(x));
+async function commit(fn) {
+  if (mode !== "room") { const nx = fn(cleanse(g)); if (!nx) return false; g = norm(nx); afterCommit(); return true; }
+  const base = g.v; let applied = false;
+  try {
+    const res = await fb.runTransaction(gref, cur => { if (!cur) return cur; if ((cur.v || 0) !== base) return; const nx = fn(norm(cleanse(cur))); if (!nx) return; applied = true; return nx; });
+    if (!res.committed || !applied) { say("The board changed — have another look.", true); return false; }
+    g = norm(cleanse(res.snapshot.val())); afterCommit(); return true;
+  } catch (e) { console.error(e); say("Couldn't reach the game server.", true); return false; }
+}
+function afterCommit() { sel = -1; render(); scheduleBot(); }
+function scheduleBot() { if (g && !g.over && BOTS[g.turn] && mode !== "room") setTimeout(botTurn, mode === "watch" ? 500 : 350); }
+let worker = null, pendingBot = 0;
+function getWorker() {
+  if (worker === undefined) return null; if (worker) return worker;
+  try {
+    worker = new Worker("ghess-engine.js");
+    worker.onmessage = e => { const { id, m } = e.data; if (id !== pendingBot || !g || g.over || !BOTS[g.turn]) return; pendingBot = 0; if (m) commit(x => applyMove(x, m)); };
+    worker.onerror = err => { console.warn("worker", err.message || err); worker = undefined; pendingBot = 0; botTurn(); };
+  } catch (e) { worker = undefined; }
+  return worker;
+}
+function botTurn() {
+  if (!g || g.over || !BOTS[g.turn]) return;
+  const w = getWorker();
+  if (w) { pendingBot = Date.now() + Math.random(); w.postMessage({ id: pendingBot, board: g.board, turn: g.turn, cr: g.cr, ep: g.ep, half: g.half, setup: g.setup, level: BOTS[g.turn] }); return; }
+  const s = toState(g); const m = think(s, BOTS[g.turn]); if (m) commit(x => applyMove(x, m));
+}
+const pickSeed = () => $("setup").value === "960" ? (Math.max(1, Math.min(9999, +$("seed").value)) || 1 + Math.floor(Math.random() * 9999)) : 0;
+async function createRoom(pname) {
+  await loadFirebase(); key = Math.random().toString(36).slice(2, 8);
+  g = norm(newGame([{ uid: uidSelf, name: pname }, null], true, pickSeed())); me = 0; mode = "room"; flipped = false;
+  gref = fb.ref(fb.db, DB_ROOT + "/" + key); await fb.set(gref, cleanse(g));
+  location.hash = "g=" + key; listen(); $("share").classList.remove("hidden"); $("share-link").value = location.href; enterGame();
+}
+async function openRoom(k2, pname) {
+  await loadFirebase(); key = k2; gref = fb.ref(fb.db, DB_ROOT + "/" + key);
+  const snap = await fb.get(gref); if (!snap.exists()) { lobbyMsg("No game at that link."); location.hash = ""; return; }
+  g = norm(cleanse(snap.val())); mode = "room";
+  const seat = g.players.findIndex(p => p && p.uid === uidSelf);
+  if (seat >= 0) me = seat; else if (!g.players[1]) { me = 1; g.players[1] = { uid: uidSelf, name: pname }; await fb.set(fb.child(gref, "players/1"), g.players[1]); } else me = -1;
+  flipped = me === 1; $("share").classList.remove("hidden"); $("share-link").value = location.href; listen(); enterGame();
+}
+function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (g && nx.v === g.v && nx.draw === g.draw && nx.over === g.over && nx.players.every((p, i) => !!p === !!g.players[i])) return; g = nx; sel = -1; hidePromo(); render(); }); }
+
+// ---------- UI ----------
+const say = (t, warn) => { $("msg").innerHTML = t; $("msg").style.color = warn ? "var(--terracotta)" : ""; };
+const lobbyMsg = t => { $("lobbymsg").textContent = t; };
+const pname = i => (g.players[i] && g.players[i].name) || (i ? "black" : "white");
+const myTurn = () => mode === "hot" ? true : mode === "watch" || mode === "guide" ? false : me === g.turn;
+function enterGame() { $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("guide").classList.add("hidden"); $("controls").classList.remove("hidden"); $("homebtn").classList.remove("hidden"); $("newbtn").classList.toggle("hidden", mode === "room"); sel = -1; hidePromo(); render(); scheduleBot(); }
+
+const boardEl = $("board"), cells = {};
+function buildBoard() {
+  boardEl.innerHTML = ""; for (const k in cells) delete cells[k];
+  for (let r = 0; r < 10; r++) for (let cI = 0; cI < 10; cI++) {
+    const y = flipped ? r : 9 - r, x = flipped ? 9 - cI : cI;
+    const i = sq(x, y), d = document.createElement("div");
+    d.className = "cell" + ((x + y) % 2 ? "" : " dk"); d.dataset.i = i; cells[i] = d;
+    boardEl.appendChild(d);
+  }
+}
+const IMG = { K: "timur/king", Q: "ghess/queen", R: "timur/rook", B: "timur/picket", N: "timur/knight", C: "timur/camel" };
+const imgOf = p => "images/" + (p.t === "p" ? (p.pt === "c" ? "timur/pawn-camel" : "timur/pawn-pawn") : IMG[p.t]) + (p.c ? "-b" : "-w") + ".png";
+const pieceName = p => p.t === "p" ? (p.pt === "c" ? "camel pawn" : "pawn") : NAME[p.t];
+function tokHtml(p) {
+  const cls = "tok" + (p.t === "p" ? " pawn" : "") + (p.t === "R" ? " wide" : "") + (p.t === "Q" ? " queen" : "");
+  return `<img class="${cls}" src="${imgOf(p)}" alt="${p.c ? "black" : "white"} ${pieceName(p)}" draggable="false">`;
+}
+// castling is "king takes rook" underneath; the UI also offers the king's landing square when it is free
+function targetMap(s, tl) {
+  const tmap = {};
+  for (const m of tl) { if (m.k === "c") { const side = m.t % 10 > m.f % 10 ? 1 : 0, kd = sq(KDEST[side], homeRank(s.turn)); if (!tmap[kd] && !s.b[kd]) tmap[kd] = m; } tmap[m.t] = tmap[m.t] || m; }
+  return tmap;
+}
+function render(targets) {
+  if (!Object.keys(cells).length) buildBoard();
+  const s = mode === "guide" ? st : (st = toState(g));
+  const lm = mode === "guide" ? [] : (legalNow = (g.over ? [] : legal(s)));
+  const chk = mode !== "guide" && !g.over && inCheck(s, s.turn) ? kingSq(s.b, s.turn) : -1;
+  const tl = targets || (sel >= 0 ? lm.filter(m => m.f === sel) : []);
+  if (mode === "guide" && !targets) return;
+  const tmap = targetMap(s, tl);
+  for (const k in cells) {
+    const i = +k, d = cells[k], p = s.b[i];
+    d.className = "cell" + ((i % 10 + Math.floor(i / 10)) % 2 ? "" : " dk");
+    if (s.last && (s.last[0] === i || s.last[1] === i)) d.classList.add("last");
+    if (i === sel) d.classList.add("sel"); if (i === chk) d.classList.add("chk");
+    const m = tmap[i];
+    let html = p ? tokHtml(p) : "";
+    if (m) { if (m.k === "c" && p && p.t === "R") d.classList.add("cas"); else if (p || m.k === "e") d.classList.add("cap"); else html += `<div class="dot"></div>`; }
+    d.innerHTML = html;
+  }
+  if (mode === "guide") return;
+  for (const i of [0, 1]) { const el = $("p" + i); el.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); el.classList.toggle("turn", !g.over && s.turn === i); }
+  $("midl").textContent = (mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer") + (g.seed ? " · 960 #" + g.seed : "");
+  $("midb").textContent = g.over ? "" : g.log.length ? "move " + (Math.floor(g.log.length / 2) + 1) : "";
+  if (g.over) {
+    const r = g.over.result; say(r === "d" ? "<b>Draw</b> — " + g.over.why + "." : "<b>" + pname(r === "w" ? 0 : 1) + " wins</b> — " + g.over.why + ".");
+  } else if (mode === "room" && !g.players[1]) say("Waiting for someone to open your link…");
+  else {
+    let t = (s.turn ? "Black" : "White") + " to move" + (BOTS[s.turn] ? " — thinking…" : "");
+    if (mode === "room") t = me === s.turn ? "Your move" : me < 0 ? t : "Waiting for " + pname(s.turn);
+    if (chk >= 0) t += " — <b>check</b>";
+    if (g.draw != null && g.draw !== me && mode === "room") t += " · " + pname(g.draw) + " offers a draw";
+    say(t);
+  }
+  $("undo").classList.toggle("hidden", mode === "room" || mode === "watch"); $("undo").disabled = !undoStack.length;
+  $("draw").classList.toggle("hidden", mode !== "room" || me < 0 || !!g.over);
+  $("draw").textContent = g.draw != null && g.draw !== me ? "accept the draw" : g.draw === me ? "draw offered" : "offer a draw";
+  $("resign").classList.toggle("hidden", !!g.over || mode === "watch" || (mode === "room" && me < 0));
+  $("newbtn").classList.toggle("hidden", mode === "room" ? !g.over : false);
+  const L = g.log; let h = ""; for (let i = 0; i < L.length; i += 2) h += `<span class="n">${i / 2 + 1}.</span><span class="mv">${L[i]}</span><span class="mv">${L[i + 1] || ""}</span>`;
+  $("log").innerHTML = h; $("log").scrollTop = 1e9;
+}
+// promotion: several legal moves share a from/to and differ only in the piece — ask which
+let promoResolve = null;
+function hidePromo() { $("promo").classList.add("hidden"); promoResolve = null; }
+function pickPromotion(moves, c) {
+  return new Promise(res => {
+    promoResolve = res; const box = $("promo").querySelector(".box"); box.innerHTML = "";
+    for (const m of moves) { const b = document.createElement("button"); b.innerHTML = `<img src="${imgOf({ c, t: m.pr })}" alt="${NAME[m.pr]}" draggable="false">`; b.title = NAME[m.pr]; b.onclick = () => { hidePromo(); res(m); }; box.appendChild(b); }
+    $("promo").classList.remove("hidden");
+  });
+}
+$("promo").addEventListener("click", e => { if (e.target === $("promo")) { const r = promoResolve; hidePromo(); if (r) r(null); } });
+boardEl.addEventListener("click", async e => {
+  const d = e.target.closest(".cell"); if (!d || d.dataset.i === undefined) return; const i = +d.dataset.i;
+  if (mode === "guide") return guideClick(i);
+  if (g.over || !myTurn() || (mode === "room" && !g.players[1]) || promoResolve) return;
+  const s = st, p = s.b[i];
+  if (sel >= 0) {
+    const tm = targetMap(s, legalNow.filter(m => m.f === sel)); let m = tm[i];
+    if (m) {
+      const alts = legalNow.filter(q => q.f === m.f && q.t === m.t && (q.k || "") === (m.k || ""));
+      if (alts.length > 1) { m = await pickPromotion(alts, s.turn); if (!m) { render(); return; } }
+      pushUndo(); commit(x => applyMove(x, m)); return;
+    }
+  }
+  if (p && p.c === s.turn && legalNow.some(q => q.f === i)) { sel = sel === i ? -1 : i; } else sel = -1;
+  render();
+});
+function pushUndo() { if (mode === "hot" || mode === "bot") { undoStack.push(cleanse(g)); if (undoStack.length > 200) undoStack.shift(); } }
+$("undo").onclick = () => { if (!undoStack.length) return; pendingBot = 0; let x = undoStack.pop(); if (mode === "bot" && undoStack.length && x.turn !== me) x = undoStack.pop(); g = norm(x); sel = -1; render(); scheduleBot(); };
+$("flip").onclick = () => { flipped = !flipped; buildBoard(); render(); };
+$("resign").onclick = () => { if (!confirm("Resign this game?")) return; const loser = mode === "room" ? me : st.turn; commit(x => { x.over = { result: loser === 0 ? "b" : "w", why: pname(loser) + " resigned" }; x.v = (x.v || 0) + 1; return x; }); };
+$("draw").onclick = () => { commit(x => { if (x.draw != null && x.draw !== me) { x.over = { result: "d", why: "agreed" }; x.draw = null; } else x.draw = me; x.v = (x.v || 0) + 1; return x; }); };
+$("newbtn").onclick = () => { if (mode === "room") { location.hash = ""; location.reload(); return; } startLocal(mode, BOTS[1] || BOTS[0]); };
+$("homebtn").onclick = e => { e.preventDefault(); location.hash = ""; location.reload(); };
+$("copy").onclick = () => { navigator.clipboard?.writeText($("share-link").value).then(() => { $("copy").textContent = "copied"; }); $("share-link").select(); };
+if (navigator.share) { $("sharebtn").classList.remove("hidden"); $("sharebtn").onclick = () => navigator.share({ title: "Ghess", text: "Play me at Ghess", url: $("share-link").value }).catch(() => { }); }
+$("rulesbtn").onclick = e => { e.preventDefault(); $("rules").classList.toggle("hidden"); if (!$("rules").classList.contains("hidden")) $("rules").scrollIntoView({ behavior: "smooth" }); };
+$("rules-close").onclick = () => $("rules").classList.add("hidden");
+$("setup").onchange = () => $("seedrow").classList.toggle("hidden", $("setup").value !== "960");
+$("name").value = nameMem.get();
+const getName = () => { const v = $("name").value.trim() || "anon"; nameMem.set(v); return v; };
+function startLocal(m, lv) {
+  mode = m; undoStack = []; BOTS[0] = null; BOTS[1] = null; flipped = false; pendingBot = 0;
+  const rep = true, seed = pickSeed();
+  if (m === "hot") { me = 0; g = norm(newGame([{ uid: "a", name: getName() }, { uid: "b", name: "player 2" }], rep, seed)); }
+  else if (m === "bot") { const black = Math.random() < 0.5; me = black ? 1 : 0; flipped = black; BOTS[me ? 0 : 1] = lv; const bot = { uid: "bot", name: "computer (" + lv + ")" }, you = { uid: "a", name: getName() }; g = norm(newGame(black ? [bot, you] : [you, bot], rep, seed)); }
+  else { me = -1; BOTS[0] = lv; BOTS[1] = lv; g = norm(newGame([{ uid: "b0", name: "computer A" }, { uid: "b1", name: "computer B" }], rep, seed)); }
+  enterGame();
+}
+$("hot").onclick = () => startLocal("hot");
+$("bot").onclick = () => startLocal("bot", $("level").value);
+$("watch").onclick = () => startLocal("watch", $("level").value);
+$("mk").onclick = async () => { try { await createRoom(getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server — try pass & play."); } };
+$("joinbtn").onclick = async () => { const m = location.hash.match(/g=(\w+)/); if (!m) return; try { await openRoom(m[1], getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server."); } };
+
+// ---------- the pieces guide: the real board, one piece at a time ----------
+const GUIDE = [
+  ["K", "One square in any direction. Checkmate it and the game is over. Once a game it may castle with an unmoved rook — the king lands on the c- or i-file, the rook beside it."],
+  ["Q", "Any distance straight or diagonally, stopping at the first piece. The strongest piece on the board — and on ten by ten it has even more room."],
+  ["R", "Any distance straight: up, down, left or right. Two rooks on an open rank are a terror on a board this wide."],
+  ["B", "Any distance diagonally, stopping at the first piece. Each bishop lives on one colour for the whole game."],
+  ["N", "One straight and two across, jumping over anything in the way. Switches colour every move."],
+  ["C", "The camel from Timur's chess: one across and three along, a stretched knight, over anything in between. Slow to re-route — it takes two moves to reach a neighbouring square — but it forks from far away, and nothing can block it. Always lands on the colour it left."],
+  ["p", "One square forward, or two from its starting rank; captures one square diagonally forward; en passant works. On the far rank it becomes a queen, rook, bishop or knight. The two pawns that start in front of the camels wear a camel's head: they can only become camels, and nothing else can."],
+];
+function showGuide() {
+  $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("controls").classList.add("hidden"); $("guide").classList.remove("hidden"); $("homebtn").classList.remove("hidden");
+  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch").forEach(e => e.classList.add("hidden"));
+  const pick = document.querySelector("#guide .pick"); pick.innerHTML = GUIDE.map(([t]) => `<button data-t="${t}">${NAME[t]}</button>`).join("");
+  pick.querySelectorAll("button").forEach(b => b.onclick = () => guidePiece(b.dataset.t));
+  guidePiece("C");
+}
+let guideT = "C";
+function guideMoves(i) { const out = []; pieceMoves(st, i, out); return out.filter(m => m.k !== "c"); }
+function guidePiece(t) {
+  guideT = t; document.querySelectorAll("#guide .pick button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+  const b = new Array(100).fill(null); const at = t === "p" ? sq(4, 1) : sq(4, 4);
+  b[at] = t === "p" ? { c: 0, t: "p", pt: "p" } : { c: 0, t };
+  st = { b, turn: 0, cr: [[false, false], [false, false]], ep: -1, half: 0, over: null, last: null, setup: CLASSIC };
+  const reach = guideMoves(at).map(m => m.t);
+  const far = i => Math.abs(xy(i)[0] - 4) + Math.abs(xy(i)[1] - 4);
+  const sorted = reach.slice().sort((a, c) => far(a) - far(c));
+  const picks = t === "p" ? [] : [sorted[Math.floor(sorted.length * .25)], sorted[sorted.length - 1]].filter((x, k, arr) => x !== undefined && arr.indexOf(x) === k);
+  if (t === "p") { b[sq(5, 2)] = { c: 1, t: "N" }; b[sq(3, 2)] = { c: 1, t: "C" }; b[sq(4, 8)] = { c: 1, t: "p", pt: "c" }; }
+  const kinds = ["N", "C", "B", "R"]; picks.forEach((j, k) => { b[j] = { c: 1, t: kinds[k % kinds.length] }; });
+  for (const j of [sq(1, 7), sq(8, 1), sq(0, 3)]) if (!b[j] && !reach.includes(j)) { b[j] = { c: 1, t: "p", pt: "p" }; break; }
+  sel = at; render(guideMoves(at));
+  for (const i of [0, 1]) $("p" + i).querySelector(".nm").textContent = ""; $("midl").textContent = "the pieces"; $("midb").textContent = NAME[t];
+  const e = GUIDE.find(x => x[0] === t); say("Tap a marked square to move it. Rings are captures.");
+  document.querySelector("#guide .desc").innerHTML = `<b>${NAME[t]}</b><br>${e[1]}`;
+}
+function guideClick(i) {
+  const p = st.b[i];
+  if (sel >= 0) {
+    const m = guideMoves(sel).find(q => q.t === i);
+    if (m) {
+      const was = st.b[sel], taken = st.b[i]; make(st, m); st.turn = 0;
+      const np = st.b[i]; sel = i;
+      let note = taken ? "Took the " + pieceName(taken) + ". " : "";
+      if (was.t === "p" && np.t !== "p") note += "Promoted to a " + NAME[np.t] + "! ";
+      say(note + (guideMoves(i).length ? "Tap another square to keep going, or reset." : "No moves from here — reset to try again."));
+      render(guideMoves(i)); return;
+    }
+  }
+  if (p && p.c === 0) { sel = i; render(guideMoves(i)); return; }
+  sel = -1; render([]);
+}
+$("guidebtn").onclick = showGuide;
+$("guide-reset").onclick = () => guidePiece(guideT);
+$("piecesbtn").onclick = e => { e.preventDefault(); showGuide(); };
+$("guide-done").onclick = () => { location.hash = ""; location.reload(); };
+
+// ---------- boot ----------
+for (const n of [...Object.values(IMG), "timur/pawn-pawn", "timur/pawn-camel"]) for (const side of ["w", "b"]) new Image().src = "images/" + n + "-" + side + ".png";
+const hm = location.hash.match(/g=(\w+)/);
+if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("setup").parentElement.parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
+window.__gh = { get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, sq, render, startLocal, pieceMoves, notation, setupFor, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, evaluate, showGuide, BUILD };
+</script>
+</body>
+</html>
