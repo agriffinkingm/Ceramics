@@ -157,7 +157,7 @@
     <div class="row"><input id="name" type="text" placeholder="your name" maxlength="20"></div>
     <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
     <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
-    <div class="row"><label>setup <select id="setup"><option value="classic" selected>classic — R N C B Q K B C N R</option><option value="960">960 — shuffled back rank</option></select></label><label id="seedrow" class="hidden">#<input id="seed" type="number" min="1" max="9999" placeholder="random"></label></div>
+    <div class="row"><label>setup <select id="setup"><option value="960" selected>960 — shuffled back rank</option><option value="classic">classic — R N C B Q K B C N R</option></select></label><label id="seedrow">#<input id="seed" type="number" min="1" max="9999" placeholder="random"></label></div>
     <div class="row" id="clockrow"><label>time <select id="tmode"><option value="none" selected>untimed</option><option value="timed">timed</option></select></label><span id="tset" class="hidden"><input id="tmin" class="short" type="number" min="1" max="180" value="10"> min + <input id="tinc" class="short" type="number" min="0" max="60" value="5"> s</span></div>
     <div class="row"><button id="guidebtn" class="link">learn the pieces first</button></div>
     <div id="joinrow" class="row cols hidden"><span id="joininfo"></span><button id="joinbtn" class="primary">join the game</button></div>
@@ -216,10 +216,10 @@
   </div>
 </main>
 
-<script src="ghess-engine.js?v=2026-11-04l"></script>
+<script src="ghess-engine.js?v=2026-11-04m"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04l";
+const BUILD = "2026-11-04m";
 
 // engine: see ghess-engine.js (loaded above, and in workers for the computer's thinking and the eval bar). The ?v= keeps browsers from
 // pairing a fresh page with a cached old engine — bump it with BUILD whenever the engine changes.
