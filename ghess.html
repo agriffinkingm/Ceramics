@@ -139,7 +139,7 @@
 <main>
   <section id="lobby">
     <h1>Ghess</h1>
-    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns are giraffe pawns and can only ever become giraffes. Behind each king sits a citadel: get your king into the other one and you win. Two house rules on top: a checked king may, once a game, trade places with one of its pieces (the shah’s privilege); and each side has a griffin waiting off the board, which from move forty-one may swoop in and kill a pawn, hunt for two moves, and fly off.</p>
+    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns are giraffe pawns and can only ever become giraffes. Behind each king sits a citadel: get your king into the other one and you win. Two house rules on top: a checked king may, once a game, trade places with one of its pieces (the shah’s privilege); and each side has a griffin waiting off the board, which from move twenty-five may swoop in and kill a pawn, hunt for two moves, and fly off.</p>
     <div class="row"><input id="name" type="text" placeholder="your name" maxlength="20"></div>
     <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
     <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
@@ -190,7 +190,7 @@
     <h4>The shah's privilege</h4>
     <p>Borrowed from Timur's chess (Murray calls it the king's privilege). Once a game, when your king is in check, instead of moving it you may <b>swap it with one of your pieces — not a pawn</b>: the king goes to that piece's square and the piece to the king's. The swap has to get you out of check like any other move, and castling rights are gone afterwards. Tap the checked king: the pieces it can trade places with get a dashed ring.</p>
     <h4>The griffin</h4>
-    <p>Each side has one griffin, off the board, shown beside the player's name. From <b>move forty-one</b> on (once both sides have made forty moves), on your turn you may <b>swoop</b>: the griffin lands on any enemy pawn and kills it. That is its whole turn, and it can only ever come in on a pawn. Tap the griffin beside your name to see the pawns it can take.</p>
+    <p>Each side has one griffin, off the board, shown beside the player's name. From <b>move twenty-five</b> on (once both sides have made twenty-four moves), on your turn you may <b>swoop</b>: the griffin lands on any enemy pawn and kills it. That is its whole turn, and it can only ever come in on a pawn. Tap the griffin beside your name to see the pawns it can take.</p>
     <p>It then <b>stays for two of your moves</b>. On each it may move — and capture — <b>one square diagonally</b>, or you may move something else; it gives check like any piece. After your second move it <b>flies away</b> for good (the griffin fades once it has one move left). It comes only once a game.</p>
     <p>If the griffin is <b>killed</b> while it's on the board, the pawn it took isn't lost for good: it <b>comes back on the square where the griffin died</b>, as soon as the piece that killed it moves away — a camel pawn comes back as a camel pawn. (If that square happens to be the pawn's last rank, it stays gone.)</p>
     <h4>Ending</h4>
@@ -202,7 +202,7 @@
 <script src="ghess-engine.js"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04h";
+const BUILD = "2026-11-04i";
 
 // engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
 
@@ -387,7 +387,7 @@ function render(targets) {
   for (const i of [0, 1]) {
     const el = $("p" + i); el.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); el.classList.toggle("turn", !g.over && s.turn === i);
     const h = $("h" + i); h.classList.toggle("hidden", !s.hand[i]); h.classList.toggle("ready", !g.over && s.turn === i && myTurn() && lm.some(m => m.k === "g")); h.classList.toggle("sel", sel === HSEL && s.turn === i);
-    h.title = s.hand[i] ? (s.ply >= SWOOP_PLY ? "the griffin is ready to swoop" : "the griffin may swoop from move 41") : "";
+    h.title = s.hand[i] ? (s.ply >= SWOOP_PLY ? "the griffin is ready to swoop" : "the griffin may swoop from move 25") : "";
   }
   $("midl").textContent = (mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer") + (g.seed ? " · 960 #" + g.seed : "") + (g.clock ? " · " + g.clock.base / 60000 + "+" + g.clock.inc / 1000 : "");
   $("midb").textContent = g.over ? "" : g.log.length ? "move " + (Math.floor(g.log.length / 2) + 1) : "";
@@ -482,7 +482,7 @@ const GUIDE = [
   ["N", "One straight and two across, jumping over anything in the way. Switches colour every move."],
   ["C", "The camel from Timur's chess: one across and three along, a stretched knight, over anything in between. Slow to re-route — it takes two moves to reach a neighbouring square — but it forks from far away, and nothing can block it. Always lands on the colour it left."],
   ["Z", "Only ever born from a giraffe pawn. Timur's giraffe — one square diagonally, then at least three squares straight on outward, with every square on the way empty — plus the camel's leap of one across and three along. Long-legged, strange, and worth about four."],
-  ["G", "Off the board until move forty-one, then once a game it may swoop onto any enemy pawn and kill it. It stays for two of your moves, moving and capturing one square diagonally, then flies away. If it's killed first, the pawn it took comes back on that square once the killer moves off it."],
+  ["G", "Off the board until move twenty-five, then once a game it may swoop onto any enemy pawn and kill it. It stays for two of your moves, moving and capturing one square diagonally, then flies away. If it's killed first, the pawn it took comes back on that square once the killer moves off it."],
   ["p", "One square forward, or two from its starting rank; captures one square diagonally forward; en passant works. On the far rank it becomes a queen, rook, bishop or knight. The two pawns that start in front of the camels are giraffe pawns, marked with a giraffe's head: they can only become giraffes, and nothing else can."],
 ];
 function showGuide() {
