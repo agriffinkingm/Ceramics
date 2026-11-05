@@ -1,7 +1,7 @@
 // Ghess — rules engine and computer player. Loaded by ghess.html on the page and again inside a Web Worker.
-// Ordinary chess on a 10×10 board with a camel beside each knight: R N C B Q K B C N R, pawns in front. The pawns in front of the
-// camels are giraffe pawns: they promote only to a giraffe (Timur's giraffe move plus the camel's leap). Behind each king sits a
-// citadel square; the enemy king wins by stepping into it.
+// Ordinary chess on a 10×10 board with a camel and a commoner (Mann) among the pieces: R N C B Q K B M N R, always shuffled
+// 960-style, pawns in front. The pawn in front of the camel is a giraffe pawn: it promotes only to a giraffe (Timur's giraffe move
+// plus the camel's leap). Behind each king sits a citadel square; the enemy king wins by stepping into it.
 // Plus two house rules: the shah's privilege (once a game, a checked king may swap places with one of its pieces, not a pawn) and the griffin
 // (one per side, off the board; from move 25 it may swoop onto an enemy pawn and kill it, stays for two of its owner's moves —
 // moving and capturing one square diagonally — then flies away. If it is killed, the pawn comes back on that square once the
@@ -11,7 +11,7 @@
 // Squares 0..99: index = rank*10 + file, a1 = 0, j10 = 99. 100 = White's citadel (behind White's king), 101 = Black's.
 const CIT_W = 100, CIT_B = 101, NSQ = 102;
 const FILES = "abcdefghij";
-const NAME = { K: "king", Q: "queen", R: "rook", B: "bishop", N: "knight", C: "camel", Z: "giraffe", G: "griffin", p: "pawn" };
+const NAME = { K: "king", Q: "queen", R: "rook", B: "bishop", N: "knight", C: "camel", M: "commoner", Z: "giraffe", G: "griffin", p: "pawn" };
 const SWOOP_PLY = 48;   // the griffin may come in once both sides have made twenty-four moves
 const HAND = -1;        // m.f of a griffin drop
 const LIFE = 2;         // the griffin stays for this many of its owner's moves after the swoop
@@ -26,7 +26,7 @@ const kingFile = setup => setup.indexOf("K");
 const enemyCit = c => c === 0 ? CIT_B : CIT_W;
 const fwd = c => c === 0 ? 1 : -1, lastRank = c => c === 0 ? 9 : 0, homeRank = c => c === 0 ? 0 : 9, pawnRank = c => c === 0 ? 1 : 8;
 const PROMO = ["Q", "R", "B", "N"];
-const CLASSIC = "RNCBQKBCNR";
+const CLASSIC = "RNCBQKBMNR";   // the unshuffled army; games are always dealt 960-style from it
 // castling: the king lands on c/i (file 2/8), the rook beside it on d/h (file 3/7) — the Capablanca / Chess960 convention, whatever the setup
 const KDEST = [2, 8], RDEST = [3, 7];
 
@@ -81,7 +81,7 @@ function attacked(b, i, by) {   // is square i attacked by colour `by`?
   if (i >= 100) return false;
   const [x, y] = xy(i);
   const has = (j, ts) => { if (j < 0) return false; const q = b[j]; return !!(q && q.c === by && ts.includes(q.t)); };
-  for (const [dx, dy] of DIRS8) if (has(sq(x + dx, y + dy), "K")) return true;
+  for (const [dx, dy] of DIRS8) if (has(sq(x + dx, y + dy), "KM")) return true;
   for (const [dx, dy] of KN) if (has(sq(x + dx, y + dy), "N")) return true;
   for (const [dx, dy] of CAM) if (has(sq(x + dx, y + dy), "C")) return true;
   const f = fwd(by);
@@ -137,6 +137,7 @@ function pieceMoves(st, i, out) {
     case "B": slide(DIAG); break;
     case "N": for (const [dx, dy] of KN) step(sq(x + dx, y + dy)); break;
     case "C": for (const [dx, dy] of CAM) step(sq(x + dx, y + dy)); break;
+    case "M": for (const [dx, dy] of DIRS8) step(sq(x + dx, y + dy)); break;
     case "Z": for (const [dx, dy] of CAM) step(sq(x + dx, y + dy)); for (const j of giraffeTargets(b, i)) step(j); break;
     case "G": for (const [dx, dy] of DIAG) step(sq(x + dx, y + dy)); break;
     case "p": {
@@ -215,7 +216,7 @@ function notation(st, m) {
 }
 
 // ---------- the computer: alpha-beta over legal moves, captures-only quiescence, iterative deepening on a time budget ----------
-const VAL = { K: 0, Q: 9.5, R: 5.2, B: 3.4, N: 3, C: 2.2, Z: 4.5, G: 1.3, p: 1 };
+const VAL = { K: 0, Q: 9.5, R: 5.2, B: 3.4, N: 3, M: 3, C: 2.2, Z: 4.5, G: 1.3, p: 1 };
 const HAND_VAL = 1.1;   // a griffin still in hand: a pawn to be taken, give or take
 function evaluate(st) {
   const b = st.b; let s = 0; const mat = [0, 0], ksq = [-1, -1];
@@ -223,7 +224,7 @@ function evaluate(st) {
     const p = b[i]; if (!p) continue; let v = VAL[p.t]; const x = i % 10, y = Math.floor(i / 10);
     if (p.t === "K") ksq[p.c] = i; else if (p.t !== "p") mat[p.c] += v;
     if (p.t === "p") { const adv = p.c === 0 ? y - 1 : 8 - y; v += adv * adv * 0.03 + (p.pt === "z" ? 0.05 : 0); }
-    else if (p.t === "N" || p.t === "C" || p.t === "B") v += 0.25 - 0.05 * (Math.abs(x - 4.5) + Math.abs(y - 4.5)) / 2;   // minor pieces like the middle of a big board
+    else if (p.t === "N" || p.t === "C" || p.t === "B" || p.t === "M") v += 0.25 - 0.05 * (Math.abs(x - 4.5) + Math.abs(y - 4.5)) / 2;   // minor pieces like the middle of a big board
     else if (p.t === "R" || p.t === "Q") v += y === homeRank(p.c) ? 0 : 0.05;
     s += p.c === 0 ? v : -v;
   }

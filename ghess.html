@@ -153,11 +153,11 @@
 <main>
   <section id="lobby">
     <h1>Ghess</h1>
-    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns are giraffe pawns and can only ever become giraffes. Behind each king sits a citadel: get your king into the other one and you win. Two house rules on top: a checked king may, once a game, trade places with one of its pieces (the shah’s privilege); and each side has a griffin waiting off the board, which from move twenty-five may swoop in and kill a pawn, hunt for two moves, and fly off.</p>
+    <p>Chess, but on ten by ten, with a camel and a commoner among the pieces and the back rank shuffled every game. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawn is a giraffe pawn and can only ever become a giraffe. Behind each king sits a citadel: get your king into the other one and you win. Two house rules on top: a checked king may, once a game, trade places with one of its pieces (the shah’s privilege); and each side has a griffin waiting off the board, which from move twenty-five may swoop in and kill a pawn, hunt for two moves, and fly off.</p>
     <div class="row"><input id="name" type="text" placeholder="your name" maxlength="20"></div>
     <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
     <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
-    <div class="row"><label>setup <select id="setup"><option value="960" selected>960 — shuffled back rank</option><option value="classic">classic — R N C B Q K B C N R</option></select></label><label id="seedrow">#<input id="seed" type="number" min="1" max="9999" placeholder="random"></label></div>
+    <div class="row"><label id="seedrow">setup #<input id="seed" type="number" min="1" max="9999" placeholder="random"></label><span style="font-size:.78rem;color:var(--clay-dark)">the back rank is shuffled every game — give a number to replay one</span></div>
     <div class="row" id="clockrow"><label>time <select id="tmode"><option value="none" selected>untimed</option><option value="timed">timed</option></select></label><span id="tset" class="hidden"><input id="tmin" class="short" type="number" min="1" max="180" value="10"> min + <input id="tinc" class="short" type="number" min="0" max="60" value="5"> s</span></div>
     <div class="row"><button id="guidebtn" class="link">learn the pieces first</button></div>
     <div id="joinrow" class="row cols hidden"><span id="joininfo"></span><button id="joinbtn" class="primary">join the game</button></div>
@@ -194,14 +194,13 @@
     <h3>How Ghess works</h3>
     <p>Ghess is ordinary chess stretched to a ten-by-ten board, with one piece borrowed from Timur's chess: the camel.</p>
     <h4>Setting up</h4>
-    <p>White's back rank, from the left: <b>rook, knight, camel, bishop, queen, king, bishop, camel, knight, rook</b> — the queen on e1 and the king on f1. Ten pawns stand in front. Black mirrors it on ranks nine and ten, so the kings face each other on the f-file and the queens on the e-file. White moves first.</p>
-    <p>Choose <b>960</b> in the lobby and the back rank is shuffled instead — the bishops on opposite colours, the king somewhere between the rooks — the same for both sides. Each shuffle has a number, shown as game #N, so a setup can be played again.</p>
+    <p>Each side has a <b>rook, knight, camel, bishop, queen, king, bishop, commoner, knight, rook</b> and ten pawns — and the back rank is <b>shuffled every game</b>, Chess960-style: the bishops on opposite colours, the king somewhere between the rooks, the same for both sides. Each shuffle has a number, shown as #N in the header, so a setup can be played again by typing it in the lobby. White moves first.</p>
     <h4>Moving</h4>
-    <p>Tap "the pieces" for diagrams. The king, queen, rook, bishop, knight and pawns move exactly as in chess. The <b>camel</b> jumps one square across and three along — a stretched knight — over anything in the way. Like a bishop it always stays on the colour it started on.</p>
+    <p>Tap "the pieces" for diagrams. The king, queen, rook, bishop, knight and pawns move exactly as in chess. The <b>camel</b> jumps one square across and three along — a stretched knight — over anything in the way; like a bishop it always stays on the colour it started on. The <b>commoner</b> (the Mann of old German chess) moves exactly like a king — one square any way — but it isn't royal: it can be captured like anything else, and it can help give mate.</p>
     <h4>Pawns and the giraffe</h4>
-    <p>One square forward, two from the starting rank; captures diagonally; en passant works. A pawn that reaches the far rank promotes — to a queen, rook, bishop or knight, your choice. Except the two <b>giraffe pawns</b>, the ones that start in front of the camels: they wear a giraffe's head, and they can only ever promote to a <b>giraffe</b>. No other pawn can. The giraffe isn't on the board at the start; it moves as Timur's giraffe — <b>one square diagonally, then at least three squares straight on outward</b>, every square on the way empty — <b>and</b> it has the camel's leap of one across and three along.</p>
+    <p>One square forward, two from the starting rank; captures diagonally; en passant works. A pawn that reaches the far rank promotes — to a queen, rook, bishop or knight, your choice. Except the <b>giraffe pawn</b>, the one that starts in front of the camel: it wears a giraffe's head, and it can only ever promote to a <b>giraffe</b>. No other pawn can. The giraffe isn't on the board at the start; it moves as Timur's giraffe — <b>one square diagonally, then at least three squares straight on outward</b>, every square on the way empty — <b>and</b> it has the camel's leap of one across and three along.</p>
     <h4>The citadels</h4>
-    <p>Behind each king's starting square, off the edge of the board, sits a <b>citadel</b> (the dashed ring). Only a king can enter it, and only the <i>enemy</i> king: step into it from any of the three squares in front of it and you <b>win on the spot</b> — even out of check. Your own king can't go in. In a 960 setup the citadels sit behind wherever the kings start.</p>
+    <p>Behind each king's starting square, off the edge of the board, sits a <b>citadel</b> (the dashed ring). Only a king can enter it, and only the <i>enemy</i> king: step into it from any of the three squares in front of it and you <b>win on the spot</b> — even out of check. Your own king can't go in. They sit behind wherever the kings start.</p>
     <h4>Castling</h4>
     <p>As in chess, with the king and rook unmoved, nothing between them, and the king not in, through or into check. The king ends on the c- or i-file and the rook lands beside it on the d- or h-file — in a 960 setup too, wherever they started. Tap the king, then the rook (or the king's landing square).</p>
     <h4>The shah's privilege</h4>
@@ -211,15 +210,15 @@
     <p>It then <b>stays for two of your moves</b>. On each it may move — and capture — <b>one square diagonally</b>, or you may move something else; it gives check like any piece. After your second move it <b>flies away</b> for good (the griffin fades once it has one move left). It comes only once a game.</p>
     <p>If the griffin is <b>killed</b> while it's on the board, the pawn it took isn't lost for good: it <b>comes back on the square where the griffin died</b>, as soon as the piece that killed it moves away — a camel pawn comes back as a camel pawn. (If that square happens to be the pawn's last rank, it stays gone.)</p>
     <h4>Ending</h4>
-    <p>Checkmate wins; so does walking your king into the enemy citadel. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. <b>Analysis:</b> tap any move in the list to go back to that position; from there you can move the pieces for either side and the eval bar follows — the game itself is untouched, and "back to the game" returns you to it. When a game is over, tapping the board (or "analyze") opens the final position the same way. The <b>eval bar</b> button shows the computer's opinion of the position beside the board — white's share of the bar, with the score in pawns or a mate distance — recomputed after every move (a second or so of thinking, so take it as a hint, not a verdict). The strip under the board shows what each side has taken and who is ahead, counting the queen 9, rook 5, bishop 3, knight 3, <b>camel 2</b>, <b>giraffe 4</b>, griffin 1 (in hand or on the board), pawn 1. You can also resign or offer a draw. In a <b>timed</b> game each side has the same minutes on the clock and gets the increment back after every move; run out and you lose on time. In a shared game the clocks start with White's first move.</p>
+    <p>Checkmate wins; so does walking your king into the enemy citadel. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. <b>Analysis:</b> tap any move in the list to go back to that position; from there you can move the pieces for either side and the eval bar follows — the game itself is untouched, and "back to the game" returns you to it. When a game is over, tapping the board (or "analyze") opens the final position the same way. The <b>eval bar</b> button shows the computer's opinion of the position beside the board — white's share of the bar, with the score in pawns or a mate distance — recomputed after every move (a second or so of thinking, so take it as a hint, not a verdict). The strip under the board shows what each side has taken and who is ahead, counting the queen 9, rook 5, bishop 3, knight 3, <b>camel 2</b>, <b>commoner 3</b>, <b>giraffe 4</b>, griffin 1 (in hand or on the board), pawn 1. You can also resign or offer a draw. In a <b>timed</b> game each side has the same minutes on the clock and gets the increment back after every move; run out and you lose on time. In a shared game the clocks start with White's first move.</p>
     <p class="x"><button class="link" id="rules-close">close</button></p>
   </div>
 </main>
 
-<script src="ghess-engine.js?v=2026-11-04m"></script>
+<script src="ghess-engine.js?v=2026-11-04n"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04m";
+const BUILD = "2026-11-04n";
 
 // engine: see ghess-engine.js (loaded above, and in workers for the computer's thinking and the eval bar). The ?v= keeps browsers from
 // pairing a fresh page with a cached old engine — bump it with BUILD whenever the engine changes.
@@ -359,7 +358,7 @@ function botTurn() {
   const s = toState(g); const m = think(s, BOTS[g.turn], botBudget()); if (m) commit(x => applyMove(x, m));
 }
 const pickClock = () => $("tmode").value === "timed" ? { base: Math.max(1, Math.min(180, +$("tmin").value || 10)) * 60000, inc: Math.max(0, Math.min(60, +$("tinc").value || 0)) * 1000 } : null;
-const pickSeed = () => $("setup").value === "960" ? (Math.max(1, Math.min(9999, +$("seed").value)) || 1 + Math.floor(Math.random() * 9999)) : 0;
+const pickSeed = () => Math.max(1, Math.min(9999, +$("seed").value)) || 1 + Math.floor(Math.random() * 9999);
 async function createRoom(pname) {
   await loadFirebase(); key = Math.random().toString(36).slice(2, 8);
   g = norm(newGame([{ uid: uidSelf, name: pname }, null], true, pickSeed(), pickClock())); me = 0; mode = "room"; flipped = false;
@@ -394,7 +393,7 @@ function buildBoard() {
     boardEl.appendChild(d);
   }
 }
-const IMG = { K: "timur/king", Q: "ghess/queen", R: "timur/rook", B: "timur/picket", N: "timur/knight", C: "timur/camel", Z: "timur/giraffe", G: "ghess/griffin" };
+const IMG = { K: "timur/king", Q: "ghess/queen", R: "timur/rook", B: "ghess/bishop", N: "timur/knight", C: "timur/camel", M: "timur/picket", Z: "timur/giraffe", G: "ghess/griffin" };
 const imgOf = p => "images/" + (p.t === "p" ? (p.pt === "z" ? "timur/pawn-giraffe" : "timur/pawn-pawn") : IMG[p.t]) + (p.c ? "-b" : "-w") + ".png";
 const pieceName = p => p.t === "p" ? (p.pt === "z" ? "giraffe pawn" : "pawn") : NAME[p.t];
 function tokHtml(p) {
@@ -408,14 +407,14 @@ function targetMap(s, tl) {
   return tmap;
 }
 // material: points on the board (+1 for a griffin still in hand); the icons are what the other side has lost, by comparing with the starting army
-const PTS = { K: 0, Q: 9, R: 5, B: 3, N: 3, C: 2, Z: 4, G: 1, p: 1 };
-const ORDER = ["Q", "R", "Z", "B", "N", "C", "G", "p", "pz"];
+const PTS = { K: 0, Q: 9, R: 5, B: 3, N: 3, M: 3, C: 2, Z: 4, G: 1, p: 1 };
+const ORDER = ["Q", "R", "Z", "B", "N", "M", "C", "G", "p", "pz"];
 function paintMaterial(s) {
   const have = [{}, {}], pts = [0, 0];
   for (let i = 0; i < 100; i++) { const p = s.b[i]; if (!p) continue; const k = p.t === "p" ? (p.pt === "z" ? "pz" : "p") : p.t; have[p.c][k] = (have[p.c][k] || 0) + 1; pts[p.c] += PTS[p.t]; }
   for (const c of [0, 1]) if (s.hand[c]) { have[c].G = (have[c].G || 0) + 1; pts[c] += 1; }
   for (const r of s.rest) { const k = r[2] === "z" ? "pz" : "p"; have[r[1]][k] = (have[r[1]][k] || 0) + 1; pts[r[1]] += 1; }   // a pawn on its way back still counts
-  const start = { Q: 1, R: 2, Z: 0, B: 2, N: 2, C: 2, G: 1, p: 8, pz: 2 };
+  const start = { Q: 1, R: 2, Z: 0, B: 2, N: 2, M: 1, C: 1, G: 1, p: 9, pz: 1 };
   for (const c of [0, 1]) {
     const o = 1 - c; let h = "";   // what colour c has taken from colour o
     for (const k of ORDER) { const n = Math.max(0, start[k] - (have[o][k] || 0)); const img = k === "p" ? "timur/pawn-pawn" : k === "pz" ? "timur/pawn-giraffe" : IMG[k]; for (let i = 0; i < n; i++) h += `<img class="${k === "p" || k === "pz" ? "sm" : ""}" src="images/${img}${o ? "-b" : "-w"}.png" alt="" draggable="false">`; }
@@ -449,7 +448,7 @@ function render(targets) {
     const h = $("h" + i); h.classList.toggle("hidden", !s.hand[i]); h.classList.toggle("ready", !g.over && s.turn === i && myTurn() && lm.some(m => m.k === "g")); h.classList.toggle("sel", sel === HSEL && s.turn === i);
     h.title = s.hand[i] ? (s.ply >= SWOOP_PLY ? "the griffin is ready to swoop" : "the griffin may swoop from move 25") : "";
   }
-  $("midl").textContent = (mode === "analysis" ? "analysis" : mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer") + (g.seed ? " · 960 #" + g.seed : "") + (g.clock ? " · " + g.clock.base / 60000 + "+" + g.clock.inc / 1000 : "");
+  $("midl").textContent = (mode === "analysis" ? "analysis" : mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer") + (g.seed ? " · #" + g.seed : "") + (g.clock ? " · " + g.clock.base / 60000 + "+" + g.clock.inc / 1000 : "");
   $("midb").textContent = g.over ? "" : g.log.length ? "move " + (Math.floor(g.log.length / 2) + 1) : "";
   if (g.over) {
     const r = g.over.result; say(r === "d" ? "<b>Draw</b> — " + g.over.why + "." : "<b>" + pname(r === "w" ? 0 : 1) + " wins</b> — " + g.over.why + ".");
@@ -533,7 +532,6 @@ $("copy").onclick = () => { navigator.clipboard?.writeText($("share-link").value
 if (navigator.share) { $("sharebtn").classList.remove("hidden"); $("sharebtn").onclick = () => navigator.share({ title: "Ghess", text: "Play me at Ghess", url: $("share-link").value }).catch(() => { }); }
 $("rulesbtn").onclick = e => { e.preventDefault(); $("rules").classList.toggle("hidden"); if (!$("rules").classList.contains("hidden")) $("rules").scrollIntoView({ behavior: "smooth" }); };
 $("rules-close").onclick = () => $("rules").classList.add("hidden");
-$("setup").onchange = () => $("seedrow").classList.toggle("hidden", $("setup").value !== "960");
 $("tmode").onchange = () => $("tset").classList.toggle("hidden", $("tmode").value !== "timed");
 $("name").value = nameMem.get();
 const getName = () => { const v = $("name").value.trim() || "anon"; nameMem.set(v); return v; };
@@ -563,9 +561,10 @@ const GUIDE = [
   ["B", "Any distance diagonally, stopping at the first piece. Each bishop lives on one colour for the whole game."],
   ["N", "One straight and two across, jumping over anything in the way. Switches colour every move."],
   ["C", "The camel from Timur's chess: one across and three along, a stretched knight, over anything in between. Slow to re-route — it takes two moves to reach a neighbouring square — but it forks from far away, and nothing can block it. Always lands on the colour it left."],
+  ["M", "The commoner, or Mann: one square in any direction, just like the king — but it isn't royal, so it can be taken, and it's a fine escort for the king or a mating piece in the endgame. Worth about three."],
   ["Z", "Only ever born from a giraffe pawn. Timur's giraffe — one square diagonally, then at least three squares straight on outward, with every square on the way empty — plus the camel's leap of one across and three along. Long-legged, strange, and worth about four."],
   ["G", "Off the board until move twenty-five, then once a game it may swoop onto any enemy pawn and kill it. It stays for two of your moves, moving and capturing one square diagonally, then flies away. If it's killed first, the pawn it took comes back on that square once the killer moves off it."],
-  ["p", "One square forward, or two from its starting rank; captures one square diagonally forward; en passant works. On the far rank it becomes a queen, rook, bishop or knight. The two pawns that start in front of the camels are giraffe pawns, marked with a giraffe's head: they can only become giraffes, and nothing else can."],
+  ["p", "One square forward, or two from its starting rank; captures one square diagonally forward; en passant works. On the far rank it becomes a queen, rook, bishop or knight. The pawn that starts in front of the camel is the giraffe pawn, marked with a giraffe's head: it can only become a giraffe, and nothing else can."],
 ];
 function showGuide() {
   $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("controls").classList.add("hidden"); $("guide").classList.remove("hidden"); $("homebtn").classList.remove("hidden");
@@ -618,7 +617,7 @@ $("guide-done").onclick = () => { location.hash = ""; location.reload(); };
 // ---------- boot ----------
 for (const n of [...Object.values(IMG), "timur/pawn-pawn", "timur/pawn-giraffe"]) for (const side of ["w", "b"]) new Image().src = "images/" + n + "-" + side + ".png";
 const hm = location.hash.match(/g=(\w+)/);
-if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("setup").parentElement.parentElement.classList.add("hidden"); $("clockrow").classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
+if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("seedrow").parentElement.classList.add("hidden"); $("clockrow").classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
 window.__gh = { goTo, replay, get an() { return an; }, get evalLast() { return evalLast; }, requestEval, applyFlag, chargeClock, paintClocks, get serverOffset() { return serverOffset; }, set serverOffset(v) { serverOffset = v; }, get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, sq, render, startLocal, pieceMoves, notation, setupFor, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, evaluate, showGuide, BUILD };
 </script>
 </body>
