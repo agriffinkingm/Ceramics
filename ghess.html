@@ -216,12 +216,14 @@
   </div>
 </main>
 
-<script src="ghess-engine.js"></script>
+<script src="ghess-engine.js?v=2026-11-04l"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04k";
+const BUILD = "2026-11-04l";
 
-// engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
+// engine: see ghess-engine.js (loaded above, and in workers for the computer's thinking and the eval bar). The ?v= keeps browsers from
+// pairing a fresh page with a cached old engine — bump it with BUILD whenever the engine changes.
+const ENGINE_URL = "ghess-engine.js?v=" + BUILD;
 
 // ---------- game record (what rooms sync) ----------
 let g = null, st = null, mode = "", me = 0, flipped = false, sel = -1, legalNow = [], undoStack = [];
@@ -303,7 +305,7 @@ try { evalOn = localStorage.getItem("agkm-ghess-eval") === "1"; } catch (e) { }
 function getEvalWorker() {
   if (evalWorker === undefined) return null; if (evalWorker) return evalWorker;
   try {
-    evalWorker = new Worker("ghess-engine.js");
+    evalWorker = new Worker(ENGINE_URL);
     evalWorker.onmessage = e => { const r = e.data; if (r.kind !== "eval" || r.id !== evalId) return; evalLast = r; $("evalbar").classList.remove("thinking"); paintEval(); };
     evalWorker.onerror = err => { console.warn("eval worker", err.message || err); evalWorker = undefined; };
   } catch (e) { evalWorker = undefined; }
@@ -313,9 +315,14 @@ function requestEval() {
   if (!evalOn || !g || mode === "guide") return;
   const k = g.board + "|" + g.turn + "|" + g.ply + "|" + (g.over ? "x" : ""); if (k === evalKey) return; evalKey = k;
   if (g.over) { evalLast = { v: g.over.result === "d" ? 0 : g.over.result === "w" ? 1e9 : -1e9, mate: 0, depth: 0 }; paintEval(); return; }
-  const w = getEvalWorker(); if (!w) return;
+  const w = getEvalWorker(); if (!w) { evalInline(k); return; }
   evalId = Date.now() + Math.random(); $("evalbar").classList.add("thinking");
   w.postMessage({ kind: "eval", id: evalId, board: g.board, turn: g.turn, cr: g.cr, ep: g.ep, half: g.half, swap: g.swap, hand: g.hand, ply: g.ply, rest: g.rest, setup: g.setup, budget: 900 });
+  const myId = evalId; setTimeout(() => { if (evalId !== myId || !$("evalbar").classList.contains("thinking")) return; evalWorker = undefined; evalInline(k); }, 4000);
+}
+function evalInline(k) {   // no worker answer: think on the page thread with a short budget
+  if (!evalOn || !g || mode === "guide" || typeof analyse !== "function") return;
+  const r = analyse(toState(g), 400); evalLast = { v: r.v === Infinity ? 1e9 : r.v === -Infinity ? -1e9 : r.v, mate: r.mate, m: r.m, depth: r.depth }; $("evalbar").classList.remove("thinking"); paintEval();
 }
 function paintEval() {
   const bar = $("evalbar"); bar.classList.toggle("hidden", !evalOn || mode === "guide"); bar.classList.toggle("flip", flipped); if (!evalOn) return;
@@ -338,7 +345,7 @@ let worker = null, pendingBot = 0;
 function getWorker() {
   if (worker === undefined) return null; if (worker) return worker;
   try {
-    worker = new Worker("ghess-engine.js");
+    worker = new Worker(ENGINE_URL);
     worker.onmessage = e => { const { id, m } = e.data; if (id !== pendingBot || !g || g.over || !BOTS[g.turn] || mode === "analysis") return; pendingBot = 0; if (m) commit(x => applyMove(x, m)); };
     worker.onerror = err => { console.warn("worker", err.message || err); worker = undefined; pendingBot = 0; botTurn(); };
   } catch (e) { worker = undefined; }
