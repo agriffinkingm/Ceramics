@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-10-31-0955-0",
-  "image": "pool-2026-10-31-0955-0.jpg",
-  "headline": "Iconic Yellowstone collects record 23 , 000 pieces of trash from hot springs",
-  "url": "https://www.foxnews.com/travel/reckless-visitors-destroying-yellowstones-iconic-thermal-pools-trash",
-  "outlet": "foxnews.com",
-  "t": "2026-10-31T13:55:37+00:00",
-  "vista": 8.0,
-  "hash": 17581983845136000192
- },
- {
-  "id": "2026-11-01",
-  "image": "pool-2026-11-01.jpg",
-  "headline": "Two Varanasi - bound IndiGo flights diverted to Lucknow due to air show",
-  "url": "https://www.thehindubusinessline.com/economy/logistics/two-varanasi-bound-indigo-flights-diverted-to-lucknow-due-to-air-show/article71622729.ece",
-  "outlet": "thehindubusinessline.com",
-  "t": "2026-11-01T13:17:38+00:00",
-  "hash": 18446675645248303103
- },
- {
-  "id": "2026-11-01-b",
-  "image": "pool-2026-11-01-b.jpg",
-  "headline": "67 History Facts And Pics That Make The Past More Fascinating Than You Might Expect",
-  "url": "https://2.boredpanda.com/magnificent-history-facts-pics/?cexp_id=163348&_f=homepage_featured&cexp_var=7",
-  "outlet": "2.boredpanda.com",
-  "t": "2026-11-01T13:17:38+00:00",
-  "hash": 17361641481138403583
- },
- {
   "id": "2026-11-01-c",
   "image": "pool-2026-11-01-c.jpg",
   "headline": "Sukhoi , Tejas , Prachand headline IAF grand air show in Varanasi",
@@ -167,5 +139,32 @@
   "outlet": "bgnes.com",
   "t": "2026-11-04T14:28:05+00:00",
   "hash": 18446681984653328376
+ },
+ {
+  "id": "2026-11-05",
+  "image": "pool-2026-11-05.jpg",
+  "headline": "Scientists want to cool down the planet by brightening clouds and refreezing the Arctic",
+  "url": "https://www.dailystar.co.uk/news/latest-news/scientists-want-cool-down-planet-37838729",
+  "outlet": "dailystar.co.uk",
+  "t": "2026-11-05T14:55:46+00:00",
+  "hash": 327852256776945663
+ },
+ {
+  "id": "2026-11-05-b",
+  "image": "pool-2026-11-05-b.jpg",
+  "headline": "Wildfires Develop as Maine Deals With High Fire Danger",
+  "url": "https://989wclz.com/news/074470-wildfires-develop-as-maine-deals-with-high-fire-danger/",
+  "outlet": "989wclz.com",
+  "t": "2026-11-05T14:55:46+00:00",
+  "hash": 141703738556156
+ },
+ {
+  "id": "2026-11-05-c",
+  "image": "pool-2026-11-05-c.jpg",
+  "headline": "Fire Crews At Hope Ranch  Volcano  Geological Phenomena Sparks Vegetation Fire Tuesday",
+  "url": "https://keyt.com/news/santa-barbara-s-county/2026/11/03/fire-crews-on-scene-for-geological-event-at-hope-ranch/",
+  "outlet": "keyt.com",
+  "t": "2026-11-05T14:55:46+00:00",
+  "hash": 9493799638247865592
  }
 ]
