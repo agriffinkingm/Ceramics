@@ -281,9 +281,10 @@ function search(st, depth, alpha, beta, ply, ext) {
   if (!aborted) { if (TT.size > TT_MAX) TT.clear(); TT.set(key, { depth, v: best, flag: best <= alpha0 ? 2 : best >= beta ? 1 : 0, m: bestM }); }
   return best;
 }
-function think(st, level) {
+function think(st, level, maxMs) {   // maxMs: a cap on thinking time, so a bot on a clock doesn't flag itself
   const ms = legal(st); if (!ms.length) return null;
-  const budget = level === "easy" ? 200 : level === "normal" ? 1500 : 5000, maxD = level === "easy" ? 1 : level === "normal" ? 8 : 12;
+  let budget = level === "easy" ? 200 : level === "normal" ? 1500 : 5000; if (maxMs) budget = Math.max(50, Math.min(budget, maxMs));
+  const maxD = level === "easy" ? 1 : level === "normal" ? 8 : 12;
   deadline = performance.now() + budget; aborted = false; nodes = 0; killers = []; history = {}; TT = new Map();
   let scored = ms.map(m => [0, m]), pv = null;
   for (let d = 1; d <= maxD && !aborted; d++) {
@@ -303,9 +304,9 @@ function think(st, level) {
 // ---- worker entry point: the page posts a position, gets a move back ----
 if (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) {
   self.onmessage = e => {
-    const { id, board, turn, cr, ep, half, swap, hand, ply, rest, setup, level } = e.data;
+    const { id, board, turn, cr, ep, half, swap, hand, ply, rest, setup, level, maxMs } = e.data;
     const st = { b: unpack(board), turn, cr: [cr[0].slice(), cr[1].slice()], ep, half, swap: (swap || [false, false]).slice(), hand: (hand || [true, true]).slice(), ply: ply || 0, rest: cloneRest(rest || []), over: null, last: null, setup: setup || CLASSIC };
-    const m = think(st, level);
+    const m = think(st, level, maxMs);
     self.postMessage({ id, m, nodes });
   };
 }

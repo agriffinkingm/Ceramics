@@ -50,6 +50,11 @@
   .pl .swatch { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--sq-line); }
   .pl.right { justify-content: flex-end; }
   .pl.turn .nm { color: var(--terracotta); }
+  .pl .clk { font-variant-numeric: tabular-nums; font-size: .95rem; letter-spacing: .04em; color: var(--clay-dark); padding: .1rem .4rem; border-radius: 3px; background: rgba(250,248,245,.6); }
+  .pl .clk.run { color: var(--charcoal); background: var(--ivory); box-shadow: inset 0 0 0 1px var(--plaster-deep); }
+  .pl .clk.low { color: var(--terracotta); }
+  .pl .clk.out { color: var(--ivory); background: var(--terracotta); }
+  input[type=number].short { width: 4.2rem; }
   .pl .hand { width: 34px; height: 34px; opacity: .45; filter: drop-shadow(0 1px 1px rgba(40,20,5,.3)); cursor: default; -webkit-user-drag: none; }
   .pl .hand.ready { opacity: 1; cursor: pointer; animation: hover 1.6s ease-in-out infinite; }
   .pl .hand.sel { filter: drop-shadow(0 0 3px var(--terracotta)) drop-shadow(0 0 1px var(--terracotta)); }
@@ -121,13 +126,14 @@
     <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
     <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
     <div class="row"><label>setup <select id="setup"><option value="classic" selected>classic — R N C B Q K B C N R</option><option value="960">960 — shuffled back rank</option></select></label><label id="seedrow" class="hidden">#<input id="seed" type="number" min="1" max="9999" placeholder="random"></label></div>
+    <div class="row" id="clockrow"><label>time <select id="tmode"><option value="none" selected>untimed</option><option value="timed">timed</option></select></label><span id="tset" class="hidden"><input id="tmin" class="short" type="number" min="1" max="180" value="10"> min + <input id="tinc" class="short" type="number" min="0" max="60" value="5"> s</span></div>
     <div class="row"><button id="guidebtn" class="link">learn the pieces first</button></div>
     <div id="joinrow" class="row cols hidden"><span id="joininfo"></span><button id="joinbtn" class="primary">join the game</button></div>
     <p id="lobbymsg"></p>
   </section>
 
   <section id="arena" class="hidden">
-    <div id="top"><div class="pl" id="p0"><span class="swatch" style="background:var(--tok-w)"></span><span class="nm"></span><img class="hand hidden" id="h0" src="images/ghess/griffin-w.png" alt="white griffin in hand" draggable="false"></div><div id="mid"><span id="midl"></span><b id="midb"></b></div><div class="pl right" id="p1"><img class="hand hidden" id="h1" src="images/ghess/griffin-b.png" alt="black griffin in hand" draggable="false"><span class="nm"></span><span class="swatch" style="background:var(--tok-b)"></span></div></div>
+    <div id="top"><div class="pl" id="p0"><span class="swatch" style="background:var(--tok-w)"></span><span class="nm"></span><span class="clk hidden" id="c0"></span><img class="hand hidden" id="h0" src="images/ghess/griffin-w.png" alt="white griffin in hand" draggable="false"></div><div id="mid"><span id="midl"></span><b id="midb"></b></div><div class="pl right" id="p1"><img class="hand hidden" id="h1" src="images/ghess/griffin-b.png" alt="black griffin in hand" draggable="false"><span class="clk hidden" id="c1"></span><span class="nm"></span><span class="swatch" style="background:var(--tok-b)"></span></div></div>
     <div id="board-wrap"><div id="board"></div><div id="promo" class="hidden"><div class="box"></div></div></div>
     <div id="msg"></div>
     <div id="guide" class="hidden">
@@ -167,7 +173,7 @@
     <p>It then <b>stays for two of your moves</b>. On each it may move — and capture — <b>one square diagonally</b>, or you may move something else; it gives check like any piece. After your second move it <b>flies away</b> for good (the griffin fades once it has one move left). It comes only once a game.</p>
     <p>If the griffin is <b>killed</b> while it's on the board, the pawn it took isn't lost for good: it <b>comes back on the square where the griffin died</b>, as soon as the piece that killed it moves away — a camel pawn comes back as a camel pawn. (If that square happens to be the pawn's last rank, it stays gone.)</p>
     <h4>Ending</h4>
-    <p>Checkmate wins. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. You can also resign or offer a draw.</p>
+    <p>Checkmate wins. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. You can also resign or offer a draw. In a <b>timed</b> game each side has the same minutes on the clock and gets the increment back after every move; run out and you lose on time. In a shared game the clocks start with White's first move.</p>
     <p class="x"><button class="link" id="rules-close">close</button></p>
   </div>
 </main>
@@ -175,7 +181,7 @@
 <script src="ghess-engine.js"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04b";
+const BUILD = "2026-11-04c";
 
 // engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
 
@@ -186,12 +192,27 @@ const selFrom = () => sel === HSEL ? HAND : sel;
 const BOTS = { 0: null, 1: null };
 const uidSelf = (() => { let u = localStorage.getItem("agkm-uid"); if (!u) { u = Math.random().toString(36).slice(2, 10); localStorage.setItem("agkm-uid", u); } return u; })();
 const nameMem = { get: () => localStorage.getItem("agkm-name") || "", set: v => localStorage.setItem("agkm-name", v) };
-function newGame(players, rep, seed = 0) { const setup = setupFor(seed); const s = newState(setup); return { v: 0, board: pack(s.b), turn: 0, cr: s.cr, ep: -1, half: 0, swap: [false, false], hand: [true, true], ply: 0, rest: [], over: null, last: null, log: [], hist: {}, players, rep: !!rep, setup, seed, draw: null }; }
-function norm(x) { x.cr = x.cr && x.cr.length === 2 ? [[!!x.cr[0][0], !!x.cr[0][1]], [!!x.cr[1][0], !!x.cr[1][1]]] : [[true, true], [true, true]]; if (x.ep === undefined) x.ep = -1; x.half = x.half || 0; x.swap = x.swap ? [!!x.swap[0], !!x.swap[1]] : [false, false]; x.hand = x.hand ? [!!x.hand[0], !!x.hand[1]] : [true, true]; x.ply = x.ply || x.log && x.log.length || 0; x.rest = (x.rest || []).map(r => [r[0], r[1], r[2]]); x.log = x.log || []; x.hist = x.hist || {}; x.players = x.players || []; x.setup = x.setup || CLASSIC; x.seed = x.seed || 0; if (x.last && !Array.isArray(x.last)) x.last = [x.last[0], x.last[1]]; if (x.draw === undefined) x.draw = null; return x; }
+function newGame(players, rep, seed = 0, clock = null) { const setup = setupFor(seed); const s = newState(setup); return { v: 0, board: pack(s.b), turn: 0, cr: s.cr, ep: -1, half: 0, swap: [false, false], hand: [true, true], ply: 0, rest: [], over: null, last: null, log: [], hist: {}, players, rep: !!rep, setup, seed, draw: null, clock, times: clock ? [clock.base, clock.base] : [0, 0], tick: 0 }; }
+function norm(x) { x.cr = x.cr && x.cr.length === 2 ? [[!!x.cr[0][0], !!x.cr[0][1]], [!!x.cr[1][0], !!x.cr[1][1]]] : [[true, true], [true, true]]; if (x.ep === undefined) x.ep = -1; x.half = x.half || 0; x.swap = x.swap ? [!!x.swap[0], !!x.swap[1]] : [false, false]; x.hand = x.hand ? [!!x.hand[0], !!x.hand[1]] : [true, true]; x.ply = x.ply || x.log && x.log.length || 0; x.rest = (x.rest || []).map(r => [r[0], r[1], r[2]]); x.log = x.log || []; x.hist = x.hist || {}; x.players = x.players || []; x.setup = x.setup || CLASSIC; x.seed = x.seed || 0; if (x.last && !Array.isArray(x.last)) x.last = [x.last[0], x.last[1]]; if (x.draw === undefined) x.draw = null; x.clock = x.clock && x.clock.base ? { base: +x.clock.base, inc: +x.clock.inc || 0 } : null; x.times = x.times && x.times.length === 2 ? [+x.times[0] || 0, +x.times[1] || 0] : [0, 0]; x.tick = +x.tick || 0; return x; }
+// ---------- clocks: times[] in ms, tick = server time the running clock started (0 = not running) ----------
+let serverOffset = 0;
+const now = () => Date.now() + serverOffset;
+const fmtClock = ms => { ms = Math.max(0, ms); const s = Math.floor(ms / 1000); return ms < 10000 ? (ms / 1000).toFixed(1) : Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+function chargeClock(x) {   // charge the side to move for the time since its clock started; false if it has already run out
+  if (!x.clock || !x.tick) return true;
+  x.times[x.turn] -= now() - x.tick; if (x.times[x.turn] <= 0) { x.times[x.turn] = 0; return false; }
+  return true;
+}
+function restartClock(x, mover) { if (!x.clock) return; if (x.over) { x.tick = 0; return; } x.times[mover] += x.clock.inc; x.tick = now(); }
+function applyFlag(x) {   // the running clock reached zero
+  if (x.over || !x.clock || !x.tick) return null;
+  const loser = x.turn; x.times[loser] = 0; x.tick = 0; x.over = { result: loser === 0 ? "b" : "w", why: (x.players[loser] && x.players[loser].name || (loser ? "black" : "white")) + " ran out of time" }; x.v = (x.v || 0) + 1; return x;
+}
 function toState(x) { return { b: unpack(x.board), turn: x.turn, cr: [x.cr[0].slice(), x.cr[1].slice()], ep: x.ep, half: x.half, swap: x.swap.slice(), hand: x.hand.slice(), ply: x.ply, rest: cloneRest(x.rest), over: x.over || null, last: x.last, setup: x.setup }; }
 const posKey = s => pack(s.b) + "|" + s.turn + "|" + s.ep + "|" + s.cr.flat().concat(s.swap, s.hand).map(v => v ? 1 : 0).join("") + (s.ply >= SWOOP_PLY ? "+" : "") + s.rest.map(r => r.join("")).join(",");
 function applyMove(x, m) {   // pure: x is a copy of the record
   const s = toState(x); const lm = legal(s); const ok = lm.find(q => sameMove(q, m)); if (!ok) return null;
+  if (!chargeClock(x)) return applyFlag(x);
   let note = notation(s, m); const griffBefore = s.b.some(p => p && p.c === s.turn && p.t === "G" && m.k !== "g"), restBefore = s.rest.length; make(s, m);
   if (griffBefore && !s.b.some(p => p && p.c === 1 - s.turn && p.t === "G")) note += " ↗G";   // the griffin flew away
   if (s.rest.length < restBefore) note += " ↩p";                                               // a pawn came back
@@ -199,7 +220,7 @@ function applyMove(x, m) {   // pure: x is a copy of the record
   if (inCheck(s, s.turn)) note += over && over.why === "checkmate" ? "#" : "+";
   x.board = pack(s.b); x.turn = s.turn; x.cr = s.cr; x.ep = s.ep; x.half = s.half; x.swap = s.swap; x.hand = s.hand; x.ply = s.ply; x.rest = s.rest; x.last = [m.f, m.t]; x.log.push(note); x.v = (x.v || 0) + 1; x.draw = null;
   if (!over) { const k = hash(posKey(s)); x.hist[k] = (x.hist[k] || 0) + 1; if (x.rep && x.hist[k] >= 3) over = { result: "d", why: "the same position three times" }; }
-  x.over = over; return x;
+  x.over = over; restartClock(x, 1 - s.turn); return x;
 }
 function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); }
 
@@ -211,19 +232,33 @@ async function loadFirebase() {
   if (fb) return fb;
   if (window.__fakeFb) return fb = window.__fakeFb();
   const o = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"); const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-  const app = initializeApp(firebaseConfig); const db = o.getDatabase(app); return fb = { db, ...o };
+  const app = initializeApp(firebaseConfig); const db = o.getDatabase(app); fb = { db, ...o };
+  try { o.onValue(o.ref(db, ".info/serverTimeOffset"), s => { serverOffset = s.val() || 0; }); } catch (e) { }
+  return fb;
 }
 const cleanse = x => JSON.parse(JSON.stringify(x));
-async function commit(fn) {
+async function commit(fn, quiet) {
   if (mode !== "room") { const nx = fn(cleanse(g)); if (!nx) return false; g = norm(nx); afterCommit(); return true; }
   const base = g.v; let applied = false;
   try {
     const res = await fb.runTransaction(gref, cur => { if (!cur) return cur; if ((cur.v || 0) !== base) return; const nx = fn(norm(cleanse(cur))); if (!nx) return; applied = true; return nx; });
-    if (!res.committed || !applied) { say("The board changed — have another look.", true); return false; }
+    if (!res.committed || !applied) { if (!quiet) say("The board changed — have another look.", true); return false; }
     g = norm(cleanse(res.snapshot.val())); afterCommit(); return true;
-  } catch (e) { console.error(e); say("Couldn't reach the game server.", true); return false; }
+  } catch (e) { console.error(e); if (!quiet) say("Couldn't reach the game server.", true); return false; }
 }
-function afterCommit() { sel = -1; render(); scheduleBot(); }
+// clocks repaint every 200 ms; whoever is seated commits the flag when a running clock hits zero (a quiet transaction, so the race loser says nothing)
+let flagging = false;
+function paintClocks() {
+  if (!g || mode === "guide") return;
+  for (const i of [0, 1]) {
+    const el = $("c" + i); el.classList.toggle("hidden", !g.clock); if (!g.clock) continue;
+    const running = !g.over && g.tick && g.turn === i; const t = running ? g.times[i] - (now() - g.tick) : g.times[i];
+    el.textContent = fmtClock(t); el.classList.toggle("run", !!running); el.classList.toggle("low", !g.over && t < 20000 && t > 0); el.classList.toggle("out", t <= 0 && !!g.over && g.over.why.endsWith("time"));
+    if (running && t <= 0 && !flagging && (mode !== "room" || me >= 0)) { flagging = true; commit(applyFlag, true).finally(() => { flagging = false; }); }
+  }
+}
+setInterval(paintClocks, 200);
+function afterCommit() { sel = -1; render(); paintClocks(); scheduleBot(); }
 function scheduleBot() { if (g && !g.over && BOTS[g.turn] && mode !== "room") setTimeout(botTurn, mode === "watch" ? 500 : 350); }
 let worker = null, pendingBot = 0;
 function getWorker() {
@@ -235,16 +270,18 @@ function getWorker() {
   } catch (e) { worker = undefined; }
   return worker;
 }
+const botBudget = () => g.clock && g.tick ? Math.max(100, (g.times[g.turn] - (now() - g.tick)) / 20) : 0;   // a twentieth of what's left, at most
 function botTurn() {
   if (!g || g.over || !BOTS[g.turn]) return;
   const w = getWorker();
-  if (w) { pendingBot = Date.now() + Math.random(); w.postMessage({ id: pendingBot, board: g.board, turn: g.turn, cr: g.cr, ep: g.ep, half: g.half, swap: g.swap, hand: g.hand, ply: g.ply, rest: g.rest, setup: g.setup, level: BOTS[g.turn] }); return; }
-  const s = toState(g); const m = think(s, BOTS[g.turn]); if (m) commit(x => applyMove(x, m));
+  if (w) { pendingBot = Date.now() + Math.random(); w.postMessage({ id: pendingBot, board: g.board, turn: g.turn, cr: g.cr, ep: g.ep, half: g.half, swap: g.swap, hand: g.hand, ply: g.ply, rest: g.rest, setup: g.setup, level: BOTS[g.turn], maxMs: botBudget() }); return; }
+  const s = toState(g); const m = think(s, BOTS[g.turn], botBudget()); if (m) commit(x => applyMove(x, m));
 }
+const pickClock = () => $("tmode").value === "timed" ? { base: Math.max(1, Math.min(180, +$("tmin").value || 10)) * 60000, inc: Math.max(0, Math.min(60, +$("tinc").value || 0)) * 1000 } : null;
 const pickSeed = () => $("setup").value === "960" ? (Math.max(1, Math.min(9999, +$("seed").value)) || 1 + Math.floor(Math.random() * 9999)) : 0;
 async function createRoom(pname) {
   await loadFirebase(); key = Math.random().toString(36).slice(2, 8);
-  g = norm(newGame([{ uid: uidSelf, name: pname }, null], true, pickSeed())); me = 0; mode = "room"; flipped = false;
+  g = norm(newGame([{ uid: uidSelf, name: pname }, null], true, pickSeed(), pickClock())); me = 0; mode = "room"; flipped = false;
   gref = fb.ref(fb.db, DB_ROOT + "/" + key); await fb.set(gref, cleanse(g));
   location.hash = "g=" + key; listen(); $("share").classList.remove("hidden"); $("share-link").value = location.href; enterGame();
 }
@@ -313,7 +350,7 @@ function render(targets) {
     const h = $("h" + i); h.classList.toggle("hidden", !s.hand[i]); h.classList.toggle("ready", !g.over && s.turn === i && myTurn() && lm.some(m => m.k === "g")); h.classList.toggle("sel", sel === HSEL && s.turn === i);
     h.title = s.hand[i] ? (s.ply >= SWOOP_PLY ? "the griffin is ready to swoop" : "the griffin may swoop from move 11") : "";
   }
-  $("midl").textContent = (mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer") + (g.seed ? " · 960 #" + g.seed : "");
+  $("midl").textContent = (mode === "room" ? "game " + key : mode === "hot" ? "pass & play" : mode === "watch" ? "watching" : "vs computer") + (g.seed ? " · 960 #" + g.seed : "") + (g.clock ? " · " + g.clock.base / 60000 + "+" + g.clock.inc / 1000 : "");
   $("midb").textContent = g.over ? "" : g.log.length ? "move " + (Math.floor(g.log.length / 2) + 1) : "";
   if (g.over) {
     const r = g.over.result; say(r === "d" ? "<b>Draw</b> — " + g.over.why + "." : "<b>" + pname(r === "w" ? 0 : 1) + " wins</b> — " + g.over.why + ".");
@@ -334,6 +371,7 @@ function render(targets) {
   $("newbtn").classList.toggle("hidden", mode === "room" ? !g.over : false);
   const L = g.log; let h = ""; for (let i = 0; i < L.length; i += 2) h += `<span class="n">${i / 2 + 1}.</span><span class="mv">${L[i]}</span><span class="mv">${L[i + 1] || ""}</span>`;
   $("log").innerHTML = h; $("log").scrollTop = 1e9;
+  paintClocks();
 }
 // promotion: several legal moves share a from/to and differ only in the piece — ask which
 let promoResolve = null;
@@ -364,10 +402,10 @@ boardEl.addEventListener("click", async e => {
 });
 for (const i of [0, 1]) $("h" + i).onclick = () => { if (!g || g.over || mode === "guide" || !myTurn() || st.turn !== i || !legalNow.some(m => m.k === "g")) return; sel = sel === HSEL ? -1 : HSEL; render(); };
 function pushUndo() { if (mode === "hot" || mode === "bot") { undoStack.push(cleanse(g)); if (undoStack.length > 200) undoStack.shift(); } }
-$("undo").onclick = () => { if (!undoStack.length) return; pendingBot = 0; let x = undoStack.pop(); if (mode === "bot" && undoStack.length && x.turn !== me) x = undoStack.pop(); g = norm(x); sel = -1; render(); scheduleBot(); };
+$("undo").onclick = () => { if (!undoStack.length) return; pendingBot = 0; let x = undoStack.pop(); if (mode === "bot" && undoStack.length && x.turn !== me) x = undoStack.pop(); g = norm(x); if (g.clock && !g.over) g.tick = now(); sel = -1; render(); scheduleBot(); };
 $("flip").onclick = () => { flipped = !flipped; buildBoard(); render(); };
-$("resign").onclick = () => { if (!confirm("Resign this game?")) return; const loser = mode === "room" ? me : st.turn; commit(x => { x.over = { result: loser === 0 ? "b" : "w", why: pname(loser) + " resigned" }; x.v = (x.v || 0) + 1; return x; }); };
-$("draw").onclick = () => { commit(x => { if (x.draw != null && x.draw !== me) { x.over = { result: "d", why: "agreed" }; x.draw = null; } else x.draw = me; x.v = (x.v || 0) + 1; return x; }); };
+$("resign").onclick = () => { if (!confirm("Resign this game?")) return; const loser = mode === "room" ? me : st.turn; commit(x => { x.over = { result: loser === 0 ? "b" : "w", why: pname(loser) + " resigned" }; x.tick = 0; x.v = (x.v || 0) + 1; return x; }); };
+$("draw").onclick = () => { commit(x => { if (x.draw != null && x.draw !== me) { x.over = { result: "d", why: "agreed" }; x.draw = null; x.tick = 0; } else x.draw = me; x.v = (x.v || 0) + 1; return x; }); };
 $("newbtn").onclick = () => { if (mode === "room") { location.hash = ""; location.reload(); return; } startLocal(mode, BOTS[1] || BOTS[0]); };
 $("homebtn").onclick = e => { e.preventDefault(); location.hash = ""; location.reload(); };
 $("copy").onclick = () => { navigator.clipboard?.writeText($("share-link").value).then(() => { $("copy").textContent = "copied"; }); $("share-link").select(); };
@@ -375,14 +413,16 @@ if (navigator.share) { $("sharebtn").classList.remove("hidden"); $("sharebtn").o
 $("rulesbtn").onclick = e => { e.preventDefault(); $("rules").classList.toggle("hidden"); if (!$("rules").classList.contains("hidden")) $("rules").scrollIntoView({ behavior: "smooth" }); };
 $("rules-close").onclick = () => $("rules").classList.add("hidden");
 $("setup").onchange = () => $("seedrow").classList.toggle("hidden", $("setup").value !== "960");
+$("tmode").onchange = () => $("tset").classList.toggle("hidden", $("tmode").value !== "timed");
 $("name").value = nameMem.get();
 const getName = () => { const v = $("name").value.trim() || "anon"; nameMem.set(v); return v; };
 function startLocal(m, lv) {
   mode = m; undoStack = []; BOTS[0] = null; BOTS[1] = null; flipped = false; pendingBot = 0;
-  const rep = true, seed = pickSeed();
-  if (m === "hot") { me = 0; g = norm(newGame([{ uid: "a", name: getName() }, { uid: "b", name: "player 2" }], rep, seed)); }
-  else if (m === "bot") { const black = Math.random() < 0.5; me = black ? 1 : 0; flipped = black; BOTS[me ? 0 : 1] = lv; const bot = { uid: "bot", name: "computer (" + lv + ")" }, you = { uid: "a", name: getName() }; g = norm(newGame(black ? [bot, you] : [you, bot], rep, seed)); }
+  const rep = true, seed = pickSeed(), clock = m === "watch" ? null : pickClock();
+  if (m === "hot") { me = 0; g = norm(newGame([{ uid: "a", name: getName() }, { uid: "b", name: "player 2" }], rep, seed, clock)); }
+  else if (m === "bot") { const black = Math.random() < 0.5; me = black ? 1 : 0; flipped = black; BOTS[me ? 0 : 1] = lv; const bot = { uid: "bot", name: "computer (" + lv + ")" }, you = { uid: "a", name: getName() }; g = norm(newGame(black ? [bot, you] : [you, bot], rep, seed, clock)); }
   else { me = -1; BOTS[0] = lv; BOTS[1] = lv; g = norm(newGame([{ uid: "b0", name: "computer A" }, { uid: "b1", name: "computer B" }], rep, seed)); }
+  if (g.clock) g.tick = now();
   enterGame();
 }
 $("hot").onclick = () => startLocal("hot");
@@ -404,7 +444,7 @@ const GUIDE = [
 ];
 function showGuide() {
   $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("controls").classList.add("hidden"); $("guide").classList.remove("hidden"); $("homebtn").classList.remove("hidden");
-  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch").forEach(e => e.classList.add("hidden"));
+  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch, #top .clk").forEach(e => e.classList.add("hidden"));
   const pick = document.querySelector("#guide .pick"); pick.innerHTML = GUIDE.map(([t]) => `<button data-t="${t}">${NAME[t]}</button>`).join("");
   pick.querySelectorAll("button").forEach(b => b.onclick = () => guidePiece(b.dataset.t));
   guidePiece("C");
@@ -452,8 +492,8 @@ $("guide-done").onclick = () => { location.hash = ""; location.reload(); };
 // ---------- boot ----------
 for (const n of [...Object.values(IMG), "timur/pawn-pawn", "timur/pawn-camel"]) for (const side of ["w", "b"]) new Image().src = "images/" + n + "-" + side + ".png";
 const hm = location.hash.match(/g=(\w+)/);
-if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("setup").parentElement.parentElement.classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
-window.__gh = { get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, sq, render, startLocal, pieceMoves, notation, setupFor, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, evaluate, showGuide, BUILD };
+if (hm) { $("mk").classList.add("hidden"); $("hot").classList.add("hidden"); $("bot").parentElement.classList.add("hidden"); $("setup").parentElement.parentElement.classList.add("hidden"); $("clockrow").classList.add("hidden"); $("joinrow").classList.remove("hidden"); $("joininfo").textContent = "You've been invited to game " + hm[1] + "."; }
+window.__gh = { applyFlag, chargeClock, paintClocks, get serverOffset() { return serverOffset; }, set serverOffset(v) { serverOffset = v; }, get g() { return g; }, set g(v) { g = norm(v); }, get st() { return st; }, newState, newGame, gen, legal, make, unmake, status, think, applyMove, pack, unpack, attacked, inCheck, sq, render, startLocal, pieceMoves, notation, setupFor, BOTS, get mode() { return mode; }, set mode(v) { mode = v; }, get me() { return me; }, set me(v) { me = v; }, evaluate, showGuide, BUILD };
 </script>
 </body>
 </html>
