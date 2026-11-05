@@ -121,7 +121,7 @@
 <main>
   <section id="lobby">
     <h1>Ghess</h1>
-    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns can only ever become camels, and no other pawn can. Two house rules on top: a checked king may, once a game, trade places with another piece; and each side has a griffin waiting off the board, which from move eleven may swoop in and kill a pawn, hunt for two moves, and fly off.</p>
+    <p>Chess, but on ten by ten, with a camel tucked between each knight and bishop. Everything else is the chess you know — castling, en passant, promotion — except that the camel's pawns can only ever become camels, and no other pawn can. Two house rules on top: a checked king may, once a game, trade places with one of its pieces (the shah’s privilege); and each side has a griffin waiting off the board, which from move eleven may swoop in and kill a pawn, hunt for two moves, and fly off.</p>
     <div class="row"><input id="name" type="text" placeholder="your name" maxlength="20"></div>
     <div class="row"><button id="mk" class="primary">share a link</button><button id="hot">pass &amp; play</button></div>
     <div class="row"><select id="level"><option value="easy">easy</option><option value="normal" selected>normal</option><option value="hard">hard</option></select><button id="bot">play the computer</button><button id="watch">watch two computers</button></div>
@@ -166,8 +166,8 @@
     <p>One square forward, two from the starting rank; captures diagonally; en passant works. A pawn that reaches the far rank promotes — to a queen, rook, bishop or knight, your choice. Except the two <b>camel pawns</b>, the ones that start in front of the camels: they wear a camel's head, and they can only ever promote to a camel. No other pawn can.</p>
     <h4>Castling</h4>
     <p>As in chess, with the king and rook unmoved, nothing between them, and the king not in, through or into check. The king ends on the c- or i-file and the rook lands beside it on the d- or h-file — in a 960 setup too, wherever they started. Tap the king, then the rook (or the king's landing square).</p>
-    <h4>The king's privilege</h4>
-    <p>Borrowed from Timur's chess, where Murray calls it the king's privilege. Once a game, when your king is in check, instead of moving it you may <b>swap it with any other piece of yours</b> — the king goes to that piece's square and the piece to the king's. The swap has to get you out of check like any other move, a pawn can't be swapped onto the last rank, and castling rights are gone afterwards. Tap the checked king: the pieces it can trade places with get a dashed ring.</p>
+    <h4>The shah's privilege</h4>
+    <p>Borrowed from Timur's chess (Murray calls it the king's privilege). Once a game, when your king is in check, instead of moving it you may <b>swap it with one of your pieces — not a pawn</b>: the king goes to that piece's square and the piece to the king's. The swap has to get you out of check like any other move, and castling rights are gone afterwards. Tap the checked king: the pieces it can trade places with get a dashed ring.</p>
     <h4>The griffin</h4>
     <p>Each side has one griffin, off the board, shown beside the player's name. From <b>move eleven</b> on (once both sides have made ten moves), on your turn you may <b>swoop</b>: the griffin lands on any enemy pawn and kills it. That is its whole turn, and it can only ever come in on a pawn. Tap the griffin beside your name to see the pawns it can take.</p>
     <p>It then <b>stays for two of your moves</b>. On each it may move — and capture — <b>one square diagonally</b>, or you may move something else; it gives check like any piece. After your second move it <b>flies away</b> for good (the griffin fades once it has one move left). It comes only once a game.</p>
@@ -181,7 +181,7 @@
 <script src="ghess-engine.js"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04c";
+const BUILD = "2026-11-04d";
 
 // engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
 
@@ -433,7 +433,7 @@ $("joinbtn").onclick = async () => { const m = location.hash.match(/g=(\w+)/); i
 
 // ---------- the pieces guide: the real board, one piece at a time ----------
 const GUIDE = [
-  ["K", "One square in any direction. Checkmate it and the game is over. Once a game it may castle with an unmoved rook — the king lands on the c- or i-file, the rook beside it."],
+  ["K", "One square in any direction. Checkmate it and the game is over. It may castle with an unmoved rook — the king lands on the c- or i-file, the rook beside it. And once a game, when it's in check, it may use the shah's privilege: swap places with one of its pieces (not a pawn)."],
   ["Q", "Any distance straight or diagonally, stopping at the first piece. The strongest piece on the board — and on ten by ten it has even more room."],
   ["R", "Any distance straight: up, down, left or right. Two rooks on an open rank are a terror on a board this wide."],
   ["B", "Any distance diagonally, stopping at the first piece. Each bishop lives on one colour for the whole game."],

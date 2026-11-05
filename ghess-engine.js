@@ -1,6 +1,6 @@
 // Ghess — rules engine and computer player. Loaded by ghess.html on the page and again inside a Web Worker.
 // Ordinary chess on a 10×10 board with a camel beside each knight: R N C B Q K B C N R, pawns in front.
-// Plus two house rules: the king's privilege (once a game, a checked king may swap places with another piece) and the griffin
+// Plus two house rules: the shah's privilege (once a game, a checked king may swap places with one of its pieces, not a pawn) and the griffin
 // (one per side, off the board; from move 11 it may swoop onto an enemy pawn and kill it, stays for two of its owner's moves —
 // moving and capturing one square diagonally — then flies away. If it is killed, the pawn comes back on that square once the
 // piece that killed it moves away).
@@ -82,8 +82,8 @@ function pieceMoves(st, i, out) {
   switch (p.t) {
     case "K": {
       for (const [dx, dy] of DIRS8) step(sq(x + dx, y + dy));
-      if (!st.swap[c] && attacked(b, i, 1 - c)) {   // the king's privilege: trade places with any other piece of yours (a pawn may not land on the last rank)
-        for (let j = 0; j < 100; j++) { const q = b[j]; if (!q || q.c !== c || q.t === "K") continue; if (q.t === "p" && y === lastRank(c)) continue; add(j, { k: "s" }); }
+      if (!st.swap[c] && attacked(b, i, 1 - c)) {   // the shah's privilege: trade places with any other piece of yours — pieces only, not pawns
+        for (let j = 0; j < 100; j++) { const q = b[j]; if (!q || q.c !== c || q.t === "K" || q.t === "p") continue; add(j, { k: "s" }); }
       }
       if (y === homeRank(c)) {
         const rf = rookFiles(st.setup);
