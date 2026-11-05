@@ -121,6 +121,18 @@
   #actions { display: flex; justify-content: center; gap: .4rem; flex-wrap: wrap; margin-top: .3rem; }
   #share { text-align: center; margin: .6rem 0; }
   #share-link { width: min(100%, 24rem); font-size: .8rem; }
+  /* chat (shared games) */
+  #chat { margin-top: .9rem; border-top: 1px solid var(--plaster-deep); padding-top: .5rem; }
+  #chat h5 { font-weight: 500; letter-spacing: .08em; font-size: .7rem; text-transform: uppercase; color: var(--clay-dark); margin-bottom: .3rem; }
+  #chatlog { max-height: 11rem; overflow: auto; font-size: .88rem; line-height: 1.45; display: flex; flex-direction: column; gap: .15rem; }
+  #chatlog .m { display: flex; gap: .45rem; align-items: baseline; }
+  #chatlog .who { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1rem; color: var(--stone); flex: none; }
+  #chatlog .me .who { color: var(--terracotta); }
+  #chatlog .txt { color: var(--charcoal); overflow-wrap: anywhere; }
+  #chatlog .when { font-size: .68rem; color: var(--clay-dark); margin-left: auto; flex: none; letter-spacing: .04em; }
+  #chatlog .sys { color: var(--clay-dark); font-size: .8rem; font-style: italic; }
+  #chatrow { display: flex; gap: .4rem; margin-top: .4rem; }
+  #chatrow input { flex: 1; min-width: 0; }
   #log { margin-top: .9rem; font-size: .82rem; color: var(--stone); border-top: 1px solid var(--plaster-deep); padding-top: .5rem; display: grid; grid-template-columns: auto 1fr 1fr; column-gap: .8rem; row-gap: .12rem; max-height: 40vh; overflow: auto; }
   #log .n { color: var(--clay-dark); text-align: right; }
   #log .mv { font-family: 'Cormorant Garamond', serif; font-size: 1rem; cursor: pointer; padding: 0 .2rem; border-radius: 3px; }
@@ -187,6 +199,7 @@
       </div>
       <div id="share" class="hidden"><input id="share-link" type="text" readonly> <button id="copy">copy link</button> <button id="sharebtn" class="hidden">share…</button></div>
       <div id="log"></div>
+      <div id="chat" class="hidden"><h5>chat</h5><div id="chatlog"></div><div id="chatrow"><input id="chatin" type="text" maxlength="300" placeholder="say something…" autocomplete="off"><button id="chatsend">send</button></div></div>
     </div>
   </section>
 
@@ -196,6 +209,7 @@
     <h4>Setting up</h4>
     <p>Each side has a <b>rook, knight, camel, bishop, queen, king, bishop, commoner, knight, rook</b> and ten pawns — and the back rank is <b>shuffled every game</b>, Chess960-style: the bishops on opposite colours, the king somewhere between the rooks, the same for both sides. Each shuffle has a number, shown as #N in the header, so a setup can be played again by typing it in the lobby. White moves first.</p>
     <h4>Moving</h4>
+    <p>In a shared game there's a chat under the move list, for both players and anyone watching.</p>
     <p>Tap "the pieces" for diagrams. The king, queen, rook, bishop, knight and pawns move exactly as in chess. The <b>camel</b> jumps one square across and three along — a stretched knight — over anything in the way; like a bishop it always stays on the colour it started on. The <b>commoner</b> (the Mann of old German chess) moves exactly like a king — one square any way — but it isn't royal: it can be captured like anything else, and it can help give mate.</p>
     <h4>Pawns and the giraffe</h4>
     <p>One square forward, two from the starting rank; captures diagonally; en passant works. A pawn that reaches the far rank promotes — to a queen, rook, bishop or knight, your choice. Except the <b>giraffe pawn</b>, the one that starts in front of the camel: it wears a giraffe's head, and it can only ever promote to a <b>giraffe</b>. No other pawn can. The giraffe isn't on the board at the start; it moves as Timur's giraffe — <b>one square diagonally, then at least three squares straight on outward</b>, every square on the way empty — <b>and</b> it has the camel's leap of one across and three along.</p>
@@ -215,10 +229,10 @@
   </div>
 </main>
 
-<script src="ghess-engine.js?v=2026-11-04n"></script>
+<script src="ghess-engine.js?v=2026-11-05a"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04n";
+const BUILD = "2026-11-05a";
 
 // engine: see ghess-engine.js (loaded above, and in workers for the computer's thinking and the eval bar). The ?v= keeps browsers from
 // pairing a fresh page with a cached old engine — bump it with BUILD whenever the engine changes.
@@ -363,7 +377,7 @@ async function createRoom(pname) {
   await loadFirebase(); key = Math.random().toString(36).slice(2, 8);
   g = norm(newGame([{ uid: uidSelf, name: pname }, null], true, pickSeed(), pickClock())); me = 0; mode = "room"; flipped = false;
   gref = fb.ref(fb.db, DB_ROOT + "/" + key); await fb.set(gref, cleanse(g));
-  location.hash = "g=" + key; listen(); $("share").classList.remove("hidden"); $("share-link").value = location.href; enterGame();
+  location.hash = "g=" + key; listen(); startChat(); $("share").classList.remove("hidden"); $("share-link").value = location.href; enterGame();
 }
 async function openRoom(k2, pname) {
   await loadFirebase(); key = k2; gref = fb.ref(fb.db, DB_ROOT + "/" + key);
@@ -371,8 +385,34 @@ async function openRoom(k2, pname) {
   g = norm(cleanse(snap.val())); mode = "room";
   const seat = g.players.findIndex(p => p && p.uid === uidSelf);
   if (seat >= 0) me = seat; else if (!g.players[1]) { me = 1; g.players[1] = { uid: uidSelf, name: pname }; await fb.set(fb.child(gref, "players/1"), g.players[1]); } else me = -1;
-  flipped = me === 1; $("share").classList.remove("hidden"); $("share-link").value = location.href; listen(); enterGame();
+  flipped = me === 1; $("share").classList.remove("hidden"); $("share-link").value = location.href; listen(); startChat(); enterGame();
 }
+// ---------- chat: a separate node beside the game record, so moves and messages don't trip over each other ----------
+const CHAT_ROOT = "walls/ghess/chat";
+let cref = null, chatN = 0;
+function startChat() {
+  if (!fb || !fb.push || !fb.onChildAdded || !key) return;
+  cref = fb.ref(fb.db, CHAT_ROOT + "/" + key); $("chat").classList.remove("hidden"); $("chatlog").innerHTML = ""; chatN = 0;
+  const q = fb.query && fb.limitToLast ? fb.query(cref, fb.limitToLast(200)) : cref;
+  fb.onChildAdded(q, snap => { const m = snap.val(); if (!m || typeof m.text !== "string") return; addChatLine(m); });
+}
+function addChatLine(m) {
+  const log = $("chatlog"), atEnd = log.scrollHeight - log.scrollTop - log.clientHeight < 40;
+  const d = document.createElement("div"); d.className = "m" + (m.uid === uidSelf ? " me" : "");
+  const who = document.createElement("span"); who.className = "who"; who.textContent = (m.name || "anon").slice(0, 20);
+  const txt = document.createElement("span"); txt.className = "txt"; txt.textContent = m.text.slice(0, 300);
+  const when = document.createElement("span"); when.className = "when"; const t = new Date(m.t || Date.now()); when.textContent = t.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  d.append(who, txt, when); log.appendChild(d); chatN++;
+  if (atEnd || m.uid === uidSelf) log.scrollTop = 1e9;
+}
+async function sendChat() {
+  const inp = $("chatin"), text = inp.value.trim(); if (!text || !cref) return;
+  inp.value = "";
+  try { await fb.push(cref, { uid: uidSelf, name: (g.players.find(p => p && p.uid === uidSelf) || {}).name || nameMem.get() || "anon", text: text.slice(0, 300), t: fb.serverTimestamp ? fb.serverTimestamp() : Date.now() }); }
+  catch (e) { console.error(e); inp.value = text; say("Couldn't send that." + errText(e), true); }
+}
+$("chatsend").onclick = sendChat;
+$("chatin").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); sendChat(); } });
 function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); if (mode === "analysis") { an.live = nx; return; } if (g && nx.v === g.v && nx.draw === g.draw && nx.over === g.over && nx.players.every((p, i) => !!p === !!g.players[i])) return; g = nx; sel = -1; hidePromo(); render(); }); }
 
 // ---------- UI ----------
@@ -568,7 +608,7 @@ const GUIDE = [
 ];
 function showGuide() {
   $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("controls").classList.add("hidden"); $("guide").classList.remove("hidden"); $("homebtn").classList.remove("hidden");
-  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch, #top .clk").forEach(e => e.classList.add("hidden")); $("mat").classList.add("hidden"); $("evalbar").classList.add("hidden");
+  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch, #top .clk").forEach(e => e.classList.add("hidden")); $("mat").classList.add("hidden"); $("evalbar").classList.add("hidden"); $("chat").classList.add("hidden");
   const pick = document.querySelector("#guide .pick"); pick.innerHTML = GUIDE.map(([t]) => `<button data-t="${t}">${NAME[t]}</button>`).join("");
   pick.querySelectorAll("button").forEach(b => b.onclick = () => guidePiece(b.dataset.t));
   guidePiece("C");
