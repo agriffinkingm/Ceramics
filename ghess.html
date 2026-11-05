@@ -88,6 +88,14 @@
   #promo button { width: 64px; height: 64px; padding: 4px; display: flex; align-items: center; justify-content: center; }
   #promo button img { width: 90%; height: 90%; }
 
+  /* material: what each side has taken, and who's ahead */
+  #mat { display: flex; justify-content: space-between; align-items: center; gap: .6rem; padding: .3rem .2rem 0; min-height: 1.6rem; }
+  #mat .side { display: flex; align-items: center; gap: .15rem; flex-wrap: wrap; }
+  #mat .side.r { justify-content: flex-end; }
+  #mat img { width: 20px; height: 20px; filter: drop-shadow(0 1px 1px rgba(40,20,5,.25)); -webkit-user-drag: none; }
+  #mat img.sm { width: 15px; height: 15px; margin-top: 3px; }
+  #mat .lead { font-size: .78rem; letter-spacing: .04em; color: var(--clay-dark); margin: 0 .3rem; font-variant-numeric: tabular-nums; }
+  #mat .lead.on { color: var(--terracotta); font-weight: 500; }
   #msg { text-align: center; font-size: .9rem; color: var(--stone); min-height: 1.4em; margin: .55rem 0 .3rem; line-height: 1.4; }
   #msg b { color: var(--terracotta); font-weight: 500; }
   #actions { display: flex; justify-content: center; gap: .4rem; flex-wrap: wrap; margin-top: .3rem; }
@@ -135,6 +143,7 @@
   <section id="arena" class="hidden">
     <div id="top"><div class="pl" id="p0"><span class="swatch" style="background:var(--tok-w)"></span><span class="nm"></span><span class="clk hidden" id="c0"></span><img class="hand hidden" id="h0" src="images/ghess/griffin-w.png" alt="white griffin in hand" draggable="false"></div><div id="mid"><span id="midl"></span><b id="midb"></b></div><div class="pl right" id="p1"><img class="hand hidden" id="h1" src="images/ghess/griffin-b.png" alt="black griffin in hand" draggable="false"><span class="clk hidden" id="c1"></span><span class="nm"></span><span class="swatch" style="background:var(--tok-b)"></span></div></div>
     <div id="board-wrap"><div id="board"></div><div id="promo" class="hidden"><div class="box"></div></div></div>
+    <div id="mat"><div class="side" id="m0"></div><div class="side r" id="m1"></div></div>
     <div id="msg"></div>
     <div id="guide" class="hidden">
       <div class="pick"></div>
@@ -173,7 +182,7 @@
     <p>It then <b>stays for two of your moves</b>. On each it may move — and capture — <b>one square diagonally</b>, or you may move something else; it gives check like any piece. After your second move it <b>flies away</b> for good (the griffin fades once it has one move left). It comes only once a game.</p>
     <p>If the griffin is <b>killed</b> while it's on the board, the pawn it took isn't lost for good: it <b>comes back on the square where the griffin died</b>, as soon as the piece that killed it moves away — a camel pawn comes back as a camel pawn. (If that square happens to be the pawn's last rank, it stays gone.)</p>
     <h4>Ending</h4>
-    <p>Checkmate wins. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. You can also resign or offer a draw. In a <b>timed</b> game each side has the same minutes on the clock and gets the increment back after every move; run out and you lose on time. In a shared game the clocks start with White's first move.</p>
+    <p>Checkmate wins. Stalemate, bare kings (with no griffin or pawn still to come), fifty moves without a capture or a pawn move, or the same position three times, is a draw. The strip under the board shows what each side has taken and who is ahead, counting the queen 9, rook 5, bishop 3, knight 3, <b>camel 2</b>, griffin 1 (in hand or on the board), pawn 1. You can also resign or offer a draw. In a <b>timed</b> game each side has the same minutes on the clock and gets the increment back after every move; run out and you lose on time. In a shared game the clocks start with White's first move.</p>
     <p class="x"><button class="link" id="rules-close">close</button></p>
   </div>
 </main>
@@ -181,7 +190,7 @@
 <script src="ghess-engine.js"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04d";
+const BUILD = "2026-11-04e";
 
 // engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
 
@@ -325,6 +334,22 @@ function targetMap(s, tl) {
   for (const m of tl) { if (m.k === "c") { const side = m.t % 10 > m.f % 10 ? 1 : 0, kd = sq(KDEST[side], homeRank(s.turn)); if (!tmap[kd] && !s.b[kd]) tmap[kd] = m; } tmap[m.t] = tmap[m.t] || m; }
   return tmap;
 }
+// material: points on the board (+1 for a griffin still in hand); the icons are what the other side has lost, by comparing with the starting army
+const PTS = { K: 0, Q: 9, R: 5, B: 3, N: 3, C: 2, G: 1, p: 1 };
+const ORDER = ["Q", "R", "B", "N", "C", "G", "p", "pc"];
+function paintMaterial(s) {
+  const have = [{}, {}], pts = [0, 0];
+  for (let i = 0; i < 100; i++) { const p = s.b[i]; if (!p) continue; const k = p.t === "p" ? (p.pt === "c" ? "pc" : "p") : p.t; have[p.c][k] = (have[p.c][k] || 0) + 1; pts[p.c] += PTS[p.t]; }
+  for (const c of [0, 1]) if (s.hand[c]) { have[c].G = (have[c].G || 0) + 1; pts[c] += 1; }
+  for (const r of s.rest) { have[r[1]][r[2] === "c" ? "pc" : "p"] = (have[r[1]][r[2] === "c" ? "pc" : "p"] || 0) + 1; pts[r[1]] += 1; }   // a pawn on its way back still counts
+  const start = { Q: 1, R: 2, B: 2, N: 2, C: 2, G: 1, p: 8, pc: 2 };
+  for (const c of [0, 1]) {
+    const o = 1 - c; let h = "";   // what colour c has taken from colour o
+    for (const k of ORDER) { const n = Math.max(0, start[k] - (have[o][k] || 0)); const img = k === "p" ? "timur/pawn-pawn" : k === "pc" ? "timur/pawn-camel" : IMG[k]; for (let i = 0; i < n; i++) h += `<img class="${k === "p" || k === "pc" ? "sm" : ""}" src="images/${img}${o ? "-b" : "-w"}.png" alt="" draggable="false">`; }
+    const d = pts[c] - pts[o]; h += `<span class="lead${d > 0 ? " on" : ""}">${d > 0 ? "+" + d : ""}</span>`;
+    const el = $("m" + c); el.innerHTML = c ? h.replace(/^(.*)(<span[^>]*>.*<\/span>)$/s, "$2$1") : h;
+  }
+}
 function render(targets) {
   if (!Object.keys(cells).length) buildBoard();
   const s = mode === "guide" ? st : (st = toState(g));
@@ -345,6 +370,7 @@ function render(targets) {
     d.innerHTML = html;
   }
   if (mode === "guide") return;
+  paintMaterial(s);
   for (const i of [0, 1]) {
     const el = $("p" + i); el.querySelector(".nm").textContent = pname(i) + (mode === "room" && me === i ? " (you)" : ""); el.classList.toggle("turn", !g.over && s.turn === i);
     const h = $("h" + i); h.classList.toggle("hidden", !s.hand[i]); h.classList.toggle("ready", !g.over && s.turn === i && myTurn() && lm.some(m => m.k === "g")); h.classList.toggle("sel", sel === HSEL && s.turn === i);
@@ -444,7 +470,7 @@ const GUIDE = [
 ];
 function showGuide() {
   $("lobby").classList.add("hidden"); $("arena").classList.remove("hidden"); $("controls").classList.add("hidden"); $("guide").classList.remove("hidden"); $("homebtn").classList.remove("hidden");
-  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch, #top .clk").forEach(e => e.classList.add("hidden"));
+  mode = "guide"; flipped = false; buildBoard(); document.querySelectorAll("#top .swatch, #top .clk").forEach(e => e.classList.add("hidden")); $("mat").classList.add("hidden");
   const pick = document.querySelector("#guide .pick"); pick.innerHTML = GUIDE.map(([t]) => `<button data-t="${t}">${NAME[t]}</button>`).join("");
   pick.querySelectorAll("button").forEach(b => b.onclick = () => guidePiece(b.dataset.t));
   guidePiece("C");

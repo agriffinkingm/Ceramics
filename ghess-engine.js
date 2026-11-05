@@ -181,7 +181,7 @@ function notation(st, m) {
 }
 
 // ---------- the computer: alpha-beta over legal moves, captures-only quiescence, iterative deepening on a time budget ----------
-const VAL = { K: 0, Q: 9.5, R: 5.2, B: 3.4, N: 3, C: 2.4, G: 1.3, p: 1 };
+const VAL = { K: 0, Q: 9.5, R: 5.2, B: 3.4, N: 3, C: 2.2, G: 1.3, p: 1 };
 const HAND_VAL = 1.1;   // a griffin still in hand: a pawn to be taken, give or take
 function evaluate(st) {
   const b = st.b; let s = 0; const mat = [0, 0], ksq = [-1, -1];
