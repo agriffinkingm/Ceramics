@@ -202,7 +202,7 @@
 <script src="ghess-engine.js"></script>
 <script type="module">
 const $ = id => document.getElementById(id);
-const BUILD = "2026-11-04f";
+const BUILD = "2026-11-04g";
 
 // engine: see ghess-engine.js (loaded above, and in a worker for the computer's thinking)
 
@@ -265,7 +265,7 @@ async function commit(fn, quiet) {
     const res = await fb.runTransaction(gref, cur => { if (!cur) return cur; if ((cur.v || 0) !== base) return; const nx = fn(norm(cleanse(cur))); if (!nx) return; applied = true; return nx; });
     if (!res.committed || !applied) { if (!quiet) say("The board changed — have another look.", true); return false; }
     g = norm(cleanse(res.snapshot.val())); afterCommit(); return true;
-  } catch (e) { console.error(e); if (!quiet) say("Couldn't reach the game server.", true); return false; }
+  } catch (e) { console.error(e); if (!quiet) say("Couldn't reach the game server." + errText(e), true); return false; }
 }
 // clocks repaint every 200 ms; whoever is seated commits the flag when a running clock hits zero (a quiet transaction, so the race loser says nothing)
 let flagging = false;
@@ -467,8 +467,11 @@ function startLocal(m, lv) {
 $("hot").onclick = () => startLocal("hot");
 $("bot").onclick = () => startLocal("bot", $("level").value);
 $("watch").onclick = () => startLocal("watch", $("level").value);
-$("mk").onclick = async () => { try { await createRoom(getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server — try pass & play."); } };
-$("joinbtn").onclick = async () => { const m = location.hash.match(/g=(\w+)/); if (!m) return; try { await openRoom(m[1], getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server."); } };
+const errText = e => " (" + ((e && (e.code || e.message)) || String(e)).slice(0, 160) + ")";
+$("mk").onclick = async () => { try { await createRoom(getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server — try pass & play." + errText(e)); } };
+$("joinbtn").onclick = async () => { const m = location.hash.match(/g=(\w+)/); if (!m) return; try { await openRoom(m[1], getName()); } catch (e) { console.error(e); lobbyMsg("Couldn't reach the game server." + errText(e)); } };
+window.addEventListener("error", e => { if (mode === "room") say("Something broke" + errText(e.error || e.message), true); });
+window.addEventListener("unhandledrejection", e => { if (mode === "room") say("Something broke" + errText(e.reason), true); });
 
 // ---------- the pieces guide: the real board, one piece at a time ----------
 const GUIDE = [
