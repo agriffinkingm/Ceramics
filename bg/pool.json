@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-02-1230-0",
-  "image": "pool-2026-11-02-1230-0.jpg",
-  "headline": "Volcano Watch : A look back at recent Kilauea eruptions and intrusions",
-  "url": "https://www.hawaiitribune-herald.com/2026/10/25/features/volcano-watch-a-look-back-at-recent-kilauea-eruptions-and-intrusions/",
-  "outlet": "hawaiitribune-herald.com",
-  "t": "2026-11-02T17:30:24+00:00",
-  "vista": 9.0,
-  "hash": 10235577068361271547
- },
- {
   "id": "2026-11-02-1958-0",
   "image": "pool-2026-11-02-1958-0.jpg",
   "headline": "Two storms slam northern Europe , cut power to 150 , 000 homes",
@@ -166,5 +156,15 @@
   "outlet": "aol.co.uk",
   "t": "2026-11-06T14:35:18+00:00",
   "hash": 17578529538735742480
+ },
+ {
+  "id": "2026-11-06-1427-0",
+  "image": "pool-2026-11-06-1427-0.jpg",
+  "headline": "Planning a Kashmir Trip ? The Complete Guide , From First - Timer Basics to Insider Tips",
+  "url": "http://www.pakistantelegraph.com/news/279415994/planning-a-kashmir-trip-the-complete-guide-from-first-timer-basics-to-insider-tips",
+  "outlet": "pakistantelegraph.com",
+  "t": "2026-11-06T19:27:00+00:00",
+  "vista": 9.0,
+  "hash": 15815496521769471
  }
 ]
