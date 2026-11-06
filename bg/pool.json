@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-11-01-0935-0",
-  "image": "pool-2026-11-01-0935-0.jpg",
-  "headline": "Every Wiltshire white horse rated from best to worst | Stroud News and Journal",
-  "url": "https://www.stroudnewsandjournal.co.uk/news/26664984.every-wiltshire-white-horse-rated-best-worst/",
-  "outlet": "stroudnewsandjournal.co.uk",
-  "t": "2026-11-01T14:35:24+00:00",
-  "vista": 9.0,
-  "hash": 48569578817039
- },
- {
-  "id": "2026-11-02",
-  "image": "pool-2026-11-02.jpg",
-  "headline": "Navdeep Singh credits JLN Stadium training for Asian Para Games bronze",
-  "url": "http://www.bangladeshsun.com/news/279395959/navdeep-singh-credits-jln-stadium-training-for-asian-para-games-bronze",
-  "outlet": "bangladeshsun.com",
-  "t": "2026-11-02T15:45:12+00:00",
-  "hash": 9331882296651004923
- },
- {
-  "id": "2026-11-02-b",
-  "image": "pool-2026-11-02-b.jpg",
-  "headline": "Travis Head wants Australia to find collective batting effort after recent Test struggles",
-  "url": "http://www.bangladeshsun.com/news/279395641/travis-head-wants-australia-to-find-collective-batting-effort-after-recent-test-struggles",
-  "outlet": "bangladeshsun.com",
-  "t": "2026-11-02T15:45:12+00:00",
-  "hash": 15625406301265783008
- },
- {
   "id": "2026-11-02-1230-0",
   "image": "pool-2026-11-02-1230-0.jpg",
   "headline": "Volcano Watch : A look back at recent Kilauea eruptions and intrusions",
@@ -167,5 +139,32 @@
   "t": "2026-11-06T06:39:13+00:00",
   "vista": 7.0,
   "hash": 79268906270719
+ },
+ {
+  "id": "2026-11-06",
+  "image": "pool-2026-11-06.jpg",
+  "headline": "Today in History : November 6 , Georgia dam bursts , killing Toccoa Falls College students",
+  "url": "https://www.thetimes-tribune.com/2026/11/06/today-in-history-november-6-georgia-dam-bursts-killing-toccoa-falls-college-students/",
+  "outlet": "thetimes-tribune.com",
+  "t": "2026-11-06T14:35:18+00:00",
+  "hash": 18230306320018243585
+ },
+ {
+  "id": "2026-11-06-b",
+  "image": "pool-2026-11-06-b.jpg",
+  "headline": "Singapore growing robot workforce",
+  "url": "http://www.neworleanssun.com/news/279415763/singapore-growing-robot-workforce",
+  "outlet": "neworleanssun.com",
+  "t": "2026-11-06T14:35:18+00:00",
+  "hash": 7450932523208443392
+ },
+ {
+  "id": "2026-11-06-c",
+  "image": "pool-2026-11-06-c.jpg",
+  "headline": "Clicky Ponting  given two - year ban for involvement in club cricket cheating scandal",
+  "url": "https://www.aol.co.uk/articles/clicky-ponting-given-two-ban-105232000.html",
+  "outlet": "aol.co.uk",
+  "t": "2026-11-06T14:35:18+00:00",
+  "hash": 17578529538735742480
  }
 ]

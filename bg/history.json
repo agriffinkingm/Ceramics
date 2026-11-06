@@ -348,5 +348,12 @@
   "url": "https://www.dailystar.co.uk/news/latest-news/scientists-want-cool-down-planet-37838729",
   "outlet": "dailystar.co.uk",
   "method": "crop"
+ },
+ {
+  "id": "2026-11-06",
+  "headline": "Today in History : November 6 , Georgia dam bursts , killing Toccoa Falls College students",
+  "url": "https://www.thetimes-tribune.com/2026/11/06/today-in-history-november-6-georgia-dam-bursts-killing-toccoa-falls-college-students/",
+  "outlet": "thetimes-tribune.com",
+  "method": "crop-flat"
  }
 ]
