@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-03-0938-0",
-  "image": "pool-2026-11-03-0938-0.jpg",
-  "headline": "More than a third of western state glacial cover has been lost since 1950s as planet warms | News",
-  "url": "http://www.heraldandnews.com/news/more-than-a-third-of-western-states-glacial-cover-has-been-lost-since-1950s-as/article_79b14d7e-d845-470d-9ac1-b258095bfa51.html",
-  "outlet": "heraldandnews.com",
-  "t": "2026-11-03T14:38:49+00:00",
-  "vista": 9.0,
-  "hash": 4859366302519730176
- },
- {
   "id": "2026-11-03-1821-0",
   "image": "pool-2026-11-03-1821-0.jpg",
   "headline": "Schools closed today in Andhra Pradesh and Chennai due to Cyclone Murasu : Check latest school holiday updates and affected areas",
@@ -166,5 +156,15 @@
   "outlet": "dailymail.com",
   "t": "2026-11-07T12:57:48+00:00",
   "hash": 2035625957964055543
+ },
+ {
+  "id": "2026-11-07-0829-0",
+  "image": "pool-2026-11-07-0829-0.jpg",
+  "headline": "Pakistan forces launch deadly crackdown in PoJK , civilian deaths reported in Rawalakot clashes",
+  "url": "http://www.malaysiasun.com/news/279416557/pakistan-forces-launch-deadly-crackdown-in-pojk-civilian-deaths-reported-in-rawalakot-clashes",
+  "outlet": "malaysiasun.com",
+  "t": "2026-11-07T13:29:47+00:00",
+  "vista": 8.0,
+  "hash": 16195085838378417983
  }
 ]
