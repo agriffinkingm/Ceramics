@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-03-1821-0",
-  "image": "pool-2026-11-03-1821-0.jpg",
-  "headline": "Schools closed today in Andhra Pradesh and Chennai due to Cyclone Murasu : Check latest school holiday updates and affected areas",
-  "url": "https://www.educationtimes.com/news/schools-closed-today-in-andhra-pradesh-and-chennai-due-to-cyclone-murasu-check-latest-school-holiday-updates-and-affected-areas/articleshow/135478609.cms",
-  "outlet": "educationtimes.com",
-  "t": "2026-11-03T23:21:56+00:00",
-  "vista": 10.0,
-  "hash": 1166564762373226256
- },
- {
   "id": "2026-11-04",
   "image": "pool-2026-11-04.jpg",
   "headline": "Intercepted missile after Houthis hit Riyadh airport , says Saudi coalition",
@@ -166,5 +156,15 @@
   "t": "2026-11-07T13:29:47+00:00",
   "vista": 8.0,
   "hash": 16195085838378417983
+ },
+ {
+  "id": "2026-11-07-0925-0",
+  "image": "pool-2026-11-07-0925-0.jpg",
+  "headline": "Delhi world most polluted major city on eve of Diwali : IQAir",
+  "url": "https://www.omanobserver.om/article/1199227/world/asia/delhi-worlds-most-polluted-major-city-on-eve-of-diwali-iqair",
+  "outlet": "omanobserver.om",
+  "t": "2026-11-07T14:25:33+00:00",
+  "vista": 7.0,
+  "hash": 9126805503
  }
 ]
