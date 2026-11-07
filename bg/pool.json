@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-02-1958-0",
-  "image": "pool-2026-11-02-1958-0.jpg",
-  "headline": "Two storms slam northern Europe , cut power to 150 , 000 homes",
-  "url": "https://www.aljazeera.com/news/2026/10/26/two-storms-slam-northern-europe-cut-power-to-150000-homes",
-  "outlet": "aljazeera.com",
-  "t": "2026-11-03T00:58:55+00:00",
-  "vista": 9.0,
-  "hash": 63191256724930559
- },
- {
   "id": "2026-11-03",
   "image": "pool-2026-11-03.jpg",
   "headline": "Cerro de Pasco Resources Advances Comprehensive Phase 2 Drilling Across the Quiulacocha Tailings Facility",
@@ -166,5 +156,15 @@
   "t": "2026-11-06T19:27:00+00:00",
   "vista": 9.0,
   "hash": 15815496521769471
+ },
+ {
+  "id": "2026-11-07-0058-0",
+  "image": "pool-2026-11-07-0058-0.jpg",
+  "headline": "Rain boosts Lake Powell and Lake Mead . Here why drought concerns remain",
+  "url": "https://www.azfamily.com/2026/11/06/rain-boosts-lake-powell-lake-mead-heres-why-drought-concerns-remain/",
+  "outlet": "azfamily.com",
+  "t": "2026-11-07T05:58:47+00:00",
+  "vista": 9.0,
+  "hash": 1086609948543
  }
 ]
