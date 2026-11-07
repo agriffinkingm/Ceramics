@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-11-03",
-  "image": "pool-2026-11-03.jpg",
-  "headline": "Cerro de Pasco Resources Advances Comprehensive Phase 2 Drilling Across the Quiulacocha Tailings Facility",
-  "url": "https://www.manilatimes.net/2026/11/03/tmt-newswire/globenewswire/cerro-de-pasco-resources-advances-comprehensive-phase-2-drilling-across-the-quiulacocha-tailings-facility/2460379",
-  "outlet": "manilatimes.net",
-  "t": "2026-11-03T14:09:12+00:00",
-  "hash": 7380968884049829952
- },
- {
-  "id": "2026-11-03-b",
-  "image": "pool-2026-11-03-b.jpg",
-  "headline": "Experts reveal chilling  coffin corner  theory before Florida plane plunged to the ground",
-  "url": "https://www.aol.co.uk/articles/experts-reveal-chilling-coffin-corner-103800000.html",
-  "outlet": "aol.co.uk",
-  "t": "2026-11-03T14:09:12+00:00",
-  "hash": 18302630545704875007
- },
- {
-  "id": "2026-11-03-c",
-  "image": "pool-2026-11-03-c.jpg",
-  "headline": "Deadly RSF drone attacks reveal deep divisions between Sudan and Ethiopia",
-  "url": "https://www.aljazeera.com/news/2026/11/3/deadly-rsf-drone-strikes-reveal-deep-divisions-between-sudan-and-ethiopia",
-  "outlet": "aljazeera.com",
-  "t": "2026-11-03T14:09:12+00:00",
-  "hash": 4540472849332436991
- },
- {
   "id": "2026-11-03-0938-0",
   "image": "pool-2026-11-03-0938-0.jpg",
   "headline": "More than a third of western state glacial cover has been lost since 1950s as planet warms | News",
@@ -166,5 +139,32 @@
   "t": "2026-11-07T05:58:47+00:00",
   "vista": 9.0,
   "hash": 1086609948543
+ },
+ {
+  "id": "2026-11-07",
+  "image": "pool-2026-11-07.jpg",
+  "headline": "Russia Major Oil Refinery Reportedly Targeted as 142 Drones Downed",
+  "url": "https://www.kyivpost.com/post/89302",
+  "outlet": "kyivpost.com",
+  "t": "2026-11-07T12:57:48+00:00",
+  "hash": 281303555903
+ },
+ {
+  "id": "2026-11-07-b",
+  "image": "pool-2026-11-07-b.jpg",
+  "headline": "Spokane County Sheriff Office identifies deputies killed , critically injured in Spangle shooting",
+  "url": "https://www.khq.com/news/spokane-county-sheriffs-office-identifies-deputies-killed-critically-injured-in-spangle-shooting/article_796eba53-b46a-4bca-88ad-cbc576918b26.html",
+  "outlet": "khq.com",
+  "t": "2026-11-07T12:57:48+00:00",
+  "hash": 4591981941246394593
+ },
+ {
+  "id": "2026-11-07-c",
+  "image": "pool-2026-11-07-c.jpg",
+  "headline": "Long Beach oceanfront home destroyed by recent storms has developers lining up to buy it after owner slashed price by $2m",
+  "url": "https://www.dailymail.com/real-estate/article-16272981/Long-Beach-oceanfront-home-destroyed-storms-developers-buy-owner-slashed-price.html",
+  "outlet": "dailymail.com",
+  "t": "2026-11-07T12:57:48+00:00",
+  "hash": 2035625957964055543
  }
 ]

@@ -355,5 +355,12 @@
   "url": "https://www.thetimes-tribune.com/2026/11/06/today-in-history-november-6-georgia-dam-bursts-killing-toccoa-falls-college-students/",
   "outlet": "thetimes-tribune.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-11-07",
+  "headline": "Russia Major Oil Refinery Reportedly Targeted as 142 Drones Downed",
+  "url": "https://www.kyivpost.com/post/89302",
+  "outlet": "kyivpost.com",
+  "method": "crop"
  }
 ]
