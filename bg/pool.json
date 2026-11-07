@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-11-04",
-  "image": "pool-2026-11-04.jpg",
-  "headline": "Intercepted missile after Houthis hit Riyadh airport , says Saudi coalition",
-  "url": "https://www.thehindu.com/news/international/intercepted-missile-after-houthis-hit-riyadh-airport-says-saudi-coalition/article71625586.ece",
-  "outlet": "thehindu.com",
-  "t": "2026-11-04T14:28:05+00:00",
-  "hash": 17869208995062284544
- },
- {
   "id": "2026-11-04-b",
   "image": "pool-2026-11-04-b.jpg",
   "headline": "Tribal Members Proven Right as Border Wall Contractors Desecrate Ancestor Remains",
@@ -166,5 +157,15 @@
   "t": "2026-11-07T14:25:33+00:00",
   "vista": 7.0,
   "hash": 9126805503
+ },
+ {
+  "id": "2026-11-07-1652-0",
+  "image": "pool-2026-11-07-1652-0.jpg",
+  "headline": "SRP reservoir system captures 120 billion gallons of water from storms",
+  "url": "https://azbigmedia.com/blogs/srp-reservoir-system-captures-120-billion-gallons-of-water-from-storms/",
+  "outlet": "azbigmedia.com",
+  "t": "2026-11-07T21:52:51+00:00",
+  "vista": 9.0,
+  "hash": 70082922761551935
  }
 ]
