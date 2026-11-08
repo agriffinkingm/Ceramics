@@ -98,6 +98,19 @@
   #preview.ok { color: #4f7a5a; } #preview.bad { color: var(--terracotta); }
   #preview { text-align: center; font-size: .8rem; letter-spacing: .05em; color: var(--clay-dark); min-height: 1.2rem; }
 
+  /* chat (shared games) */
+  #chat { margin-top: .8rem; border-top: 1px solid var(--plaster-deep); padding-top: .5rem; }
+  #chat-msgs { display: flex; flex-direction: column; gap: .2rem; max-height: 11rem; overflow-y: auto; padding: .1rem .1rem .3rem; scroll-behavior: smooth; }
+  #chat-msgs:empty::before { content: "say hello"; font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--clay-dark); font-size: .95rem; text-align: center; padding: .2rem; }
+  .cm { max-width: 82%; align-self: flex-start; background: var(--ivory); border: 1px solid var(--plaster-deep); border-radius: 10px 10px 10px 3px; padding: .3rem .6rem; font-size: .86rem; line-height: 1.35; color: var(--charcoal); overflow-wrap: anywhere; }
+  .cm.me { align-self: flex-end; background: #f1e3db; border-color: #e3c9bc; border-radius: 10px 10px 3px 10px; }
+  .cm.sys { align-self: center; background: none; border: none; font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--clay-dark); font-size: .9rem; padding: .1rem .4rem; }
+  .cm .n { display: block; font-size: .68rem; letter-spacing: .06em; color: var(--clay-dark); margin-bottom: .05rem; }
+  .cm.me .n { color: var(--terracotta); }
+  #chat-bar { display: flex; gap: .4rem; margin-top: .35rem; }
+  #chat-bar input { flex: 1; min-width: 0; }
+  #chat-bar button { flex: none; }
+
   /* log */
   #log { margin-top: 1rem; font-size: .82rem; color: var(--stone); border-top: 1px solid var(--plaster-deep); padding-top: .6rem; }
   #log div { display: flex; justify-content: space-between; padding: .18rem .2rem; gap: .5rem; }
@@ -217,6 +230,10 @@
       <button id="pass">pass</button>
     </div>
     <div id="msg"></div>
+    <div id="chat" class="hidden">
+      <div id="chat-msgs"></div>
+      <div id="chat-bar"><input type="text" id="chat-in" placeholder="chat…" autocomplete="off" maxlength="240" enterkeyhint="send"><button id="chat-send">send</button></div>
+    </div>
     <div id="lookup"><input type="text" id="lookup-in" placeholder="is it a name?" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="14"><div id="lookup-out"></div><div id="lookup-more"></div></div>
     <div id="log"></div>
   </div>
@@ -224,7 +241,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-11-01a";
+const BUILD = "2026-11-08a";
 const TARGET = 555;   // first to this many points wins
 const NAME_BONUS = 25;   // for playing your own name
 const HOUSE_BONUS = { AGKM: 20 };   // house names with a tip
@@ -499,7 +516,7 @@ async function createRoom(pname) {
   g = norm(newGame(seed, { uid: uidSelf, name: pname }, lobbyClock())); g.turn = -1; me = 0; mode = "room";   // -1: first name on the board wins the first turn
   gref = fb.ref(fb.db, DB_ROOT + "/" + key);
   await fb.set(gref, cleanse(g));
-  location.hash = "g=" + key; listen(); $("share").classList.remove("hidden"); $("share-link").value = location.href;
+  location.hash = "g=" + key; listen(); chatStart(pname); $("share").classList.remove("hidden"); $("share-link").value = location.href;
   enterGame();
 }
 async function openRoom(k2, pname) {
@@ -510,9 +527,39 @@ async function openRoom(k2, pname) {
   if (seat >= 0) me = seat;
   else if (!g.players[1]) { me = 1; g.players[1] = { uid: uidSelf, name: pname }; await fb.set(fb.child(gref, "players/1"), g.players[1]); }
   else { me = -1; }
-  listen(); enterGame();
+  listen(); chatStart(pname); enterGame();
 }
 function listen() { fb.onValue(gref, snap => { if (!snap.exists()) return; const nx = norm(cleanse(snap.val())); const cur = an ? an.live : g; if (cur && nx.v === cur.v && nx.players.every((p, i) => !!p === !!cur.players[i])) return; if (an) { an.live = nx; return; } g = nx; dropCollisions(); render(); }); }
+
+// ---------- chat (shared games) ----------
+// Messages live beside the game record, not in it: walls/sgriffle/chat/<key>/<pushId> = {u, n, t, at}.
+// That way a message never bumps g.v or collides with a move transaction.
+const CHAT_ROOT = "walls/sgriffle/chat";
+let chatRef = null, chatName = "anon", chatOff = null; const chatSeen = new Set();
+function chatStart(pname) {
+  chatName = pname || "anon"; chatSeen.clear(); $("chat-msgs").innerHTML = ""; $("chat").classList.remove("hidden");
+  if (chatOff) { try { chatOff(); } catch (e) { } chatOff = null; }
+  chatRef = fb.ref(fb.db, CHAT_ROOT + "/" + key);
+  const q = fb.query ? fb.query(chatRef, fb.limitToLast(80)) : chatRef;
+  chatOff = fb.onChildAdded(q, snap => { if (chatSeen.has(snap.key)) return; chatSeen.add(snap.key); chatShow(snap.val(), snap.key); });
+}
+function chatShow(m, k) {
+  if (!m || typeof m.t !== "string") return;
+  const box = $("chat-msgs"), stuck = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  const d = document.createElement("div"); d.className = "cm" + (m.u === uidSelf ? " me" : "") + (m.sys ? " sys" : ""); d.dataset.k = k;
+  if (!m.sys) { const n = document.createElement("span"); n.className = "n"; n.textContent = (m.n || "anon").slice(0, 24); d.appendChild(n); }
+  d.appendChild(document.createTextNode(m.t.slice(0, 240)));
+  box.appendChild(d); while (box.children.length > 120) box.firstChild.remove();
+  if (stuck || m.u === uidSelf) box.scrollTop = box.scrollHeight;
+}
+async function chatSend() {
+  const inp = $("chat-in"), t = inp.value.replace(/\s+/g, " ").trim().slice(0, 240);
+  if (!t || !chatRef || mode !== "room") return;
+  inp.value = "";
+  try { await fb.set(fb.push(chatRef), { u: uidSelf, n: chatName, t, at: now() }); } catch (e) { console.warn("chat", e); say("Couldn't send that.", true); inp.value = t; }
+}
+$("chat-send").onclick = chatSend;
+$("chat-in").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); chatSend(); } e.stopPropagation(); });
 
 // ---------- UI ----------
 function say(t, bad) { const m = $("msg"); m.textContent = t || ""; m.className = bad ? "bad" : ""; }
