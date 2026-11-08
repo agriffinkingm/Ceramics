@@ -11,7 +11,7 @@
     --plaster: #E4DBD0; --plaster-deep: #D6CBBE; --ivory: #FAF8F5; --clay-dark: #8B7968;
     --terracotta: #C67B5C; --stone: #4A4238; --charcoal: #2C2820;
     --dl: #cfd9d6; --tl: #9fb7b1; --dn: #e6c3b3; --tn: #cf8c6f;
-    --tile: #FBF6EC; --tile-edge: #d9cdb9;
+    --tile: #FBF6EC; --tile-edge: #d9cdb9; --tile-set: #EADFCC;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { min-height: 100%; }
@@ -70,7 +70,8 @@
   .cell .t.pend { box-shadow: 0 0 0 2px var(--terracotta); }
   .cell .t.last { box-shadow: 0 0 0 2px var(--clay-dark); }
   .cell.sel { outline: 2px solid var(--terracotta); outline-offset: -2px; }
-  .cell .t.them { background: #f3ebe0; }
+  .cell .t.set { background: var(--tile-set); box-shadow: 0 1px 0 #cdbfa8, 0 1px 2px rgba(44,40,32,.22); }   /* played names sit a shade darker than tiles in hand */
+  .cell .t.set.last { box-shadow: 0 0 0 2px var(--clay-dark); }
 
   /* rack + actions */
   #rack-row { display: flex; justify-content: center; align-items: center; gap: .3rem; margin: .8rem 0 .5rem; min-height: 46px; }
@@ -241,7 +242,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-11-08c";
+const BUILD = "2026-11-08d";
 const TARGET = 555;   // first to this many points wins
 const NAME_BONUS = 25;   // for playing your own name
 const HOUSE_BONUS = { AGKM: 20 };   // house names with a tip
@@ -593,7 +594,7 @@ function render() {
     const r = +d.dataset.r, c = +d.dataset.c, kk = k(r, c); const t = g.board[kk] || pending[kk]; const pend = !!pending[kk];
     d.classList.toggle("has", !!t); d.classList.toggle("sel", false);
     if (!t) { d.innerHTML = ""; continue; }
-    d.innerHTML = `<div class="t${t.bl ? " bl" : ""}${pend ? " pend" : last.has(kk) ? " last" : ""}${!pend && t.by !== g.turn && mode === "room" && t.by !== me ? "" : ""}">${t.l}<span class="v">${t.bl ? "" : VAL[t.l]}</span></div>`;
+    d.innerHTML = `<div class="t${t.bl ? " bl" : ""}${pend ? " pend" : " set" + (last.has(kk) ? " last" : "")}">${t.l}<span class="v">${t.bl ? "" : VAL[t.l]}</span></div>`;
   }
   // rack
   const rr = $("rack-row"); rr.innerHTML = "";
