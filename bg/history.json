@@ -362,5 +362,12 @@
   "url": "https://www.kyivpost.com/post/89302",
   "outlet": "kyivpost.com",
   "method": "crop"
+ },
+ {
+  "id": "2026-11-08",
+  "headline": "Champagne alcohol limits adjusted after heatwave",
+  "url": "https://www.theportugalnews.com/news/2026-11-08/champagne-alcohol-limits-adjusted-after-heatwave/1112347",
+  "outlet": "theportugalnews.com",
+  "method": "outpaint"
  }
 ]

@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-11-04-b",
-  "image": "pool-2026-11-04-b.jpg",
-  "headline": "Tribal Members Proven Right as Border Wall Contractors Desecrate Ancestor Remains",
-  "url": "https://truthout.org/articles/tribal-members-proven-right-as-border-wall-contractors-uproot-ancestors-remains/",
-  "outlet": "truthout.org",
-  "t": "2026-11-04T14:28:05+00:00",
-  "hash": 2666130987993267975
- },
- {
-  "id": "2026-11-04-c",
-  "image": "pool-2026-11-04-c.jpg",
-  "headline": "Spanish F - 18 fighter jets scrambled after drones detected near Romania",
-  "url": "http://www.bgnes.com/politics/spanish-f-18-fighter-jets-scrambled-after-drones-detected-near-romania",
-  "outlet": "bgnes.com",
-  "t": "2026-11-04T14:28:05+00:00",
-  "hash": 18446681984653328376
- },
- {
-  "id": "2026-11-05",
-  "image": "pool-2026-11-05.jpg",
-  "headline": "Scientists want to cool down the planet by brightening clouds and refreezing the Arctic",
-  "url": "https://www.dailystar.co.uk/news/latest-news/scientists-want-cool-down-planet-37838729",
-  "outlet": "dailystar.co.uk",
-  "t": "2026-11-05T14:55:46+00:00",
-  "hash": 327852256776945663
- },
- {
   "id": "2026-11-05-b",
   "image": "pool-2026-11-05-b.jpg",
   "headline": "Wildfires Develop as Maine Deals With High Fire Danger",
@@ -167,5 +140,32 @@
   "t": "2026-11-07T21:52:51+00:00",
   "vista": 9.0,
   "hash": 70082922761551935
+ },
+ {
+  "id": "2026-11-08",
+  "image": "pool-2026-11-08.jpg",
+  "headline": "Champagne alcohol limits adjusted after heatwave",
+  "url": "https://www.theportugalnews.com/news/2026-11-08/champagne-alcohol-limits-adjusted-after-heatwave/1112347",
+  "outlet": "theportugalnews.com",
+  "t": "2026-11-08T13:20:26+00:00",
+  "hash": 2130706431
+ },
+ {
+  "id": "2026-11-08-b",
+  "image": "pool-2026-11-08-b.jpg",
+  "headline": "League of Women Voters challenges legislative loophole on blank bills",
+  "url": "https://www.thegardenisland.com/2026/11/08/hawaii-news/league-of-women-voters-challenges-legislative-loophole-on-blank-bills/",
+  "outlet": "thegardenisland.com",
+  "t": "2026-11-08T13:20:26+00:00",
+  "hash": 4903567790008393728
+ },
+ {
+  "id": "2026-11-08-c",
+  "image": "pool-2026-11-08-c.jpg",
+  "headline": "Departing UN chief warns of  moment of truth  in efforts to curb global warming",
+  "url": "https://www.bridgwatermercury.co.uk/news/national/26709296.departing-un-chief-warns-moment-truth-efforts-curb-global-warming/",
+  "outlet": "bridgwatermercury.co.uk",
+  "t": "2026-11-08T13:20:26+00:00",
+  "hash": 8104364067512024895
  }
 ]
