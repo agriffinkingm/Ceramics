@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-11-06",
-  "image": "pool-2026-11-06.jpg",
-  "headline": "Today in History : November 6 , Georgia dam bursts , killing Toccoa Falls College students",
-  "url": "https://www.thetimes-tribune.com/2026/11/06/today-in-history-november-6-georgia-dam-bursts-killing-toccoa-falls-college-students/",
-  "outlet": "thetimes-tribune.com",
-  "t": "2026-11-06T14:35:18+00:00",
-  "hash": 18230306320018243585
- },
- {
-  "id": "2026-11-06-b",
-  "image": "pool-2026-11-06-b.jpg",
-  "headline": "Singapore growing robot workforce",
-  "url": "http://www.neworleanssun.com/news/279415763/singapore-growing-robot-workforce",
-  "outlet": "neworleanssun.com",
-  "t": "2026-11-06T14:35:18+00:00",
-  "hash": 7450932523208443392
- },
- {
-  "id": "2026-11-06-c",
-  "image": "pool-2026-11-06-c.jpg",
-  "headline": "Clicky Ponting  given two - year ban for involvement in club cricket cheating scandal",
-  "url": "https://www.aol.co.uk/articles/clicky-ponting-given-two-ban-105232000.html",
-  "outlet": "aol.co.uk",
-  "t": "2026-11-06T14:35:18+00:00",
-  "hash": 17578529538735742480
- },
- {
   "id": "2026-11-06-1427-0",
   "image": "pool-2026-11-06-1427-0.jpg",
   "headline": "Planning a Kashmir Trip ? The Complete Guide , From First - Timer Basics to Insider Tips",
@@ -169,5 +142,35 @@
   "t": "2026-11-08T14:36:20+00:00",
   "vista": 8.0,
   "hash": 18430718478075916918
+ },
+ {
+  "id": "2026-11-08-1707-0",
+  "image": "pool-2026-11-08-1707-0.jpg",
+  "headline": "Californians erupt at plans for sprawling Sites Reservoir project",
+  "url": "https://nypost.com/2026/11/08/us-news/californians-erupt-at-plans-for-sprawling-sites-reservoir-project/",
+  "outlet": "nypost.com",
+  "t": "2026-11-08T22:07:11+00:00",
+  "vista": 9.0,
+  "hash": 2162853733677924351
+ },
+ {
+  "id": "2026-11-08-1707-1",
+  "image": "pool-2026-11-08-1707-1.jpg",
+  "headline": "Floods bring rare relief to US Southwest reservoirs",
+  "url": "https://www.wxii12.com/article/southwest-reservoirs-flooding-lake-powell/74368630",
+  "outlet": "wxii12.com",
+  "t": "2026-11-08T22:07:11+00:00",
+  "vista": 8.0,
+  "hash": 3530805584583985407
+ },
+ {
+  "id": "2026-11-08-1707-2",
+  "image": "pool-2026-11-08-1707-2.jpg",
+  "headline": "Wisconsin Weather : Could a polar vortex create cold and snow this week ?",
+  "url": "https://www.fox6now.com/weather/wisconsin-weather-could-polar-vortex-create-cold-snow-week",
+  "outlet": "fox6now.com",
+  "t": "2026-11-08T22:07:11+00:00",
+  "vista": 8.0,
+  "hash": 872640864860257280
  }
 ]
