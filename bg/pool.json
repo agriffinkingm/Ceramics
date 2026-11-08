@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-06-0139-0",
-  "image": "pool-2026-11-06-0139-0.jpg",
-  "headline": "Desert icons collapse as southwestern US gets pummeled with rain and flooding",
-  "url": "https://www.santafenewmexican.com/ap/national/desert-icons-collapse-as-southwestern-us-gets-pummeled-with-rain-and-flooding/article_61fab7dd-6f5c-5781-b98e-b9f46be9ff55.html",
-  "outlet": "santafenewmexican.com",
-  "t": "2026-11-06T06:39:13+00:00",
-  "vista": 7.0,
-  "hash": 79268906270719
- },
- {
   "id": "2026-11-06",
   "image": "pool-2026-11-06.jpg",
   "headline": "Today in History : November 6 , Georgia dam bursts , killing Toccoa Falls College students",
@@ -169,5 +159,15 @@
   "t": "2026-11-08T13:52:06+00:00",
   "vista": 7.0,
   "hash": 4505794364047359
+ },
+ {
+  "id": "2026-11-08-0936-0",
+  "image": "pool-2026-11-08-0936-0.jpg",
+  "headline": "Clutha crash : One person taken to Dunedin Hospital in serious condition",
+  "url": "https://www.nzherald.co.nz/nz/emergency-services-at-serious-crash-on-sh1-in-clutha-district/63OY7SFEN5A73L5FVPSFGUPMP4/",
+  "outlet": "nzherald.co.nz",
+  "t": "2026-11-08T14:36:20+00:00",
+  "vista": 8.0,
+  "hash": 18430718478075916918
  }
 ]
