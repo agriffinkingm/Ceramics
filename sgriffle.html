@@ -158,7 +158,7 @@
     <p><b>Sgriffle wins.</b> Play the name SGRIFFLE and the game is over — you win, whatever the score. (There are five G's and four F's in the bag to make it thinkable.)</p>
     <p><b>Your names count.</b> Whatever the two of you entered as your names is playable in that game, and playing your own name is worth <b>+25</b>. (Multi-word names count word by word; letters only.)</p>
     <p><b>First to 555 wins.</b> The moment a play takes you to 555 or more, the game's over.</p>
-    <p><b>All ten tiles in one go wins the game.</b> Empty your rack in a single play and it's over, whatever the score. You can exchange tiles instead of playing while the bag has at least ten left (that uses your turn). The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
+    <p><b>All ten tiles in one go wins the game.</b> Empty your rack in a single play and it's over, whatever the score. You can exchange tiles instead of playing while the bag has at least ten left (that uses your turn) — and once a game each player gets a <b>free swap</b>: trade in any tiles and keep the turn. Tap exchange, pick the tiles, then <b>swap free</b> instead of exchange. The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
     <p>Letter values, by how common each letter is in American surnames (edited by hand where it felt right):</p>
     <div class="vals" id="vals"></div>
     <p>When a game ends, <b>analyze the game</b> steps through every move with the rack that player held and shows the highest-scoring play that was available — points-only, no defence or lookahead.</p>
@@ -241,7 +241,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-11-08a";
+const BUILD = "2026-11-08b";
 const TARGET = 555;   // first to this many points wins
 const NAME_BONUS = 25;   // for playing your own name
 const HOUSE_BONUS = { AGKM: 20 };   // house names with a tip
@@ -302,7 +302,7 @@ function newBag(rnd = Math.random) { const t = []; for (const l in CNT) for (let
 function newGame(seed, p0, clock, rnd) {
   const bag = newBag(rnd); const r0 = "?" + bag.slice(0, RACK - 1), r1 = "?" + bag.slice(RACK - 1, 2 * RACK - 2);   // everyone starts with a blank, on top of the two in the bag
   return { seed, v: 0, turn: 0, bag: bag.slice(2 * RACK - 2), racks: [r0, r1], board: {}, scores: [0, 0], players: [p0, null], log: [], passes: 0, over: false, last: [], created: Date.now(),
-    clock: clock || null, times: [clock ? clock.base : 0, clock ? clock.base : 0], tick: 0 };   // clock {base, inc} in ms; tick = server time the running clock started (0 = not running)
+    clock: clock || null, times: [clock ? clock.base : 0, clock ? clock.base : 0], tick: 0, fx: [0, 0] };   // fx: free exchanges used (one per player per game)   // clock {base, inc} in ms; tick = server time the running clock started (0 = not running)
 }
 function lobbyClock() { if ($("tmode").value !== "timed") return null; return { base: +$("tmin").value * 60000, inc: +$("tinc").value * 1000 }; }
 // ---------- clocks ----------
@@ -330,7 +330,7 @@ function norm(x) { // Firebase drops empty arrays/strings and turns arrays into 
   x.racks = arr(x.racks, 2, ""); x.scores = arr(x.scores, 2, 0); x.players = arr(x.players, 2, null);
   x.board = x.board || {}; x.log = Array.isArray(x.log) ? x.log : Object.values(x.log || {}); x.last = Array.isArray(x.last) ? x.last : Object.values(x.last || {});
   x.bag = x.bag || ""; x.passes = x.passes || 0; x.over = !!x.over; x.v = x.v || 0; x.turn = x.turn || 0;
-  x.clock = x.clock || null; x.times = arr(x.times, 2, x.clock ? x.clock.base : 0); x.tick = x.tick || 0; if (x.flagged == null) delete x.flagged; if (x.won == null) { delete x.won; delete x.why; }
+  x.clock = x.clock || null; x.times = arr(x.times, 2, x.clock ? x.clock.base : 0); x.tick = x.tick || 0; x.fx = arr(x.fx, 2, 0); if (x.flagged == null) delete x.flagged; if (x.won == null) { delete x.won; delete x.why; }
   for (const m of x.log) { m.words = Array.isArray(m.words) ? m.words : Object.values(m.words || {}); if (m.tiles) m.tiles = (Array.isArray(m.tiles) ? m.tiles : Object.values(m.tiles)).map(t => Array.isArray(t) ? t : Object.values(t)); }
   return x;
 }
@@ -401,17 +401,22 @@ function applyPlay(x, p, placed, words, score, tiles = pending) {
   return x;
 }
 function applyPass(x, p) { if (!chargeClock(x, p, now())) { x.v++; return x; } x.passes++; x.log.push({ p, words: [], score: 0, kind: "pass", t: Date.now(), rack: x.racks[p] }); x.last = []; x.turn = 1 - p; x.v++; if (x.passes >= MAX_PASSES) finish(x, -1); return x; }
-function applyExchange(x, p, letters) {
+// free = the player's one free swap: tiles change, the turn (and clock) stay put, passes don't count it.
+function applyExchange(x, p, letters, free) {
   const rackBefore = x.racks[p]; let rack = x.racks[p].split(""); const out = [];
   for (const l of letters) { const i = rack.indexOf(l); if (i < 0) return null; rack.splice(i, 1); out.push(l); }
   if (x.bag.length < RACK) return null;
-  if (!chargeClock(x, p, now())) { x.v++; return x; }
+  if (free && (x.fx[p] || 0) > 0) return null;
+  if (!free && !chargeClock(x, p, now())) { x.v++; return x; }
   let bag = x.bag.split(""); rack = rack.concat(bag.splice(0, out.length)); bag = bag.concat(out);
   for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; }
-  x.bag = bag.join(""); x.racks[p] = rack.join(""); x.passes++; x.last = [];
+  x.bag = bag.join(""); x.racks[p] = rack.join("");
+  if (free) { x.fx[p] = 1; x.log.push({ p, words: [], score: 0, kind: "exchange", free: true, n: out.length, t: Date.now(), rack: rackBefore }); x.v++; return x; }
+  x.passes++; x.last = [];
   x.log.push({ p, words: [], score: 0, kind: "exchange", n: out.length, t: Date.now(), rack: rackBefore }); x.turn = 1 - p; x.v++;
   if (x.passes >= MAX_PASSES) finish(x, -1); return x;
 }
+const freeLeft = (x, p) => p >= 0 && !(x.fx && x.fx[p]);
 const rackVal = s => s.split("").reduce((a, l) => a + (l === "?" ? 0 : VAL[l]), 0);
 function finish(x, outP) {
   const v = [rackVal(x.racks[0]), rackVal(x.racks[1])];
@@ -502,7 +507,7 @@ async function botTurn() {
   await dictReady; if (!DICT) return;
   const t0 = performance.now(); const moves = botMoves(g.racks[p], p); const pick = pickMove(moves, botLevel); console.log("bot:", moves.length, "moves,", Math.round(performance.now() - t0), "ms");
   if (!pick) {
-    if (g.bag.length >= RACK) { const letters = g.racks[p].split("").filter(l => l !== "?"); if (letters.length) { await commit(x => applyExchange(x, p, letters)); say(pname(p) + " exchanged " + letters.length + "."); return; } }
+    if (g.bag.length >= RACK) { const letters = g.racks[p].split("").filter(l => l !== "?"); if (letters.length) { const fr = freeLeft(g, p); await commit(x => applyExchange(x, p, letters, fr)); say(pname(p) + (fr ? " used the free swap on " : " exchanged ") + letters.length + "."); return; } }
     await commit(x => applyPass(x, p)); say(pname(p) + " passed."); return;
   }
   const ok = await commit(x => applyPlay(x, p, pick.placed, pick.words, pick.score, pick.pend), true);
@@ -604,8 +609,10 @@ function render() {
   const np = Object.keys(pending).length;
   $("play").disabled = !canAct || (!exchanging && !np) || (exchanging && !exSel.size); $("play").textContent = exchanging ? "exchange " + exSel.size : "play";
   $("recall").disabled = !np && !exchanging; $("recall").textContent = exchanging ? "cancel" : "recall";
-  $("exch").disabled = !canAct || exchanging || g.bag.length < RACK; $("pass").disabled = !canAct || exchanging; $("shuffle").disabled = seat < 0 || exchanging;
-  for (const id of ["exch", "pass"]) $(id).classList.toggle("hidden", !!pz); $("puzzle").classList.toggle("hidden", !pz);
+  const fr = exchanging && canAct && freeLeft(g, seat) && g.bag.length >= RACK;
+  $("exch").disabled = !canAct || g.bag.length < RACK || (exchanging && (!fr || !exSel.size)); $("exch").textContent = exchanging ? "swap " + exSel.size + " free" : "exchange"; $("exch").classList.toggle("hidden", exchanging && !fr);
+  $("pass").disabled = !canAct || exchanging; $("shuffle").disabled = seat < 0 || exchanging;
+  for (const id of ["exch", "pass"]) if (pz) $(id).classList.add("hidden"); $("puzzle").classList.toggle("hidden", !pz);
   $("actions").classList.toggle("hidden", seat < 0 || (g.over && !pz) || mode === "watch" || !!an || (pz && pz.state !== "ready"));
   // preview
   const bub = $("bubble"); bub.classList.add("hidden");
@@ -613,7 +620,7 @@ function render() {
     const ev = evaluate(); $("preview").className = ev.words ? (ev.ok ? "ok" : "bad") : ""; $("preview").textContent = ev.words ? ev.words.map(w => w.word + (w.bonus ? " +" + w.bonus : "") + " " + w.score).join(" · ") + (ev.self ? " · your name +" + NAME_BONUS : "") + (ev.house ? " · house +" + ev.house : "") + (ev.bingo ? " · ALL TEN — wins" : "") + " = " + ev.score : "";
     if (ev.words) { const [r, c] = ev.words[0].cells[ev.words[0].cells.length - 1]; const cell = $("board").children[r * N + c]; bub.textContent = ev.score; bub.className = ev.ok ? "" : "bad"; bub.style.left = (cell.offsetLeft + cell.offsetWidth) + "px"; bub.style.top = cell.offsetTop + "px"; }
   }
-  else { $("preview").className = ""; $("preview").textContent = exchanging ? "tap the tiles to swap, then exchange" : ""; }
+  else { $("preview").className = ""; $("preview").textContent = exchanging ? (freeLeft(g, seat) ? "tap the tiles to swap — your one free swap keeps the turn" : "tap the tiles to swap, then exchange") : ""; }
   // over
   const om = $("overmsg");
   if (g.over) { const w = g.won != null ? (g.why === "bingo" ? pname(g.won) + " played all ten tiles. " : g.why === "target" ? pname(g.won) + " reached " + TARGET + ". " : pname(g.won) + " played Sgriffle. ") + pname(g.won) + " wins." : g.flagged != null ? pname(1 - g.flagged) + " wins on time, " + g.scores[1 - g.flagged] + " to " + g.scores[g.flagged] + "." : g.scores[0] === g.scores[1] ? "A draw." : (g.scores[0] > g.scores[1] ? pname(0) : pname(1)) + " wins, " + Math.max(...g.scores) + " to " + Math.min(...g.scores) + "."; om.textContent = w; om.classList.remove("hidden"); } else om.classList.add("hidden");
@@ -624,7 +631,7 @@ function render() {
   const logSrc = an ? an.live.log.slice(0, an.i + 1) : g.log;
   for (const m of [...logSrc].reverse()) {
     const d = document.createElement("div");
-    const body = m.kind === "play" ? m.words.map(w => w[0] + w.slice(1).toLowerCase()).join(", ") : m.kind === "pass" ? "passed" : m.kind === "exchange" ? "exchanged " + m.n : m.kind === "timeout" ? "ran out of time" : m.kind === "sgriffle" ? "SGRIFFLE — game over" : m.kind === "bingo" ? "all ten — game over" : m.kind === "target" ? TARGET + " — game over" : (m.p >= 0 ? pname(m.p) + " went out" : "six passes") + " · racks " + m.v.join(" / ");
+    const body = m.kind === "play" ? m.words.map(w => w[0] + w.slice(1).toLowerCase()).join(", ") : m.kind === "pass" ? "passed" : m.kind === "exchange" ? (m.free ? "free swap · " : "exchanged ") + m.n : m.kind === "timeout" ? "ran out of time" : m.kind === "sgriffle" ? "SGRIFFLE — game over" : m.kind === "bingo" ? "all ten — game over" : m.kind === "target" ? TARGET + " — game over" : (m.p >= 0 ? pname(m.p) + " went out" : "six passes") + " · racks " + m.v.join(" / ");
     d.innerHTML = `<span class="who">${m.kind === "end" || m.kind === "sgriffle" || m.kind === "bingo" || m.kind === "target" ? "end" : pname(m.p)}</span><span class="w">${body}</span><span class="s">${m.kind === "play" ? "+" + m.score : ""}</span>`; lg.appendChild(d);
   }
   paintClocks();
@@ -712,7 +719,11 @@ $("board").addEventListener("pointerup", e => endBoardDrag(e, false));
 $("board").addEventListener("pointercancel", e => endBoardDrag(e, true));
 $("recall").onclick = () => { pending = {}; selRack = -1; exSel.clear(); exchanging = false; say(""); render(); };
 $("shuffle").onclick = () => { const seat = mode === "hot" ? g.turn : me; const a = g.racks[seat].split(""); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } g.racks[seat] = a.join(""); if (mode === "room") fb.set(fb.child(gref, "racks/" + seat), g.racks[seat]).catch(() => { }); render(); };
-$("exch").onclick = () => { pending = {}; selRack = -1; exchanging = true; exSel.clear(); render(); };
+$("exch").onclick = async () => {
+  if (!exchanging) { pending = {}; selRack = -1; exchanging = true; exSel.clear(); render(); return; }
+  const p = mode === "hot" ? g.turn : me; const letters = [...exSel].map(i => $("rack-row").children[i].dataset.l); if (!letters.length) return;
+  const ok = await commit(x => applyExchange(x, p, letters, true)); if (ok) say("Swapped " + letters.length + " for free — still your turn.");
+};
 $("pass").onclick = async () => { if (!confirm("Pass your turn?")) return; const p = mode === "hot" ? g.turn : me; await commit(x => applyPass(x, p)); };
 $("play").onclick = async () => {
   if (pz) { checkPuzzle(); return; }
@@ -826,7 +837,7 @@ function showMove(i) {
 }
 function describeMove() {
   const m = an.live.log[an.i], el = $("an-move"), who = m.p >= 0 ? pname(m.p) : "";
-  let head = m.kind === "play" ? `${who} played <b>${m.words.map(nice).join(", ")}</b> for ${m.score}` : m.kind === "pass" ? `${who} passed` : m.kind === "exchange" ? `${who} exchanged ${m.n}` : m.kind === "timeout" ? `${who} ran out of time` : m.kind === "sgriffle" ? `${who} played Sgriffle — game over` : m.kind === "bingo" ? `${who} played all ten — game over` : m.kind === "target" ? `${who} reached ${TARGET} — game over` : (m.p >= 0 ? who + " went out" : "six passes") + " — game over";
+  let head = m.kind === "play" ? `${who} played <b>${m.words.map(nice).join(", ")}</b> for ${m.score}` : m.kind === "pass" ? `${who} passed` : m.kind === "exchange" ? `${who} ${m.free ? "used the free swap on" : "exchanged"} ${m.n}` : m.kind === "timeout" ? `${who} ran out of time` : m.kind === "sgriffle" ? `${who} played Sgriffle — game over` : m.kind === "bingo" ? `${who} played all ten — game over` : m.kind === "target" ? `${who} reached ${TARGET} — game over` : (m.p >= 0 ? who + " went out" : "six passes") + " — game over";
   if (m.kind === "end" || m.kind === "timeout" || m.kind === "sgriffle" || m.kind === "bingo" || m.kind === "target" || !m.rack) { el.innerHTML = head; $("an-best").disabled = true; return; }
   el.innerHTML = head + `<br><span style="color:var(--clay-dark);font-size:.9rem;letter-spacing:.04em;font-family:Karla,sans-serif">rack ${m.rack.split("").join(" ")}</span><br><span id="an-verdict" style="color:var(--clay-dark)">finding the best play…</span>`;
   $("an-best").disabled = true;
