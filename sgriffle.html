@@ -158,7 +158,7 @@
     <p><b>Sgriffle wins.</b> Play the name SGRIFFLE and the game is over — you win, whatever the score. (There are five G's and four F's in the bag to make it thinkable.)</p>
     <p><b>Your names count.</b> Whatever the two of you entered as your names is playable in that game, and playing your own name is worth <b>+25</b>. (Multi-word names count word by word; letters only.)</p>
     <p><b>First to 555 wins.</b> The moment a play takes you to 555 or more, the game's over.</p>
-    <p><b>All ten tiles in one go wins the game.</b> Empty your rack in a single play and it's over, whatever the score. You can exchange tiles instead of playing while the bag has at least ten left (that uses your turn) — and once a game each player gets a <b>free swap</b>: trade in any tiles and keep the turn. Tap exchange, pick the tiles, then <b>swap free</b> instead of exchange. The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
+    <p><b>All ten tiles in one go wins the game.</b> Empty your rack in a single play and it's over, whatever the score. You can exchange tiles instead of playing while the bag has at least ten left (that uses your turn) — and once a game each player gets a <b>free swap</b>: trade in any tiles without spending a turn — even while you wait for the other player. Tap exchange, pick the tiles, then <b>swap free</b> instead of exchange. The game ends when the bag is empty and someone has played their last tile (they collect the value of the opponent's rack; the other subtracts it), or after six passes in a row.</p>
     <p>Letter values, by how common each letter is in American surnames (edited by hand where it felt right):</p>
     <div class="vals" id="vals"></div>
     <p>When a game ends, <b>analyze the game</b> steps through every move with the rack that player held and shows the highest-scoring play that was available — points-only, no defence or lookahead.</p>
@@ -241,7 +241,7 @@
 <footer>names from the 2000 US Census + SSA baby names 1880–2017 · <a href="index.html">agriffinkingm</a></footer>
 
 <script type="module">
-const BUILD = "2026-11-08b";
+const BUILD = "2026-11-08c";
 const TARGET = 555;   // first to this many points wins
 const NAME_BONUS = 25;   // for playing your own name
 const HOUSE_BONUS = { AGKM: 20 };   // house names with a tip
@@ -609,8 +609,9 @@ function render() {
   const np = Object.keys(pending).length;
   $("play").disabled = !canAct || (!exchanging && !np) || (exchanging && !exSel.size); $("play").textContent = exchanging ? "exchange " + exSel.size : "play";
   $("recall").disabled = !np && !exchanging; $("recall").textContent = exchanging ? "cancel" : "recall";
-  const fr = exchanging && canAct && freeLeft(g, seat) && g.bag.length >= RACK;
-  $("exch").disabled = !canAct || g.bag.length < RACK || (exchanging && (!fr || !exSel.size)); $("exch").textContent = exchanging ? "swap " + exSel.size + " free" : "exchange"; $("exch").classList.toggle("hidden", exchanging && !fr);
+  const seated = !g.over && !an && seat >= 0 && !!g.players[seat] && mode !== "watch";   // the free swap doesn't need the turn — any seated player, any time
+  const fr = exchanging && seated && freeLeft(g, seat) && g.bag.length >= RACK;
+  $("exch").disabled = !(canAct || (seated && freeLeft(g, seat))) || g.bag.length < RACK || (exchanging && (!fr || !exSel.size)); $("exch").textContent = exchanging ? "swap " + exSel.size + " free" : "exchange"; $("exch").classList.toggle("hidden", exchanging && !fr);
   $("pass").disabled = !canAct || exchanging; $("shuffle").disabled = seat < 0 || exchanging;
   for (const id of ["exch", "pass"]) if (pz) $(id).classList.add("hidden"); $("puzzle").classList.toggle("hidden", !pz);
   $("actions").classList.toggle("hidden", seat < 0 || (g.over && !pz) || mode === "watch" || !!an || (pz && pz.state !== "ready"));
@@ -620,7 +621,7 @@ function render() {
     const ev = evaluate(); $("preview").className = ev.words ? (ev.ok ? "ok" : "bad") : ""; $("preview").textContent = ev.words ? ev.words.map(w => w.word + (w.bonus ? " +" + w.bonus : "") + " " + w.score).join(" · ") + (ev.self ? " · your name +" + NAME_BONUS : "") + (ev.house ? " · house +" + ev.house : "") + (ev.bingo ? " · ALL TEN — wins" : "") + " = " + ev.score : "";
     if (ev.words) { const [r, c] = ev.words[0].cells[ev.words[0].cells.length - 1]; const cell = $("board").children[r * N + c]; bub.textContent = ev.score; bub.className = ev.ok ? "" : "bad"; bub.style.left = (cell.offsetLeft + cell.offsetWidth) + "px"; bub.style.top = cell.offsetTop + "px"; }
   }
-  else { $("preview").className = ""; $("preview").textContent = exchanging ? (freeLeft(g, seat) ? "tap the tiles to swap — your one free swap keeps the turn" : "tap the tiles to swap, then exchange") : ""; }
+  else { $("preview").className = ""; $("preview").textContent = exchanging ? (freeLeft(g, seat) ? (canAct ? "tap the tiles to swap — your one free swap keeps the turn" : "not your turn — but the free swap works any time") : "tap the tiles to swap, then exchange") : ""; }
   // over
   const om = $("overmsg");
   if (g.over) { const w = g.won != null ? (g.why === "bingo" ? pname(g.won) + " played all ten tiles. " : g.why === "target" ? pname(g.won) + " reached " + TARGET + ". " : pname(g.won) + " played Sgriffle. ") + pname(g.won) + " wins." : g.flagged != null ? pname(1 - g.flagged) + " wins on time, " + g.scores[1 - g.flagged] + " to " + g.scores[g.flagged] + "." : g.scores[0] === g.scores[1] ? "A draw." : (g.scores[0] > g.scores[1] ? pname(0) : pname(1)) + " wins, " + Math.max(...g.scores) + " to " + Math.min(...g.scores) + "."; om.textContent = w; om.classList.remove("hidden"); } else om.classList.add("hidden");
