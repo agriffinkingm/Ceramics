@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-11-07-c",
-  "image": "pool-2026-11-07-c.jpg",
-  "headline": "Long Beach oceanfront home destroyed by recent storms has developers lining up to buy it after owner slashed price by $2m",
-  "url": "https://www.dailymail.com/real-estate/article-16272981/Long-Beach-oceanfront-home-destroyed-storms-developers-buy-owner-slashed-price.html",
-  "outlet": "dailymail.com",
-  "t": "2026-11-07T12:57:48+00:00",
-  "hash": 2035625957964055543
- },
- {
-  "id": "2026-11-07-0829-0",
-  "image": "pool-2026-11-07-0829-0.jpg",
-  "headline": "Pakistan forces launch deadly crackdown in PoJK , civilian deaths reported in Rawalakot clashes",
-  "url": "http://www.malaysiasun.com/news/279416557/pakistan-forces-launch-deadly-crackdown-in-pojk-civilian-deaths-reported-in-rawalakot-clashes",
-  "outlet": "malaysiasun.com",
-  "t": "2026-11-07T13:29:47+00:00",
-  "vista": 8.0,
-  "hash": 16195085838378417983
- },
- {
-  "id": "2026-11-07-0925-0",
-  "image": "pool-2026-11-07-0925-0.jpg",
-  "headline": "Delhi world most polluted major city on eve of Diwali : IQAir",
-  "url": "https://www.omanobserver.om/article/1199227/world/asia/delhi-worlds-most-polluted-major-city-on-eve-of-diwali-iqair",
-  "outlet": "omanobserver.om",
-  "t": "2026-11-07T14:25:33+00:00",
-  "vista": 7.0,
-  "hash": 9126805503
- },
- {
   "id": "2026-11-07-1652-0",
   "image": "pool-2026-11-07-1652-0.jpg",
   "headline": "SRP reservoir system captures 120 billion gallons of water from storms",
@@ -171,5 +142,35 @@
   "outlet": "inverelltimes.com.au",
   "t": "2026-11-09T16:48:33+00:00",
   "hash": 4350547886897889279
+ },
+ {
+  "id": "2026-11-09-1252-0",
+  "image": "pool-2026-11-09-1252-0.jpg",
+  "headline": "Norris Wins in Brazil as Rate Cuts Stall",
+  "url": "https://www.riotimesonline.com/the-big-read-brazil-9-november-2026/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-11-09T17:52:42+00:00",
+  "vista": 9.0,
+  "hash": 1017566388169869312
+ },
+ {
+  "id": "2026-11-09-1252-1",
+  "image": "pool-2026-11-09-1252-1.jpg",
+  "headline": "Vega Island skull - shaped glaciers are losing their  face , and scientists say a warmer Antarctic winter is to blame",
+  "url": "https://www.ecoportal.net/en/vega-island-skull-glaciers-melting/45072/",
+  "outlet": "ecoportal.net",
+  "t": "2026-11-09T17:52:42+00:00",
+  "vista": 9.0,
+  "hash": 2025630806515935456
+ },
+ {
+  "id": "2026-11-09-1252-2",
+  "image": "pool-2026-11-09-1252-2.jpg",
+  "headline": "What Is  Operation Midnight Hammer ? - Windermere Sun - For Healthier / Happier / More Sustainable Living",
+  "url": "https://www.windermeresun.com/2026/11/07/what-is-operation-midnight-hammer/",
+  "outlet": "windermeresun.com",
+  "t": "2026-11-09T17:52:42+00:00",
+  "vista": 7.0,
+  "hash": 899717998724546300
  }
 ]
