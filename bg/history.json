@@ -369,5 +369,12 @@
   "url": "https://www.theportugalnews.com/news/2026-11-08/champagne-alcohol-limits-adjusted-after-heatwave/1112347",
   "outlet": "theportugalnews.com",
   "method": "outpaint"
+ },
+ {
+  "id": "2026-11-09",
+  "headline": "CVS announces major breakup , shares plunge 13 percent",
+  "url": "http://www.nepalnational.com/news/279411586/cvs-announces-major-breakup-shares-plunge-13-percent",
+  "outlet": "nepalnational.com",
+  "method": "crop-flat"
  }
 ]

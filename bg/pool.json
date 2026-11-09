@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-11-07-0058-0",
-  "image": "pool-2026-11-07-0058-0.jpg",
-  "headline": "Rain boosts Lake Powell and Lake Mead . Here why drought concerns remain",
-  "url": "https://www.azfamily.com/2026/11/06/rain-boosts-lake-powell-lake-mead-heres-why-drought-concerns-remain/",
-  "outlet": "azfamily.com",
-  "t": "2026-11-07T05:58:47+00:00",
-  "vista": 9.0,
-  "hash": 1086609948543
- },
- {
-  "id": "2026-11-07",
-  "image": "pool-2026-11-07.jpg",
-  "headline": "Russia Major Oil Refinery Reportedly Targeted as 142 Drones Downed",
-  "url": "https://www.kyivpost.com/post/89302",
-  "outlet": "kyivpost.com",
-  "t": "2026-11-07T12:57:48+00:00",
-  "hash": 281303555903
- },
- {
-  "id": "2026-11-07-b",
-  "image": "pool-2026-11-07-b.jpg",
-  "headline": "Spokane County Sheriff Office identifies deputies killed , critically injured in Spangle shooting",
-  "url": "https://www.khq.com/news/spokane-county-sheriffs-office-identifies-deputies-killed-critically-injured-in-spangle-shooting/article_796eba53-b46a-4bca-88ad-cbc576918b26.html",
-  "outlet": "khq.com",
-  "t": "2026-11-07T12:57:48+00:00",
-  "hash": 4591981941246394593
- },
- {
   "id": "2026-11-07-c",
   "image": "pool-2026-11-07-c.jpg",
   "headline": "Long Beach oceanfront home destroyed by recent storms has developers lining up to buy it after owner slashed price by $2m",
@@ -172,5 +144,32 @@
   "t": "2026-11-09T06:21:37+00:00",
   "vista": 8.0,
   "hash": 62672162783231
+ },
+ {
+  "id": "2026-11-09",
+  "image": "pool-2026-11-09.jpg",
+  "headline": "CVS announces major breakup , shares plunge 13 percent",
+  "url": "http://www.nepalnational.com/news/279411586/cvs-announces-major-breakup-shares-plunge-13-percent",
+  "outlet": "nepalnational.com",
+  "t": "2026-11-09T16:48:33+00:00",
+  "hash": 5125135010238512959
+ },
+ {
+  "id": "2026-11-09-b",
+  "image": "pool-2026-11-09-b.jpg",
+  "headline": "David Jone outdated business model explains its collapse",
+  "url": "https://www.smartcompany.com.au/opinion/david-jones-outdated-business-model-explains-administration/",
+  "outlet": "smartcompany.com.au",
+  "t": "2026-11-09T16:48:33+00:00",
+  "hash": 17070028852694122624
+ },
+ {
+  "id": "2026-11-09-c",
+  "image": "pool-2026-11-09-c.jpg",
+  "headline": "Developer lender whacked as collapse probe continues",
+  "url": "https://www.inverelltimes.com.au/story/9388251/developers-lender-whacked-as-collapse-probe-continues/",
+  "outlet": "inverelltimes.com.au",
+  "t": "2026-11-09T16:48:33+00:00",
+  "hash": 4350547886897889279
  }
 ]
