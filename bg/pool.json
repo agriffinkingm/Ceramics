@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-06-1427-0",
-  "image": "pool-2026-11-06-1427-0.jpg",
-  "headline": "Planning a Kashmir Trip ? The Complete Guide , From First - Timer Basics to Insider Tips",
-  "url": "http://www.pakistantelegraph.com/news/279415994/planning-a-kashmir-trip-the-complete-guide-from-first-timer-basics-to-insider-tips",
-  "outlet": "pakistantelegraph.com",
-  "t": "2026-11-06T19:27:00+00:00",
-  "vista": 9.0,
-  "hash": 15815496521769471
- },
- {
   "id": "2026-11-07-0058-0",
   "image": "pool-2026-11-07-0058-0.jpg",
   "headline": "Rain boosts Lake Powell and Lake Mead . Here why drought concerns remain",
@@ -172,5 +162,15 @@
   "t": "2026-11-08T22:07:11+00:00",
   "vista": 8.0,
   "hash": 872640864860257280
+ },
+ {
+  "id": "2026-11-09-0121-0",
+  "image": "pool-2026-11-09-0121-0.jpg",
+  "headline": "Iran says 3 tankers caught fire in Hormuz",
+  "url": "https://www.freemalaysiatoday.com/category/world/2026/11/08/iran-says-3-tankers-caught-fire-in-hormuz",
+  "outlet": "freemalaysiatoday.com",
+  "t": "2026-11-09T06:21:37+00:00",
+  "vista": 8.0,
+  "hash": 62672162783231
  }
 ]
