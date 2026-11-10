@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-11-08-0852-0",
-  "image": "pool-2026-11-08-0852-0.jpg",
-  "headline": "West Ham :  Next step  in Niclas Fullkrug permanent exit confirmed",
-  "url": "https://the72.co.uk/2026/11/08/west-ham-next-step-niclas-fullkrug-permanent-exit/",
-  "outlet": "the72.co.uk",
-  "t": "2026-11-08T13:52:06+00:00",
-  "vista": 9.0,
-  "hash": 3387038967595007
- },
- {
-  "id": "2026-11-08-0852-1",
-  "image": "pool-2026-11-08-0852-1.jpg",
-  "headline": "Rethinking utopia : Where do we stand in changing world ?",
-  "url": "https://www.dailysabah.com/life/environment/rethinking-utopia-where-do-we-stand-in-changing-world",
-  "outlet": "dailysabah.com",
-  "t": "2026-11-08T13:52:06+00:00",
-  "vista": 8.0,
-  "hash": 18365926120783609855
- },
- {
   "id": "2026-11-08-0852-2",
   "image": "pool-2026-11-08-0852-2.jpg",
   "headline": "Sheffield United : Harrison Burrows delivers long - term future verdict",
@@ -172,5 +152,25 @@
   "outlet": "thestar.com.my",
   "t": "2026-11-10T15:13:48+00:00",
   "hash": 18429259588008202240
+ },
+ {
+  "id": "2026-11-10-1053-0",
+  "image": "pool-2026-11-10-1053-0.jpg",
+  "headline": "Exclusive : AP joins EU naval patrol as piracy rebounds amid regional conflicts",
+  "url": "http://www.dailyadvance.com/news/world/exclusive-ap-joins-eu-naval-patrol-as-piracy-rebounds-amid-regional-conflicts/article_d88a3660-6e2e-5a4c-bd65-00c161f2a4cc.html",
+  "outlet": "dailyadvance.com",
+  "t": "2026-11-10T15:53:00+00:00",
+  "vista": 8.0,
+  "hash": 2305913964369805311
+ },
+ {
+  "id": "2026-11-10-1053-1",
+  "image": "pool-2026-11-10-1053-1.jpg",
+  "headline": "S . Korea , US hold combined air resupply exercise for wartime readiness",
+  "url": "https://www.koreaherald.com/article/10931910",
+  "outlet": "koreaherald.com",
+  "t": "2026-11-10T15:53:00+00:00",
+  "vista": 8.0,
+  "hash": 18437736641484407263
  }
 ]
