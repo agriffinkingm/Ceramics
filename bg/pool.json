@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-11-08",
-  "image": "pool-2026-11-08.jpg",
-  "headline": "Champagne alcohol limits adjusted after heatwave",
-  "url": "https://www.theportugalnews.com/news/2026-11-08/champagne-alcohol-limits-adjusted-after-heatwave/1112347",
-  "outlet": "theportugalnews.com",
-  "t": "2026-11-08T13:20:26+00:00",
-  "hash": 2130706431
- },
- {
-  "id": "2026-11-08-b",
-  "image": "pool-2026-11-08-b.jpg",
-  "headline": "League of Women Voters challenges legislative loophole on blank bills",
-  "url": "https://www.thegardenisland.com/2026/11/08/hawaii-news/league-of-women-voters-challenges-legislative-loophole-on-blank-bills/",
-  "outlet": "thegardenisland.com",
-  "t": "2026-11-08T13:20:26+00:00",
-  "hash": 4903567790008393728
- },
- {
-  "id": "2026-11-08-c",
-  "image": "pool-2026-11-08-c.jpg",
-  "headline": "Departing UN chief warns of  moment of truth  in efforts to curb global warming",
-  "url": "https://www.bridgwatermercury.co.uk/news/national/26709296.departing-un-chief-warns-moment-truth-efforts-curb-global-warming/",
-  "outlet": "bridgwatermercury.co.uk",
-  "t": "2026-11-08T13:20:26+00:00",
-  "hash": 8104364067512024895
- },
- {
   "id": "2026-11-08-0852-0",
   "image": "pool-2026-11-08-0852-0.jpg",
   "headline": "West Ham :  Next step  in Niclas Fullkrug permanent exit confirmed",
@@ -172,5 +145,32 @@
   "t": "2026-11-10T07:17:00+00:00",
   "vista": 7.0,
   "hash": 18373834309841715328
+ },
+ {
+  "id": "2026-11-10",
+  "image": "pool-2026-11-10.jpg",
+  "headline": "Woman swept to sea at Panther Beach in Santa Cruz County",
+  "url": "https://www.santacruzsentinel.com/2026/11/09/woman-swept-to-sea-at-panther-beach-in-santa-cruz-county/",
+  "outlet": "santacruzsentinel.com",
+  "t": "2026-11-10T15:13:48+00:00",
+  "hash": 1012751694930175200
+ },
+ {
+  "id": "2026-11-10-b",
+  "image": "pool-2026-11-10-b.jpg",
+  "headline": "Denver Airport Ranked 7th Most Stressful in America",
+  "url": "https://mix1043fm.com/ixp/48/p/denver-stressful-airport/",
+  "outlet": "mix1043fm.com",
+  "t": "2026-11-10T15:13:48+00:00",
+  "hash": 2199055235071
+ },
+ {
+  "id": "2026-11-10-c",
+  "image": "pool-2026-11-10-c.jpg",
+  "headline": "Japan to provide coastal radar and drones to the Philippines under US$27mil deal",
+  "url": "https://www.thestar.com.my/aseanplus/aseanplus-news/2026/11/10/japan-to-provide-coastal-radar-and-drones-to-the-philippines-under-us27mil-deal",
+  "outlet": "thestar.com.my",
+  "t": "2026-11-10T15:13:48+00:00",
+  "hash": 18429259588008202240
  }
 ]

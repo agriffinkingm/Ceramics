@@ -376,5 +376,12 @@
   "url": "http://www.nepalnational.com/news/279411586/cvs-announces-major-breakup-shares-plunge-13-percent",
   "outlet": "nepalnational.com",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-11-10",
+  "headline": "Woman swept to sea at Panther Beach in Santa Cruz County",
+  "url": "https://www.santacruzsentinel.com/2026/11/09/woman-swept-to-sea-at-panther-beach-in-santa-cruz-county/",
+  "outlet": "santacruzsentinel.com",
+  "method": "crop-flat"
  }
 ]
