@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-07-1652-0",
-  "image": "pool-2026-11-07-1652-0.jpg",
-  "headline": "SRP reservoir system captures 120 billion gallons of water from storms",
-  "url": "https://azbigmedia.com/blogs/srp-reservoir-system-captures-120-billion-gallons-of-water-from-storms/",
-  "outlet": "azbigmedia.com",
-  "t": "2026-11-07T21:52:51+00:00",
-  "vista": 9.0,
-  "hash": 70082922761551935
- },
- {
   "id": "2026-11-08",
   "image": "pool-2026-11-08.jpg",
   "headline": "Champagne alcohol limits adjusted after heatwave",
@@ -172,5 +162,15 @@
   "t": "2026-11-09T17:52:42+00:00",
   "vista": 7.0,
   "hash": 899717998724546300
+ },
+ {
+  "id": "2026-11-10-0217-0",
+  "image": "pool-2026-11-10-0217-0.jpg",
+  "headline": "KKB water surge incident : Five found dead , three still missing",
+  "url": "https://www.thestar.com.my/news/nation/2026/11/10/kkb-water-surge-incident-five-found-dead-three-still-missing",
+  "outlet": "thestar.com.my",
+  "t": "2026-11-10T07:17:00+00:00",
+  "vista": 7.0,
+  "hash": 18373834309841715328
  }
 ]
