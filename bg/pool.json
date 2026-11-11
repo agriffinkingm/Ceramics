@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-11-08-0936-0",
-  "image": "pool-2026-11-08-0936-0.jpg",
-  "headline": "Clutha crash : One person taken to Dunedin Hospital in serious condition",
-  "url": "https://www.nzherald.co.nz/nz/emergency-services-at-serious-crash-on-sh1-in-clutha-district/63OY7SFEN5A73L5FVPSFGUPMP4/",
-  "outlet": "nzherald.co.nz",
-  "t": "2026-11-08T14:36:20+00:00",
-  "vista": 8.0,
-  "hash": 18430718478075916918
- },
- {
-  "id": "2026-11-08-1707-0",
-  "image": "pool-2026-11-08-1707-0.jpg",
-  "headline": "Californians erupt at plans for sprawling Sites Reservoir project",
-  "url": "https://nypost.com/2026/11/08/us-news/californians-erupt-at-plans-for-sprawling-sites-reservoir-project/",
-  "outlet": "nypost.com",
-  "t": "2026-11-08T22:07:11+00:00",
-  "vista": 9.0,
-  "hash": 2162853733677924351
- },
- {
-  "id": "2026-11-08-1707-1",
-  "image": "pool-2026-11-08-1707-1.jpg",
-  "headline": "Floods bring rare relief to US Southwest reservoirs",
-  "url": "https://www.wxii12.com/article/southwest-reservoirs-flooding-lake-powell/74368630",
-  "outlet": "wxii12.com",
-  "t": "2026-11-08T22:07:11+00:00",
-  "vista": 8.0,
-  "hash": 3530805584583985407
- },
- {
   "id": "2026-11-08-1707-2",
   "image": "pool-2026-11-08-1707-2.jpg",
   "headline": "Wisconsin Weather : Could a polar vortex create cold and snow this week ?",
@@ -172,5 +142,32 @@
   "t": "2026-11-11T06:10:38+00:00",
   "vista": 8.0,
   "hash": 4340410232237721855
+ },
+ {
+  "id": "2026-11-11",
+  "image": "pool-2026-11-11.jpg",
+  "headline": "Three killed after car ploughs into street food stand in Los Angeles",
+  "url": "https://www.aol.co.uk/articles/three-killed-car-ploughs-street-044200000.html",
+  "outlet": "aol.co.uk",
+  "t": "2026-11-11T14:42:41+00:00",
+  "hash": 4816382688378432
+ },
+ {
+  "id": "2026-11-11-b",
+  "image": "pool-2026-11-11-b.jpg",
+  "headline": "Testing the new generation of AI - enabled fire - extinguishing drones",
+  "url": "https://www.kpbs.org/news/science-technology/2026/11/10/testing-the-new-generation-of-ai-enabled-fire-extinguishing-drones",
+  "outlet": "kpbs.org",
+  "t": "2026-11-11T14:42:41+00:00",
+  "hash": 108934981048401151
+ },
+ {
+  "id": "2026-11-11-c",
+  "image": "pool-2026-11-11-c.jpg",
+  "headline": "China Repatriates Remains of U . S . Airmen Killed in World War II Supply Missions",
+  "url": "https://www.breitbart.com/asia/2026/11/10/china-repatriates-remains-of-u-s-airmen-killed-in-world-war-ii-supply-missions/",
+  "outlet": "breitbart.com",
+  "t": "2026-11-11T14:42:41+00:00",
+  "hash": 145542319238084856
  }
 ]
