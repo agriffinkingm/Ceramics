@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-08-0852-2",
-  "image": "pool-2026-11-08-0852-2.jpg",
-  "headline": "Sheffield United : Harrison Burrows delivers long - term future verdict",
-  "url": "https://the72.co.uk/2026/11/08/sheffield-united-harrison-burrows-long-term-future-verdict/",
-  "outlet": "the72.co.uk",
-  "t": "2026-11-08T13:52:06+00:00",
-  "vista": 7.0,
-  "hash": 4505794364047359
- },
- {
   "id": "2026-11-08-0936-0",
   "image": "pool-2026-11-08-0936-0.jpg",
   "headline": "Clutha crash : One person taken to Dunedin Hospital in serious condition",
@@ -172,5 +162,15 @@
   "t": "2026-11-10T15:53:00+00:00",
   "vista": 8.0,
   "hash": 18437736641484407263
+ },
+ {
+  "id": "2026-11-11-0110-0",
+  "image": "pool-2026-11-11-0110-0.jpg",
+  "headline": "Kennedy family joins US lawsuits to block Trump  unlawful  arch plan | Donald Trump News",
+  "url": "https://www.aljazeera.com/news/2026/11/11/kennedy-family-joins-us-lawsuits-to-block-trumps-unlawful-arch-plan",
+  "outlet": "aljazeera.com",
+  "t": "2026-11-11T06:10:38+00:00",
+  "vista": 8.0,
+  "hash": 4340410232237721855
  }
 ]
