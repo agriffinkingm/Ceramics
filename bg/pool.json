@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-11-08-1707-2",
-  "image": "pool-2026-11-08-1707-2.jpg",
-  "headline": "Wisconsin Weather : Could a polar vortex create cold and snow this week ?",
-  "url": "https://www.fox6now.com/weather/wisconsin-weather-could-polar-vortex-create-cold-snow-week",
-  "outlet": "fox6now.com",
-  "t": "2026-11-08T22:07:11+00:00",
-  "vista": 8.0,
-  "hash": 872640864860257280
- },
- {
-  "id": "2026-11-09-0121-0",
-  "image": "pool-2026-11-09-0121-0.jpg",
-  "headline": "Iran says 3 tankers caught fire in Hormuz",
-  "url": "https://www.freemalaysiatoday.com/category/world/2026/11/08/iran-says-3-tankers-caught-fire-in-hormuz",
-  "outlet": "freemalaysiatoday.com",
-  "t": "2026-11-09T06:21:37+00:00",
-  "vista": 8.0,
-  "hash": 62672162783231
- },
- {
   "id": "2026-11-09",
   "image": "pool-2026-11-09.jpg",
   "headline": "CVS announces major breakup , shares plunge 13 percent",
@@ -169,5 +149,25 @@
   "outlet": "breitbart.com",
   "t": "2026-11-11T14:42:41+00:00",
   "hash": 145542319238084856
+ },
+ {
+  "id": "2026-11-11-1042-0",
+  "image": "pool-2026-11-11-1042-0.jpg",
+  "headline": "Water Surges Into Navajo Reservoir - NASA Science",
+  "url": "https://science.nasa.gov/earth/earth-observatory/water-surges-into-navajo-reservoir/",
+  "outlet": "science.nasa.gov",
+  "t": "2026-11-11T15:42:26+00:00",
+  "vista": 9.0,
+  "hash": 18374264038613106688
+ },
+ {
+  "id": "2026-11-11-1042-1",
+  "image": "pool-2026-11-11-1042-1.jpg",
+  "headline": "140 - home Ringwood development rejected over flood risk",
+  "url": "https://www.bournemouthecho.co.uk/news/26716173.140-home-ringwood-development-rejected-flood-risk/",
+  "outlet": "bournemouthecho.co.uk",
+  "t": "2026-11-11T15:42:26+00:00",
+  "vista": 8.0,
+  "hash": 1168745935740550975
  }
 ]
