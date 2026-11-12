@@ -49,6 +49,9 @@
     cursor: crosshair;
   }
   #display.hand { cursor: grab; }
+  #display.pl-move { cursor: move; }
+  #display.pl-rot { cursor: grab; }
+  #display.pl-rot.pl-turning { cursor: grabbing; }
   #display.hand.panning { cursor: grabbing; }
 
   /* ---------- GIMP toolbox ---------- */
@@ -621,7 +624,7 @@
   <button id="pb-reroll" style="display:none" title="Generate a different version">🎲 Re-roll</button>
   <button id="pb-place">Place</button>
   <button id="pb-cancel">✕</button>
-  <span id="pb-hint">Drag the image to position it. Once placed it becomes part of the wall.</span>
+  <span id="pb-hint">Drag the image to position it; drag a corner to rotate (⇧ snaps to 15°). Once placed it becomes part of the wall.</span>
 </div>
 
 <input type="file" id="gif-input" accept="image/gif,.gif" style="display:none">
@@ -680,7 +683,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-12a";
+const BUILD = "2026-11-12b";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -1340,6 +1343,8 @@ async function applyOp(o) {
 }
 
 /* ---------- input: draw, pan (hand tool / space / two fingers), pinch zoom ---------- */
+/* unclamped — corner handles can hang off the edge of the wall */
+function toWallRaw(e) { return [cam.x + e.clientX / cam.s, cam.y + e.clientY / cam.s]; }
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || "");
 function toWall(e) {
   return [
@@ -1352,6 +1357,7 @@ let pinch = null;
 let pan = null;
 let spaceHeld = false;
 let dragging = false, dragOff = [0, 0];
+let rotating = null; /* { a0, r0 } while a corner of the image being placed is dragged */
 let rectSel = null, genBusy = false, fillPrev = null, genDrag = null;
 /* AI Fill selection shape: freehand lasso or a dragged rectangle (toolbox toggle) */
 let genShape = "rect";
@@ -1409,13 +1415,23 @@ display.addEventListener("pointerdown", (e) => {
       if (!rectSel.paths.length) { rectSel = null; restoreTb(); }
     }
     dragging = false;
+    rotating = null;
     genDrag = null;
     startPinch();
     return;
   }
   if (activePts.size > 2) return;
   const [x, y] = toWall(e);
-  if (placing) { dragging = true; dragOff = [placing.x - x, placing.y - y]; return; }
+  if (placing) {
+    const [rx, ry] = toWallRaw(e);
+    if (placingCorner(rx, ry, e.pointerType)) {
+      /* grab a corner = turn the image about its centre (⇧ snaps to 15°) */
+      rotating = { a0: Math.atan2(ry - placing.y, rx - placing.x), r0: placing.rot };
+      display.classList.add("pl-rot", "pl-turning");
+      return;
+    }
+    dragging = true; dragOff = [placing.x - x, placing.y - y]; return;
+  }
   if (tool === "hand" || spaceHeld) {
     pan = { sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y };
     display.classList.add("panning");
@@ -1472,6 +1488,22 @@ display.addEventListener("pointermove", (e) => {
     clampCam();
     render();
     return;
+  }
+  if (placing && rotating) {
+    const [rx, ry] = toWallRaw(e);
+    let r = rotating.r0 + Math.atan2(ry - placing.y, rx - placing.x) - rotating.a0;
+    if (e.shiftKey) { const st = Math.PI / 12; r = Math.round(r / st) * st; }
+    r = Math.atan2(Math.sin(r), Math.cos(r)); /* keep it in −180…180 like the slider */
+    placing.rot = r;
+    pbRot.value = Math.round(r * 180 / Math.PI);
+    render();
+    return;
+  }
+  if (placing && !dragging && e.pointerType === "mouse" && !activePts.size) {
+    const [rx, ry] = toWallRaw(e);
+    const c = placingCorner(rx, ry, "mouse");
+    display.classList.toggle("pl-rot", c);
+    display.classList.toggle("pl-move", !c && placingInside(rx, ry));
   }
   if (placing && dragging) {
     const [x, y] = toWall(e);
@@ -1556,6 +1588,8 @@ function pointerEnd(e) {
   if (pan && activePts.size === 0) { pan = null; display.classList.remove("panning"); }
   if (activePts.size === 0) {
     dragging = false;
+    rotating = null;
+    display.classList.remove("pl-turning");
     genDrag = null;
     if (rectSel && rectSel.drag) {
       rectSel.drag = false;
@@ -1809,7 +1843,34 @@ function drawPlacing(ctx) {
   ctx.lineWidth = 3 / cam.s;
   ctx.strokeRect(-w / 2, -h / 2, w, h);
   ctx.setLineDash([]);
+  /* corner handles: drag one to rotate */
+  const hs = 10 / cam.s;
+  ctx.fillStyle = "#fff";
+  ctx.lineWidth = 2 / cam.s;
+  for (const sx of [-1, 1]) for (const sy of [-1, 1]) {
+    ctx.fillRect(sx * w / 2 - hs / 2, sy * h / 2 - hs / 2, hs, hs);
+    ctx.strokeRect(sx * w / 2 - hs / 2, sy * h / 2 - hs / 2, hs, hs);
+  }
   ctx.restore();
+}
+/* wall point → the image's own unrotated frame (origin at its centre) */
+function placingLocal(x, y) {
+  const p = placing, c = Math.cos(-p.rot), s = Math.sin(-p.rot);
+  const dx = x - p.x, dy = y - p.y;
+  return [dx * c - dy * s, dx * s + dy * c];
+}
+function placingCorner(x, y, ptype) {
+  if (!placing) return false;
+  const [w, h] = placingSize(placing);
+  const [lx, ly] = placingLocal(x, y);
+  const r = (ptype === "mouse" ? 14 : 26) / cam.s; /* fatter target for fingers */
+  return Math.hypot(Math.abs(lx) - w / 2, Math.abs(ly) - h / 2) <= r;
+}
+function placingInside(x, y) {
+  if (!placing) return false;
+  const [w, h] = placingSize(placing);
+  const [lx, ly] = placingLocal(x, y);
+  return Math.abs(lx) <= w / 2 && Math.abs(ly) <= h / 2;
 }
 pbScale.addEventListener("input", () => { if (placing) { placing.scale = +pbScale.value / 100; render(); } });
 pbRot.addEventListener("input", () => { if (placing) { placing.rot = +pbRot.value * Math.PI / 180; render(); } });
@@ -1865,6 +1926,8 @@ document.getElementById("pb-place").addEventListener("click", () => {
   enqueue(op); publish(op);
 });
 function resetPlaceBar() {
+  rotating = null;
+  display.classList.remove("pl-rot", "pl-move", "pl-turning");
   placeBar.style.display = "none";
   pbUnderRow.style.display = "none";
   pbFlipRow.style.display = "";
@@ -1874,7 +1937,7 @@ function resetPlaceBar() {
   pbThreshRow.style.display = "none";
   pbInvertRow.style.display = "none";
   pbToneRow.style.display = "none";
-  pbHint.textContent = "Drag the image to position it. Once placed it becomes part of the wall.";
+  pbHint.textContent = "Drag the image to position it; drag a corner to rotate (⇧ snaps to 15°). Once placed it becomes part of the wall.";
 }
 document.getElementById("pb-cancel").addEventListener("click", () => {
   placing = null;
