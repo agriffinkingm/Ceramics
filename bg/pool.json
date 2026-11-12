@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-11-09-b",
-  "image": "pool-2026-11-09-b.jpg",
-  "headline": "David Jone outdated business model explains its collapse",
-  "url": "https://www.smartcompany.com.au/opinion/david-jones-outdated-business-model-explains-administration/",
-  "outlet": "smartcompany.com.au",
-  "t": "2026-11-09T16:48:33+00:00",
-  "hash": 17070028852694122624
- },
- {
-  "id": "2026-11-09-c",
-  "image": "pool-2026-11-09-c.jpg",
-  "headline": "Developer lender whacked as collapse probe continues",
-  "url": "https://www.inverelltimes.com.au/story/9388251/developers-lender-whacked-as-collapse-probe-continues/",
-  "outlet": "inverelltimes.com.au",
-  "t": "2026-11-09T16:48:33+00:00",
-  "hash": 4350547886897889279
- },
- {
-  "id": "2026-11-09-1252-0",
-  "image": "pool-2026-11-09-1252-0.jpg",
-  "headline": "Norris Wins in Brazil as Rate Cuts Stall",
-  "url": "https://www.riotimesonline.com/the-big-read-brazil-9-november-2026/",
-  "outlet": "riotimesonline.com",
-  "t": "2026-11-09T17:52:42+00:00",
-  "vista": 9.0,
-  "hash": 1017566388169869312
- },
- {
   "id": "2026-11-09-1252-1",
   "image": "pool-2026-11-09-1252-1.jpg",
   "headline": "Vega Island skull - shaped glaciers are losing their  face , and scientists say a warmer Antarctic winter is to blame",
@@ -170,5 +142,32 @@
   "t": "2026-11-12T00:43:00+00:00",
   "vista": 8.0,
   "hash": 216596659816612807
+ },
+ {
+  "id": "2026-11-12",
+  "image": "pool-2026-11-12.jpg",
+  "headline": "New York City firefighters search rubble for survivors after building collapses",
+  "url": "https://www.irishtimes.com/world/us/2026/11/11/new-york-city-building-collapse-traps-people-in-rubble/",
+  "outlet": "irishtimes.com",
+  "t": "2026-11-12T08:47:24+00:00",
+  "hash": 72219217943725568
+ },
+ {
+  "id": "2026-11-12-b",
+  "image": "pool-2026-11-12-b.jpg",
+  "headline": "Qatar Buys 25 % of Chevron Namibia Block",
+  "url": "https://www.riotimesonline.com/qatarenergy-chevron-namibia-pel82-25-percent-stake/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-11-12T08:47:24+00:00",
+  "hash": 252818953863167
+ },
+ {
+  "id": "2026-11-12-c",
+  "image": "pool-2026-11-12-c.jpg",
+  "headline": "25 seriously stylish houses for united kingdom party weekenders",
+  "url": "https://www.thetimes.com/travel/destinations/uk-travel/25-seriously-stylish-houses-for-uk-party-weekenders-9gbmzdr7n",
+  "outlet": "thetimes.com",
+  "t": "2026-11-12T08:47:24+00:00",
+  "hash": 9291195394938321906
  }
 ]

@@ -1,11 +1,11 @@
 {
- "id": "2026-11-11",
- "image": "current.jpg?v=2026-11-11",
- "activeAt": "2026-11-11T03:33:00-05:00",
- "headline": "Three killed after car ploughs into street food stand in Los Angeles",
- "url": "https://www.aol.co.uk/articles/three-killed-car-ploughs-street-044200000.html",
- "outlet": "aol.co.uk",
- "seendate": "20261111T053000Z",
- "method": "crop",
- "generated": "2026-11-11T14:42:41+00:00"
+ "id": "2026-11-12",
+ "image": "current.jpg?v=2026-11-12",
+ "activeAt": "2026-11-12T03:33:00-05:00",
+ "headline": "New York City firefighters search rubble for survivors after building collapses",
+ "url": "https://www.irishtimes.com/world/us/2026/11/11/new-york-city-building-collapse-traps-people-in-rubble/",
+ "outlet": "irishtimes.com",
+ "seendate": "20261112T030000Z",
+ "method": "outpaint",
+ "generated": "2026-11-12T08:47:24+00:00"
 }

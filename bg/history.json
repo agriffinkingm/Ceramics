@@ -390,5 +390,12 @@
   "url": "https://www.aol.co.uk/articles/three-killed-car-ploughs-street-044200000.html",
   "outlet": "aol.co.uk",
   "method": "crop"
+ },
+ {
+  "id": "2026-11-12",
+  "headline": "New York City firefighters search rubble for survivors after building collapses",
+  "url": "https://www.irishtimes.com/world/us/2026/11/11/new-york-city-building-collapse-traps-people-in-rubble/",
+  "outlet": "irishtimes.com",
+  "method": "outpaint"
  }
 ]
