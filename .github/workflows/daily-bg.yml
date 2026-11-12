@@ -1,12 +1,15 @@
 name: daily news backdrop
 
 # Two jobs in one workflow:
-#  • FULL pick — the day's backdrop (bg/current.*). Meant for 02:33 America/New_York, an
-#    hour before the wall's 03:33 turnover — but GitHub fires scheduled runs hours late
-#    on this repo, so the guard no longer looks at the clock: the FIRST run after 02:30 NY
-#    whose bg/current.json is not stamped with today's NY date does the pick. Any later
-#    run that day (or a run before 02:30) tops up the pool instead. A pick that fails to
-#    write current.* just gets retried by the next run.
+#  • FULL pick — a wall-day's backdrop (bg/current.*). The wall turns over at 03:33
+#    America/New_York and must show a NEW photo at that moment, but GitHub fires scheduled
+#    runs hours late on this repo — so the pick is made A DAY AHEAD. The guard looks only
+#    at state: the wall-day is the NY date of (now − 3h33m);
+#      current.json older than the wall-day   → pick for the wall-day now (catch-up),
+#      current.json is the wall-day's          → pick TOMORROW's (the page keeps showing
+#                                                prev.* until tomorrow's 03:33),
+#      current.json is already tomorrow's      → top up the pool instead.
+#    A pick that fails to write current.* just gets retried by the next run.
 #  • POOL top-up every 6 hours — adds up to three fresh, wide, mutually different scenes
 #    from around the world to bg/pool.json for the wall's 🗞 Fresh news button.
 on:
@@ -17,7 +20,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "full = pick today's backdrop · pool = top up the Fresh-news pool"
+        description: "full = pick the next backdrop the wall is missing (today's, else tomorrow's) · pool = top up the Fresh-news pool"
         default: pool
         type: choice
         options: [pool, full]
@@ -38,18 +41,20 @@ jobs:
       - name: decide mode
         id: guard
         run: |
+          WALLDAY=$(TZ=America/New_York date -d '3 hours ago 33 minutes ago' +%Y-%m-%d)
+          NEXT=$(date -d "$WALLDAY 12:00 +1 day" +%Y-%m-%d)
+          CUR=$(python3 -c "import json;print(json.load(open('bg/current.json')).get('id',''))" 2>/dev/null || echo "")
+          echo "wall-day $WALLDAY, next $NEXT, current backdrop id '$CUR'"
+          # ISO dates sort as text
+          if [[ "$CUR" < "$WALLDAY" ]]; then DAY=$WALLDAY; MODE=full
+          elif [[ "$CUR" < "$NEXT" ]]; then DAY=$NEXT; MODE=full
+          else DAY=$NEXT; MODE=pool; fi
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"; exit 0
+            MODE="${{ github.event.inputs.mode }}"   # manual "full" re-picks the day worked out above
           fi
-          TODAY=$(TZ=America/New_York date +%Y-%m-%d)
-          HHMM=$(TZ=America/New_York date +%H%M)
-          CUR=$(python3 -c "import json;print(json.load(open('bg/current.json')).get('id',''))" 2>/dev/null || echo none)
-          echo "New York $TODAY $HHMM, current backdrop id $CUR"
-          if [ "$((10#$HHMM))" -ge 230 ] && [ "$CUR" != "$TODAY" ]; then
-            echo "mode=full" >> "$GITHUB_OUTPUT"; echo "no backdrop for $TODAY yet — picking one"
-          else
-            echo "mode=pool" >> "$GITHUB_OUTPUT"
-          fi
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+          echo "day=$DAY" >> "$GITHUB_OUTPUT"
+          echo "→ $MODE (backdrop day $DAY)"
 
       - uses: actions/setup-python@v5
         with:
@@ -57,10 +62,11 @@ jobs:
 
       - run: pip install requests pillow
 
-      - name: pick today's backdrop
+      - name: pick a wall-day's backdrop
         if: steps.guard.outputs.mode == 'full'
         env:
           POLLINATIONS_KEY: ${{ secrets.POLLINATIONS_KEY }}
+          BG_DAY: ${{ steps.guard.outputs.day }}
         run: python bg/pick_bg.py
 
       - name: top up the pool

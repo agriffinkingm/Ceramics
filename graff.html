@@ -709,7 +709,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-12d";
+const BUILD = "2026-11-12e";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -3367,7 +3367,9 @@ async function freshNews() {
     if (!r.ok) throw new Error("no pool yet");
     const pool = (await r.json()).filter(p => p && p.id && p.image);
     const cur = pickMeta ? pickMeta.id : bgId;
-    let choices = pool.filter(p => p.id !== cur);
+    /* tomorrow's backdrop is picked a day ahead and sits in the pool too — no spoilers */
+    const wd = wallDay();
+    let choices = pool.filter(p => p.id !== cur && !(/^\d{4}-\d\d-\d\d$/.test(p.id) && p.id > wd));
     if (!choices.length) choices = pool;
     if (!choices.length) throw new Error("the pool is empty — it fills up from the daily picks");
     const pick = choices[(Math.random() * choices.length) | 0];

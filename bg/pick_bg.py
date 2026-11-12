@@ -451,12 +451,16 @@ def main():
     log("PICK:", pick["title"], "|", pick["url"])
     out, method = outpaint(photo, pick["title"])
     # The wall's day turns over at 03:33 America/New_York (the page does the flip on
-    # each viewer's clock). This job runs at 02:33 NY, so "today" NY is the day this
-    # backdrop becomes active; until 03:33 the page keeps showing prev.*.
+    # each viewer's clock). The workflow says which wall-day this backdrop is FOR in
+    # BG_DAY — normally TOMORROW's, picked a day ahead so it is already sitting there
+    # when the wall turns over (GitHub runs the schedule hours late, so a same-day pick
+    # left yesterday's photo up all morning). Until that day's 03:33 the page keeps
+    # showing prev.*. Without BG_DAY: today's NY date, as before.
     from zoneinfo import ZoneInfo
     ny = dt.datetime.now(ZoneInfo("America/New_York"))
-    today = ny.strftime("%Y-%m-%d")
-    active_at = ny.replace(hour=3, minute=33, second=0, microsecond=0).isoformat(timespec="seconds")
+    today = os.environ.get("BG_DAY", "").strip() or ny.strftime("%Y-%m-%d")
+    y, mo, d = (int(x) for x in today.split("-"))
+    active_at = dt.datetime(y, mo, d, 3, 33, tzinfo=ZoneInfo("America/New_York")).isoformat(timespec="seconds")
     cur_json = os.path.join(BG, "current.json")
     cur_jpg = os.path.join(BG, "current.jpg")
     prev_meta = None
