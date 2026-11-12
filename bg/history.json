@@ -397,5 +397,12 @@
   "url": "https://www.irishtimes.com/world/us/2026/11/11/new-york-city-building-collapse-traps-people-in-rubble/",
   "outlet": "irishtimes.com",
   "method": "outpaint"
+ },
+ {
+  "id": "2026-11-13",
+  "headline": "Jamaican Hurdler Wins Youth Olympic Gold",
+  "url": "https://www.riotimesonline.com/jamaica-marquies-page-youth-olympic-110m-hurdles-gold-dakar/",
+  "outlet": "riotimesonline.com",
+  "method": "crop-flat"
  }
 ]

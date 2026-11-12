@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-11-09-1252-1",
-  "image": "pool-2026-11-09-1252-1.jpg",
-  "headline": "Vega Island skull - shaped glaciers are losing their  face , and scientists say a warmer Antarctic winter is to blame",
-  "url": "https://www.ecoportal.net/en/vega-island-skull-glaciers-melting/45072/",
-  "outlet": "ecoportal.net",
-  "t": "2026-11-09T17:52:42+00:00",
-  "vista": 9.0,
-  "hash": 2025630806515935456
- },
- {
-  "id": "2026-11-09-1252-2",
-  "image": "pool-2026-11-09-1252-2.jpg",
-  "headline": "What Is  Operation Midnight Hammer ? - Windermere Sun - For Healthier / Happier / More Sustainable Living",
-  "url": "https://www.windermeresun.com/2026/11/07/what-is-operation-midnight-hammer/",
-  "outlet": "windermeresun.com",
-  "t": "2026-11-09T17:52:42+00:00",
-  "vista": 7.0,
-  "hash": 899717998724546300
- },
- {
-  "id": "2026-11-10-0217-0",
-  "image": "pool-2026-11-10-0217-0.jpg",
-  "headline": "KKB water surge incident : Five found dead , three still missing",
-  "url": "https://www.thestar.com.my/news/nation/2026/11/10/kkb-water-surge-incident-five-found-dead-three-still-missing",
-  "outlet": "thestar.com.my",
-  "t": "2026-11-10T07:17:00+00:00",
-  "vista": 7.0,
-  "hash": 18373834309841715328
- },
- {
   "id": "2026-11-10",
   "image": "pool-2026-11-10.jpg",
   "headline": "Woman swept to sea at Panther Beach in Santa Cruz County",
@@ -169,5 +139,32 @@
   "outlet": "thetimes.com",
   "t": "2026-11-12T08:47:24+00:00",
   "hash": 9291195394938321906
+ },
+ {
+  "id": "2026-11-13",
+  "image": "pool-2026-11-13.jpg",
+  "headline": "Jamaican Hurdler Wins Youth Olympic Gold",
+  "url": "https://www.riotimesonline.com/jamaica-marquies-page-youth-olympic-110m-hurdles-gold-dakar/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-11-12T15:09:45+00:00",
+  "hash": 13889348576249708543
+ },
+ {
+  "id": "2026-11-13-b",
+  "image": "pool-2026-11-13-b.jpg",
+  "headline": "Washington Wildfire Claims Near $1B as Research Reveals Home Vulnerabilities",
+  "url": "https://www.insurancejournal.com/news/west/2026/11/12/892312.htm",
+  "outlet": "insurancejournal.com",
+  "t": "2026-11-12T15:09:45+00:00",
+  "hash": 18442486764687242942
+ },
+ {
+  "id": "2026-11-13-c",
+  "image": "pool-2026-11-13-c.jpg",
+  "headline": "5 Magical U . S . Towns for a Storybook Christmas Getaway",
+  "url": "https://www.fox21online.com/news/national/5-magical-u-s-towns-for-a-storybook-christmas-getaway/article_e3e84b42-b7d7-5878-b029-a405f6b9c2a8.html",
+  "outlet": "fox21online.com",
+  "t": "2026-11-12T15:09:45+00:00",
+  "hash": 18230008328505262080
  }
 ]
