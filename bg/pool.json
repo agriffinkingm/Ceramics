@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-11-10",
-  "image": "pool-2026-11-10.jpg",
-  "headline": "Woman swept to sea at Panther Beach in Santa Cruz County",
-  "url": "https://www.santacruzsentinel.com/2026/11/09/woman-swept-to-sea-at-panther-beach-in-santa-cruz-county/",
-  "outlet": "santacruzsentinel.com",
-  "t": "2026-11-10T15:13:48+00:00",
-  "hash": 1012751694930175200
- },
- {
   "id": "2026-11-10-b",
   "image": "pool-2026-11-10-b.jpg",
   "headline": "Denver Airport Ranked 7th Most Stressful in America",
@@ -166,5 +157,15 @@
   "outlet": "fox21online.com",
   "t": "2026-11-12T15:09:45+00:00",
   "hash": 18230008328505262080
+ },
+ {
+  "id": "2026-11-12-1116-0",
+  "image": "pool-2026-11-12-1116-0.jpg",
+  "headline": "Sisi Orders Egypt Emergency Stockpile Study",
+  "url": "https://www.riotimesonline.com/sisi-orders-egypt-emergency-stockpile-study/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-11-12T16:16:33+00:00",
+  "vista": 7.0,
+  "hash": 4294967295
  }
 ]
