@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-11-09",
-  "image": "pool-2026-11-09.jpg",
-  "headline": "CVS announces major breakup , shares plunge 13 percent",
-  "url": "http://www.nepalnational.com/news/279411586/cvs-announces-major-breakup-shares-plunge-13-percent",
-  "outlet": "nepalnational.com",
-  "t": "2026-11-09T16:48:33+00:00",
-  "hash": 5125135010238512959
- },
- {
   "id": "2026-11-09-b",
   "image": "pool-2026-11-09-b.jpg",
   "headline": "David Jone outdated business model explains its collapse",
@@ -169,5 +160,15 @@
   "t": "2026-11-11T15:42:26+00:00",
   "vista": 8.0,
   "hash": 1168745935740550975
+ },
+ {
+  "id": "2026-11-11-1943-0",
+  "image": "pool-2026-11-11-1943-0.jpg",
+  "headline": "IMD update : Heavy rain likely for TN , Puducherry for 2 days as fresh  low  brews",
+  "url": "https://www.thehindubusinessline.com/economy/agri-business/imd-update-isolated-heavy-rain-likely-for-tn-puducherry-as-fresh-low-brews/article71688439.ece",
+  "outlet": "thehindubusinessline.com",
+  "t": "2026-11-12T00:43:00+00:00",
+  "vista": 8.0,
+  "hash": 216596659816612807
  }
 ]
