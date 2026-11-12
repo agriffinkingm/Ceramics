@@ -49,9 +49,6 @@
     cursor: crosshair;
   }
   #display.hand { cursor: grab; }
-  #display.pl-move { cursor: move; }
-  #display.pl-rot { cursor: grab; }
-  #display.pl-rot.pl-turning { cursor: grabbing; }
   #display.hand.panning { cursor: grabbing; }
 
   /* ---------- GIMP toolbox ---------- */
@@ -624,7 +621,7 @@
   <button id="pb-reroll" style="display:none" title="Generate a different version">🎲 Re-roll</button>
   <button id="pb-place">Place</button>
   <button id="pb-cancel">✕</button>
-  <span id="pb-hint">Drag the image to position it; drag a corner to rotate (⇧ snaps to 15°). Once placed it becomes part of the wall.</span>
+  <span id="pb-hint">Drag to move · drag a corner to resize · drag just outside a corner to rotate (⇧ snaps to 15°). Once placed it becomes part of the wall.</span>
 </div>
 
 <input type="file" id="gif-input" accept="image/gif,.gif" style="display:none">
@@ -683,7 +680,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-12b";
+const BUILD = "2026-11-12c";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -1357,7 +1354,22 @@ let pinch = null;
 let pan = null;
 let spaceHeld = false;
 let dragging = false, dragOff = [0, 0];
-let rotating = null; /* { a0, r0 } while a corner of the image being placed is dragged */
+/* the image being placed, Photoshop-style: drag ON a corner handle = resize,
+   drag just OUTSIDE a corner = rotate, drag the middle = move */
+let rotating = null; /* { a0, r0 } */
+let scaling = null;  /* { ax, ay, ux, uy, d0, s0, off, cx, cy } — anchor = the opposite corner */
+const ROT_CURSOR = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 15a8 8 0 0 1 14 0M5 15l-.5-5M5 15l5-.8M19 15l.5-5M19 15l-5-.8' stroke='%23fff' stroke-width='4'/%3E%3Cpath d='M5 15a8 8 0 0 1 14 0M5 15l-.5-5M5 15l5-.8M19 15l.5-5M19 15l-5-.8' stroke='%23111' stroke-width='1.8'/%3E%3C/g%3E%3C/svg%3E\") 12 12, grab";
+function plCursor(g) {
+  let c = "";
+  if (g && g.kind === "rot") c = ROT_CURSOR;
+  else if (g && g.kind === "move") c = "move";
+  else if (g && g.kind === "scale") {
+    /* resize arrow along the handle's diagonal as it sits on screen */
+    const a = ((Math.atan2(g.uy, g.ux) * 180 / Math.PI) % 180 + 180) % 180;
+    c = a < 22.5 || a >= 157.5 ? "ew-resize" : a < 67.5 ? "nwse-resize" : a < 112.5 ? "ns-resize" : "nesw-resize";
+  }
+  display.style.cursor = c;
+}
 let rectSel = null, genBusy = false, fillPrev = null, genDrag = null;
 /* AI Fill selection shape: freehand lasso or a dragged rectangle (toolbox toggle) */
 let genShape = "rect";
@@ -1415,7 +1427,7 @@ display.addEventListener("pointerdown", (e) => {
       if (!rectSel.paths.length) { rectSel = null; restoreTb(); }
     }
     dragging = false;
-    rotating = null;
+    rotating = null; scaling = null;
     genDrag = null;
     startPinch();
     return;
@@ -1424,10 +1436,19 @@ display.addEventListener("pointerdown", (e) => {
   const [x, y] = toWall(e);
   if (placing) {
     const [rx, ry] = toWallRaw(e);
-    if (placingCorner(rx, ry, e.pointerType)) {
-      /* grab a corner = turn the image about its centre (⇧ snaps to 15°) */
+    const g = placingGrab(rx, ry, e.pointerType);
+    if (g && g.kind === "rot") {
+      /* just outside a corner = turn the image about its centre (⇧ snaps to 15°) */
       rotating = { a0: Math.atan2(ry - placing.y, rx - placing.x), r0: placing.rot };
-      display.classList.add("pl-rot", "pl-turning");
+      return;
+    }
+    if (g && g.kind === "scale") {
+      /* on a corner = resize; the opposite corner stays put (Alt = resize about the centre) */
+      const [w, h] = placingSize(placing);
+      const d0 = Math.hypot(w, h);
+      const ax = placing.x - g.ux * d0 / 2, ay = placing.y - g.uy * d0 / 2;
+      scaling = { ax, ay, ux: g.ux, uy: g.uy, d0, s0: placing.scale, cx: placing.x, cy: placing.y,
+                  off: (rx - ax) * g.ux + (ry - ay) * g.uy - d0 };
       return;
     }
     dragging = true; dragOff = [placing.x - x, placing.y - y]; return;
@@ -1499,11 +1520,29 @@ display.addEventListener("pointermove", (e) => {
     render();
     return;
   }
+  if (placing && scaling) {
+    const [rx, ry] = toWallRaw(e);
+    const k = scaling;
+    const lo = +pbScale.min / 100, hi = +pbScale.max / 100;
+    let sc;
+    if (e.altKey) {
+      const d = (rx - k.cx) * k.ux + (ry - k.cy) * k.uy - k.off;
+      sc = Math.max(lo, Math.min(hi, k.s0 * d / (k.d0 / 2)));
+      placing.x = k.cx; placing.y = k.cy;
+    } else {
+      const d = (rx - k.ax) * k.ux + (ry - k.ay) * k.uy - k.off;
+      sc = Math.max(lo, Math.min(hi, k.s0 * d / k.d0));
+      const half = k.d0 * sc / k.s0 / 2;
+      placing.x = k.ax + k.ux * half; placing.y = k.ay + k.uy * half;
+    }
+    placing.scale = sc;
+    pbScale.value = Math.round(sc * 100);
+    render();
+    return;
+  }
   if (placing && !dragging && e.pointerType === "mouse" && !activePts.size) {
     const [rx, ry] = toWallRaw(e);
-    const c = placingCorner(rx, ry, "mouse");
-    display.classList.toggle("pl-rot", c);
-    display.classList.toggle("pl-move", !c && placingInside(rx, ry));
+    plCursor(placingGrab(rx, ry, "mouse") || (placingInside(rx, ry) ? { kind: "move" } : null));
   }
   if (placing && dragging) {
     const [x, y] = toWall(e);
@@ -1588,8 +1627,7 @@ function pointerEnd(e) {
   if (pan && activePts.size === 0) { pan = null; display.classList.remove("panning"); }
   if (activePts.size === 0) {
     dragging = false;
-    rotating = null;
-    display.classList.remove("pl-turning");
+    rotating = null; scaling = null;
     genDrag = null;
     if (rectSel && rectSel.drag) {
       rectSel.drag = false;
@@ -1859,12 +1897,23 @@ function placingLocal(x, y) {
   const dx = x - p.x, dy = y - p.y;
   return [dx * c - dy * s, dx * s + dy * c];
 }
-function placingCorner(x, y, ptype) {
-  if (!placing) return false;
+/* what a press at this wall point grabs: { kind: "scale" | "rot", ux, uy } or null.
+   ux,uy = unit vector (wall space) from the image centre out through that corner. */
+function placingGrab(x, y, ptype) {
+  if (!placing) return null;
   const [w, h] = placingSize(placing);
   const [lx, ly] = placingLocal(x, y);
-  const r = (ptype === "mouse" ? 14 : 26) / cam.s; /* fatter target for fingers */
-  return Math.hypot(Math.abs(lx) - w / 2, Math.abs(ly) - h / 2) <= r;
+  const fat = ptype !== "mouse"; /* fatter targets for fingers */
+  const rs = (fat ? 20 : 9) / cam.s, rr = (fat ? 48 : 30) / cam.s;
+  const d = Math.hypot(Math.abs(lx) - w / 2, Math.abs(ly) - h / 2);
+  let kind = null;
+  if (d <= rs) kind = "scale";
+  else if (d <= rr && (Math.abs(lx) > w / 2 || Math.abs(ly) > h / 2)) kind = "rot";
+  if (!kind) return null;
+  const sx = lx < 0 ? -1 : 1, sy = ly < 0 ? -1 : 1;
+  const c = Math.cos(placing.rot), s = Math.sin(placing.rot), dg = Math.hypot(w, h) || 1;
+  const vx = sx * w / dg, vy = sy * h / dg;
+  return { kind, ux: vx * c - vy * s, uy: vx * s + vy * c };
 }
 function placingInside(x, y) {
   if (!placing) return false;
@@ -1926,8 +1975,8 @@ document.getElementById("pb-place").addEventListener("click", () => {
   enqueue(op); publish(op);
 });
 function resetPlaceBar() {
-  rotating = null;
-  display.classList.remove("pl-rot", "pl-move", "pl-turning");
+  rotating = null; scaling = null;
+  display.style.cursor = "";
   placeBar.style.display = "none";
   pbUnderRow.style.display = "none";
   pbFlipRow.style.display = "";
@@ -1937,7 +1986,7 @@ function resetPlaceBar() {
   pbThreshRow.style.display = "none";
   pbInvertRow.style.display = "none";
   pbToneRow.style.display = "none";
-  pbHint.textContent = "Drag the image to position it; drag a corner to rotate (⇧ snaps to 15°). Once placed it becomes part of the wall.";
+  pbHint.textContent = "Drag to move · drag a corner to resize · drag just outside a corner to rotate (⇧ snaps to 15°). Once placed it becomes part of the wall.";
 }
 document.getElementById("pb-cancel").addEventListener("click", () => {
   placing = null;
