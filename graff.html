@@ -294,6 +294,24 @@
   #pb-hint { flex-basis: 100%; font-size: 10px; color: var(--panel-dim); }
 
   /* ---------- AI generate bar ---------- */
+  #subj-bar {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    top: calc(14px + env(safe-area-inset-top));
+    background: var(--panel); border: 1px solid var(--panel-border);
+    box-shadow: 0 6px 22px rgba(0,0,0,.55);
+    padding: 8px 10px; color: #fff; font-size: 11px;
+    display: none; gap: 10px; align-items: center; flex-wrap: wrap;
+    max-width: 94vw; z-index: 27;
+  }
+  #subj-msg { color: var(--panel-dim); }
+  #subj-seg button { padding: 5px 9px; }
+  #subj-ok, #subj-cancel {
+    border: 1px solid #2b6cb0; background: #2b6cb0; color: #fff; padding: 7px 14px;
+    font: inherit; font-size: 12px; cursor: pointer;
+  }
+  #subj-cancel { background: transparent; border-color: var(--panel-border); }
+  #subj-ok:disabled { opacity: .45; cursor: default; }
+
   #gen-bar {
     position: fixed; left: 50%; transform: translateX(-50%);
     top: calc(14px + env(safe-area-inset-top));
@@ -551,6 +569,7 @@
       <div class="seg" id="shape-seg">
         <button type="button" data-shape="rect" class="on" title="Drag a box">▭ Rectangle</button>
         <button type="button" data-shape="lasso" title="Freehand lasso">⌒ Lasso</button>
+        <button type="button" data-shape="subject" id="shape-subject" style="display:none" title="Click a thing on the wall and it's cut out for you (⇧-click adds, Alt-click removes)">✦ Subject</button>
       </div>
     </div>
     <div class="slider-row" id="mode-row" style="display:none">
@@ -640,6 +659,16 @@
   <span id="gif-hint"><span>Click a GIF to drop it on the wall. GIFs get their own animated layer; big ones are shrunk to fit.</span><span id="gif-credit">Powered by GIPHY</span></span>
 </div>
 
+<div id="subj-bar">
+  <span id="subj-msg">Click the thing you want to copy.</span>
+  <div class="seg" id="subj-seg">
+    <button type="button" data-m="new" class="on" title="each click picks a new subject">New</button>
+    <button type="button" data-m="add" title="clicks add to the selection (or hold ⇧)">＋ Add</button>
+    <button type="button" data-m="sub" title="clicks remove from the selection (or hold Alt)">− Remove</button>
+  </div>
+  <button id="subj-ok" disabled>✓ Cut out</button>
+  <button id="subj-cancel">✕</button>
+</div>
 <div id="gen-bar">
   <span class="grip" title="drag this bar out of the way">⠿</span>
   <input type="text" id="gen-prompt" placeholder="describe what to paint — leave empty to remove…" maxlength="300">
@@ -680,7 +709,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-12c";
+const BUILD = "2026-11-12d";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -790,6 +819,7 @@ function render() {
     dctx.drawImage(fillPrev.img, -fillPrev.w / 2, -fillPrev.h / 2, fillPrev.w, fillPrev.h);
     dctx.restore();
   }
+  if (subj) drawSubj(dctx);
   if (rectSel) {
     dctx.strokeStyle = "#7b2cbf";
     dctx.setLineDash([8, 6]);
@@ -1380,10 +1410,14 @@ document.querySelectorAll("#mode-seg button").forEach(b => b.addEventListener("c
   document.querySelectorAll("#mode-seg button").forEach(o => o.classList.toggle("on", o === b));
   if (genBar.style.display === "flex" && genGo.style.display !== "none") genLabel();
 }));
-document.querySelectorAll("#shape-seg button").forEach(b => b.addEventListener("click", () => {
-  genShape = b.dataset.shape;
-  document.querySelectorAll("#shape-seg button").forEach(o => o.classList.toggle("on", o === b));
-}));
+function setShape(sh) {
+  if (genShape === "subject" && sh !== "subject") closeSubj();
+  if (sh === "subject" && rectSel && !genBusy) closeGen();
+  genShape = sh;
+  document.querySelectorAll("#shape-seg button").forEach(o => o.classList.toggle("on", o.dataset.shape === sh));
+  if (sh === "subject" && tool === "clone") openSubjBar();
+}
+document.querySelectorAll("#shape-seg button").forEach(b => b.addEventListener("click", () => setShape(b.dataset.shape)));
 
 /* iOS Safari pinches the whole page despite user-scalable=no — kill the native
    gesture so our pointer-based pinch-zoom on the wall gets it instead */
@@ -1463,6 +1497,10 @@ display.addEventListener("pointerdown", (e) => {
   if (tool === "gif") { openGifBar(); return; }
   if (tool === "stencil") { stencilInput.click(); return; }
   if (tool === "picker") { pickColor(x, y); return; }
+  if (tool === "clone" && genShape === "subject") {
+    subjectClick(e.clientX, e.clientY, e.altKey ? "sub" : e.shiftKey ? "add" : subjMode);
+    return;
+  }
   if (tool === "gen" || tool === "clone") {
     if (genBusy) return;
     if (fillPrev && !e.shiftKey && inFillPrev(x, y)) {
@@ -2474,6 +2512,187 @@ async function cloneSelection() {
   render();
 }
 
+/* ---------- clone → Subject: click a thing on the wall and it's cut out for you ----------
+   A picture of what's on screen goes to a worker (graff-subject.js) running a small
+   Segment Anything model in the browser; each click comes back as a mask, shown as a
+   blue wash. ⇧-click / ＋Add grows it, Alt-click / −Remove trims it, ✓ Cut out (Enter)
+   drops the cutout into the normal placement flow like any other clone. */
+const subjBar = document.getElementById("subj-bar");
+const subjMsg = document.getElementById("subj-msg");
+const subjOk = document.getElementById("subj-ok");
+const SUBJ_HINT = "Click the thing you want to copy.";
+let subj = null;       /* { id, x0, y0, vw, vh, cw, ch, pts, labels, ready, seq, overlay, maskCv, box } */
+let subjWorker = null, subjId = 0, subjMode = "new";
+document.querySelectorAll("#subj-seg button").forEach(b => b.addEventListener("click", () => {
+  subjMode = b.dataset.m;
+  document.querySelectorAll("#subj-seg button").forEach(o => o.classList.toggle("on", o === b));
+}));
+function openSubjBar() {
+  subjBar.style.display = "flex";
+  if (!subj) { subjMsg.textContent = SUBJ_HINT; subjOk.disabled = true; }
+}
+function closeSubj() {
+  subj = null;
+  subjBar.style.display = "none";
+  subjMsg.textContent = SUBJ_HINT;
+  subjOk.disabled = true;
+  render();
+}
+function subjReset() { /* drop the selection but stay in Subject mode */
+  subj = null;
+  subjMsg.textContent = SUBJ_HINT;
+  subjOk.disabled = true;
+  render();
+}
+function subjFail(msg) {
+  showBanner("Subject select " + msg + " — the Lasso still works");
+  subjReset();
+}
+function subjWorkerUp() {
+  if (subjWorker) return subjWorker;
+  subjWorker = new Worker("graff-subject.js?v=" + BUILD, { type: "module" });
+  subjWorker.onmessage = (e) => {
+    const m = e.data;
+    if (!subj || m.id !== subj.id) return; /* an answer for a selection that's gone */
+    if (m.type === "status") subjMsg.textContent = m.msg;
+    else if (m.type === "ready") { subj.ready = true; subjSend(); }
+    else if (m.type === "mask") { if (m.seq === subj.seq) subjMask(m); }
+    else if (m.type === "error") subjFail("failed (" + m.msg + ")");
+  };
+  subjWorker.onerror = () => { subjWorker = null; if (subj) subjFail("couldn't start"); };
+  return subjWorker;
+}
+function subjSend() {
+  if (!subj || !subj.ready || !subj.labels.length) return;
+  subjMsg.textContent = "finding its edges…";
+  subjWorker.postMessage({ type: "points", id: subj.id, seq: ++subj.seq, pts: subj.pts.slice(), labels: subj.labels.slice() });
+}
+function subjectClick(cx, cy, mode) {
+  if (placing || genBusy) return;
+  const wx = cam.x + cx / cam.s, wy = cam.y + cy / cam.s;
+  if (wx < 0 || wy < 0 || wx > W || wy > H) return;
+  /* a click outside the picture being studied (you panned away) starts over */
+  if (subj && (wx < subj.x0 || wy < subj.y0 || wx > subj.x0 + subj.vw || wy > subj.y0 + subj.vh)) subj = null;
+  if (!subj) {
+    /* study what's on screen right now, at up to 1024px */
+    const x0 = Math.max(0, cam.x), y0 = Math.max(0, cam.y);
+    const vw = Math.min(W, cam.x + window.innerWidth / cam.s) - x0;
+    const vh = Math.min(H, cam.y + window.innerHeight / cam.s) - y0;
+    if (vw < 16 || vh < 16) return;
+    const k = Math.min(1, 1024 / Math.max(vw, vh));
+    const c = document.createElement("canvas");
+    c.width = Math.max(16, Math.round(vw * k)); c.height = Math.max(16, Math.round(vh * k));
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    ctx.fillStyle = WALL_BASE; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.setTransform(c.width / vw, 0, 0, c.height / vh, -x0 * c.width / vw, -y0 * c.height / vh);
+    const now = performance.now();
+    ctx.drawImage(bgCv, 0, 0); ctx.drawImage(photoCv, 0, 0); ctx.drawImage(aiCv, 0, 0);
+    drawGifs(ctx, true, now); ctx.drawImage(paintCv, 0, 0); drawGifs(ctx, false, now);
+    let data;
+    try { data = ctx.getImageData(0, 0, c.width, c.height).data.buffer; }
+    catch (err) { showBanner("Subject select can't read this wall (" + err.message + ")"); return; }
+    subj = { id: ++subjId, x0, y0, vw, vh, cw: c.width, ch: c.height, pts: [], labels: [], ready: false, seq: 0, overlay: null, maskCv: null, box: null };
+    try { subjWorkerUp().postMessage({ type: "image", id: subj.id, w: c.width, h: c.height, data }, [data]); }
+    catch (err) { subjFail("isn't supported in this browser"); return; }
+    subjMsg.textContent = "loading the subject finder…";
+    mode = "new";
+  }
+  if (mode === "new") { subj.pts = []; subj.labels = []; }
+  else if (mode === "sub" && !subj.labels.includes(1)) return; /* nothing to trim yet */
+  subj.pts.push((wx - subj.x0) * subj.cw / subj.vw, (wy - subj.y0) * subj.ch / subj.vh);
+  subj.labels.push(mode === "sub" ? 0 : 1);
+  openSubjBar();
+  subjOk.disabled = true;
+  subjSend();
+  render();
+}
+function subjMask(m) {
+  const a = new Uint8Array(m.mask), w = m.w, h = m.h;
+  let x1 = w, y1 = h, x2 = -1, y2 = -1, n = 0;
+  const ov = new ImageData(w, h), mk = new ImageData(w, h);
+  for (let y = 0, i = 0; y < h; y++) for (let x = 0; x < w; x++, i++) {
+    if (!a[i]) continue;
+    n++;
+    if (x < x1) x1 = x; if (x > x2) x2 = x; if (y < y1) y1 = y; if (y > y2) y2 = y;
+    const j = i * 4;
+    ov.data[j] = 74; ov.data[j + 1] = 144; ov.data[j + 2] = 217; ov.data[j + 3] = 120;
+    mk.data[j] = mk.data[j + 1] = mk.data[j + 2] = mk.data[j + 3] = 255;
+  }
+  const toCv = (id) => { const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").putImageData(id, 0, 0); return c; };
+  if (n < 16) {
+    subj.overlay = subj.maskCv = subj.box = null;
+    subjOk.disabled = true;
+    subjMsg.textContent = "Nothing found there — click right on the thing.";
+  } else {
+    subj.overlay = toCv(ov); subj.maskCv = toCv(mk);
+    subj.box = [x1, y1, x2 - x1 + 1, y2 - y1 + 1];
+    subjOk.disabled = false;
+    subjMsg.textContent = "⇧-click adds · Alt-click removes · Enter cuts it out";
+  }
+  render();
+}
+function drawSubj(ctx) {
+  const s = subj;
+  if (s.overlay) {
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(s.overlay, s.x0, s.y0, s.vw, s.vh);
+  }
+  const r = 5 / cam.s;
+  ctx.lineWidth = 2 / cam.s;
+  ctx.strokeStyle = "#fff";
+  for (let i = 0; i < s.labels.length; i++) {
+    ctx.beginPath();
+    ctx.arc(s.x0 + s.pts[2 * i] * s.vw / s.cw, s.y0 + s.pts[2 * i + 1] * s.vh / s.ch, r, 0, Math.PI * 2);
+    ctx.fillStyle = s.labels[i] ? "#2fbf5b" : "#e5484d";
+    ctx.fill(); ctx.stroke();
+  }
+}
+async function subjCut() {
+  if (!subj || !subj.maskCv || !subj.box) return;
+  const s = subj, kx = s.vw / s.cw, ky = s.vh / s.ch;
+  const [bx, by, bw, bh] = s.box;
+  const rx = s.x0 + bx * kx, ry = s.y0 + by * ky, rw = Math.max(8, bw * kx), rh = Math.max(8, bh * ky);
+  const cap = Math.min(1, 1600 / Math.max(rw, rh));
+  const c = document.createElement("canvas");
+  c.width = Math.max(8, Math.round(rw * cap)); c.height = Math.max(8, Math.round(rh * cap));
+  const ctx = c.getContext("2d");
+  ctx.setTransform(c.width / rw, 0, 0, c.height / rh, -rx * c.width / rw, -ry * c.height / rh);
+  const now = performance.now();
+  ctx.drawImage(bgCv, 0, 0); ctx.drawImage(photoCv, 0, 0); ctx.drawImage(aiCv, 0, 0);
+  drawGifs(ctx, true, now); ctx.drawImage(paintCv, 0, 0); drawGifs(ctx, false, now);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  /* keep only the subject; scaling the mask up with smoothing softens its edge */
+  ctx.globalCompositeOperation = "destination-in";
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(s.maskCv, bx, by, bw, bh, 0, 0, c.width, c.height);
+  ctx.globalCompositeOperation = "source-over";
+  subjReset();
+  subjBar.style.display = "none";
+  try {
+    const src = encodeFill(c);
+    const img = await loadImg(src);
+    resetPlaceBar();
+    placing = { src, img, x: rx + rw / 2, y: ry + rh / 2, scale: rw / img.width, rot: 0, op: 1 };
+    pbScale.value = Math.round(placing.scale * 100);
+    pbRot.value = 0;
+    pbOp.value = 100;
+    placeBar.style.display = "flex";
+    pbHint.textContent = "Drag the copy where you want it — corners resize, just outside them rotates — then Place.";
+  } catch (err) {
+    showBanner("couldn't copy that (" + err.message + ")");
+  }
+  render();
+}
+subjOk.addEventListener("click", subjCut);
+document.getElementById("subj-cancel").addEventListener("click", () => { if (subj) subjReset(); else setShape("rect"); });
+window.addEventListener("keydown", (e) => {
+  if (tool !== "clone" || genShape !== "subject" || !subj) return;
+  const ae = document.activeElement;
+  if (ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA")) return;
+  if (e.key === "Enter") { e.preventDefault(); subjCut(); }
+  else if (e.key === "Escape") subjReset();
+});
+
 /* ---------- stencil: a picture → hard-edged cutout in the current colour ----------
    Dark pixels become paint (Invert flips that); Cut is the threshold. The cutout
    goes through the normal placement flow and lands on the PAINT layer (image op
@@ -2747,6 +2966,10 @@ function setTool(t) {
   document.getElementById("rot-row").style.display = (t === "text") ? "" : "none";
   document.getElementById("flow-row").style.display = (t === "air") ? "" : "none";
   document.getElementById("shape-row").style.display = (t === "gen" || t === "clone") ? "" : "none";
+  /* Subject (click a thing, it's cut out for you) is a Clone-only shape */
+  document.getElementById("shape-subject").style.display = (t === "clone") ? "" : "none";
+  if (t !== "clone") { closeSubj(); if (genShape === "subject") setShape("rect"); }
+  else if (genShape === "subject") openSubjBar();
   document.getElementById("mode-row").style.display = (t === "gen") ? "" : "none";
   document.getElementById("drip-row").style.display = (t === "drip") ? "" : "none";
   /* erasers always rub at full strength — no opacity to set */
@@ -2938,10 +3161,17 @@ async function captureWall(tag) {
   try {
     const era = opsByKey.size ? opsByKey.keys().next().value : "e" + Date.now();
     const t = Date.now(), n = totalMarks(); /* the number the wall shows (base + live) */
+    /* snap now, while the wall still shows this exact count */
+    const img = snapshotJpeg(1728, 972, 0.85), thumb = snapshotJpeg(432, 243, 0.7);
+    /* one flick per milestone per wall, whoever gets there first: the claim lives in
+       walls/main/flicks/<tag> until the wall is wiped. Without it the same milestone
+       was flicked again every time the count re-crossed it (undo at 100, then another
+       mark) and by every open tab that disagreed about the wall's first mark. */
+    if (tag !== "final" && fbClaim && !(await fbClaim(tag, t))) return;
     if (tag === 222 && fbHide) fbHide(era + "-100").catch(() => {}); /* the 222 replaces the 100 */
     await fbArchive(era + "-" + tag,
-      { t, n, w: 1728, h: 972, img: snapshotJpeg(1728, 972, 0.85) },
-      { t, n, thumb: snapshotJpeg(432, 243, 0.7) });
+      { t, n, w: 1728, h: 972, img },
+      { t, n, thumb });
     showBanner(tag === "final"
       ? "📸 final flick — this wall made the compendium"
       : "📸 " + tag + " marks — flicked into the compendium");
@@ -2989,6 +3219,7 @@ async function detonate(msg, keepBg, keepPick) {
   msPrev = 0;
   flatBase = 0;
   if (fbBase) fbBase(0).catch(() => {});
+  if (fbFlicks) fbFlicks(null).catch(() => {}); /* a fresh wall earns its milestones again */
   updateCount();
   render();
   if (fbClear) {
@@ -3222,6 +3453,7 @@ let fbRemove = null;
 let fbClear = null;
 let fbArchive = null;
 let fbHide = null;
+let fbClaim = null, fbFlicks = null;
 const appliedKeys = new Set();
 const opsByKey = new Map();
 let bannerTimer = null;
@@ -3359,7 +3591,7 @@ async function checkBuild() {
     if (!r.ok) return;
     const m = (await r.text()).match(/const BUILD = "([^"]+)"/);
     if (!m || m[1] === BUILD) return;
-    const idle = !drawing && !placing && !rectSel && !fillPrev && !genBusy && !flatBusy && !gifBusy && !textBox;
+    const idle = !drawing && !placing && !rectSel && !subj && !fillPrev && !genBusy && !flatBusy && !gifBusy && !textBox;
     if (idle) location.reload();
     else showBanner("a newer wall is live — it'll reload when you're done");
   } catch (e) { /* offline — try again next tick */ }
@@ -3389,6 +3621,15 @@ async function initFirebase() {
     fbRemove = (k) => remove(child(opsRef, k));
     fbClear = () => set(opsRef, null);
     fbHide = (k) => set(ref(db, "walls/main/archiveIndex/" + k + "/hidden"), true);
+    fbFlicks = (v) => set(ref(db, "walls/main/flicks"), v);
+    /* true = this client gets to take the flick; false = it's already been taken.
+       If the claim itself can't be written (rules, offline) flick anyway, as before. */
+    fbClaim = async (tag, t) => {
+      try {
+        const res = await runTransaction(ref(db, "walls/main/flicks/" + tag), (cur) => (cur ? undefined : t));
+        return res.committed;
+      } catch (e) { return true; }
+    };
     fbArchive = (k, full, idx) => Promise.all([
       set(ref(db, "walls/main/archive/" + k), full),
       set(ref(db, "walls/main/archiveIndex/" + k), idx)
