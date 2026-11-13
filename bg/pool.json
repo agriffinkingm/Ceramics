@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-11-10-1053-1",
-  "image": "pool-2026-11-10-1053-1.jpg",
-  "headline": "S . Korea , US hold combined air resupply exercise for wartime readiness",
-  "url": "https://www.koreaherald.com/article/10931910",
-  "outlet": "koreaherald.com",
-  "t": "2026-11-10T15:53:00+00:00",
-  "vista": 8.0,
-  "hash": 18437736641484407263
- },
- {
-  "id": "2026-11-11-0110-0",
-  "image": "pool-2026-11-11-0110-0.jpg",
-  "headline": "Kennedy family joins US lawsuits to block Trump  unlawful  arch plan | Donald Trump News",
-  "url": "https://www.aljazeera.com/news/2026/11/11/kennedy-family-joins-us-lawsuits-to-block-trumps-unlawful-arch-plan",
-  "outlet": "aljazeera.com",
-  "t": "2026-11-11T06:10:38+00:00",
-  "vista": 8.0,
-  "hash": 4340410232237721855
- },
- {
-  "id": "2026-11-11",
-  "image": "pool-2026-11-11.jpg",
-  "headline": "Three killed after car ploughs into street food stand in Los Angeles",
-  "url": "https://www.aol.co.uk/articles/three-killed-car-ploughs-street-044200000.html",
-  "outlet": "aol.co.uk",
-  "t": "2026-11-11T14:42:41+00:00",
-  "hash": 4816382688378432
- },
- {
   "id": "2026-11-11-b",
   "image": "pool-2026-11-11-b.jpg",
   "headline": "Testing the new generation of AI - enabled fire - extinguishing drones",
@@ -169,5 +140,32 @@
   "t": "2026-11-13T06:40:17+00:00",
   "vista": 7.0,
   "hash": 18446493385058484223
+ },
+ {
+  "id": "2026-11-14",
+  "image": "pool-2026-11-14.jpg",
+  "headline": "Police Drone Data Reveals Lack of Transparency , Privacy Concerns",
+  "url": "https://www.sfpublicpress.org/police-drone-data-reveals-lack-of-transparency-privacy-concerns/",
+  "outlet": "sfpublicpress.org",
+  "t": "2026-11-13T14:52:53+00:00",
+  "hash": 10376292993861716413
+ },
+ {
+  "id": "2026-11-14-b",
+  "image": "pool-2026-11-14-b.jpg",
+  "headline": "5 Overnight Train Journeys in the U . S ., With Comfortable Cabins , Dining Cars , and Incredible Scenery",
+  "url": "https://www.aol.com/articles/5-overnight-train-journeys-u-220000000.html",
+  "outlet": "aol.com",
+  "t": "2026-11-13T14:52:53+00:00",
+  "hash": 4467570830368309247
+ },
+ {
+  "id": "2026-11-14-c",
+  "image": "pool-2026-11-14-c.jpg",
+  "headline": "After Bedouin hero rescued people on Oct . 7 , Israel destroyed his family homes",
+  "url": "https://www.jpost.com/israel-news/article-914636",
+  "outlet": "jpost.com",
+  "t": "2026-11-13T14:52:53+00:00",
+  "hash": 9185338761687408351
  }
 ]
