@@ -1,24 +1,5 @@
 [
  {
-  "id": "2026-11-10-c",
-  "image": "pool-2026-11-10-c.jpg",
-  "headline": "Japan to provide coastal radar and drones to the Philippines under US$27mil deal",
-  "url": "https://www.thestar.com.my/aseanplus/aseanplus-news/2026/11/10/japan-to-provide-coastal-radar-and-drones-to-the-philippines-under-us27mil-deal",
-  "outlet": "thestar.com.my",
-  "t": "2026-11-10T15:13:48+00:00",
-  "hash": 18429259588008202240
- },
- {
-  "id": "2026-11-10-1053-0",
-  "image": "pool-2026-11-10-1053-0.jpg",
-  "headline": "Exclusive : AP joins EU naval patrol as piracy rebounds amid regional conflicts",
-  "url": "http://www.dailyadvance.com/news/world/exclusive-ap-joins-eu-naval-patrol-as-piracy-rebounds-amid-regional-conflicts/article_d88a3660-6e2e-5a4c-bd65-00c161f2a4cc.html",
-  "outlet": "dailyadvance.com",
-  "t": "2026-11-10T15:53:00+00:00",
-  "vista": 8.0,
-  "hash": 2305913964369805311
- },
- {
   "id": "2026-11-10-1053-1",
   "image": "pool-2026-11-10-1053-1.jpg",
   "headline": "S . Korea , US hold combined air resupply exercise for wartime readiness",
@@ -168,5 +149,25 @@
   "t": "2026-11-12T23:39:21+00:00",
   "vista": 9.0,
   "hash": 36168984734728447
+ },
+ {
+  "id": "2026-11-13-0140-0",
+  "image": "pool-2026-11-13-0140-0.jpg",
+  "headline": "L . A . Extends Pilot Program for Low Impact Film Permits",
+  "url": "https://lamag.com/film/l-a-extends-pilot-program-for-low-impact-film-permits/",
+  "outlet": "lamag.com",
+  "t": "2026-11-13T06:40:17+00:00",
+  "vista": 8.0,
+  "hash": 70748731080703
+ },
+ {
+  "id": "2026-11-13-0140-1",
+  "image": "pool-2026-11-13-0140-1.jpg",
+  "headline": "Missing Angoon Boater Found Dead on Oct . 28 - Daily Sitka Sentinel",
+  "url": "http://www.sitkasentinel.com/stories/missing-southeast-alaska-boater-found-dead,182447",
+  "outlet": "sitkasentinel.com",
+  "t": "2026-11-13T06:40:17+00:00",
+  "vista": 7.0,
+  "hash": 18446493385058484223
  }
 ]
