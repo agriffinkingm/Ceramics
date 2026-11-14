@@ -411,5 +411,12 @@
   "url": "https://www.sfpublicpress.org/police-drone-data-reveals-lack-of-transparency-privacy-concerns/",
   "outlet": "sfpublicpress.org",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-11-15",
+  "headline": "The fight over Canadian steelworker jobs",
+  "url": "https://www.aljazeera.com/economy/2026/11/13/the-fight-over-canadian-steelworker-jobs",
+  "outlet": "aljazeera.com",
+  "method": "outpaint"
  }
 ]

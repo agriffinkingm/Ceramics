@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-11-11-b",
-  "image": "pool-2026-11-11-b.jpg",
-  "headline": "Testing the new generation of AI - enabled fire - extinguishing drones",
-  "url": "https://www.kpbs.org/news/science-technology/2026/11/10/testing-the-new-generation-of-ai-enabled-fire-extinguishing-drones",
-  "outlet": "kpbs.org",
-  "t": "2026-11-11T14:42:41+00:00",
-  "hash": 108934981048401151
- },
- {
-  "id": "2026-11-11-c",
-  "image": "pool-2026-11-11-c.jpg",
-  "headline": "China Repatriates Remains of U . S . Airmen Killed in World War II Supply Missions",
-  "url": "https://www.breitbart.com/asia/2026/11/10/china-repatriates-remains-of-u-s-airmen-killed-in-world-war-ii-supply-missions/",
-  "outlet": "breitbart.com",
-  "t": "2026-11-11T14:42:41+00:00",
-  "hash": 145542319238084856
- },
- {
-  "id": "2026-11-11-1042-0",
-  "image": "pool-2026-11-11-1042-0.jpg",
-  "headline": "Water Surges Into Navajo Reservoir - NASA Science",
-  "url": "https://science.nasa.gov/earth/earth-observatory/water-surges-into-navajo-reservoir/",
-  "outlet": "science.nasa.gov",
-  "t": "2026-11-11T15:42:26+00:00",
-  "vista": 9.0,
-  "hash": 18374264038613106688
- },
- {
   "id": "2026-11-11-1042-1",
   "image": "pool-2026-11-11-1042-1.jpg",
   "headline": "140 - home Ringwood development rejected over flood risk",
@@ -167,5 +139,32 @@
   "outlet": "jpost.com",
   "t": "2026-11-13T14:52:53+00:00",
   "hash": 9185338761687408351
+ },
+ {
+  "id": "2026-11-15",
+  "image": "pool-2026-11-15.jpg",
+  "headline": "The fight over Canadian steelworker jobs",
+  "url": "https://www.aljazeera.com/economy/2026/11/13/the-fight-over-canadian-steelworker-jobs",
+  "outlet": "aljazeera.com",
+  "t": "2026-11-14T13:33:49+00:00",
+  "hash": 31244852211301624
+ },
+ {
+  "id": "2026-11-15-b",
+  "image": "pool-2026-11-15-b.jpg",
+  "headline": "U - 23 AFCONQ : Nigeria suffer 2 - 0 defeat to DR Congo in first leg",
+  "url": "https://www.vanguardngr.com/2026/11/u-23-afconq-nigeria-suffer-2-0-defeat-to-dr-congo-in-first-leg/",
+  "outlet": "vanguardngr.com",
+  "t": "2026-11-14T13:33:49+00:00",
+  "hash": 3461041599025121304
+ },
+ {
+  "id": "2026-11-15-c",
+  "image": "pool-2026-11-15-c.jpg",
+  "headline": "Can a walkable downtown thrive in the heart of suburban sprawl ? This city is putting that to the test",
+  "url": "https://kirksvilledailyexpress.com/syndicated/can-a-walkable-downtown-thrive-in-the-heart-of-suburban-sprawl-this-city-is-putting-that-to-the-test",
+  "outlet": "kirksvilledailyexpress.com",
+  "t": "2026-11-14T13:33:49+00:00",
+  "hash": 9315957407243185918
  }
 ]
