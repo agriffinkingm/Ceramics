@@ -61,6 +61,30 @@
   }
   #caption.on { opacity: 1; }
   #caption .fate { color: var(--concrete); }
+  /* the news story that was the wall's backdrop — its title, in effect */
+  #caption .head {
+    display: block; margin-top: 3px; max-width: min(62vw, 46em);
+    font-size: 15px; color: var(--dim);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #caption a.head { text-decoration: none; }
+  #caption a.head:hover, #caption a.head:focus-visible { color: var(--bone); }
+  .cell .head { display: block; margin-top: 2px; font-size: 12.5px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ---- revivify: put this wall back up on the live graff wall ---- */
+  #revive {
+    position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 5;
+    background: rgba(12,11,9,.55); color: var(--dim);
+    border: 1px solid #3a372f; padding: 7px 14px; cursor: pointer;
+    font-family: system-ui, sans-serif; font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+    transition: color .2s ease, border-color .2s ease, opacity 1.4s ease;
+    opacity: 0; pointer-events: none;
+  }
+  #revive.on { opacity: 1; pointer-events: auto; }
+  #revive:hover, #revive:focus-visible { color: var(--bone); border-color: var(--concrete); }
+  #revive.armed { color: #fff; border-color: #c8553d; background: #7a2a1c; }
+  #revive:disabled { cursor: default; }
+  body.grid #revive { display: none; }
 
   #counter {
     position: fixed; right: 20px; bottom: 20px; z-index: 5;
@@ -143,7 +167,9 @@
   #card a { color: var(--concrete); }
 
   @media (max-width: 640px) {
-    #caption { font-size: 17px; left: 14px; bottom: 14px; max-width: 70vw; }
+    #caption { font-size: 17px; left: 14px; bottom: 44px; max-width: 92vw; }
+    #caption .head { font-size: 13px; max-width: 92vw; }
+    #revive { left: 14px; bottom: 12px; transform: none; }
     #grid { padding: 50px 12px 30px; }
     #grid-list { grid-template-columns: repeat(2, 1fr); gap: 16px 10px; }
     .cell > span { font-size: 13px; }
@@ -176,6 +202,7 @@
 
 <div id="caption"></div>
 <div id="counter"></div>
+<button id="revive" type="button" title="put this wall back up on the live graff wall">↺ revivify</button>
 
 <div id="card">
   <h1>compendium</h1>
@@ -207,6 +234,27 @@ let getFull = null;            /* (key) => Promise<dataURL> */
 let idx = -1, front = 0;
 let timer = null, paused = false;
 
+/* which wall-day a moment belongs to: the New York date, days starting at 03:33 */
+const NY_DATE = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
+function wallDay(t) { return NY_DATE.format(new Date(t - (3 * 60 + 33) * 60000)); }
+let history = [];              /* bg/history.json: [{ id: wall-day, headline, url }] oldest first */
+/* the news story behind a wall: saved with newer walls; for older ones, the backdrop
+   that was up on that wall-day (the latest pick on or before it) */
+function story(e) {
+  if (e.head) return { head: e.head, url: e.url || "" };
+  const day = wallDay(e.t);
+  let hit = null;
+  for (const h of history) if (h && h.id && h.id <= day && h.headline) hit = h;
+  return hit ? { head: hit.headline, url: hit.url || "" } : null;
+}
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]));
+function storyHtml(e, link) {
+  const s = story(e);
+  if (!s) return "";
+  return (link && /^https?:\/\//.test(s.url))
+    ? "<a class=\"head\" href=\"" + esc(s.url) + "\" target=\"_blank\" rel=\"noopener\" title=\"" + esc(s.head) + "\">" + esc(s.head) + "</a>"
+    : "<span class=\"head\" title=\"" + esc(s.head) + "\">" + esc(s.head) + "</span>";
+}
 function fate(e) {
   const d = new Date(e.t);
   const date = d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
@@ -239,8 +287,10 @@ async function show(i, dir = 1) {
   layers[back].classList.add("on");
   layers[front].classList.remove("on");
   front = back;
-  captionEl.innerHTML = fate(e);
+  captionEl.innerHTML = fate(e) + storyHtml(e, true);
   captionEl.classList.add("on");
+  disarm();
+  reviveBtn.classList.toggle("on", !!revive);
   counterEl.textContent = (idx + 1) + " / " + entries.length;
   /* warm the next slide while this one hangs */
   srcFor(entries[(idx + dir + entries.length) % entries.length]);
@@ -251,6 +301,46 @@ function arm() {
   clearTimeout(timer);
   if (!paused && !gridOpen) timer = setTimeout(() => show(idx + 1), HOLD_MS);
 }
+
+/* ---- revivify: the wall on screen goes back up on the live graff wall ----
+   The saved picture becomes the wall's background (like a Flatten), the mark counter
+   picks up where that wall left off, and whatever is on the live wall now is cleared.
+   Two clicks: the first arms it, the second does it. */
+const reviveBtn = document.getElementById("revive");
+const MILESTONES = [100, 222, 333, 444, 500, 1000];
+let revive = null;             /* (entry, fullImg) => Promise — set once the archive is reachable */
+let armed = false, armTimer = null;
+function disarm() {
+  armed = false; clearTimeout(armTimer);
+  reviveBtn.classList.remove("armed");
+  reviveBtn.disabled = false;
+  reviveBtn.textContent = "↺ revivify";
+}
+reviveBtn.addEventListener("click", async () => {
+  if (!revive || idx < 0) return;
+  const e = entries[idx];
+  if (!armed) {
+    armed = true;
+    clearTimeout(timer); /* hold this wall while deciding */
+    reviveBtn.classList.add("armed");
+    reviveBtn.textContent = "replace the live wall with this one? click again";
+    armTimer = setTimeout(() => { disarm(); arm(); }, 5000);
+    return;
+  }
+  clearTimeout(armTimer);
+  reviveBtn.disabled = true;
+  reviveBtn.textContent = "bringing it back…";
+  try {
+    const img = await srcFor(e);
+    if (!img) throw new Error("no picture saved for this wall");
+    await revive(e, img);
+    location.href = "graff.html";
+  } catch (err) {
+    reviveBtn.textContent = "couldn't revive it (" + String(err.message || err).slice(0, 60) + ")";
+    armed = false; reviveBtn.classList.remove("armed");
+    setTimeout(() => { disarm(); arm(); }, 4000);
+  }
+});
 
 /* ---- contact sheet: every surviving wall as a thumbnail ---- */
 const gridEl = document.getElementById("grid");
@@ -264,7 +354,7 @@ function buildGrid() {
     const im = document.createElement("img");
     im.loading = "lazy"; im.alt = ""; im.src = e.thumb;
     const cap = document.createElement("span");
-    cap.innerHTML = fate(e);
+    cap.innerHTML = fate(e) + storyHtml(e, false);
     b.append(im, cap);
     b.addEventListener("click", (ev) => { ev.stopPropagation(); closeGrid(i); });
     gridList.appendChild(b);
@@ -333,23 +423,48 @@ async function load() {
   if (window.__TEST_ARCHIVE) {
     entries = window.__TEST_ARCHIVE.slice().sort((a, b) => a.t - b.t);
     getFull = (k) => Promise.resolve((entries.find(x => x.key === k) || {}).img);
+    history = window.__TEST_HISTORY || [];
+    revive = async (e, img) => { window.__REVIVED = reviveWrites(e, img); };
     return;
   }
+  /* which story was behind each wall (best effort — the page works without it) */
+  fetch("bg/history.json?cb=" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.json() : [])
+    .then(h => { if (Array.isArray(h)) { history = h; if (idx >= 0 && !gridOpen) captionEl.innerHTML = fate(entries[idx]) + storyHtml(entries[idx], true); } })
+    .catch(() => {});
   const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
-  const { getDatabase, ref, get } =
+  const { getDatabase, ref, get, set } =
     await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js");
   const db = getDatabase(initializeApp(firebaseConfig));
   const snap = await get(ref(db, "walls/main/archiveIndex"));
   snap.forEach((ch) => {
     const v = ch.val();
     if (v.hidden) return; /* curated out — stays in the database, off the wall of fame */
-    entries.push({ key: ch.key, t: v.t || 0, n: v.n || 0, thumb: v.thumb || "" });
+    entries.push({ key: ch.key, t: v.t || 0, n: v.n || 0, thumb: v.thumb || "", head: v.head || "", url: v.url || "" });
   });
   entries.sort((a, b) => a.t - b.t);
   getFull = async (k) => {
     const s = await get(ref(db, "walls/main/archive/" + k));
     return s.exists() ? s.val().img : null;
   };
+  revive = async (e, img) => {
+    const w = reviveWrites(e, img);
+    /* same order as a Flatten on the wall: background first, then the counter, then the old marks go */
+    await set(ref(db, "walls/main/flat"), w.flat);
+    await set(ref(db, "walls/main/base"), w.base);
+    await set(ref(db, "walls/main/flicks"), w.flicks);
+    await set(ref(db, "walls/main/ops"), null);
+  };
+}
+/* what reviving a wall writes to the live wall's database */
+function reviveWrites(e, img) {
+  const now = Date.now();
+  const flat = { id: "flat-" + now, img, t: now, n: e.n, day: wallDay(now), from: e.key };
+  const s = story(e);
+  if (s) { flat.headline = s.head; if (s.url) flat.url = s.url; }
+  /* milestones this wall already passed stay claimed, so they aren't saved a second time */
+  const flicks = {};
+  for (const m of MILESTONES) if (m <= e.n) flicks[m] = now;
+  return { flat, base: e.n, flicks: Object.keys(flicks).length ? flicks : null };
 }
 
 load().then(() => {

@@ -709,7 +709,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-14a";
+const BUILD = "2026-11-14b";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -3168,9 +3168,12 @@ async function captureWall(tag) {
        was flicked again every time the count re-crossed it (undo at 100, then another
        mark) and by every open tab that disagreed about the wall's first mark. */
     if (tag !== "final" && fbClaim && !(await fbClaim(tag, t))) return;
+    /* the news story behind this wall — the compendium shows it as the wall's title */
+    const idx = { t, n, thumb };
+    if (bgMeta && bgMeta.headline) { idx.head = String(bgMeta.headline).slice(0, 200); if (bgMeta.url) idx.url = bgMeta.url; }
     await fbArchive(era + "-" + tag,
       { t, n, w: 1728, h: 972, img },
-      { t, n, thumb });
+      idx);
     showBanner(tag === "final"
       ? "📸 final flick — this wall made the compendium"
       : "📸 " + tag + " marks — flicked into the compendium");
@@ -3280,6 +3283,8 @@ async function flatten() {
     if (src.length > 6e6) src = wallComposite(true).toDataURL("image/jpeg", 0.7);
     const total = totalMarks() + 1; /* flattening is itself a mark */
     const meta = { id: "flat-" + Date.now(), img: src, t: Date.now(), n: total, day: wallDay() };
+    /* a flattened wall keeps its story (compendium title) */
+    if (bgMeta && bgMeta.headline) { meta.headline = bgMeta.headline; if (bgMeta.url) meta.url = bgMeta.url; }
     await fbFlat(meta);
     await fbBase(total); /* the marks are baked in, not gone — the counter carries on */
     flatBase = total;
