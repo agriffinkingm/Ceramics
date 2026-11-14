@@ -709,7 +709,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-12e";
+const BUILD = "2026-11-14a";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -3168,7 +3168,6 @@ async function captureWall(tag) {
        was flicked again every time the count re-crossed it (undo at 100, then another
        mark) and by every open tab that disagreed about the wall's first mark. */
     if (tag !== "final" && fbClaim && !(await fbClaim(tag, t))) return;
-    if (tag === 222 && fbHide) fbHide(era + "-100").catch(() => {}); /* the 222 replaces the 100 */
     await fbArchive(era + "-" + tag,
       { t, n, w: 1728, h: 972, img },
       { t, n, thumb });
