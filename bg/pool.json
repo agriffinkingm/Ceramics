@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-11-11-1042-1",
-  "image": "pool-2026-11-11-1042-1.jpg",
-  "headline": "140 - home Ringwood development rejected over flood risk",
-  "url": "https://www.bournemouthecho.co.uk/news/26716173.140-home-ringwood-development-rejected-flood-risk/",
-  "outlet": "bournemouthecho.co.uk",
-  "t": "2026-11-11T15:42:26+00:00",
-  "vista": 8.0,
-  "hash": 1168745935740550975
- },
- {
-  "id": "2026-11-11-1943-0",
-  "image": "pool-2026-11-11-1943-0.jpg",
-  "headline": "IMD update : Heavy rain likely for TN , Puducherry for 2 days as fresh  low  brews",
-  "url": "https://www.thehindubusinessline.com/economy/agri-business/imd-update-isolated-heavy-rain-likely-for-tn-puducherry-as-fresh-low-brews/article71688439.ece",
-  "outlet": "thehindubusinessline.com",
-  "t": "2026-11-12T00:43:00+00:00",
-  "vista": 8.0,
-  "hash": 216596659816612807
- },
- {
   "id": "2026-11-12",
   "image": "pool-2026-11-12.jpg",
   "headline": "New York City firefighters search rubble for survivors after building collapses",
@@ -166,5 +146,25 @@
   "outlet": "kirksvilledailyexpress.com",
   "t": "2026-11-14T13:33:49+00:00",
   "hash": 9315957407243185918
+ },
+ {
+  "id": "2026-11-14-1724-0",
+  "image": "pool-2026-11-14-1724-0.jpg",
+  "headline": "Inside  breathtaking  Spanish town where Brits flock for sunshine and quiet life",
+  "url": "https://www.aol.co.uk/articles/inside-breathtaking-spanish-town-where-190400000.html",
+  "outlet": "aol.co.uk",
+  "t": "2026-11-14T22:24:41+00:00",
+  "vista": 9.0,
+  "hash": 9882601914367
+ },
+ {
+  "id": "2026-11-14-1724-1",
+  "image": "pool-2026-11-14-1724-1.jpg",
+  "headline": "Port sues to get control of tanker that crashed into cruise ship on Mississippi",
+  "url": "https://www.enfieldindependent.co.uk/news/national/26729940.port-sues-get-control-tanker-crashed-cruise-ship-mississippi/",
+  "outlet": "enfieldindependent.co.uk",
+  "t": "2026-11-14T22:24:41+00:00",
+  "vista": 7.0,
+  "hash": 16350018271836356800
  }
 ]
