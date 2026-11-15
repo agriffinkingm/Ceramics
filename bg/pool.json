@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-11-13",
-  "image": "pool-2026-11-13.jpg",
-  "headline": "Jamaican Hurdler Wins Youth Olympic Gold",
-  "url": "https://www.riotimesonline.com/jamaica-marquies-page-youth-olympic-110m-hurdles-gold-dakar/",
-  "outlet": "riotimesonline.com",
-  "t": "2026-11-12T15:09:45+00:00",
-  "hash": 13889348576249708543
- },
- {
   "id": "2026-11-13-b",
   "image": "pool-2026-11-13-b.jpg",
   "headline": "Washington Wildfire Claims Near $1B as Research Reveals Home Vulnerabilities",
@@ -166,5 +157,15 @@
   "outlet": "israelnationalnews.com",
   "t": "2026-11-15T14:16:06+00:00",
   "hash": 867231060646952960
+ },
+ {
+  "id": "2026-11-15-1002-0",
+  "image": "pool-2026-11-15-1002-0.jpg",
+  "headline": "Hope springs eternal in award - winning photos showcasing nature resilience",
+  "url": "https://www.euronews.com/2026/11/15/hope-springs-eternal-in-award-winning-photos-showcasing-natures-resilience",
+  "outlet": "euronews.com",
+  "t": "2026-11-15T15:02:42+00:00",
+  "vista": 9.0,
+  "hash": 1167626640463694975
  }
 ]
