@@ -418,5 +418,12 @@
   "url": "https://www.aljazeera.com/economy/2026/11/13/the-fight-over-canadian-steelworker-jobs",
   "outlet": "aljazeera.com",
   "method": "outpaint"
+ },
+ {
+  "id": "2026-11-16",
+  "headline": "Ukraine Uses Stargate Drone to Evacuate Wounded Soldier 30 Kilometers",
+  "url": "https://econotimes.com/Ukraine-Uses-Stargate-Drone-to-Evacuate-Wounded-Soldier-30-Kilometers-1777160",
+  "outlet": "econotimes.com",
+  "method": "crop"
  }
 ]
