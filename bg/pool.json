@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-11-13-b",
-  "image": "pool-2026-11-13-b.jpg",
-  "headline": "Washington Wildfire Claims Near $1B as Research Reveals Home Vulnerabilities",
-  "url": "https://www.insurancejournal.com/news/west/2026/11/12/892312.htm",
-  "outlet": "insurancejournal.com",
-  "t": "2026-11-12T15:09:45+00:00",
-  "hash": 18442486764687242942
- },
- {
-  "id": "2026-11-13-c",
-  "image": "pool-2026-11-13-c.jpg",
-  "headline": "5 Magical U . S . Towns for a Storybook Christmas Getaway",
-  "url": "https://www.fox21online.com/news/national/5-magical-u-s-towns-for-a-storybook-christmas-getaway/article_e3e84b42-b7d7-5878-b029-a405f6b9c2a8.html",
-  "outlet": "fox21online.com",
-  "t": "2026-11-12T15:09:45+00:00",
-  "hash": 18230008328505262080
- },
- {
   "id": "2026-11-12-1116-0",
   "image": "pool-2026-11-12-1116-0.jpg",
   "headline": "Sisi Orders Egypt Emergency Stockpile Study",
@@ -167,5 +149,25 @@
   "t": "2026-11-15T15:02:42+00:00",
   "vista": 9.0,
   "hash": 1167626640463694975
+ },
+ {
+  "id": "2026-11-15-1355-0",
+  "image": "pool-2026-11-15-1355-0.jpg",
+  "headline": "Feeling the winter chill ? Thermal baths and scenic outdoor saunas worth visiting in Europe",
+  "url": "https://www.euronews.com/2026/11/15/feeling-the-winter-chill-thermal-baths-and-scenic-outdoor-saunas-worth-visiting-in-europe",
+  "outlet": "euronews.com",
+  "t": "2026-11-15T18:55:13+00:00",
+  "vista": 8.0,
+  "hash": 2456740256064143392
+ },
+ {
+  "id": "2026-11-15-1355-1",
+  "image": "pool-2026-11-15-1355-1.jpg",
+  "headline": "Kashmir gears up for winter ; depts asked to ensure adequate stocks , essential services",
+  "url": "https://www.tribuneindia.com/news/j-k/kashmir-gears-up-for-winter-depts-asked-to-ensure-adequate-stocks-essential-services/",
+  "outlet": "tribuneindia.com",
+  "t": "2026-11-15T18:55:13+00:00",
+  "vista": 7.0,
+  "hash": 1747132228912150782
  }
 ]
