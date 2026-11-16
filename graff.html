@@ -583,6 +583,16 @@
       <div class="sr-head"><span>Runniness</span><span class="sr-val" id="drip-val">100</span></div>
       <input type="range" id="drip" min="10" max="300" value="100">
     </div>
+    <div class="slider-row" id="smudge-row" style="display:none">
+      <div class="sr-head"><span>Finger</span></div>
+      <div class="seg" id="smudge-seg">
+        <button type="button" data-sm="" class="on" title="The original — a hard round fingertip">Round</button>
+        <button type="button" data-sm="soft" title="Feathered edge — smooth blends, no ridges">Soft</button>
+        <button type="button" data-sm="flat" title="Chisel edge that turns with your stroke — wide sweeps">Flat</button>
+        <button type="button" data-sm="bristle" title="Separate hairs — streaky, combed smears">Bristle</button>
+        <button type="button" data-sm="swirl" title="Twists the paint as it drags — marbling">Swirl</button>
+      </div>
+    </div>
     <div class="slider-row" id="flow-row" style="display:none">
       <div class="sr-head"><span>Strength</span><span class="sr-val" id="flow-val">100</span></div>
       <input type="range" id="flow" min="20" max="300" value="100">
@@ -709,7 +719,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-14b";
+const BUILD = "2026-11-16a";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -909,21 +919,43 @@ function drawDrips(ctx, pts, sz, color, seed, dr) {
     ctx.beginPath(); ctx.arc(x, y0 + len + w0 * 0.3, w0 * 0.6, 0, 6.2832); ctx.fill(); /* the bead */
   }
 }
-function sprayAir(ctx, pts, sz, color, op, seed, fl) {
-  /* fl = strength: paint per pass. Ops without fl (pre-slider) keep the old min-4 floor
-     so historic strokes replay exactly as they were sprayed. */
-  const R = Math.max(sz, 4), dots = Math.max(fl ? 2 : 4, Math.round(R / 2 * (fl || 1)));
-  ctx.fillStyle = color;
-  ctx.globalAlpha = 0.16 * op;
-  for (let i = 0; i < pts.length; i += 2) {
-    const rng = mulberry32((seed + i / 2) >>> 0); /* per-point sub-seed — matches live airTick */
+/* One puff of the can at (x, y). v2 (Nov 2026) is the strong can: the amount of
+   paint follows the AREA of the spray cone (the old one only grew with its radius,
+   so big sizes came out as a thin mist), the grain grows a little with size, and
+   the cone is denser in the middle. Ops without v:2 replay on the old formula so
+   historic strokes look exactly as they were sprayed. Live + replay both come
+   through here, so they can't drift apart. */
+function airDab(ctx, x, y, sz, fl, rng, v) {
+  const R = Math.max(sz, 4);
+  if (v === 2) {
+    const g = Math.max(1, Math.sqrt(R / 12));
+    const dots = Math.min(420, Math.max(4, Math.round(0.18 * R * R / (g * g) * fl)));
     for (let d = 0; d < dots; d++) {
-      const a = rng() * 6.2832, rr = Math.sqrt(rng()) * R;
-      const dr = 0.6 + rng() * 1.5;
+      const a = rng() * 6.2832, rr = Math.pow(rng(), 0.7) * R;
+      const dr = (0.6 + rng() * 1.5) * g;
       ctx.beginPath();
-      ctx.arc(pts[i] + Math.cos(a) * rr, pts[i + 1] + Math.sin(a) * rr, dr, 0, 6.2832);
+      ctx.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, dr, 0, 6.2832);
       ctx.fill();
     }
+    return;
+  }
+  /* fl = strength: paint per pass. Ops without fl (pre-slider) keep the old min-4 floor */
+  const dots = Math.max(fl ? 2 : 4, Math.round(R / 2 * (fl || 1)));
+  for (let d = 0; d < dots; d++) {
+    const a = rng() * 6.2832, rr = Math.sqrt(rng()) * R;
+    const dr = 0.6 + rng() * 1.5;
+    ctx.beginPath();
+    ctx.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, dr, 0, 6.2832);
+    ctx.fill();
+  }
+}
+function airAlpha(op, v) { return (v === 2 ? 0.24 : 0.16) * op; }
+function sprayAir(ctx, pts, sz, color, op, seed, fl, v) {
+  ctx.fillStyle = color;
+  ctx.globalAlpha = airAlpha(op, v);
+  for (let i = 0; i < pts.length; i += 2) {
+    const rng = mulberry32((seed + i / 2) >>> 0); /* per-point sub-seed — matches live airTick */
+    airDab(ctx, pts[i], pts[i + 1], sz, fl, rng, v);
   }
   ctx.globalAlpha = 1;
 }
@@ -962,31 +994,81 @@ function floodFill(ctx, x, y, hex) {
    Samples the visible composite (photo layer under paint layer) but writes into
    the paint layer — so you can smear a photo's colors, and the smear survives
    as paint even if the photo is later erased. */
-const smTmp = document.createElement("canvas");
-function makeSmudger(ctx, sz, strength) {
+/* Finger tips (op.sh). No sh = the original hard round finger, so old smudges
+   replay unchanged.
+     soft    — feathered edge, no ridges where passes overlap
+     flat    — a chisel edge that turns to stay square to the stroke (wide sweeps)
+     bristle — a row of separate hairs (seeded by op.seed) → streaky, combed smears
+     swirl   — soft tip that also twists what it drags (marbling)
+   The mask is white-on-transparent, d×d, centred on (r, r); flat + bristle are
+   drawn with the stroke running along +x and rotated per step. */
+function smudgeMask(sh, r, d, seed) {
+  const m = document.createElement("canvas"); m.width = m.height = d;
+  const c = m.getContext("2d");
+  if (sh === "flat") {
+    const t = Math.max(r * 0.3, 1.5);
+    const g = c.createLinearGradient(r - t, 0, r + t, 0);
+    g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.3, "#fff");
+    g.addColorStop(0.7, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
+    c.fillStyle = g; c.fillRect(r - t, r - r * 0.95, t * 2, r * 1.9);
+  } else if (sh === "bristle") {
+    const rng = mulberry32(((seed || 1) ^ 0x5bd1e995) >>> 0);
+    const n = Math.max(4, Math.min(10, Math.round(r / 5)));
+    for (let i = 0; i < n; i++) {
+      const y = r + ((i + 0.5) / n * 2 - 1) * r * 0.92 + (rng() - 0.5) * r * 0.1;
+      const x = r + (rng() - 0.5) * r * 0.3;
+      const br = Math.max(1.2, r / n * (0.55 + rng() * 0.45));
+      const g = c.createRadialGradient(x, y, 0, x, y, br);
+      g.addColorStop(0, "#fff"); g.addColorStop(0.6, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
+      c.fillStyle = g; c.beginPath(); c.arc(x, y, br, 0, 6.2832); c.fill();
+    }
+  } else { /* soft, swirl */
+    const g = c.createRadialGradient(r, r, 0, r, r, r);
+    g.addColorStop(0, "#fff"); g.addColorStop(0.4, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
+    c.fillStyle = g; c.fillRect(0, 0, d, d);
+  }
+  return m;
+}
+const SWIRL_STEP = 0.24; /* radians of twist per smudge step */
+function makeSmudger(ctx, sz, strength, sh, seed) {
   const r = Math.max(sz / 2, 3), d = Math.ceil(r * 2);
-  smTmp.width = d; smTmp.height = d;
-  const tctx = smTmp.getContext("2d");
-  const step = Math.max(r / 3, 2);
-  let lx = null, ly = null;
+  /* own scratch canvas per stroke — someone else's smudge replaying mid-stroke
+     used to resize the shared one under the live finger */
+  const tmp = document.createElement("canvas"); tmp.width = d; tmp.height = d;
+  const tctx = tmp.getContext("2d");
+  const mask = sh ? smudgeMask(sh, r, d, seed) : null;
+  const turns = sh === "flat" || sh === "bristle";
+  /* thin tips need closer stamps or the smear breaks into separate prints */
+  const step = sh === "bristle" ? Math.max(r / 14, 1.5) : sh === "flat" ? Math.max(r * 0.15, 1.5) : Math.max(r / 3, 2);
+  let lx = null, ly = null, vx = 0, vy = 0;
   return (x, y) => {
     if (lx === null) { lx = x; ly = y; return; }
     const dist = Math.hypot(x - lx, y - ly);
     if (dist < 0.5) return;
+    /* smoothed heading, so the flat edge doesn't flutter on a slow wobbly drag */
+    vx = vx * 0.6 + (x - lx) * 0.4; vy = vy * 0.6 + (y - ly) * 0.4;
+    const ang = Math.atan2(vy, vx);
     const n = Math.max(1, Math.ceil(dist / step));
     const sx = lx, sy = ly;
     for (let j = 1; j <= n; j++) {
       const nx = sx + (x - sx) * j / n, ny = sy + (y - sy) * j / n;
       tctx.clearRect(0, 0, d, d);
       tctx.save();
-      tctx.beginPath(); tctx.arc(r, r, r, 0, 6.2832); tctx.clip();
+      if (!mask) { tctx.beginPath(); tctx.arc(r, r, r, 0, 6.2832); tctx.clip(); }
       tctx.drawImage(bgCv, lx - r, ly - r, d, d, 0, 0, d, d);
       tctx.drawImage(photoCv, lx - r, ly - r, d, d, 0, 0, d, d);
       tctx.drawImage(aiCv, lx - r, ly - r, d, d, 0, 0, d, d);
       tctx.drawImage(paintCv, lx - r, ly - r, d, d, 0, 0, d, d);
+      if (mask) {
+        tctx.globalCompositeOperation = "destination-in";
+        if (turns) { tctx.translate(r, r); tctx.rotate(ang); tctx.drawImage(mask, -r, -r); }
+        else tctx.drawImage(mask, 0, 0);
+      }
       tctx.restore();
       ctx.globalAlpha = strength;
-      ctx.drawImage(smTmp, nx - r, ny - r);
+      if (sh === "swirl") {
+        ctx.save(); ctx.translate(nx, ny); ctx.rotate(SWIRL_STEP); ctx.drawImage(tmp, -r, -r); ctx.restore();
+      } else ctx.drawImage(tmp, nx - r, ny - r);
       ctx.globalAlpha = 1;
       lx = nx; ly = ny;
     }
@@ -1334,9 +1416,9 @@ async function applyOp(o) {
       /* GIF eraser — clips every GIF that was on the wall when it was drawn */
       gifEraseAll((c) => pathPencil(c, pts, o.sz, "#000"));
     }
-    else if (o.tool === "air") { sprayAir(paintCtx, pts, o.sz, o.c, o.op, o.seed, o.fl); }
+    else if (o.tool === "air") { sprayAir(paintCtx, pts, o.sz, o.c, o.op, o.seed, o.fl, o.v); }
     else if (o.tool === "smudge") {
-      const sm = makeSmudger(paintCtx, o.sz, o.op);
+      const sm = makeSmudger(paintCtx, o.sz, o.op, o.sh, o.seed);
       for (let i = 0; i < pts.length; i += 2) sm(pts[i], pts[i + 1]);
     }
     else if (o.tool === "berase") {
@@ -1403,6 +1485,11 @@ function plCursor(g) {
 let rectSel = null, genBusy = false, fillPrev = null, genDrag = null;
 /* AI Fill selection shape: freehand lasso or a dragged rectangle (toolbox toggle) */
 let genShape = "rect";
+let smudgeTip = ""; /* "" (round) | soft | flat | bristle | swirl */
+document.querySelectorAll("#smudge-seg button").forEach(b => b.addEventListener("click", () => {
+  smudgeTip = b.dataset.sm;
+  document.querySelectorAll("#smudge-seg button").forEach(o => o.classList.toggle("on", o === b));
+}));
 /* AI Fill mode: "blend" = content-aware inpainting (default), "imagine" = prompt only */
 let genMode = "blend";
 document.querySelectorAll("#mode-seg button").forEach(b => b.addEventListener("click", () => {
@@ -1529,8 +1616,8 @@ display.addEventListener("pointerdown", (e) => {
   drawing = true;
   curPts = [x, y];
   curSeed = (Math.random() * 0xffffffff) >>> 0;
-  if (tool === "air") { airTick(x, y); }
-  else if (tool === "smudge") { curSm = makeSmudger(paintCtx, size, opacity); curSm(x, y); }
+  if (tool === "air") { airTick(x, y); airHoldStart(); }
+  else if (tool === "smudge") { curSm = makeSmudger(paintCtx, size, opacity, smudgeTip, curSeed); curSm(x, y); }
   else if (isEraser(tool)) { eraseDot(x, y); erLast = [x, y]; }
   else {
     sctx.clearRect(0, 0, W, H);
@@ -1636,17 +1723,18 @@ function cancelStroke() {
   /* discard the in-progress stroke without publishing. Brush/preview strokes
      just clear; air/smudge/erasers were applied live to the layers, so replay
      the op log to wipe the unpublished marks. */
-  drawing = false; curPts = []; curSm = null; erLast = null;
+  drawing = false; curPts = []; curSm = null; erLast = null; airHoldStop();
   sctx.clearRect(0, 0, W, H);
   if (tool === "air" || tool === "smudge" || isEraser(tool)) rebuild();
   else render();
 }
 function endStroke() {
   if (!drawing) { curPts = []; return; }
-  drawing = false;
+  drawing = false; airHoldStop();
   const op = { t: "s", tool, c: fg, sz: size, op: round2(opacity), pts: curPts };
   if (tool === "air" || tool === "smudge" || isEraser(tool)) {
-    if (tool === "air") { op.seed = curSeed; op.fl = round2(airFlow); }
+    if (tool === "air") { op.seed = curSeed; op.fl = round2(airFlow); op.v = 2; }
+    if (tool === "smudge" && smudgeTip) { op.sh = smudgeTip; op.seed = curSeed; }
     if (tool === "berase") op.bg = bgId; /* keyed to today's backdrop */
     /* already applied live to the wall; just count + publish */
     opCount++; updateCount(); checkMilestone();
@@ -1718,14 +1806,26 @@ function drawCurrent() {
 function airTick(x, y) {
   const ptIdx = curPts.length / 2 - 1; /* index of the point just pushed */
   const rng = mulberry32((curSeed + ptIdx) >>> 0);
-  const R = Math.max(size, 4), dots = Math.max(2, Math.round(R / 2 * airFlow));
-  paintCtx.fillStyle = fg; paintCtx.globalAlpha = 0.16 * opacity;
-  for (let d = 0; d < dots; d++) {
-    const a = rng() * 6.2832, rr = Math.sqrt(rng()) * R, dr = 0.6 + rng() * 1.5;
-    paintCtx.beginPath(); paintCtx.arc(x + Math.cos(a) * rr, y + Math.sin(a) * rr, dr, 0, 6.2832); paintCtx.fill();
-  }
+  paintCtx.fillStyle = fg; paintCtx.globalAlpha = airAlpha(opacity, 2);
+  airDab(paintCtx, x, y, size, airFlow, rng, 2);
   paintCtx.globalAlpha = 1;
+  airLast = performance.now();
 }
+/* hold the can still and it keeps spraying: every ~45ms without a new point the
+   last point is pushed again (so the build-up is in the op and replays the same) */
+let airLast = 0, airHold = null;
+function airHoldStart() {
+  airHoldStop();
+  airHold = setInterval(() => {
+    if (!drawing || tool !== "air") { airHoldStop(); return; }
+    if (performance.now() - airLast < 40 || curPts.length > 3000) return;
+    const n = curPts.length;
+    curPts.push(curPts[n - 2], curPts[n - 1]);
+    airTick(curPts[n - 2], curPts[n - 1]);
+    render();
+  }, 45);
+}
+function airHoldStop() { if (airHold) { clearInterval(airHold); airHold = null; } }
 function round2(v) { return Math.round(v * 100) / 100; }
 
 /* photo eraser — live incremental erase on the photo layer (replay covers the
@@ -2965,6 +3065,7 @@ function setTool(t) {
   document.getElementById("tb-tool").textContent = TOOL_NAMES[t];
   document.getElementById("rot-row").style.display = (t === "text") ? "" : "none";
   document.getElementById("flow-row").style.display = (t === "air") ? "" : "none";
+  document.getElementById("smudge-row").style.display = (t === "smudge") ? "" : "none";
   document.getElementById("shape-row").style.display = (t === "gen" || t === "clone") ? "" : "none";
   /* Subject (click a thing, it's cut out for you) is a Clone-only shape */
   document.getElementById("shape-subject").style.display = (t === "clone") ? "" : "none";
