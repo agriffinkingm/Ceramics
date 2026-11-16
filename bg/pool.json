@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-11-12-1116-0",
-  "image": "pool-2026-11-12-1116-0.jpg",
-  "headline": "Sisi Orders Egypt Emergency Stockpile Study",
-  "url": "https://www.riotimesonline.com/sisi-orders-egypt-emergency-stockpile-study/",
-  "outlet": "riotimesonline.com",
-  "t": "2026-11-12T16:16:33+00:00",
-  "vista": 7.0,
-  "hash": 4294967295
- },
- {
-  "id": "2026-11-12-1839-0",
-  "image": "pool-2026-11-12-1839-0.jpg",
-  "headline": "East Arnhem Land travel shift : how remote region opens up | Braidwood Times",
-  "url": "https://www.braidwoodtimes.com.au/story/9385636/east-arnhem-land-travel-shift-how-remote-region-opens-up/",
-  "outlet": "braidwoodtimes.com.au",
-  "t": "2026-11-12T23:39:21+00:00",
-  "vista": 9.0,
-  "hash": 36168984734728447
- },
- {
-  "id": "2026-11-13-0140-0",
-  "image": "pool-2026-11-13-0140-0.jpg",
-  "headline": "L . A . Extends Pilot Program for Low Impact Film Permits",
-  "url": "https://lamag.com/film/l-a-extends-pilot-program-for-low-impact-film-permits/",
-  "outlet": "lamag.com",
-  "t": "2026-11-13T06:40:17+00:00",
-  "vista": 8.0,
-  "hash": 70748731080703
- },
- {
   "id": "2026-11-13-0140-1",
   "image": "pool-2026-11-13-0140-1.jpg",
   "headline": "Missing Angoon Boater Found Dead on Oct . 28 - Daily Sitka Sentinel",
@@ -169,5 +139,32 @@
   "t": "2026-11-15T18:55:13+00:00",
   "vista": 7.0,
   "hash": 1747132228912150782
+ },
+ {
+  "id": "2026-11-17",
+  "image": "pool-2026-11-17.jpg",
+  "headline": "ICT exports in October jump 202 % to record - high USD 70 . 3B : data : Korea . net : The official website of the Republic of Korea",
+  "url": "https://www.korea.net/NewsFocus/Business/view?articleId=302883",
+  "outlet": "korea.net",
+  "t": "2026-11-16T16:18:21+00:00",
+  "hash": 64955088895
+ },
+ {
+  "id": "2026-11-17-b",
+  "image": "pool-2026-11-17-b.jpg",
+  "headline": "Body of missing 74 - year - old windsurfing doctor found near Straits Quay",
+  "url": "https://www.thestar.com.my/news/nation/2026/11/16/body-of-missing-74-year-old-windsurfing-doctor-found-near-straits-quay",
+  "outlet": "thestar.com.my",
+  "t": "2026-11-16T16:18:21+00:00",
+  "hash": 13830820300440207359
+ },
+ {
+  "id": "2026-11-17-c",
+  "image": "pool-2026-11-17-c.jpg",
+  "headline": "Im A Celebrity returns with new cast and jungle trials",
+  "url": "https://www.lancashiretelegraph.co.uk/news/national/uk-today/26730936.celebrity-returns-new-cast-jungle-trials/",
+  "outlet": "lancashiretelegraph.co.uk",
+  "t": "2026-11-16T16:18:21+00:00",
+  "hash": 9259619091364741119
  }
 ]

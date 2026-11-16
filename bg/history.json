@@ -425,5 +425,12 @@
   "url": "https://econotimes.com/Ukraine-Uses-Stargate-Drone-to-Evacuate-Wounded-Soldier-30-Kilometers-1777160",
   "outlet": "econotimes.com",
   "method": "crop"
+ },
+ {
+  "id": "2026-11-17",
+  "headline": "ICT exports in October jump 202 % to record - high USD 70 . 3B : data : Korea . net : The official website of the Republic of Korea",
+  "url": "https://www.korea.net/NewsFocus/Business/view?articleId=302883",
+  "outlet": "korea.net",
+  "method": "crop-flat"
  }
 ]
