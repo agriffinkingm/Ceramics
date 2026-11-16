@@ -237,6 +237,7 @@
   }
   .seg button + button { border-left: 1px solid var(--panel-border); }
   .seg button.on { background: var(--hilite); color: #fff; }
+  #smudge-seg2 { margin-top: -1px; }
   .slider-row .sr-head { display: flex; justify-content: space-between; margin-bottom: 3px; }
   .slider-row .sr-val { color: var(--panel-text); font-variant-numeric: tabular-nums; }
   input[type=range] {
@@ -589,8 +590,14 @@
         <button type="button" data-sm="" class="on" title="The original — a hard round fingertip">Round</button>
         <button type="button" data-sm="soft" title="Feathered edge — smooth blends, no ridges">Soft</button>
         <button type="button" data-sm="flat" title="Chisel edge that turns with your stroke — wide sweeps">Flat</button>
-        <button type="button" data-sm="bristle" title="Separate hairs — streaky, combed smears">Bristle</button>
         <button type="button" data-sm="swirl" title="Twists the paint as it drags — marbling">Swirl</button>
+      </div>
+      <div class="seg" id="smudge-seg2">
+        <button type="button" data-sm="bristle" title="Separate hairs — streaky, combed smears">Bristle</button>
+        <button type="button" data-sm="fan" title="Fan brush — lots of fine hairs spread along an arc">Fan</button>
+        <button type="button" data-sm="splay" title="Starts as a point and the hairs open out as you drag">Splay</button>
+        <button type="button" data-sm="dry" title="Dry brush — uneven hairs, streaks that break up and die out">Dry</button>
+        <button type="button" data-sm="comb" title="A few even teeth — clean parallel tracks">Comb</button>
       </div>
     </div>
     <div class="slider-row" id="flow-row" style="display:none">
@@ -643,6 +650,7 @@
   <label>Opacity <input type="range" id="pb-op" min="5" max="100" value="100"></label>
   <label id="pb-flip-row" title="Mirror left-right"><input type="checkbox" id="pb-flip"> Flip</label>
   <label id="pb-neg-row" title="Invert the colours (negative)"><input type="checkbox" id="pb-neg"> Invert</label>
+  <label id="pb-nobg-row" title="Cut the subject out and drop the background (runs in your browser; the first time downloads a ~45MB model)"><input type="checkbox" id="pb-nobg"> No background</label>
   <label id="pb-under-row" title="Put the GIF under the paint layer so spray can cover it"><input type="checkbox" id="pb-under"> Behind paint</label>
   <label id="pb-thresh-row" style="display:none">Cut <input type="range" id="pb-thresh" min="5" max="95" value="50"></label>
   <label id="pb-invert-row" style="display:none" title="Paint the light parts instead of the dark parts"><input type="checkbox" id="pb-invert"> Invert</label>
@@ -719,7 +727,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-16b";
+const BUILD = "2026-11-16c";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -1023,6 +1031,57 @@ function smudgeMask(sh, r, d, seed) {
       g.addColorStop(0, "#fff"); g.addColorStop(0.6, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
       c.fillStyle = g; c.beginPath(); c.arc(x, y, br, 0, 6.2832); c.fill();
     }
+  } else if (sh === "fan") {
+    /* fan brush: lots of thin hairs splayed along an arc that bulges the way the stroke runs */
+    const rng = mulberry32(((seed || 1) ^ 0x2545f491) >>> 0);
+    const n = Math.max(7, Math.min(18, Math.round(r / 3)));
+    for (let i = 0; i < n; i++) {
+      const th = ((i + 0.5) / n * 2 - 1) * 1.05 + (rng() - 0.5) * 0.06;
+      const ra = r * (0.95 + (rng() - 0.5) * 0.08);
+      const x = r * 0.45 + Math.cos(th) * ra, y = r + Math.sin(th) * ra;
+      const br = Math.max(1.5, r / n * (0.6 + rng() * 0.3));
+      const g = c.createRadialGradient(x, y, 0, x, y, br);
+      g.addColorStop(0, "#fff"); g.addColorStop(0.8, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
+      c.fillStyle = g; c.beginPath(); c.arc(x, y, br, 0, 6.2832); c.fill();
+    }
+  } else if (sh === "dry") {
+    /* dry brush: hairs carry different amounts of paint (some none), so streaks die out at different lengths */
+    const rng = mulberry32(((seed || 1) ^ 0x7f4a7c15) >>> 0);
+    const n = Math.max(6, Math.min(16, Math.round(r / 3.5)));
+    for (let i = 0; i < n; i++) {
+      const y = r + ((i + 0.5) / n * 2 - 1) * r * 0.92 + (rng() - 0.5) * r * 0.08;
+      const x = r + (rng() - 0.5) * r * 0.35;
+      const br = Math.max(1.2, r / n * (0.5 + rng() * 0.5));
+      const load = rng();
+      if (load < 0.25) continue; /* a bald hair */
+      const g = c.createRadialGradient(x, y, 0, x, y, br);
+      g.addColorStop(0, "#fff"); g.addColorStop(0.75, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
+      c.globalAlpha = 0.86 + load * 0.14;
+      c.fillStyle = g; c.beginPath(); c.arc(x, y, br, 0, 6.2832); c.fill();
+    }
+    c.globalAlpha = 1;
+  } else if (sh === "comb") {
+    /* comb: a few even, hard teeth — clean parallel tracks */
+    const n = Math.max(3, Math.min(7, Math.round(r / 7)));
+    const pitch = r * 1.84 / n, th = Math.max(2, pitch * 0.5), len = Math.max(3, r * 0.5);
+    c.fillStyle = "#fff";
+    for (let i = 0; i < n; i++) {
+      const y = r - r * 0.92 + pitch * (i + 0.5);
+      c.fillRect(r - len / 2, y - th / 2, len, th);
+    }
+  } else if (sh === "splay") {
+    /* splay: an ordinary row of hairs — the smudger squeezes it to a point at the
+       start of the stroke and lets it open out as the stroke runs */
+    const rng = mulberry32(((seed || 1) ^ 0x1b873593) >>> 0);
+    const n = Math.max(5, Math.min(12, Math.round(r / 4)));
+    for (let i = 0; i < n; i++) {
+      const y = r + ((i + 0.5) / n * 2 - 1) * r * 0.92 + (rng() - 0.5) * r * 0.08;
+      const x = r + (rng() - 0.5) * r * 0.25;
+      const br = Math.max(1.5, r / n * (0.6 + rng() * 0.4));
+      const g = c.createRadialGradient(x, y, 0, x, y, br);
+      g.addColorStop(0, "#fff"); g.addColorStop(0.6, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
+      c.fillStyle = g; c.beginPath(); c.arc(x, y, br, 0, 6.2832); c.fill();
+    }
   } else { /* soft, swirl */
     const g = c.createRadialGradient(r, r, 0, r, r, r);
     g.addColorStop(0, "#fff"); g.addColorStop(0.4, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
@@ -1038,10 +1097,12 @@ function makeSmudger(ctx, sz, strength, sh, seed) {
   const tmp = document.createElement("canvas"); tmp.width = d; tmp.height = d;
   const tctx = tmp.getContext("2d");
   const mask = sh ? smudgeMask(sh, r, d, seed) : null;
-  const turns = sh === "flat" || sh === "bristle";
+  const hairs = sh === "bristle" || sh === "fan" || sh === "dry" || sh === "splay";
+  const turns = sh === "flat" || sh === "comb" || hairs;
   /* thin tips need closer stamps or the smear breaks into separate prints */
-  const step = sh === "bristle" ? Math.max(r / 14, 1.5) : sh === "flat" ? Math.max(r * 0.15, 1.5) : Math.max(r / 3, 2);
-  let lx = null, ly = null, vx = 0, vy = 0;
+  const step = sh === "fan" ? Math.max(r / 18, 1.2) : hairs ? Math.max(r / 14, 1.5)
+    : (sh === "flat" || sh === "comb") ? Math.max(r * 0.15, 1.5) : Math.max(r / 3, 2);
+  let lx = null, ly = null, vx = 0, vy = 0, trav = 0;
   return (x, y) => {
     if (lx === null) { lx = x; ly = y; return; }
     const dist = Math.hypot(x - lx, y - ly);
@@ -1062,7 +1123,11 @@ function makeSmudger(ctx, sz, strength, sh, seed) {
       tctx.drawImage(paintCv, lx - r, ly - r, d, d, 0, 0, d, d);
       if (mask) {
         tctx.globalCompositeOperation = "destination-in";
-        if (turns) { tctx.translate(r, r); tctx.rotate(ang); tctx.drawImage(mask, -r, -r); }
+        if (turns) {
+          tctx.translate(r, r); tctx.rotate(ang);
+          if (sh === "splay") { trav += Math.hypot(nx - lx, ny - ly); tctx.scale(1, 0.22 + 0.78 * Math.min(1, trav / (r * 5))); }
+          tctx.drawImage(mask, -r, -r);
+        }
         else tctx.drawImage(mask, 0, 0);
       }
       tctx.restore();
@@ -1486,10 +1551,11 @@ function plCursor(g) {
 let rectSel = null, genBusy = false, fillPrev = null, genDrag = null;
 /* AI Fill selection shape: freehand lasso or a dragged rectangle (toolbox toggle) */
 let genShape = "rect";
-let smudgeTip = ""; /* "" (round) | soft | flat | bristle | swirl */
-document.querySelectorAll("#smudge-seg button").forEach(b => b.addEventListener("click", () => {
+let smudgeTip = ""; /* "" (round) | soft | flat | swirl | bristle | fan | splay | dry | comb */
+const smudgeBtns = document.querySelectorAll("#smudge-seg button, #smudge-seg2 button");
+smudgeBtns.forEach(b => b.addEventListener("click", () => {
   smudgeTip = b.dataset.sm;
-  document.querySelectorAll("#smudge-seg button").forEach(o => o.classList.toggle("on", o === b));
+  smudgeBtns.forEach(o => o.classList.toggle("on", o === b));
 }));
 /* AI Fill mode: "blend" = content-aware inpainting (default), "imagine" = prompt only */
 let genMode = "blend";
@@ -2144,7 +2210,7 @@ document.getElementById("pb-place").addEventListener("click", () => {
     h: Math.max(1, Math.round(p.img.height * p.scale)),
     rot: Math.round(p.rot * 1000) / 1000,
     op: round2(p.op),
-    src: (p.flip || p.neg) ? encodeFill(p.flip ? mirrored(p.img) : p.img) : p.src
+    src: (p.flip || p.neg || (p.nobg && p.imgCut)) ? encodeFill(p.flip ? mirrored(p.img) : p.img) : p.src
   };
   if (p.ai) op.ai = 1;
   op.ov = 1; /* v10: pasted OVER the wall — covers existing paint at placement */
@@ -2152,6 +2218,7 @@ document.getElementById("pb-place").addEventListener("click", () => {
   resetPlaceBar();
   enqueue(op); publish(op);
 });
+const pbHintText = "Drag to move · drag a corner to resize · drag just outside a corner to rotate (⇧ snaps to 15°). Once placed it becomes part of the wall.";
 function resetPlaceBar() {
   rotating = null; scaling = null;
   display.style.cursor = "";
@@ -2161,10 +2228,12 @@ function resetPlaceBar() {
   pbFlip.checked = false;
   pbNegRow.style.display = "";
   pbNeg.checked = false;
+  pbNobgRow.style.display = "";
+  pbNobg.checked = false; pbNobg.disabled = false;
   pbThreshRow.style.display = "none";
   pbInvertRow.style.display = "none";
   pbToneRow.style.display = "none";
-  pbHint.textContent = "Drag to move · drag a corner to resize · drag just outside a corner to rotate (⇧ snaps to 15°). Once placed it becomes part of the wall.";
+  pbHint.textContent = pbHintText;
 }
 document.getElementById("pb-cancel").addEventListener("click", () => {
   placing = null;
@@ -2195,13 +2264,94 @@ function negative(img) {
   ctx.putImageData(id, 0, 0);
   return c;
 }
+/* which picture the placement shows: original → (background cut) → (negative) */
+function placingRefresh() {
+  const p = placing;
+  if (!p.img0) p.img0 = p.img;
+  const cut = p.nobg && p.imgCut;
+  let im = cut ? p.imgCut : p.img0;
+  if (p.neg) {
+    const k = cut ? "imgCutNeg" : "imgNeg";
+    if (!p[k]) p[k] = negative(im);
+    im = p[k];
+  }
+  p.img = im;
+  render();
+}
 pbNeg.addEventListener("change", () => {
   if (!placing || placing.gif || placing.stencil) return;
-  if (!placing.img0) placing.img0 = placing.img;
-  if (pbNeg.checked && !placing.imgNeg) placing.imgNeg = negative(placing.img0);
-  placing.img = pbNeg.checked ? placing.imgNeg : placing.img0;
   placing.neg = pbNeg.checked;
-  render();
+  placingRefresh();
+});
+/* ---------- "No background" on the place bar ----------
+   The picture's pixels go to the same worker that does Subject select
+   (graff-subject.js), which runs a background-removal model and sends back an
+   alpha matte. The cut-out is cached on the placement, so the box toggles freely;
+   Place bakes it into the image op like Flip/Invert do. */
+const pbNobg = document.getElementById("pb-nobg");
+const pbNobgRow = document.getElementById("pb-nobg-row");
+let bgSeq = 0;
+function bgCutDone(m) {
+  const p = placing;
+  if (!p || p.bgId !== m.id) return; /* that placement is gone */
+  if (m.type === "status") { pbHint.textContent = m.msg; return; }
+  pbNobg.disabled = false;
+  p.bgBusy = false;
+  if (m.type === "error") {
+    pbNobg.checked = false; p.nobg = false;
+    pbHint.textContent = pbHintText;
+    showBanner("Couldn't remove the background (" + m.msg + ")");
+    return;
+  }
+  /* alpha matte (1 byte/px, sized m.w × m.h) → cut-out the size of the picture */
+  const a = new Uint8ClampedArray(m.alpha), mk = document.createElement("canvas");
+  mk.width = m.w; mk.height = m.h;
+  const id = new ImageData(m.w, m.h), d = id.data;
+  let kept = 0;
+  for (let i = 0; i < a.length; i++) { d[i * 4 + 3] = a[i]; if (a[i] > 127) kept++; }
+  mk.getContext("2d").putImageData(id, 0, 0);
+  pbHint.textContent = pbHintText;
+  if (kept < a.length * 0.004) {
+    pbNobg.checked = false; p.nobg = false;
+    showBanner("Couldn't find a subject in that picture — nothing was cut");
+    return;
+  }
+  const base = p.img0 || p.img, c = document.createElement("canvas");
+  c.width = base.width; c.height = base.height;
+  const cx = c.getContext("2d");
+  cx.drawImage(base, 0, 0);
+  cx.globalCompositeOperation = "destination-in";
+  cx.drawImage(mk, 0, 0, c.width, c.height);
+  p.imgCut = c;
+  if (pbNobg.checked) { p.nobg = true; placingRefresh(); }
+}
+pbNobg.addEventListener("change", () => {
+  const p = placing;
+  if (!p || p.gif || p.stencil) return;
+  p.nobg = pbNobg.checked;
+  if (!p.nobg || p.imgCut) { placingRefresh(); return; }
+  if (p.bgBusy) return;
+  const base = p.img0 || p.img;
+  let data;
+  try {
+    const c = document.createElement("canvas");
+    c.width = base.width; c.height = base.height;
+    const cx = c.getContext("2d", { willReadFrequently: true });
+    cx.drawImage(base, 0, 0);
+    data = cx.getImageData(0, 0, c.width, c.height).data.buffer;
+  } catch (err) {
+    pbNobg.checked = false; p.nobg = false;
+    showBanner("Couldn't read that picture's pixels");
+    return;
+  }
+  p.bgBusy = true; p.bgId = "bg" + (++bgSeq);
+  pbNobg.disabled = true;
+  pbHint.textContent = "removing the background…";
+  try {
+    subjWorkerUp().postMessage({ type: "cutout", id: p.bgId, w: base.width, h: base.height, data }, [data]);
+  } catch (err) {
+    bgCutDone({ type: "error", id: p.bgId, msg: "couldn't start" });
+  }
 });
 pbFlip.addEventListener("change", () => { if (placing && !placing.gif) { placing.flip = pbFlip.checked; render(); } });
 let gifBusy = false;
@@ -2298,7 +2448,7 @@ async function beginGif(buf) {
   resetPlaceBar();
   pbUnderRow.style.display = "";
   pbFlipRow.style.display = "none"; /* sprite sheets aren't mirrored (yet) */
-  pbNegRow.style.display = "none";
+  pbNegRow.style.display = "none"; pbNobgRow.style.display = "none";
   closeGifBar();
   placeBar.style.display = "flex";
   startGifLoop();
@@ -2693,13 +2843,18 @@ function subjWorkerUp() {
   subjWorker = new Worker("graff-subject.js?v=" + BUILD, { type: "module" });
   subjWorker.onmessage = (e) => {
     const m = e.data;
+    if (m.bg) { bgCutDone(m); return; } /* "No background" on the place bar */
     if (!subj || m.id !== subj.id) return; /* an answer for a selection that's gone */
     if (m.type === "status") subjMsg.textContent = m.msg;
     else if (m.type === "ready") { subj.ready = true; subjSend(); }
     else if (m.type === "mask") { if (m.seq === subj.seq) subjMask(m); }
     else if (m.type === "error") subjFail("failed (" + m.msg + ")");
   };
-  subjWorker.onerror = () => { subjWorker = null; if (subj) subjFail("couldn't start"); };
+  subjWorker.onerror = () => {
+    subjWorker = null;
+    if (subj) subjFail("couldn't start");
+    if (placing && placing.bgBusy) bgCutDone({ type: "error", id: placing.bgId, msg: "couldn't start" });
+  };
   return subjWorker;
 }
 function subjSend() {
@@ -2893,7 +3048,7 @@ stencilInput.addEventListener("change", async () => {
     placing = { stencil: st, img: stencilCutout(st, 0.5, false, fg, false), x: vx, y: vy, scale: s0, rot: 0, op: 1 };
     pbScale.value = Math.round(s0 * 100); pbRot.value = 0; pbOp.value = 100;
     pbThreshRow.style.display = ""; pbInvertRow.style.display = ""; pbToneRow.style.display = "";
-    pbNegRow.style.display = "none";
+    pbNegRow.style.display = "none"; pbNobgRow.style.display = "none";
     placeBar.style.display = "flex";
     pbHint.textContent = "Cut sets what counts as dark; Invert flips the picture; Tone keeps the greys. Colour = your current colour.";
     render();
@@ -3275,7 +3430,7 @@ undoBtn.addEventListener("click", undo);
    Deterministic key (first-op-key + tag) so racing clients overwrite instead of
    duplicating. Entries Griffin doesn't like get hidden:true on their archiveIndex
    row (the compendium page skips those). ---------- */
-const MILESTONES = [100, 222, 333, 444, 500, 1000];
+const MILESTONES = [100, 222, 333, 444, 500, 555, 666, 777, 888, 999, 1000];
 let msPrev = 0;
 let capBusy = false;
 function snapshotJpeg(w, h, q) {
