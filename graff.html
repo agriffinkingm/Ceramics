@@ -505,7 +505,7 @@
     <div class="tool" data-tool="air" title="Airbrush (A) — spray can">
       <svg viewBox="0 0 24 24"><rect x="8" y="8" width="7" height="13" rx="1"/><path d="M10 8V6h3v2"/><path d="M11 4h1"/><path d="M18 5l2-1M18 8h3M18 11l2 1"/></svg>
     </div>
-    <div class="tool" data-tool="smudge" title="Smudge (S) — drag wet paint">
+    <div class="tool" data-tool="smudge" title="Smudge (S) — drag wet paint · hold ⇧ for a straight smear">
       <svg viewBox="0 0 24 24"><path d="M14 3c0 3-5 7-5 11a5 5 0 0 0 10 0c0-4-5-8-5-11z"/><path d="M7 20c-2 0-3 1-3 1"/></svg>
     </div>
     <div class="tool" data-tool="text" title="Text (T) — random graffiti font every hit">
@@ -719,7 +719,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-16a";
+const BUILD = "2026-11-16b";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -819,6 +819,7 @@ function render() {
     dctx.drawImage(strokeCv, 0, 0);
     dctx.globalAlpha = 1;
   }
+  if (drawing && tool === "smudge" && smLine) dctx.drawImage(strokeCv, 0, 0); /* ⇧ ruler guide */
   if (placing) drawPlacing(dctx);
   if (fillPrev) {
     dctx.save();
@@ -1706,6 +1707,19 @@ display.addEventListener("pointermove", (e) => {
     render();
     return;
   }
+  if (tool === "smudge" && curSm) {
+    /* ⇧ = ruler for smudge. The smear is applied live, so it can't be re-aimed like
+       the brush line; instead ⇧ parks the finger: a guide runs from the last smeared
+       point to the pointer, and the straight smear lands when ⇧ or the button is let go. */
+    if (e.shiftKey) {
+      smLine = toWall(e);
+      const n = curPts.length;
+      smudgeGuide(curPts[n - 2], curPts[n - 1], smLine[0], smLine[1]);
+      render();
+      return;
+    }
+    smudgeLineCommit();
+  }
   let evs = e.getCoalescedEvents ? e.getCoalescedEvents() : []; if (!evs.length) evs = [e];
   for (const ev of evs) {
     const [x, y] = toWall(ev);
@@ -1719,17 +1733,43 @@ display.addEventListener("pointermove", (e) => {
   if (tool === "brush" || tool === "drip") drawCurrent();
   render();
 });
+let smLine = null; /* pending ⇧ straight-smudge endpoint (wall coords) */
+function smudgeGuide(x0, y0, x1, y1) {
+  sctx.clearRect(0, 0, W, H);
+  sctx.save();
+  sctx.lineCap = "round";
+  sctx.strokeStyle = "rgba(255,255,255,.22)"; sctx.lineWidth = Math.max(size, 6);
+  sctx.beginPath(); sctx.moveTo(x0, y0); sctx.lineTo(x1, y1); sctx.stroke();
+  sctx.setLineDash([10, 8]);
+  sctx.strokeStyle = "rgba(0,0,0,.75)"; sctx.lineWidth = 2.5;
+  sctx.beginPath(); sctx.moveTo(x0, y0); sctx.lineTo(x1, y1); sctx.stroke();
+  sctx.restore();
+}
+function smudgeLineCommit() {
+  if (!smLine) return;
+  const [x, y] = smLine; smLine = null;
+  sctx.clearRect(0, 0, W, H);
+  const n = curPts.length;
+  if (!curSm || Math.hypot(x - curPts[n - 2], y - curPts[n - 1]) < 2) return;
+  curPts.push(x, y);
+  curSm(x, y);
+}
+/* letting go of ⇧ without moving lands the straight smear right away */
+window.addEventListener("keyup", (e) => {
+  if (e.key === "Shift" && drawing && tool === "smudge" && smLine) { smudgeLineCommit(); render(); }
+});
 function cancelStroke() {
   /* discard the in-progress stroke without publishing. Brush/preview strokes
      just clear; air/smudge/erasers were applied live to the layers, so replay
      the op log to wipe the unpublished marks. */
-  drawing = false; curPts = []; curSm = null; erLast = null; airHoldStop();
+  drawing = false; curPts = []; curSm = null; erLast = null; airHoldStop(); smLine = null;
   sctx.clearRect(0, 0, W, H);
   if (tool === "air" || tool === "smudge" || isEraser(tool)) rebuild();
   else render();
 }
 function endStroke() {
   if (!drawing) { curPts = []; return; }
+  if (tool === "smudge") smudgeLineCommit();
   drawing = false; airHoldStop();
   const op = { t: "s", tool, c: fg, sz: size, op: round2(opacity), pts: curPts };
   if (tool === "air" || tool === "smudge" || isEraser(tool)) {
