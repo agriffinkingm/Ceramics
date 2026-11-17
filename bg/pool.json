@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-11-14-c",
-  "image": "pool-2026-11-14-c.jpg",
-  "headline": "After Bedouin hero rescued people on Oct . 7 , Israel destroyed his family homes",
-  "url": "https://www.jpost.com/israel-news/article-914636",
-  "outlet": "jpost.com",
-  "t": "2026-11-13T14:52:53+00:00",
-  "hash": 9185338761687408351
- },
- {
-  "id": "2026-11-15",
-  "image": "pool-2026-11-15.jpg",
-  "headline": "The fight over Canadian steelworker jobs",
-  "url": "https://www.aljazeera.com/economy/2026/11/13/the-fight-over-canadian-steelworker-jobs",
-  "outlet": "aljazeera.com",
-  "t": "2026-11-14T13:33:49+00:00",
-  "hash": 31244852211301624
- },
- {
   "id": "2026-11-15-b",
   "image": "pool-2026-11-15-b.jpg",
   "headline": "U - 23 AFCONQ : Nigeria suffer 2 - 0 defeat to DR Congo in first leg",
@@ -165,5 +147,25 @@
   "outlet": "telecom.economictimes.indiatimes.com",
   "t": "2026-11-17T16:26:04+00:00",
   "hash": 54324668073447168
+ },
+ {
+  "id": "2026-11-17-1557-0",
+  "image": "pool-2026-11-17-1557-0.jpg",
+  "headline": "Between Bristol And Bridgwater Is A Victorian Coastal Town With Nostalgic Fun , A Pier , And A Sandy Beach",
+  "url": "https://www.islands.com/2311785/weston-super-mare-between-bristol-bridgwater-victorian-coastal-town-nostalgic-fun-pier-sandy-beach/",
+  "outlet": "islands.com",
+  "t": "2026-11-17T20:57:24+00:00",
+  "vista": 8.0,
+  "hash": 217020640061759295
+ },
+ {
+  "id": "2026-11-17-1557-1",
+  "image": "pool-2026-11-17-1557-1.jpg",
+  "headline": "Missing Angoon Boater Found Dead on Oct . 28 - Daily Sitka Sentinel",
+  "url": "http://www.sitkasentinel.com/stories/missing-southeast-alaska-boater-found-dead,182447",
+  "outlet": "sitkasentinel.com",
+  "t": "2026-11-17T20:57:24+00:00",
+  "vista": 7.0,
+  "hash": 18446493385058484223
  }
 ]
