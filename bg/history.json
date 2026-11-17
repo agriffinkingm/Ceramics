@@ -432,5 +432,12 @@
   "url": "https://www.korea.net/NewsFocus/Business/view?articleId=302883",
   "outlet": "korea.net",
   "method": "crop-flat"
+ },
+ {
+  "id": "2026-11-18",
+  "headline": "Magnitude 5 . 61 earthquake strikes near Peru coast",
+  "url": "https://cedarnews.net/newstasks/1143078/magnitude-5-61-earthquake-strikes-near-perus-coast/",
+  "outlet": "cedarnews.net",
+  "method": "crop-fallback"
  }
 ]

@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-11-13-0140-1",
-  "image": "pool-2026-11-13-0140-1.jpg",
-  "headline": "Missing Angoon Boater Found Dead on Oct . 28 - Daily Sitka Sentinel",
-  "url": "http://www.sitkasentinel.com/stories/missing-southeast-alaska-boater-found-dead,182447",
-  "outlet": "sitkasentinel.com",
-  "t": "2026-11-13T06:40:17+00:00",
-  "vista": 7.0,
-  "hash": 18446493385058484223
- },
- {
-  "id": "2026-11-14",
-  "image": "pool-2026-11-14.jpg",
-  "headline": "Police Drone Data Reveals Lack of Transparency , Privacy Concerns",
-  "url": "https://www.sfpublicpress.org/police-drone-data-reveals-lack-of-transparency-privacy-concerns/",
-  "outlet": "sfpublicpress.org",
-  "t": "2026-11-13T14:52:53+00:00",
-  "hash": 10376292993861716413
- },
- {
-  "id": "2026-11-14-b",
-  "image": "pool-2026-11-14-b.jpg",
-  "headline": "5 Overnight Train Journeys in the U . S ., With Comfortable Cabins , Dining Cars , and Incredible Scenery",
-  "url": "https://www.aol.com/articles/5-overnight-train-journeys-u-220000000.html",
-  "outlet": "aol.com",
-  "t": "2026-11-13T14:52:53+00:00",
-  "hash": 4467570830368309247
- },
- {
   "id": "2026-11-14-c",
   "image": "pool-2026-11-14-c.jpg",
   "headline": "After Bedouin hero rescued people on Oct . 7 , Israel destroyed his family homes",
@@ -166,5 +138,32 @@
   "outlet": "lancashiretelegraph.co.uk",
   "t": "2026-11-16T16:18:21+00:00",
   "hash": 9259619091364741119
+ },
+ {
+  "id": "2026-11-18",
+  "image": "pool-2026-11-18.jpg",
+  "headline": "Magnitude 5 . 61 earthquake strikes near Peru coast",
+  "url": "https://cedarnews.net/newstasks/1143078/magnitude-5-61-earthquake-strikes-near-perus-coast/",
+  "outlet": "cedarnews.net",
+  "t": "2026-11-17T16:26:04+00:00",
+  "hash": 11565491168660749311
+ },
+ {
+  "id": "2026-11-18-b",
+  "image": "pool-2026-11-18-b.jpg",
+  "headline": "El Ni\u00f1o - Fueled Storms Bring Heavy Snow , Flood Warnings To The West",
+  "url": "https://bob949.iheart.com/content/2026-11-13-el-nio-fueled-storms-bring-heavy-snow-flood-warnings-to-the-west/",
+  "outlet": "bob949.iheart.com",
+  "t": "2026-11-17T16:26:04+00:00",
+  "hash": 4556789842530082623
+ },
+ {
+  "id": "2026-11-18-c",
+  "image": "pool-2026-11-18-c.jpg",
+  "headline": "Amazon Space Setback : 40 Satellites Lost in Rocket Launch Failure , ETTelecom",
+  "url": "https://telecom.economictimes.indiatimes.com/news/portal-in-portal/satcom/amazon-loses-40-internet-satellites-in-failed-rocket-launch/135871210",
+  "outlet": "telecom.economictimes.indiatimes.com",
+  "t": "2026-11-17T16:26:04+00:00",
+  "hash": 54324668073447168
  }
 ]
