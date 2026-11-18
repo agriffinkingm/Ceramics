@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-11-15-b",
-  "image": "pool-2026-11-15-b.jpg",
-  "headline": "U - 23 AFCONQ : Nigeria suffer 2 - 0 defeat to DR Congo in first leg",
-  "url": "https://www.vanguardngr.com/2026/11/u-23-afconq-nigeria-suffer-2-0-defeat-to-dr-congo-in-first-leg/",
-  "outlet": "vanguardngr.com",
-  "t": "2026-11-14T13:33:49+00:00",
-  "hash": 3461041599025121304
- },
- {
-  "id": "2026-11-15-c",
-  "image": "pool-2026-11-15-c.jpg",
-  "headline": "Can a walkable downtown thrive in the heart of suburban sprawl ? This city is putting that to the test",
-  "url": "https://kirksvilledailyexpress.com/syndicated/can-a-walkable-downtown-thrive-in-the-heart-of-suburban-sprawl-this-city-is-putting-that-to-the-test",
-  "outlet": "kirksvilledailyexpress.com",
-  "t": "2026-11-14T13:33:49+00:00",
-  "hash": 9315957407243185918
- },
- {
-  "id": "2026-11-14-1724-0",
-  "image": "pool-2026-11-14-1724-0.jpg",
-  "headline": "Inside  breathtaking  Spanish town where Brits flock for sunshine and quiet life",
-  "url": "https://www.aol.co.uk/articles/inside-breathtaking-spanish-town-where-190400000.html",
-  "outlet": "aol.co.uk",
-  "t": "2026-11-14T22:24:41+00:00",
-  "vista": 9.0,
-  "hash": 9882601914367
- },
- {
   "id": "2026-11-14-1724-1",
   "image": "pool-2026-11-14-1724-1.jpg",
   "headline": "Port sues to get control of tanker that crashed into cruise ship on Mississippi",
@@ -167,5 +139,32 @@
   "t": "2026-11-17T20:57:24+00:00",
   "vista": 7.0,
   "hash": 18446493385058484223
+ },
+ {
+  "id": "2026-11-19",
+  "image": "pool-2026-11-19.jpg",
+  "headline": "Grand Diwali celebrations light up Srinagar iconic Lal Chowk",
+  "url": "http://www.mexicostar.com/news/279420957/grand-diwali-celebrations-light-up-srinagar-iconic-lal-chowk",
+  "outlet": "mexicostar.com",
+  "t": "2026-11-18T15:58:20+00:00",
+  "hash": 13961653357748798403
+ },
+ {
+  "id": "2026-11-19-b",
+  "image": "pool-2026-11-19-b.jpg",
+  "headline": "Planes collide while taxiing at Miami Airport",
+  "url": "https://www.thestar.com.my/news/nation/2026/11/15/planes-collide-while-taxiing-at-miami-airport",
+  "outlet": "thestar.com.my",
+  "t": "2026-11-18T15:58:20+00:00",
+  "hash": 71991363557901251
+ },
+ {
+  "id": "2026-11-19-c",
+  "image": "pool-2026-11-19-c.jpg",
+  "headline": "IAF Chief celebrates Diwali with Air Force personnel at forward airbase",
+  "url": "http://www.mexicostar.com/news/279420850/iaf-chief-celebrates-diwali-with-air-force-personnel-at-forward-airbase",
+  "outlet": "mexicostar.com",
+  "t": "2026-11-18T15:58:20+00:00",
+  "hash": 9551008909798899711
  }
 ]

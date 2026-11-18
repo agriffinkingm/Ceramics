@@ -439,5 +439,12 @@
   "url": "https://cedarnews.net/newstasks/1143078/magnitude-5-61-earthquake-strikes-near-perus-coast/",
   "outlet": "cedarnews.net",
   "method": "crop-fallback"
+ },
+ {
+  "id": "2026-11-19",
+  "headline": "Grand Diwali celebrations light up Srinagar iconic Lal Chowk",
+  "url": "http://www.mexicostar.com/news/279420957/grand-diwali-celebrations-light-up-srinagar-iconic-lal-chowk",
+  "outlet": "mexicostar.com",
+  "method": "crop-fallback"
  }
 ]

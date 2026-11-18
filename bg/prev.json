@@ -1,11 +1,11 @@
 {
- "id": "2026-11-17",
- "image": "prev.jpg?v=2026-11-17",
- "activeAt": "2026-11-17T03:33:00-05:00",
- "headline": "ICT exports in October jump 202 % to record - high USD 70 . 3B : data : Korea . net : The official website of the Republic of Korea",
- "url": "https://www.korea.net/NewsFocus/Business/view?articleId=302883",
- "outlet": "korea.net",
- "seendate": "20261116T081500Z",
- "method": "crop-flat",
- "generated": "2026-11-16T16:18:21+00:00"
+ "id": "2026-11-18",
+ "image": "prev.jpg?v=2026-11-18",
+ "activeAt": "2026-11-18T03:33:00-05:00",
+ "headline": "Magnitude 5 . 61 earthquake strikes near Peru coast",
+ "url": "https://cedarnews.net/newstasks/1143078/magnitude-5-61-earthquake-strikes-near-perus-coast/",
+ "outlet": "cedarnews.net",
+ "seendate": "20261113T180000Z",
+ "method": "crop-fallback",
+ "generated": "2026-11-17T16:26:04+00:00"
 }
