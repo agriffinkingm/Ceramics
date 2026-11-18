@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-14-1724-1",
-  "image": "pool-2026-11-14-1724-1.jpg",
-  "headline": "Port sues to get control of tanker that crashed into cruise ship on Mississippi",
-  "url": "https://www.enfieldindependent.co.uk/news/national/26729940.port-sues-get-control-tanker-crashed-cruise-ship-mississippi/",
-  "outlet": "enfieldindependent.co.uk",
-  "t": "2026-11-14T22:24:41+00:00",
-  "vista": 7.0,
-  "hash": 16350018271836356800
- },
- {
   "id": "2026-11-16",
   "image": "pool-2026-11-16.jpg",
   "headline": "Ukraine Uses Stargate Drone to Evacuate Wounded Soldier 30 Kilometers",
@@ -166,5 +156,15 @@
   "outlet": "mexicostar.com",
   "t": "2026-11-18T15:58:20+00:00",
   "hash": 9551008909798899711
+ },
+ {
+  "id": "2026-11-18-1147-0",
+  "image": "pool-2026-11-18-1147-0.jpg",
+  "headline": "Inside  breathtaking  Spanish town where Brits flock for sunshine and quiet life",
+  "url": "https://www.aol.co.uk/articles/inside-breathtaking-spanish-town-where-190400000.html",
+  "outlet": "aol.co.uk",
+  "t": "2026-11-18T16:47:49+00:00",
+  "vista": 9.0,
+  "hash": 9882601914367
  }
 ]
