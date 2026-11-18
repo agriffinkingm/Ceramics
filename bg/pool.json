@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-11-16",
-  "image": "pool-2026-11-16.jpg",
-  "headline": "Ukraine Uses Stargate Drone to Evacuate Wounded Soldier 30 Kilometers",
-  "url": "https://econotimes.com/Ukraine-Uses-Stargate-Drone-to-Evacuate-Wounded-Soldier-30-Kilometers-1777160",
-  "outlet": "econotimes.com",
-  "t": "2026-11-15T14:16:06+00:00",
-  "hash": 54044811577327359
- },
- {
-  "id": "2026-11-16-b",
-  "image": "pool-2026-11-16-b.jpg",
-  "headline": "Ukraine launches nearly 1200 drones at Russia",
-  "url": "https://www.perthnow.com.au/news/conflict/ukraine-launches-nearly-1200-drones-at-russia-c-23161052",
-  "outlet": "perthnow.com.au",
-  "t": "2026-11-15T14:16:06+00:00",
-  "hash": 288230531817336319
- },
- {
   "id": "2026-11-16-c",
   "image": "pool-2026-11-16-c.jpg",
   "headline": "Military Intelligence : Hezbollah highly likely to join if war with Iran resumes",
@@ -166,5 +148,25 @@
   "t": "2026-11-18T16:47:49+00:00",
   "vista": 9.0,
   "hash": 9882601914367
+ },
+ {
+  "id": "2026-11-18-1532-0",
+  "image": "pool-2026-11-18-1532-0.jpg",
+  "headline": "Google signs world first commercial superhot rock geothermal deal at Oregon Newberry Volcano",
+  "url": "https://www.klcc.org/environment/2026-11-17/google-quaise-energy-newberry-volcano-superhot-rock-geothermal-deal",
+  "outlet": "klcc.org",
+  "t": "2026-11-18T20:32:30+00:00",
+  "vista": 8.0,
+  "hash": 15894780609313023
+ },
+ {
+  "id": "2026-11-18-1532-1",
+  "image": "pool-2026-11-18-1532-1.jpg",
+  "headline": "UBCO Talk Explores 21st - Century Wildfire Resilience",
+  "url": "https://www.miragenews.com/ubco-talk-explores-21st-century-wildfire-1779718/",
+  "outlet": "miragenews.com",
+  "t": "2026-11-18T20:32:30+00:00",
+  "vista": 7.0,
+  "hash": 10414571981897728
  }
 ]
