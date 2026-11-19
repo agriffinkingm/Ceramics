@@ -238,6 +238,9 @@
   .seg button + button { border-left: 1px solid var(--panel-border); }
   .seg button.on { background: var(--hilite); color: #fff; }
   #smudge-seg2 { margin-top: -1px; }
+  #mode-seg2 { margin-top: -1px; }
+  #mode-row .seg button { white-space: nowrap; padding: 6px 1px; font-size: 10.5px; }
+  #can-hint { margin-top: 5px; font-size: 10px; line-height: 1.35; color: var(--panel-dim); }
   .slider-row .sr-head { display: flex; justify-content: space-between; margin-bottom: 3px; }
   .slider-row .sr-val { color: var(--panel-text); font-variant-numeric: tabular-nums; }
   input[type=range] {
@@ -574,11 +577,18 @@
       </div>
     </div>
     <div class="slider-row" id="mode-row" style="display:none">
-      <div class="sr-head"><span>Fill</span></div>
+      <div class="sr-head"><span>Can</span><span class="sr-val" id="can-cost"></span></div>
       <div class="seg" id="mode-seg">
-        <button type="button" data-mode="blend" class="on" title="Content-aware: the model sees the wall around the selection and paints into it so it blends">🧩 Blend in</button>
-        <button type="button" data-mode="imagine" title="Made up from the prompt alone — ignores what's on the wall">✨ Imagine</button>
+        <button type="button" data-mode="blend" class="on">🧩 Blend</button>
+        <button type="button" data-mode="expand">↔ Expand</button>
+        <button type="button" data-mode="restyle">🎨 Restyle</button>
       </div>
+      <div class="seg" id="mode-seg2">
+        <button type="button" data-mode="imagine">✨ Imagine</button>
+        <button type="button" data-mode="quick">⚡ Quick</button>
+        <button type="button" data-mode="free">🆓 Free</button>
+      </div>
+      <div id="can-hint"></div>
     </div>
     <div class="slider-row" id="drip-row" style="display:none">
       <div class="sr-head"><span>Runniness</span><span class="sr-val" id="drip-val">100</span></div>
@@ -727,7 +737,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-16c";
+const BUILD = "2026-11-19a";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -1557,13 +1567,22 @@ smudgeBtns.forEach(b => b.addEventListener("click", () => {
   smudgeTip = b.dataset.sm;
   smudgeBtns.forEach(o => o.classList.toggle("on", o === b));
 }));
-/* AI Fill mode: "blend" = content-aware inpainting (default), "imagine" = prompt only */
+/* AI Fill cans: each one is a job, with the model that tested best for it wired
+   behind it (Nov 19 2026 — see CANS further down). blend/expand/restyle look at
+   the wall; imagine/quick/free paint from the prompt alone. */
 let genMode = "blend";
-document.querySelectorAll("#mode-seg button").forEach(b => b.addEventListener("click", () => {
-  genMode = b.dataset.mode;
-  document.querySelectorAll("#mode-seg button").forEach(o => o.classList.toggle("on", o === b));
+function setCan(mode) {
+  genMode = mode;
+  const can = CANS[mode];
+  document.querySelectorAll("#mode-row .seg button").forEach(o => o.classList.toggle("on", o.dataset.mode === mode));
+  document.getElementById("can-cost").textContent = can.cost;
+  document.getElementById("can-hint").textContent = can.hint;
+  genInput.placeholder = can.ph;
   if (genBar.style.display === "flex" && genGo.style.display !== "none") genLabel();
-}));
+}
+document.querySelectorAll("#mode-row .seg button").forEach(b => {
+  b.addEventListener("click", () => setCan(b.dataset.mode));
+});
 function setShape(sh) {
   if (genShape === "subject" && sh !== "subject") closeSubj();
   if (sh === "subject" && rectSel && !genBusy) closeGen();
@@ -2614,10 +2633,33 @@ window.addEventListener("paste", (e) => {
    by design — the cap bounds the damage if someone lifts it). ~0.039 pollen/image on
    nanobanana. When the pollen runs out the tool auto-falls back to the free flux can. */
 const POLLINATIONS_KEY = "sk_FwBD5AH5UI2unXoI4rERFIMWtFxPYKC3";
-const GEN_MODEL = "nanobanana"; // needs pollen; seedream refuses <1024px boxes so don't use it here
+const GEN_MODEL = "nanobanana"; // needs pollen; seedream (4.0) refuses <1024px boxes so don't use it here
+/* Models picked by trying each job on real wall crops (Nov 19 2026):
+   - nanobanana: the only one that extends a picture seamlessly AND leaves the rest alone
+   - seedream 5.0 flash: most detailed from-scratch pictures, takes any box size
+   - z-image: 4 s, a fifth of the price; needs both sides >= 256
+   - flux.2 klein: actually changes the look on a restyle (nanobanana/kontext barely do) */
+const IMAGINE_MODEL = "bytedance/seedream-5.0-flash";
+const QUICK_MODEL = "zimage";
+const RESTYLE_MODEL = "klein";
+const CANS = {
+  blend:   { go: "Generate",   busy: "painting…",  cost: "~4–8¢ a spray", ph: "describe what to paint — leave empty to remove…",
+             hint: "Paints into the selection so it matches what's around it. Empty prompt = remove what's there." },
+  expand:  { go: "↔ Expand",   busy: "expanding…", cost: "~4–8¢ a spray", ph: "optional — what should show up in the new area…",
+             hint: "Select the empty space beside something and it grows the art into it. No prompt needed." },
+  restyle: { go: "🎨 Restyle", busy: "restyling…", cost: "under 1¢",      ph: "describe the new look — chrome, watercolor, comic…",
+             hint: "Keeps the shapes inside the selection and repaints them in the look you describe." },
+  imagine: { go: "✨ Imagine", busy: "imagining…", cost: "~2¢ a spray",   ph: "describe a whole new picture…",
+             hint: "A whole new picture from your words — ignores the wall. Most detail, about 15 seconds." },
+  quick:   { go: "⚡ Quick",   busy: "painting…",  cost: "under 1¢",      ph: "describe a whole new picture…",
+             hint: "Like Imagine but done in about 4 seconds and a bit rougher." },
+  free:    { go: "🆓 Free",    busy: "painting…",  cost: "free",          ph: "describe a whole new picture…",
+             hint: "Costs nothing. Lower quality, and it needs a minute to recharge between sprays." }
+};
 const genBar = document.getElementById("gen-bar");
 const genInput = document.getElementById("gen-prompt");
 const genGo = document.getElementById("gen-go");
+setCan("blend");
 const genKeep = document.getElementById("gen-keep");
 const genReroll = document.getElementById("gen-reroll");
 const genOpRow = document.getElementById("gen-op-row");
@@ -2663,11 +2705,13 @@ function selBox(sel) {
   }
   return { rx: x0, ry: y0, rw: x1 - x0, rh: y1 - y0 };
 }
-function wallCrop(rx, ry, rw, rh) {
-  const m = 0.5 * Math.max(rw, rh);
+function wallCrop(rx, ry, rw, rh, mf = 0.5, minSide = 0) {
+  const m = mf * Math.max(rw, rh);
   const cx0 = rx - m, cy0 = ry - m;
   const cw = rw + 2 * m, ch = rh + 2 * m;
-  const s = Math.min(1024 / Math.max(cw, ch), 2);   /* ≤1024 long side, never upscale >2x */
+  let s = Math.min(1024 / Math.max(cw, ch), 2);     /* ≤1024 long side, never upscale >2x */
+  /* …unless the model needs a minimum short side (klein: 256) */
+  if (minSide) s = Math.min(Math.max(s, minSide / Math.min(cw, ch)), 1536 / Math.max(cw, ch));
   const c = document.createElement("canvas");
   c.width = Math.max(64, Math.round(cw * s));
   c.height = Math.max(64, Math.round(ch * s));
@@ -2682,11 +2726,11 @@ function wallCrop(rx, ry, rw, rh) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   return { canvas: c, fx: m / cw, fy: m / ch, fw: rw / cw, fh: rh / ch, rw, rh };
 }
-async function editFetch(blob, instruction) {
+async function editFetch(blob, instruction, model = GEN_MODEL) {
   const fd = new FormData();
   fd.append("image", blob, "wall.jpg");
   fd.append("prompt", instruction);
-  fd.append("model", GEN_MODEL);
+  fd.append("model", model);
   const call = (bearer) => fetch("https://gen.pollinations.ai/v1/images/edits" + (bearer ? "" : "?key=" + POLLINATIONS_KEY),
     { method: "POST", body: fd, headers: bearer ? { "Authorization": "Bearer " + POLLINATIONS_KEY } : undefined });
   let r = await call(false);
@@ -3061,7 +3105,9 @@ pbInvert.addEventListener("change", refreshStencil);
 pbTone.addEventListener("change", refreshStencil);
 
 function genLabel() {
-  genGo.textContent = !genInput.value.trim() ? "🧽 Remove" : genMode === "imagine" ? "✨ Imagine" : "Generate";
+  /* an empty prompt means Remove — except on the two cans that work without words */
+  const wordless = genMode === "expand" || genMode === "restyle";
+  genGo.textContent = (!genInput.value.trim() && !wordless) ? "🧽 Remove" : CANS[genMode].go;
 }
 function resetGenUi() {
   genBar.style.display = "none";
@@ -3097,6 +3143,9 @@ async function generate() {
   if (!rectSel || !rectSel.paths.length || genBusy) return;
   const prompt = genInput.value.trim();
   if (!prompt && !POLLINATIONS_KEY) { showBanner("Remove needs the keyed can — describe something to paint instead"); return; }
+  /* which can actually sprays: no words on a prompt-only can = Remove (a blend job) */
+  const mode = (prompt || genMode === "expand" || genMode === "restyle") ? genMode : "blend";
+  if (mode === "restyle" && !prompt) { showBanner("Restyle needs a look — describe it (chrome, watercolor, comic…)"); return; }
   const b = selBox(rectSel);
   const rx = b.rx, ry = b.ry;
   const rw = Math.max(24, b.rw);
@@ -3109,10 +3158,14 @@ async function generate() {
      falls back to the free keyless flux endpoint (tightly rate-limited per IP but $0),
      so the wall keeps painting even at zero balance. Remove has no imagination
      fallback — you can't remove from a vacuum. */
-  const qs = "?width=" + gw + "&height=" + gh + "&seed=" + seed + "&nologo=true&enhance=true";
-  const keyedUrl = "https://gen.pollinations.ai/image/" + encodeURIComponent(prompt) + qs +
-    "&model=" + GEN_MODEL + "&key=" + POLLINATIONS_KEY;
-  const freeUrl = (model) => "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + qs +
+  /* ask for at least 256 on the short side (z-image/klein refuse less) and at most
+     1280 on the long one; whatever comes back is cover-cropped into the box */
+  const up = Math.max(1, 256 / Math.min(gw, gh));
+  const qw = Math.min(1280, Math.round(gw * up)), qh = Math.min(1280, Math.round(gh * up));
+  const qs = "?width=" + qw + "&height=" + qh + "&seed=" + seed + "&nologo=true";
+  const keyed = (model) => "https://gen.pollinations.ai/image/" + encodeURIComponent(prompt) + qs +
+    (model === GEN_MODEL ? "&enhance=true" : "") + "&model=" + encodeURIComponent(model) + "&key=" + POLLINATIONS_KEY;
+  const freeUrl = (model) => "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt) + qs + "&enhance=true" +
     (model ? "&model=" + model : "") + "&referrer=agriffinkingm.com";
   const fetchIm = async (url) => {
     const r = await fetch(url);
@@ -3131,53 +3184,79 @@ async function generate() {
   };
   genBusy = true;
   genGo.disabled = true; genKeep.disabled = true; genReroll.disabled = true;
-  genGo.textContent = genMode === "imagine" && prompt ? "imagining…" : "painting…"; genReroll.textContent = "painting…";
+  genGo.textContent = CANS[mode].busy; genReroll.textContent = CANS[mode].busy;
   try {
     let fillCv = null, im = null;
     const freeChain = () => fetchIm(freeUrl("flux")).catch(e => e.rl ? Promise.reject(e) : fetchIm(freeUrl("")));
-    /* Imagine mode skips the wall-aware edit and paints from the prompt alone;
-       Remove (empty prompt) always needs the wall, so it stays content-aware */
-    if (POLLINATIONS_KEY && genMode === "imagine" && prompt) {
-      try { im = await fetchIm(keyedUrl); }
-      catch (e2) {
-        if (e2.rl) throw e2;
-        if (e2.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
-        im = await freeChain();
+    const outOfPollen = () => showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
+    /* prompt-only: try the can's models in order, then the free can */
+    const promptOnly = async (models) => {
+      for (const m of models) {
+        try { return await fetchIm(keyed(m)); }
+        catch (e2) {
+          if (e2.rl) throw e2;
+          if (e2.pp) { outOfPollen(); break; }
+        }
       }
-    } else if (POLLINATIONS_KEY) {
+      return freeChain();
+    };
+    if (!POLLINATIONS_KEY || mode === "free") {
+      im = await freeChain();
+    } else if (mode === "imagine") {
+      im = await promptOnly([IMAGINE_MODEL, GEN_MODEL]);
+    } else if (mode === "quick") {
+      im = await promptOnly([QUICK_MODEL, RESTYLE_MODEL]);
+    } else {
+      /* blend / expand / restyle look at the wall (see helpers above). Restyle sends
+         just the selection, so all the pixels go to the thing being repainted. */
+      const what = mode === "expand" ? "Expand" : mode === "restyle" ? "Restyle" : "Remove";
       try {
-        /* wall-aware fill (see helpers above) */
-        const crop = wallCrop(rx, ry, rw, rh);
+        const crop = mode === "restyle" ? wallCrop(rx, ry, rw, rh, 0, 256) : wallCrop(rx, ry, rw, rh);
         const blob = await new Promise(res => crop.canvas.toBlob(res, "image/jpeg", 0.9));
         if (!blob) throw new Error("crop failed");
-        const instruction = prompt
-          ? "Add to the exact center of this image: " + prompt +
-            ". Paint it directly into the scene so it blends naturally with its surroundings — match the lighting, colors, texture, style and perspective of what is already there. Keep everything outside the center region exactly unchanged."
-          : "Remove whatever occupies the exact center region of this image and repaint that area as a natural continuation of its immediate surroundings — continue the wall texture, colors and lighting, and any marks that enter from the edges. Keep everything outside the center region exactly unchanged.";
-        fillCv = cutRect(await editFetch(blob, instruction), crop);
+        const instruction =
+          mode === "restyle"
+            ? "Repaint this whole image in this style: " + prompt +
+              ". Keep the same composition, shapes, subjects and layout — change only the look."
+          : mode === "expand"
+            ? "Outpaint the center region of this image: extend the picture that surrounds it into the center as one seamless, natural continuation — same lighting, colors, perspective, texture and style. Treat plain flat grey concrete as empty space to paint over." +
+              (prompt ? " In the new area show: " + prompt + "." : "") +
+              " Keep everything outside the center region exactly unchanged."
+          : prompt
+            ? "Add to the exact center of this image: " + prompt +
+              ". Paint it directly into the scene so it blends naturally with its surroundings — match the lighting, colors, texture, style and perspective of what is already there. Keep everything outside the center region exactly unchanged."
+            : "Remove whatever occupies the exact center region of this image and repaint that area as a natural continuation of its immediate surroundings — continue the wall texture, colors and lighting, and any marks that enter from the edges. Keep everything outside the center region exactly unchanged.";
+        let got = null, last = null;
+        for (const m of (mode === "restyle" ? [RESTYLE_MODEL, GEN_MODEL] : [GEN_MODEL])) {
+          try { got = await editFetch(blob, instruction, m); break; }
+          catch (e) { last = e; if (e.rl || e.pp) break; }
+        }
+        if (!got) throw last;
+        fillCv = cutRect(got, crop);
       } catch (e) {
         if (e.rl) throw e;
-        if (!prompt) throw (e.pp ? new Error("out of pollen — Remove needs the keyed can") : new Error("couldn't remove — try again"));
+        /* these can't be faked from imagination — there is nothing to remove,
+           grow or repaint without the wall */
+        if (!prompt || mode === "restyle") {
+          throw (e.pp ? new Error("out of pollen — " + what + " needs the keyed can")
+                      : new Error("couldn't " + what.toLowerCase() + " — try again"));
+        }
         if (e.pp) {
-          showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
+          outOfPollen();
           im = await freeChain();
         } else {
           showBanner("couldn't paint with the surroundings — painting from imagination");
-          try { im = await fetchIm(keyedUrl); }
-          catch (e2) {
-            if (e2.rl) throw e2;
-            if (e2.pp) showBanner("pollen's run out — switching to the free can (top up at enter.pollinations.ai)");
-            im = await freeChain();
-          }
+          im = await promptOnly([GEN_MODEL]);
         }
       }
-    } else {
-      im = await freeChain();
     }
     if (!fillCv) {
+      /* cover-crop: models hand back their own sizes and shapes */
       fillCv = document.createElement("canvas");
       fillCv.width = gw; fillCv.height = gh;
-      fillCv.getContext("2d").drawImage(im, 0, 0, gw, gh);
+      const k = Math.max(gw / im.naturalWidth, gh / im.naturalHeight);
+      const dw = im.naturalWidth * k, dh = im.naturalHeight * k;
+      fillCv.getContext("2d").drawImage(im, (gw - dw) / 2, (gh - dh) / 2, dw, dh);
       URL.revokeObjectURL(im.src);
     }
     lassoMask(fillCv, rectSel, rx, ry, rw, rh);
