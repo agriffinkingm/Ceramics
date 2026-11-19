@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-11-16-c",
-  "image": "pool-2026-11-16-c.jpg",
-  "headline": "Military Intelligence : Hezbollah highly likely to join if war with Iran resumes",
-  "url": "https://www.israelnationalnews.com/news/436212",
-  "outlet": "israelnationalnews.com",
-  "t": "2026-11-15T14:16:06+00:00",
-  "hash": 867231060646952960
- },
- {
   "id": "2026-11-15-1002-0",
   "image": "pool-2026-11-15-1002-0.jpg",
   "headline": "Hope springs eternal in award - winning photos showcasing nature resilience",
@@ -168,5 +159,15 @@
   "t": "2026-11-18T20:32:30+00:00",
   "vista": 7.0,
   "hash": 10414571981897728
+ },
+ {
+  "id": "2026-11-19-0222-0",
+  "image": "pool-2026-11-19-0222-0.jpg",
+  "headline": "Column : How the world could reach 3\u00b0C of warming by 2050",
+  "url": "https://www.edp24.co.uk/news/26727359.column-world-reach-3-c-warming-2050/",
+  "outlet": "edp24.co.uk",
+  "t": "2026-11-19T07:22:41+00:00",
+  "vista": 8.0,
+  "hash": 18012419908116740216
  }
 ]
