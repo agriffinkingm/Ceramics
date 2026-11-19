@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-11-17-c",
-  "image": "pool-2026-11-17-c.jpg",
-  "headline": "Im A Celebrity returns with new cast and jungle trials",
-  "url": "https://www.lancashiretelegraph.co.uk/news/national/uk-today/26730936.celebrity-returns-new-cast-jungle-trials/",
-  "outlet": "lancashiretelegraph.co.uk",
-  "t": "2026-11-16T16:18:21+00:00",
-  "hash": 9259619091364741119
- },
- {
-  "id": "2026-11-18",
-  "image": "pool-2026-11-18.jpg",
-  "headline": "Magnitude 5 . 61 earthquake strikes near Peru coast",
-  "url": "https://cedarnews.net/newstasks/1143078/magnitude-5-61-earthquake-strikes-near-perus-coast/",
-  "outlet": "cedarnews.net",
-  "t": "2026-11-17T16:26:04+00:00",
-  "hash": 11565491168660749311
- },
- {
   "id": "2026-11-18-b",
   "image": "pool-2026-11-18-b.jpg",
   "headline": "El Ni\u00f1o - Fueled Storms Bring Heavy Snow , Flood Warnings To The West",
@@ -168,5 +150,25 @@
   "t": "2026-11-19T16:52:49+00:00",
   "vista": 7.0,
   "hash": 1089535999
+ },
+ {
+  "id": "2026-11-19-1535-0",
+  "image": "pool-2026-11-19-1535-0.jpg",
+  "headline": "Hope springs eternal in award - winning photos showcasing nature resilience",
+  "url": "https://www.euronews.com/2026/11/15/hope-springs-eternal-in-award-winning-photos-showcasing-natures-resilience",
+  "outlet": "euronews.com",
+  "t": "2026-11-19T20:35:58+00:00",
+  "vista": 9.0,
+  "hash": 1167626640463694975
+ },
+ {
+  "id": "2026-11-19-1535-1",
+  "image": "pool-2026-11-19-1535-1.jpg",
+  "headline": "National Hurricane Center Tracks Potential Late - Season Subtropical or Tropical Storm",
+  "url": "https://993thebeat.iheart.com/content/2026-11-19-national-hurricane-center-tracks-potential-late-season-subtropical-or-tropical-storm/",
+  "outlet": "993thebeat.iheart.com",
+  "t": "2026-11-19T20:35:58+00:00",
+  "vista": 9.0,
+  "hash": 1133626805653263
  }
 ]
