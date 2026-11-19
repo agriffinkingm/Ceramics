@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-11-15-1002-0",
-  "image": "pool-2026-11-15-1002-0.jpg",
-  "headline": "Hope springs eternal in award - winning photos showcasing nature resilience",
-  "url": "https://www.euronews.com/2026/11/15/hope-springs-eternal-in-award-winning-photos-showcasing-natures-resilience",
-  "outlet": "euronews.com",
-  "t": "2026-11-15T15:02:42+00:00",
-  "vista": 9.0,
-  "hash": 1167626640463694975
- },
- {
-  "id": "2026-11-15-1355-0",
-  "image": "pool-2026-11-15-1355-0.jpg",
-  "headline": "Feeling the winter chill ? Thermal baths and scenic outdoor saunas worth visiting in Europe",
-  "url": "https://www.euronews.com/2026/11/15/feeling-the-winter-chill-thermal-baths-and-scenic-outdoor-saunas-worth-visiting-in-europe",
-  "outlet": "euronews.com",
-  "t": "2026-11-15T18:55:13+00:00",
-  "vista": 8.0,
-  "hash": 2456740256064143392
- },
- {
-  "id": "2026-11-15-1355-1",
-  "image": "pool-2026-11-15-1355-1.jpg",
-  "headline": "Kashmir gears up for winter ; depts asked to ensure adequate stocks , essential services",
-  "url": "https://www.tribuneindia.com/news/j-k/kashmir-gears-up-for-winter-depts-asked-to-ensure-adequate-stocks-essential-services/",
-  "outlet": "tribuneindia.com",
-  "t": "2026-11-15T18:55:13+00:00",
-  "vista": 7.0,
-  "hash": 1747132228912150782
- },
- {
   "id": "2026-11-17",
   "image": "pool-2026-11-17.jpg",
   "headline": "ICT exports in October jump 202 % to record - high USD 70 . 3B : data : Korea . net : The official website of the Republic of Korea",
@@ -169,5 +139,32 @@
   "t": "2026-11-19T07:22:41+00:00",
   "vista": 8.0,
   "hash": 18012419908116740216
+ },
+ {
+  "id": "2026-11-20",
+  "image": "pool-2026-11-20.jpg",
+  "headline": "Iran protests erupt over bus crash killing 13 oil workers in Abdanan",
+  "url": "https://www.foxnews.com/world/protesters-call-regime-change-iran-following-deadly-crash-killed-13-oil-gas-workers",
+  "outlet": "foxnews.com",
+  "t": "2026-11-19T16:02:14+00:00",
+  "hash": 9187197138437539335
+ },
+ {
+  "id": "2026-11-20-b",
+  "image": "pool-2026-11-20-b.jpg",
+  "headline": "Editorial : Did you have candles ready ? | Cowichan Valley Citizen",
+  "url": "https://cowichanvalleycitizen.com/2026/11/18/editorial-did-you-have-candles-ready/",
+  "outlet": "cowichanvalleycitizen.com",
+  "t": "2026-11-19T16:02:14+00:00",
+  "hash": 9160061058067924751
+ },
+ {
+  "id": "2026-11-20-c",
+  "image": "pool-2026-11-20-c.jpg",
+  "headline": "Texas regulators are resuming environmental permits for data centers",
+  "url": "https://www.ketr.org/stories-from-texas-stations/2026-11-18/texas-regulators-are-resuming-environmental-permits-for-data-centers",
+  "outlet": "ketr.org",
+  "t": "2026-11-19T16:02:14+00:00",
+  "hash": 281474976710655
  }
 ]

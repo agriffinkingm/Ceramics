@@ -446,5 +446,12 @@
   "url": "http://www.mexicostar.com/news/279420957/grand-diwali-celebrations-light-up-srinagar-iconic-lal-chowk",
   "outlet": "mexicostar.com",
   "method": "crop-fallback"
+ },
+ {
+  "id": "2026-11-20",
+  "headline": "Iran protests erupt over bus crash killing 13 oil workers in Abdanan",
+  "url": "https://www.foxnews.com/world/protesters-call-regime-change-iran-following-deadly-crash-killed-13-oil-gas-workers",
+  "outlet": "foxnews.com",
+  "method": "crop"
  }
 ]
