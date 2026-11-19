@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-11-17",
-  "image": "pool-2026-11-17.jpg",
-  "headline": "ICT exports in October jump 202 % to record - high USD 70 . 3B : data : Korea . net : The official website of the Republic of Korea",
-  "url": "https://www.korea.net/NewsFocus/Business/view?articleId=302883",
-  "outlet": "korea.net",
-  "t": "2026-11-16T16:18:21+00:00",
-  "hash": 64955088895
- },
- {
-  "id": "2026-11-17-b",
-  "image": "pool-2026-11-17-b.jpg",
-  "headline": "Body of missing 74 - year - old windsurfing doctor found near Straits Quay",
-  "url": "https://www.thestar.com.my/news/nation/2026/11/16/body-of-missing-74-year-old-windsurfing-doctor-found-near-straits-quay",
-  "outlet": "thestar.com.my",
-  "t": "2026-11-16T16:18:21+00:00",
-  "hash": 13830820300440207359
- },
- {
   "id": "2026-11-17-c",
   "image": "pool-2026-11-17-c.jpg",
   "headline": "Im A Celebrity returns with new cast and jungle trials",
@@ -166,5 +148,25 @@
   "outlet": "ketr.org",
   "t": "2026-11-19T16:02:14+00:00",
   "hash": 281474976710655
+ },
+ {
+  "id": "2026-11-19-1152-0",
+  "image": "pool-2026-11-19-1152-0.jpg",
+  "headline": "Harvard Design Students Propose Alternatives to Trump Arch",
+  "url": "https://www.artforum.com/news/harvard-design-students-propose-alternatives-to-trump-arch-1234763780/",
+  "outlet": "artforum.com",
+  "t": "2026-11-19T16:52:49+00:00",
+  "vista": 9.0,
+  "hash": 2310408441337479679
+ },
+ {
+  "id": "2026-11-19-1152-1",
+  "image": "pool-2026-11-19-1152-1.jpg",
+  "headline": "Men sentenced after waste illegally dumped at WW2 airfield",
+  "url": "https://www.echo-news.co.uk/news/26740402.men-sentenced-waste-illegally-dumped-ww2-airfield/",
+  "outlet": "echo-news.co.uk",
+  "t": "2026-11-19T16:52:49+00:00",
+  "vista": 7.0,
+  "hash": 1089535999
  }
 ]
