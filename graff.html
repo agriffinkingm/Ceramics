@@ -158,13 +158,13 @@
   #flatten.arming .fill { width: 100%; }
   #flatten span { position: relative; }
   #flatten:hover { border-color: #5c8a5c; }
-  #undo {
+  #undo, #redo {
     flex: 1; padding: 8px;
     background: var(--panel-light); border: 1px solid var(--panel-border);
     color: var(--panel-text); cursor: pointer; font: inherit; border-radius: 2px;
   }
-  #undo:disabled { opacity: .35; cursor: default; }
-  #undo:hover:not(:disabled) { background: #565656; }
+  #undo:disabled, #redo:disabled { opacity: .35; cursor: default; }
+  #undo:hover:not(:disabled), #redo:hover:not(:disabled) { background: #565656; }
   #save {
     flex: 1; padding: 8px;
     background: var(--panel-light); border: 1px solid var(--panel-border);
@@ -393,6 +393,7 @@
   #gif-hint { flex-basis: 100%; font-size: 10px; color: var(--panel-dim); }
   #pb-under-row { display: none; }
   #pb-under-row input { accent-color: var(--hilite); }
+  #pb-cut-row input { accent-color: #e5484d; }
 
   /* the floating bars can be dragged anywhere by their grip */
   .grip {
@@ -465,7 +466,7 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.25);
       cursor: pointer;
     }
-    #undo, #save {
+    #undo, #redo, #save {
       padding: 9px 6px; font-size: 12px;
       background: rgba(255,255,255,.10); border: none; border-radius: 10px;
     }
@@ -638,6 +639,7 @@
 
   <div class="tb-section" id="actions-row">
     <button id="undo" disabled title="Undo your last mark (Z)">↩ Undo</button>
+    <button id="redo" disabled title="Put back the mark you just undid (⇧Z)">↪ Redo</button>
     <button id="save" title="Download the wall as a PNG">💾 Save</button>
     <button id="flatten" title="Hold to merge every layer into a new background for everyone — the marks stop being undoable, and only the Background Eraser can touch them until 3:33"><i class="fill"></i><span>🧱 Flatten</span></button>
     <button id="freshnews" title="Hold to wipe the wall and swap in a different recent news photo for everyone (from the last few days' picks)"><i class="fill"></i><span>🗞 Fresh news</span></button>
@@ -661,6 +663,7 @@
   <label id="pb-flip-row" title="Mirror left-right"><input type="checkbox" id="pb-flip"> Flip</label>
   <label id="pb-neg-row" title="Invert the colours (negative)"><input type="checkbox" id="pb-neg"> Invert</label>
   <label id="pb-nobg-row" title="Cut the subject out and drop the background (runs in your browser; the first time downloads a ~45MB model)"><input type="checkbox" id="pb-nobg"> No background</label>
+  <label id="pb-cut-row" style="display:none" title="Move instead of copy: when you Place, the spot you copied from is wiped down to bare concrete"><input type="checkbox" id="pb-cut"> Delete original</label>
   <label id="pb-under-row" title="Put the GIF under the paint layer so spray can cover it"><input type="checkbox" id="pb-under"> Behind paint</label>
   <label id="pb-thresh-row" style="display:none">Cut <input type="range" id="pb-thresh" min="5" max="95" value="50"></label>
   <label id="pb-invert-row" style="display:none" title="Paint the light parts instead of the dark parts"><input type="checkbox" id="pb-invert"> Invert</label>
@@ -737,7 +740,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-19a";
+const BUILD = "2026-11-19b";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -1430,6 +1433,20 @@ function updateCount() {
   document.getElementById("op-count").textContent =
     n ? n + (n === 1 ? " mark" : " marks") : "—";
 }
+/* a backdrop that loads after the ops did gets its erasures put back: Background
+   Eraser strokes, and the holes left by clones that were moved off it */
+async function replayBgErase() {
+  for (const op of opsByKey.values()) {
+    if (op.t === "s" && op.tool === "berase") await applyOp(op);
+    else if (op.t === "i" && op.cut && op.cut.src && op.cut.bg === bgId) {
+      const m = await loadImg(op.cut.src), c = op.cut;
+      bgCtx.save();
+      bgCtx.globalCompositeOperation = "destination-out";
+      bgCtx.drawImage(m, c.x - c.w / 2, c.y - c.h / 2, c.w, c.h);
+      bgCtx.restore();
+    }
+  }
+}
 async function applyOp(o) {
   if (o.t === "f") { floodFill(paintCtx, o.x, o.y, o.c); }
   else if (o.t === "t") {
@@ -1449,6 +1466,20 @@ async function applyOp(o) {
   }
   else if (o.t === "i") {
     const img = await loadImg(o.src);
+    /* cut (Clone → "Delete original"): the copy was MOVED, so first wipe the spot
+       it came from on every layer — one op, so one Undo brings it all back */
+    if (o.cut && o.cut.src) {
+      const m = await loadImg(o.cut.src);
+      const c = o.cut, wipe = (ctx) => {
+        ctx.save();
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.drawImage(m, c.x - c.w / 2, c.y - c.h / 2, c.w, c.h);
+        ctx.restore();
+      };
+      wipe(paintCtx); wipe(photoCtx); wipe(aiCtx);
+      if (bgId && c.bg === bgId) wipe(bgCtx); /* backdrop: only the one it was cut from */
+      gifEraseAll((g) => g.drawImage(m, c.x - c.w / 2, c.y - c.h / 2, c.w, c.h));
+    }
     /* pt:1 = the first stencils (3a718af) went to the paint layer; newer ones are photos */
     const ic = o.pt ? paintCtx : o.ai ? aiCtx : photoCtx;  /* AI images live on their own layer */
     /* ov:1 (v10+): the image was pasted OVER what was there — punch its exact
@@ -2127,6 +2158,11 @@ function placingSize(p) {
 function drawPlacing(ctx) {
   const p = placing;
   const [w, h] = placingSize(p);
+  if (p.cut && pbCut.checked) {
+    /* show the hole the move will leave: bare concrete where the original sits */
+    const c = p.cut;
+    ctx.drawImage(c.hole, c.x - c.w / 2, c.y - c.h / 2, c.w, c.h);
+  }
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.rotate(p.rot);
@@ -2233,6 +2269,11 @@ document.getElementById("pb-place").addEventListener("click", () => {
   };
   if (p.ai) op.ai = 1;
   op.ov = 1; /* v10: pasted OVER the wall — covers existing paint at placement */
+  if (p.cut && pbCut.checked) {
+    op.cut = { src: p.cut.mask.toDataURL("image/png"), x: Math.round(p.cut.x), y: Math.round(p.cut.y),
+               w: Math.max(1, Math.round(p.cut.w)), h: Math.max(1, Math.round(p.cut.h)) };
+    if (bgId) op.cut.bg = bgId;
+  }
   placing = null;
   resetPlaceBar();
   enqueue(op); publish(op);
@@ -2249,6 +2290,8 @@ function resetPlaceBar() {
   pbNeg.checked = false;
   pbNobgRow.style.display = "";
   pbNobg.checked = false; pbNobg.disabled = false;
+  pbCutRow.style.display = "none";
+  pbCut.checked = false;
   pbThreshRow.style.display = "none";
   pbInvertRow.style.display = "none";
   pbToneRow.style.display = "none";
@@ -2272,6 +2315,25 @@ const pbFlip = document.getElementById("pb-flip");
 const pbFlipRow = document.getElementById("pb-flip-row");
 const pbNeg = document.getElementById("pb-neg");
 const pbNegRow = document.getElementById("pb-neg-row");
+const pbCut = document.getElementById("pb-cut");
+const pbCutRow = document.getElementById("pb-cut-row");
+pbCut.addEventListener("change", render);
+/* Clone's "Delete original": remember the shape of what was copied (a small
+   alpha mask) and where it sat, plus a concrete-coloured twin for the preview */
+function cloneCut(shape, rx, ry, rw, rh) {
+  const k = Math.min(1, 640 / Math.max(shape.width, shape.height));
+  const mask = document.createElement("canvas");
+  mask.width = Math.max(8, Math.round(shape.width * k)); mask.height = Math.max(8, Math.round(shape.height * k));
+  const mx = mask.getContext("2d");
+  mx.imageSmoothingEnabled = true; mx.imageSmoothingQuality = "high";
+  mx.drawImage(shape, 0, 0, mask.width, mask.height);
+  const hole = document.createElement("canvas");
+  hole.width = mask.width; hole.height = mask.height;
+  const hx = hole.getContext("2d");
+  hx.fillStyle = WALL_COLOR; hx.fillRect(0, 0, hole.width, hole.height);
+  hx.globalCompositeOperation = "destination-in"; hx.drawImage(mask, 0, 0);
+  return { mask, hole, x: rx + rw / 2, y: ry + rh / 2, w: rw, h: rh };
+}
 /* colour negative of an image, alpha untouched (pixel loop: ctx.filter isn't everywhere) */
 function negative(img) {
   const c = document.createElement("canvas");
@@ -2828,6 +2890,10 @@ async function cloneSelection() {
   drawGifs(ctx, false, now);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   lassoMask(c, rectSel, rx, ry, rw, rh);
+  const shape = document.createElement("canvas");
+  shape.width = c.width; shape.height = c.height;
+  shape.getContext("2d").fillRect(0, 0, shape.width, shape.height);
+  lassoMask(shape, rectSel, rx, ry, rw, rh);
   const sel = rectSel;
   rectSel = null;
   restoreTb();
@@ -2835,6 +2901,8 @@ async function cloneSelection() {
     const src = encodeFill(c);
     const img = await loadImg(src);
     placing = { src, img, x: rx + rw / 2, y: ry + rh / 2, scale: rw / img.width, rot: 0, op: 1 };
+    placing.cut = cloneCut(shape, rx, ry, rw, rh);
+    pbCutRow.style.display = "";
     pbScale.value = Math.round(placing.scale * 100);
     pbRot.value = 0;
     pbOp.value = 100;
@@ -3005,6 +3073,11 @@ async function subjCut() {
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
   ctx.drawImage(s.maskCv, bx, by, bw, bh, 0, 0, c.width, c.height);
   ctx.globalCompositeOperation = "source-over";
+  const shape = document.createElement("canvas");
+  shape.width = c.width; shape.height = c.height;
+  const shx = shape.getContext("2d");
+  shx.imageSmoothingEnabled = true; shx.imageSmoothingQuality = "high";
+  shx.drawImage(s.maskCv, bx, by, bw, bh, 0, 0, c.width, c.height);
   subjReset();
   subjBar.style.display = "none";
   try {
@@ -3012,6 +3085,8 @@ async function subjCut() {
     const img = await loadImg(src);
     resetPlaceBar();
     placing = { src, img, x: rx + rw / 2, y: ry + rh / 2, scale: rw / img.width, rot: 0, op: 1 };
+    placing.cut = cloneCut(shape, rx, ry, rw, rh);
+    pbCutRow.style.display = "";
     pbScale.value = Math.round(placing.scale * 100);
     pbRot.value = 0;
     pbOp.value = 100;
@@ -3492,16 +3567,37 @@ window.addEventListener("resize", () => {
 
 /* ---------- undo (removes your own last mark from the shared log) ---------- */
 const undoBtn = document.getElementById("undo");
+const redoBtn = document.getElementById("redo");
 const ownKeys = [];
-function refreshUndo() { undoBtn.disabled = ownKeys.length === 0 || !fbRemove; }
+/* redo: marks you undid, newest last. A redone mark is published again as a new
+   op, so it lands on top of anything painted since. Making a new mark empties it. */
+const redoOps = [];
+let redoing = false;
+function refreshUndo() {
+  undoBtn.disabled = ownKeys.length === 0 || !fbRemove;
+  redoBtn.disabled = redoOps.length === 0 || !fbRemove;
+}
 async function undo() {
   if (!ownKeys.length || !fbRemove) return;
   const k = ownKeys.pop();
+  const op = opsByKey.get(k);
   refreshUndo();
-  try { await fbRemove(k); } catch (err) { showBanner("Undo failed (" + err.message + ")"); }
+  try {
+    await fbRemove(k);
+    if (op) { redoOps.push(op); if (redoOps.length > 50) redoOps.shift(); }
+  } catch (err) { showBanner("Undo failed (" + err.message + ")"); }
+  refreshUndo();
   /* wall rebuilds via onChildRemoved */
 }
+function redo() {
+  if (!redoOps.length || !fbRemove) return;
+  const op = redoOps.pop();
+  redoing = true;
+  try { enqueue(op); publish(op); } finally { redoing = false; }
+  refreshUndo();
+}
 undoBtn.addEventListener("click", undo);
+redoBtn.addEventListener("click", redo);
 
 /* ---------- compendium: walls get flicked into walls/main/archive when the mark
    total reaches one of a fixed list of milestones — and only then: detonate,
@@ -3577,7 +3673,7 @@ async function detonate(msg, keepBg, keepPick) {
   boomEl.classList.add("go");
   opsByKey.clear();
   appliedKeys.clear();
-  ownKeys.length = 0;
+  ownKeys.length = 0; redoOps.length = 0;
   refreshUndo();
   if (!keepBg) {
     /* the background goes too: drop any flattened wall and hide today's news photo */
@@ -3666,7 +3762,7 @@ async function flatten() {
     /* the log is now baked in — clear it for everyone (the flat node arrived first) */
     opsByKey.clear();
     appliedKeys.clear();
-    ownKeys.length = 0;
+    ownKeys.length = 0; redoOps.length = 0;
     refreshUndo();
     photoCtx.clearRect(0, 0, W, H);
     aiCtx.clearRect(0, 0, W, H);
@@ -3694,7 +3790,7 @@ async function applyFlat(meta) {
     if (flatMeta !== meta) return; /* superseded (cleared or re-flattened) while loading */
     bgMeta = meta; bgImg = img; bgId = meta.id;
     paintBg();
-    for (const op of opsByKey.values()) if (op.t === "s" && op.tool === "berase") await applyOp(op);
+    await replayBgErase();
     document.getElementById("news-row").style.display = "none";
     render();
   } catch (e) {
@@ -3712,7 +3808,7 @@ async function applyPick(meta) {
     if (flatMeta) return; /* a flat still wins while it exists */
     bgMeta = meta; bgImg = img; bgId = meta.id;
     paintBg();
-    for (const op of opsByKey.values()) if (op.t === "s" && op.tool === "berase") await applyOp(op);
+    await replayBgErase();
     if (meta.url) {
       document.getElementById("news-link").href = meta.url;
       document.getElementById("news-head").textContent = meta.headline || "backdrop";
@@ -3798,7 +3894,8 @@ function rebuild() {
 window.addEventListener("keydown", (e) => {
   const k = e.key.toLowerCase();
   if (e.key === " ") { spaceHeld = true; display.classList.add("hand"); return; }
-  if ((e.ctrlKey || e.metaKey) && k === "z") { e.preventDefault(); undo(); return; }
+  if ((e.ctrlKey || e.metaKey) && k === "z") { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
+  if ((e.ctrlKey || e.metaKey) && k === "y") { e.preventDefault(); redo(); return; }
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (k === "p") setTool("brush");
   else if (k === "a") setTool("air");
@@ -3816,7 +3913,7 @@ window.addEventListener("keydown", (e) => {
   else if (k === "b") setTool("berase");
   else if (k === "o") setTool("picker");
   else if (k === "h") setTool("hand");
-  else if (k === "z") undo();
+  else if (k === "z") { if (e.shiftKey) redo(); else undo(); }
   else if (k === "x") { const t = fg; setFg(bg); setBg(t); }
   else if (k === "d") { setFg(DEFAULT_FG); setBg(DEFAULT_BG); }
   else if (k === "[") { sizeEl.value = Math.max(1, size - 2); sizeEl.dispatchEvent(new Event("input")); }
@@ -3949,7 +4046,7 @@ function loadBackground() {
       bgMeta = m; bgImg = img; bgId = m.id;
       paintBg();
       /* any berase ops that arrived before the backdrop replay onto it now */
-      for (const op of opsByKey.values()) if (op.t === "s" && op.tool === "berase") await applyOp(op);
+      await replayBgErase();
       if (m.url) {
         document.getElementById("news-link").href = m.url;
         document.getElementById("news-head").textContent = m.headline || "today's backdrop";
@@ -3996,6 +4093,7 @@ async function initFirebase() {
       appliedKeys.add(r.key);
       opsByKey.set(r.key, op);
       ownKeys.push(r.key);
+      if (!redoing) redoOps.length = 0; /* a new mark ends the redo trail */
       refreshUndo();
       set(r, op);
     };
