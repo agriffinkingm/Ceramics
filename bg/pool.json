@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-11-18-1147-0",
-  "image": "pool-2026-11-18-1147-0.jpg",
-  "headline": "Inside  breathtaking  Spanish town where Brits flock for sunshine and quiet life",
-  "url": "https://www.aol.co.uk/articles/inside-breathtaking-spanish-town-where-190400000.html",
-  "outlet": "aol.co.uk",
-  "t": "2026-11-18T16:47:49+00:00",
-  "vista": 9.0,
-  "hash": 9882601914367
- },
- {
-  "id": "2026-11-18-1532-0",
-  "image": "pool-2026-11-18-1532-0.jpg",
-  "headline": "Google signs world first commercial superhot rock geothermal deal at Oregon Newberry Volcano",
-  "url": "https://www.klcc.org/environment/2026-11-17/google-quaise-energy-newberry-volcano-superhot-rock-geothermal-deal",
-  "outlet": "klcc.org",
-  "t": "2026-11-18T20:32:30+00:00",
-  "vista": 8.0,
-  "hash": 15894780609313023
- },
- {
   "id": "2026-11-18-1532-1",
   "image": "pool-2026-11-18-1532-1.jpg",
   "headline": "UBCO Talk Explores 21st - Century Wildfire Resilience",
@@ -172,5 +152,25 @@
   "t": "2026-11-20T16:26:35+00:00",
   "vista": 8.0,
   "hash": 36241011891044351
+ },
+ {
+  "id": "2026-11-20-1513-0",
+  "image": "pool-2026-11-20-1513-0.jpg",
+  "headline": "Cyclone Akvan Begins Landfall Near Gopalpur in Odisha ; Winds of 70 - 90 Kmph , Says IMD",
+  "url": "https://www.rozanaspokesman.com/news/nation/201126/cyclone-akvan-makes-landfall-near-gopalpur-in-odisha.html",
+  "outlet": "rozanaspokesman.com",
+  "t": "2026-11-20T20:13:09+00:00",
+  "vista": 8.0,
+  "hash": 70633661988289560
+ },
+ {
+  "id": "2026-11-20-1513-1",
+  "image": "pool-2026-11-20-1513-1.jpg",
+  "headline": "Heavy Rain Hits SoCal , Prompting Flooding , Isolated Mud Flows",
+  "url": "https://mynewsla.com/orange-county/2026/11/19/heavy-rain-hits-socal-prompting-flooding-isolated-mud-flows-2/",
+  "outlet": "mynewsla.com",
+  "t": "2026-11-20T20:13:09+00:00",
+  "vista": 8.0,
+  "hash": 505250748531933183
  }
 ]
