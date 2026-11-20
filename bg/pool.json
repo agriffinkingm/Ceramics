@@ -1,14 +1,5 @@
 [
  {
-  "id": "2026-11-19-c",
-  "image": "pool-2026-11-19-c.jpg",
-  "headline": "IAF Chief celebrates Diwali with Air Force personnel at forward airbase",
-  "url": "http://www.mexicostar.com/news/279420850/iaf-chief-celebrates-diwali-with-air-force-personnel-at-forward-airbase",
-  "outlet": "mexicostar.com",
-  "t": "2026-11-18T15:58:20+00:00",
-  "hash": 9551008909798899711
- },
- {
   "id": "2026-11-18-1147-0",
   "image": "pool-2026-11-18-1147-0.jpg",
   "headline": "Inside  breathtaking  Spanish town where Brits flock for sunshine and quiet life",
@@ -171,5 +162,15 @@
   "outlet": "cotswoldjournal.co.uk",
   "t": "2026-11-20T15:45:18+00:00",
   "hash": 17578392664173467704
+ },
+ {
+  "id": "2026-11-20-1126-0",
+  "image": "pool-2026-11-20-1126-0.jpg",
+  "headline": "What Panama Formal Talks With First Quantum Mean for the Future of Cobre Panam\u00e1 : Key Takeaways",
+  "url": "https://www.latinpost.com/articles/167753/20261119/what-panamas-formal-talks-first-quantum-mean-future-cobre-panama-key-takeaways.htm",
+  "outlet": "latinpost.com",
+  "t": "2026-11-20T16:26:35+00:00",
+  "vista": 8.0,
+  "hash": 36241011891044351
  }
 ]
