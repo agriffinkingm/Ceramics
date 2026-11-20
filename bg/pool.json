@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-11-18-b",
-  "image": "pool-2026-11-18-b.jpg",
-  "headline": "El Ni\u00f1o - Fueled Storms Bring Heavy Snow , Flood Warnings To The West",
-  "url": "https://bob949.iheart.com/content/2026-11-13-el-nio-fueled-storms-bring-heavy-snow-flood-warnings-to-the-west/",
-  "outlet": "bob949.iheart.com",
-  "t": "2026-11-17T16:26:04+00:00",
-  "hash": 4556789842530082623
- },
- {
-  "id": "2026-11-18-c",
-  "image": "pool-2026-11-18-c.jpg",
-  "headline": "Amazon Space Setback : 40 Satellites Lost in Rocket Launch Failure , ETTelecom",
-  "url": "https://telecom.economictimes.indiatimes.com/news/portal-in-portal/satcom/amazon-loses-40-internet-satellites-in-failed-rocket-launch/135871210",
-  "outlet": "telecom.economictimes.indiatimes.com",
-  "t": "2026-11-17T16:26:04+00:00",
-  "hash": 54324668073447168
- },
- {
-  "id": "2026-11-17-1557-0",
-  "image": "pool-2026-11-17-1557-0.jpg",
-  "headline": "Between Bristol And Bridgwater Is A Victorian Coastal Town With Nostalgic Fun , A Pier , And A Sandy Beach",
-  "url": "https://www.islands.com/2311785/weston-super-mare-between-bristol-bridgwater-victorian-coastal-town-nostalgic-fun-pier-sandy-beach/",
-  "outlet": "islands.com",
-  "t": "2026-11-17T20:57:24+00:00",
-  "vista": 8.0,
-  "hash": 217020640061759295
- },
- {
   "id": "2026-11-17-1557-1",
   "image": "pool-2026-11-17-1557-1.jpg",
   "headline": "Missing Angoon Boater Found Dead on Oct . 28 - Daily Sitka Sentinel",
@@ -170,5 +142,35 @@
   "t": "2026-11-19T20:35:58+00:00",
   "vista": 9.0,
   "hash": 1133626805653263
+ },
+ {
+  "id": "2026-11-20-0212-0",
+  "image": "pool-2026-11-20-0212-0.jpg",
+  "headline": "Something Is Very Wrong At The NSA : Classified Network Still Down On Day Three",
+  "url": "https://www.zerohedge.com/political/something-very-wrong-nsa-classified-network-still-down-day-three",
+  "outlet": "zerohedge.com",
+  "t": "2026-11-20T07:12:27+00:00",
+  "vista": 9.0,
+  "hash": 18446459167075139584
+ },
+ {
+  "id": "2026-11-20-0212-1",
+  "image": "pool-2026-11-20-0212-1.jpg",
+  "headline": "Ukraine strikes major Russian bridge as aerial attacks escalate",
+  "url": "https://www.guardian-series.co.uk/news/national/26735858.ukraine-strikes-major-russian-bridge-aerial-attacks-escalate/",
+  "outlet": "guardian-series.co.uk",
+  "t": "2026-11-20T07:12:27+00:00",
+  "vista": 8.0,
+  "hash": 419430399
+ },
+ {
+  "id": "2026-11-20-0212-2",
+  "image": "pool-2026-11-20-0212-2.jpg",
+  "headline": "Palestinian killed , several wounded in Israeli occupation attacks across Gaza",
+  "url": "http://thepeninsulaqatar.com/article/20/11/2026/palestinian-killed-several-wounded-in-israeli-occupation-attacks-across-gaza",
+  "outlet": "thepeninsulaqatar.com",
+  "t": "2026-11-20T07:12:27+00:00",
+  "vista": 7.0,
+  "hash": 343190297854607359
  }
 ]
