@@ -453,5 +453,12 @@
   "url": "https://www.foxnews.com/world/protesters-call-regime-change-iran-following-deadly-crash-killed-13-oil-gas-workers",
   "outlet": "foxnews.com",
   "method": "crop"
+ },
+ {
+  "id": "2026-11-21",
+  "headline": "Fire burns an estimated 500 acres in northern Greene County",
+  "url": "http://www.greenevillesun.com/news/local_news/fire-burns-an-estimated-500-acres-in-northern-greene-county/article_0ca20a03-4329-4c20-be80-a6ea53a4f391.html",
+  "outlet": "greenevillesun.com",
+  "method": "crop-flat"
  }
 ]

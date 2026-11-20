@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-11-17-1557-1",
-  "image": "pool-2026-11-17-1557-1.jpg",
-  "headline": "Missing Angoon Boater Found Dead on Oct . 28 - Daily Sitka Sentinel",
-  "url": "http://www.sitkasentinel.com/stories/missing-southeast-alaska-boater-found-dead,182447",
-  "outlet": "sitkasentinel.com",
-  "t": "2026-11-17T20:57:24+00:00",
-  "vista": 7.0,
-  "hash": 18446493385058484223
- },
- {
-  "id": "2026-11-19",
-  "image": "pool-2026-11-19.jpg",
-  "headline": "Grand Diwali celebrations light up Srinagar iconic Lal Chowk",
-  "url": "http://www.mexicostar.com/news/279420957/grand-diwali-celebrations-light-up-srinagar-iconic-lal-chowk",
-  "outlet": "mexicostar.com",
-  "t": "2026-11-18T15:58:20+00:00",
-  "hash": 13961653357748798403
- },
- {
-  "id": "2026-11-19-b",
-  "image": "pool-2026-11-19-b.jpg",
-  "headline": "Planes collide while taxiing at Miami Airport",
-  "url": "https://www.thestar.com.my/news/nation/2026/11/15/planes-collide-while-taxiing-at-miami-airport",
-  "outlet": "thestar.com.my",
-  "t": "2026-11-18T15:58:20+00:00",
-  "hash": 71991363557901251
- },
- {
   "id": "2026-11-19-c",
   "image": "pool-2026-11-19-c.jpg",
   "headline": "IAF Chief celebrates Diwali with Air Force personnel at forward airbase",
@@ -172,5 +144,32 @@
   "t": "2026-11-20T07:12:27+00:00",
   "vista": 7.0,
   "hash": 343190297854607359
+ },
+ {
+  "id": "2026-11-21",
+  "image": "pool-2026-11-21.jpg",
+  "headline": "Fire burns an estimated 500 acres in northern Greene County",
+  "url": "http://www.greenevillesun.com/news/local_news/fire-burns-an-estimated-500-acres-in-northern-greene-county/article_0ca20a03-4329-4c20-be80-a6ea53a4f391.html",
+  "outlet": "greenevillesun.com",
+  "t": "2026-11-20T15:45:18+00:00",
+  "hash": 474568720379
+ },
+ {
+  "id": "2026-11-21-b",
+  "image": "pool-2026-11-21-b.jpg",
+  "headline": "COP31 : More climate money for Africa ? Europe says use what already pledged",
+  "url": "https://www.bbc.co.uk/news/articles/c6074k5jjrzko",
+  "outlet": "bbc.co.uk",
+  "t": "2026-11-20T15:45:18+00:00",
+  "hash": 36310276316462079
+ },
+ {
+  "id": "2026-11-21-c",
+  "image": "pool-2026-11-21-c.jpg",
+  "headline": "Dinosaur Adventure Live returns to Cheltenham and Worcester",
+  "url": "https://www.cotswoldjournal.co.uk/news/26744572.dinosaur-adventure-live-returns-cheltenham-worcester/",
+  "outlet": "cotswoldjournal.co.uk",
+  "t": "2026-11-20T15:45:18+00:00",
+  "hash": 17578392664173467704
  }
 ]
