@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-19-1152-0",
-  "image": "pool-2026-11-19-1152-0.jpg",
-  "headline": "Harvard Design Students Propose Alternatives to Trump Arch",
-  "url": "https://www.artforum.com/news/harvard-design-students-propose-alternatives-to-trump-arch-1234763780/",
-  "outlet": "artforum.com",
-  "t": "2026-11-19T16:52:49+00:00",
-  "vista": 9.0,
-  "hash": 2310408441337479679
- },
- {
   "id": "2026-11-19-1152-1",
   "image": "pool-2026-11-19-1152-1.jpg",
   "headline": "Men sentenced after waste illegally dumped at WW2 airfield",
@@ -172,5 +162,15 @@
   "outlet": "educationtimes.com",
   "t": "2026-11-21T14:55:44+00:00",
   "hash": 18446146493450092543
+ },
+ {
+  "id": "2026-11-21-1042-0",
+  "image": "pool-2026-11-21-1042-0.jpg",
+  "headline": "Body pulled from L . A . River following powerful storm",
+  "url": "https://www.latimes.com/california/story/2026-11-21/body-pulled-from-la-river-following-powerful-storm",
+  "outlet": "latimes.com",
+  "t": "2026-11-21T15:42:35+00:00",
+  "vista": 7.0,
+  "hash": 8679420570619674623
  }
 ]
