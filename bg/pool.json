@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-11-20",
-  "image": "pool-2026-11-20.jpg",
-  "headline": "Iran protests erupt over bus crash killing 13 oil workers in Abdanan",
-  "url": "https://www.foxnews.com/world/protesters-call-regime-change-iran-following-deadly-crash-killed-13-oil-gas-workers",
-  "outlet": "foxnews.com",
-  "t": "2026-11-19T16:02:14+00:00",
-  "hash": 9187197138437539335
- },
- {
-  "id": "2026-11-20-b",
-  "image": "pool-2026-11-20-b.jpg",
-  "headline": "Editorial : Did you have candles ready ? | Cowichan Valley Citizen",
-  "url": "https://cowichanvalleycitizen.com/2026/11/18/editorial-did-you-have-candles-ready/",
-  "outlet": "cowichanvalleycitizen.com",
-  "t": "2026-11-19T16:02:14+00:00",
-  "hash": 9160061058067924751
- },
- {
-  "id": "2026-11-20-c",
-  "image": "pool-2026-11-20-c.jpg",
-  "headline": "Texas regulators are resuming environmental permits for data centers",
-  "url": "https://www.ketr.org/stories-from-texas-stations/2026-11-18/texas-regulators-are-resuming-environmental-permits-for-data-centers",
-  "outlet": "ketr.org",
-  "t": "2026-11-19T16:02:14+00:00",
-  "hash": 281474976710655
- },
- {
   "id": "2026-11-19-1152-0",
   "image": "pool-2026-11-19-1152-0.jpg",
   "headline": "Harvard Design Students Propose Alternatives to Trump Arch",
@@ -172,5 +145,32 @@
   "t": "2026-11-21T07:06:09+00:00",
   "vista": 7.0,
   "hash": 2332934975722159615
+ },
+ {
+  "id": "2026-11-22",
+  "image": "pool-2026-11-22.jpg",
+  "headline": "Turkey seizes control of last major independent news channel amid fraud scandal - International report",
+  "url": "https://www.rfi.fr/en/podcasts/international-report/20261121-turkey-seizes-control-of-last-major-independent-news-channel-amid-fraud-scandal",
+  "outlet": "rfi.fr",
+  "t": "2026-11-21T14:55:44+00:00",
+  "hash": 8952032223020597115
+ },
+ {
+  "id": "2026-11-22-b",
+  "image": "pool-2026-11-22-b.jpg",
+  "headline": "Tinubu 11 . 2 Trillion Pipeline Scandal - By SKC Ogbonnia",
+  "url": "https://www.opinionnigeria.com/tinubus-11-2-trillion-pipeline-scandal-by-skc-ogbonnia/",
+  "outlet": "opinionnigeria.com",
+  "t": "2026-11-21T14:55:44+00:00",
+  "hash": 4485068726766927905
+ },
+ {
+  "id": "2026-11-22-c",
+  "image": "pool-2026-11-22-c.jpg",
+  "headline": "RESEARCH UPDATE : IIT Mandi researchers develop AI - based model to predict wildlife population changes",
+  "url": "https://www.educationtimes.com/news/research-update-iit-mandi-researchers-develop-ai-based-model-to-predict-wildlife-population-changes/articleshow/136050159.cms",
+  "outlet": "educationtimes.com",
+  "t": "2026-11-21T14:55:44+00:00",
+  "hash": 18446146493450092543
  }
 ]
