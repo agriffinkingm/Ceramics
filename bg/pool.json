@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-19-1152-1",
-  "image": "pool-2026-11-19-1152-1.jpg",
-  "headline": "Men sentenced after waste illegally dumped at WW2 airfield",
-  "url": "https://www.echo-news.co.uk/news/26740402.men-sentenced-waste-illegally-dumped-ww2-airfield/",
-  "outlet": "echo-news.co.uk",
-  "t": "2026-11-19T16:52:49+00:00",
-  "vista": 7.0,
-  "hash": 1089535999
- },
- {
   "id": "2026-11-19-1535-0",
   "image": "pool-2026-11-19-1535-0.jpg",
   "headline": "Hope springs eternal in award - winning photos showcasing nature resilience",
@@ -172,5 +162,15 @@
   "t": "2026-11-21T15:42:35+00:00",
   "vista": 7.0,
   "hash": 8679420570619674623
+ },
+ {
+  "id": "2026-11-21-1416-0",
+  "image": "pool-2026-11-21-1416-0.jpg",
+  "headline": "Guarding green rainforest in China southernmost province",
+  "url": "http://www.asiabulletin.com/news/279447329/guarding-green-rainforest-in-china-southernmost-province",
+  "outlet": "asiabulletin.com",
+  "t": "2026-11-21T19:16:10+00:00",
+  "vista": 9.0,
+  "hash": 8589934544
  }
 ]
