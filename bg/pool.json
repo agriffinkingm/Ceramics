@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-11-18-1532-1",
-  "image": "pool-2026-11-18-1532-1.jpg",
-  "headline": "UBCO Talk Explores 21st - Century Wildfire Resilience",
-  "url": "https://www.miragenews.com/ubco-talk-explores-21st-century-wildfire-1779718/",
-  "outlet": "miragenews.com",
-  "t": "2026-11-18T20:32:30+00:00",
-  "vista": 7.0,
-  "hash": 10414571981897728
- },
- {
-  "id": "2026-11-19-0222-0",
-  "image": "pool-2026-11-19-0222-0.jpg",
-  "headline": "Column : How the world could reach 3\u00b0C of warming by 2050",
-  "url": "https://www.edp24.co.uk/news/26727359.column-world-reach-3-c-warming-2050/",
-  "outlet": "edp24.co.uk",
-  "t": "2026-11-19T07:22:41+00:00",
-  "vista": 8.0,
-  "hash": 18012419908116740216
- },
- {
   "id": "2026-11-20",
   "image": "pool-2026-11-20.jpg",
   "headline": "Iran protests erupt over bus crash killing 13 oil workers in Abdanan",
@@ -172,5 +152,25 @@
   "t": "2026-11-20T20:13:09+00:00",
   "vista": 8.0,
   "hash": 505250748531933183
+ },
+ {
+  "id": "2026-11-21-0206-0",
+  "image": "pool-2026-11-21-0206-0.jpg",
+  "headline": "UK braced as temperatures could drop to minus 10C in coldest night of autumn",
+  "url": "https://www.barryanddistrictnews.co.uk/news/national/26750301.uk-braced-temperatures-drop-minus-10c-coldest-night-autumn/",
+  "outlet": "barryanddistrictnews.co.uk",
+  "t": "2026-11-21T07:06:09+00:00",
+  "vista": 9.0,
+  "hash": 2305985811859767295
+ },
+ {
+  "id": "2026-11-21-0206-1",
+  "image": "pool-2026-11-21-0206-1.jpg",
+  "headline": "Burnham motorists warned of overnight M5 closures through Somerset this week for bridge works",
+  "url": "https://www.burnham-on-sea.com/news/burnham-motorists-warned-of-overnight-m5-closures-through-somerset-this-week-for-bridge-works/",
+  "outlet": "burnham-on-sea.com",
+  "t": "2026-11-21T07:06:09+00:00",
+  "vista": 7.0,
+  "hash": 2332934975722159615
  }
 ]
