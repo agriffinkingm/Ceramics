@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-11-19-1535-1",
-  "image": "pool-2026-11-19-1535-1.jpg",
-  "headline": "National Hurricane Center Tracks Potential Late - Season Subtropical or Tropical Storm",
-  "url": "https://993thebeat.iheart.com/content/2026-11-19-national-hurricane-center-tracks-potential-late-season-subtropical-or-tropical-storm/",
-  "outlet": "993thebeat.iheart.com",
-  "t": "2026-11-19T20:35:58+00:00",
-  "vista": 9.0,
-  "hash": 1133626805653263
- },
- {
-  "id": "2026-11-20-0212-0",
-  "image": "pool-2026-11-20-0212-0.jpg",
-  "headline": "Something Is Very Wrong At The NSA : Classified Network Still Down On Day Three",
-  "url": "https://www.zerohedge.com/political/something-very-wrong-nsa-classified-network-still-down-day-three",
-  "outlet": "zerohedge.com",
-  "t": "2026-11-20T07:12:27+00:00",
-  "vista": 9.0,
-  "hash": 18446459167075139584
- },
- {
-  "id": "2026-11-20-0212-1",
-  "image": "pool-2026-11-20-0212-1.jpg",
-  "headline": "Ukraine strikes major Russian bridge as aerial attacks escalate",
-  "url": "https://www.guardian-series.co.uk/news/national/26735858.ukraine-strikes-major-russian-bridge-aerial-attacks-escalate/",
-  "outlet": "guardian-series.co.uk",
-  "t": "2026-11-20T07:12:27+00:00",
-  "vista": 8.0,
-  "hash": 419430399
- },
- {
   "id": "2026-11-20-0212-2",
   "image": "pool-2026-11-20-0212-2.jpg",
   "headline": "Palestinian killed , several wounded in Israeli occupation attacks across Gaza",
@@ -172,5 +142,32 @@
   "t": "2026-11-22T06:44:45+00:00",
   "vista": 8.0,
   "hash": 4567614826464936984
+ },
+ {
+  "id": "2026-11-23",
+  "image": "pool-2026-11-23.jpg",
+  "headline": "Man convicted of starting deadly 2025 Palisades blaze in Los Angeles",
+  "url": "https://www.eastlondonadvertiser.co.uk/news/national/26750344.man-convicted-starting-deadly-2025-palisades-blaze-los-angeles/",
+  "outlet": "eastlondonadvertiser.co.uk",
+  "t": "2026-11-22T14:51:35+00:00",
+  "hash": 212136756246258
+ },
+ {
+  "id": "2026-11-23-b",
+  "image": "pool-2026-11-23-b.jpg",
+  "headline": "Suspect in Los Angele deadly Palisades fire convicted of arson at retrial",
+  "url": "https://whbl.com/2026/11/20/suspect-in-los-angeles-deadly-palisades-fire-convicted-of-arson-at-retrial/",
+  "outlet": "whbl.com",
+  "t": "2026-11-22T14:51:35+00:00",
+  "hash": 9349969547574636535
+ },
+ {
+  "id": "2026-11-23-c",
+  "image": "pool-2026-11-23-c.jpg",
+  "headline": "West Kelowna Warriors score 4 - 3 comeback win over Coquitlam Express",
+  "url": "https://kelownacapnews.com/2026/11/21/west-kelowna-warriors-score-4-3-comeback-win-over-coquitlam-express/",
+  "outlet": "kelownacapnews.com",
+  "t": "2026-11-22T14:51:35+00:00",
+  "hash": 16710578939271472640
  }
 ]
