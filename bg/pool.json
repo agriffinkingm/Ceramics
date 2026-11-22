@@ -1,15 +1,5 @@
 [
  {
-  "id": "2026-11-19-1535-0",
-  "image": "pool-2026-11-19-1535-0.jpg",
-  "headline": "Hope springs eternal in award - winning photos showcasing nature resilience",
-  "url": "https://www.euronews.com/2026/11/15/hope-springs-eternal-in-award-winning-photos-showcasing-natures-resilience",
-  "outlet": "euronews.com",
-  "t": "2026-11-19T20:35:58+00:00",
-  "vista": 9.0,
-  "hash": 1167626640463694975
- },
- {
   "id": "2026-11-19-1535-1",
   "image": "pool-2026-11-19-1535-1.jpg",
   "headline": "National Hurricane Center Tracks Potential Late - Season Subtropical or Tropical Storm",
@@ -172,5 +162,15 @@
   "t": "2026-11-21T19:16:10+00:00",
   "vista": 9.0,
   "hash": 8589934544
+ },
+ {
+  "id": "2026-11-22-0144-0",
+  "image": "pool-2026-11-22-0144-0.jpg",
+  "headline": "Iran claims to have destroyed 19th US MQ - 1 drone",
+  "url": "https://en.apa.az/asia/iran-claims-to-have-destroyed-19th-us-mq-1-drone-537641",
+  "outlet": "en.apa.az",
+  "t": "2026-11-22T06:44:45+00:00",
+  "vista": 8.0,
+  "hash": 4567614826464936984
  }
 ]
