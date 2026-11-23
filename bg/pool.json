@@ -1,33 +1,5 @@
 [
  {
-  "id": "2026-11-20-0212-2",
-  "image": "pool-2026-11-20-0212-2.jpg",
-  "headline": "Palestinian killed , several wounded in Israeli occupation attacks across Gaza",
-  "url": "http://thepeninsulaqatar.com/article/20/11/2026/palestinian-killed-several-wounded-in-israeli-occupation-attacks-across-gaza",
-  "outlet": "thepeninsulaqatar.com",
-  "t": "2026-11-20T07:12:27+00:00",
-  "vista": 7.0,
-  "hash": 343190297854607359
- },
- {
-  "id": "2026-11-21",
-  "image": "pool-2026-11-21.jpg",
-  "headline": "Fire burns an estimated 500 acres in northern Greene County",
-  "url": "http://www.greenevillesun.com/news/local_news/fire-burns-an-estimated-500-acres-in-northern-greene-county/article_0ca20a03-4329-4c20-be80-a6ea53a4f391.html",
-  "outlet": "greenevillesun.com",
-  "t": "2026-11-20T15:45:18+00:00",
-  "hash": 474568720379
- },
- {
-  "id": "2026-11-21-b",
-  "image": "pool-2026-11-21-b.jpg",
-  "headline": "COP31 : More climate money for Africa ? Europe says use what already pledged",
-  "url": "https://www.bbc.co.uk/news/articles/c6074k5jjrzko",
-  "outlet": "bbc.co.uk",
-  "t": "2026-11-20T15:45:18+00:00",
-  "hash": 36310276316462079
- },
- {
   "id": "2026-11-21-c",
   "image": "pool-2026-11-21-c.jpg",
   "headline": "Dinosaur Adventure Live returns to Cheltenham and Worcester",
@@ -169,5 +141,32 @@
   "outlet": "kelownacapnews.com",
   "t": "2026-11-22T14:51:35+00:00",
   "hash": 16710578939271472640
+ },
+ {
+  "id": "2026-11-24",
+  "image": "pool-2026-11-24.jpg",
+  "headline": "Drones likely cause as Russian ship explodes in Libya",
+  "url": "https://www.canberratimes.com.au/story/9396102/drones-likely-cause-as-russian-ship-explodes-in-libya/",
+  "outlet": "canberratimes.com.au",
+  "t": "2026-11-23T18:39:47+00:00",
+  "hash": 9223371997663199232
+ },
+ {
+  "id": "2026-11-24-b",
+  "image": "pool-2026-11-24-b.jpg",
+  "headline": "Libya suspects drone caused explosion on Russian ship",
+  "url": "https://www.theadvocate.com.au/story/9396102/libyas-suspects-drone-caused-explosion-on-russian-ship/",
+  "outlet": "theadvocate.com.au",
+  "t": "2026-11-23T18:39:47+00:00",
+  "hash": 9187343200652623872
+ },
+ {
+  "id": "2026-11-24-c",
+  "image": "pool-2026-11-24-c.jpg",
+  "headline": "Libya eastern government suspects drone attack caused explosion on Russian ship in Benghazi",
+  "url": "https://www.dailymaverick.co.za/article/2026-11-22-libyas-eastern-government-suspects-drone-attack-caused-explosion-on-russian-ship-in-benghazi/",
+  "outlet": "dailymaverick.co.za",
+  "t": "2026-11-23T18:39:47+00:00",
+  "hash": 1085102592318967583
  }
 ]

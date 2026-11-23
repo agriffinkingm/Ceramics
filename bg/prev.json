@@ -1,11 +1,11 @@
 {
- "id": "2026-11-22",
- "image": "prev.jpg?v=2026-11-22",
- "activeAt": "2026-11-22T03:33:00-05:00",
- "headline": "Turkey seizes control of last major independent news channel amid fraud scandal - International report",
- "url": "https://www.rfi.fr/en/podcasts/international-report/20261121-turkey-seizes-control-of-last-major-independent-news-channel-amid-fraud-scandal",
- "outlet": "rfi.fr",
- "seendate": "20261121T133000Z",
- "method": "crop",
- "generated": "2026-11-21T14:55:44+00:00"
+ "id": "2026-11-23",
+ "image": "prev.jpg?v=2026-11-23",
+ "activeAt": "2026-11-23T03:33:00-05:00",
+ "headline": "Man convicted of starting deadly 2025 Palisades blaze in Los Angeles",
+ "url": "https://www.eastlondonadvertiser.co.uk/news/national/26750344.man-convicted-starting-deadly-2025-palisades-blaze-los-angeles/",
+ "outlet": "eastlondonadvertiser.co.uk",
+ "seendate": "20261121T123000Z",
+ "method": "crop-fallback",
+ "generated": "2026-11-22T14:51:35+00:00"
 }

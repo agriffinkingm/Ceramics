@@ -474,5 +474,12 @@
   "url": "https://www.eastlondonadvertiser.co.uk/news/national/26750344.man-convicted-starting-deadly-2025-palisades-blaze-los-angeles/",
   "outlet": "eastlondonadvertiser.co.uk",
   "method": "crop-fallback"
+ },
+ {
+  "id": "2026-11-24",
+  "headline": "Drones likely cause as Russian ship explodes in Libya",
+  "url": "https://www.canberratimes.com.au/story/9396102/drones-likely-cause-as-russian-ship-explodes-in-libya/",
+  "outlet": "canberratimes.com.au",
+  "method": "crop-fallback"
  }
 ]
