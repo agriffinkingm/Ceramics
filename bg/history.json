@@ -481,5 +481,12 @@
   "url": "https://www.canberratimes.com.au/story/9396102/drones-likely-cause-as-russian-ship-explodes-in-libya/",
   "outlet": "canberratimes.com.au",
   "method": "crop-fallback"
+ },
+ {
+  "id": "2026-11-25",
+  "headline": "Satellite images show development changes along Gulf Coast",
+  "url": "https://www.gulfcoastnewsnow.com/article/gulf-coast-development-changes-satellite-images/74509014",
+  "outlet": "gulfcoastnewsnow.com",
+  "method": "crop"
  }
 ]

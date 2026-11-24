@@ -1,34 +1,5 @@
 [
  {
-  "id": "2026-11-21-c",
-  "image": "pool-2026-11-21-c.jpg",
-  "headline": "Dinosaur Adventure Live returns to Cheltenham and Worcester",
-  "url": "https://www.cotswoldjournal.co.uk/news/26744572.dinosaur-adventure-live-returns-cheltenham-worcester/",
-  "outlet": "cotswoldjournal.co.uk",
-  "t": "2026-11-20T15:45:18+00:00",
-  "hash": 17578392664173467704
- },
- {
-  "id": "2026-11-20-1126-0",
-  "image": "pool-2026-11-20-1126-0.jpg",
-  "headline": "What Panama Formal Talks With First Quantum Mean for the Future of Cobre Panam\u00e1 : Key Takeaways",
-  "url": "https://www.latinpost.com/articles/167753/20261119/what-panamas-formal-talks-first-quantum-mean-future-cobre-panama-key-takeaways.htm",
-  "outlet": "latinpost.com",
-  "t": "2026-11-20T16:26:35+00:00",
-  "vista": 8.0,
-  "hash": 36241011891044351
- },
- {
-  "id": "2026-11-20-1513-0",
-  "image": "pool-2026-11-20-1513-0.jpg",
-  "headline": "Cyclone Akvan Begins Landfall Near Gopalpur in Odisha ; Winds of 70 - 90 Kmph , Says IMD",
-  "url": "https://www.rozanaspokesman.com/news/nation/201126/cyclone-akvan-makes-landfall-near-gopalpur-in-odisha.html",
-  "outlet": "rozanaspokesman.com",
-  "t": "2026-11-20T20:13:09+00:00",
-  "vista": 8.0,
-  "hash": 70633661988289560
- },
- {
   "id": "2026-11-20-1513-1",
   "image": "pool-2026-11-20-1513-1.jpg",
   "headline": "Heavy Rain Hits SoCal , Prompting Flooding , Isolated Mud Flows",
@@ -168,5 +139,32 @@
   "outlet": "dailymaverick.co.za",
   "t": "2026-11-23T18:39:47+00:00",
   "hash": 1085102592318967583
+ },
+ {
+  "id": "2026-11-25",
+  "image": "pool-2026-11-25.jpg",
+  "headline": "Satellite images show development changes along Gulf Coast",
+  "url": "https://www.gulfcoastnewsnow.com/article/gulf-coast-development-changes-satellite-images/74509014",
+  "outlet": "gulfcoastnewsnow.com",
+  "t": "2026-11-24T09:49:24+00:00",
+  "hash": 441104532073158680
+ },
+ {
+  "id": "2026-11-25-b",
+  "image": "pool-2026-11-25-b.jpg",
+  "headline": "US Spy Drone Helps Capture FBI Most - Wanted Drug Lord In Mexico . 20 Killed In Clashes .",
+  "url": "https://www.ibtimes.com/us-drone-intelligence-mexico-captures-el-chapo-isidro-3810112",
+  "outlet": "ibtimes.com",
+  "t": "2026-11-24T09:49:24+00:00",
+  "hash": 533411641975832576
+ },
+ {
+  "id": "2026-11-25-c",
+  "image": "pool-2026-11-25-c.jpg",
+  "headline": "Three civilians injured in drone strike by Pakistani forces in Balochistan",
+  "url": "https://ianslive.in/three-civilians-injured-in-drone-strike-by-pakistani-forces-in-balochistan--20261124125334",
+  "outlet": "ianslive.in",
+  "t": "2026-11-24T09:49:24+00:00",
+  "hash": 72482694767837183
  }
 ]
