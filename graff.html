@@ -508,7 +508,7 @@
   </div>
 
   <div class="tool-grid">
-    <div class="tool active" data-tool="brush" title="Brush — Paint (P) lays colour, Smudge (S) drags what's already there; tap again to flip between them · hold ⇧ for a straight line, ⇧+Ctrl keeps it dead level or upright">
+    <div class="tool active" data-tool="brush" title="Brush — Paint (P) lays colour, Smudge (S) drags what's already there; tap again to flip between them; both use the same tips · hold ⇧ for a straight line, ⇧+Ctrl keeps it dead level or upright">
       <svg viewBox="0 0 24 24"><path d="M20 4c-4 1-8 5-10 9l2 2c4-2 8-6 9-10l-1-1z"/><path d="M9 14c-3 0-4 2-4 5 3 0 5-1 5-4"/></svg>
     </div>
     <div class="tool" data-tool="air" title="Airbrush (A) — spray can">
@@ -554,7 +554,7 @@
     <div id="fg-mini" title="Color — tap to choose"></div>
     <div class="slider-row">
       <div class="sr-head"><span>Size</span><span class="sr-val" id="size-val">12</span></div>
-      <input type="range" id="size" min="1" max="120" value="12">
+      <input type="range" id="size" min="1" max="400" value="12">
     </div>
     <div class="slider-row" id="op-row">
       <div class="sr-head"><span>Opacity</span><span class="sr-val" id="op-val">100</span></div>
@@ -597,19 +597,19 @@
         <button type="button" data-bm="smudge" title="Drag the paint that's already on the wall (S)">💧 Smudge</button>
       </div>
     </div>
-    <div class="slider-row" id="smudge-row" style="display:none">
-      <div class="sr-head"><span>Finger</span></div>
+    <div class="slider-row" id="smudge-row">
+      <div class="sr-head"><span>Tip</span></div>
       <div class="seg" id="smudge-seg">
-        <button type="button" data-sm="" class="on" title="The original — a hard round fingertip">Round</button>
-        <button type="button" data-sm="soft" title="Feathered edge — smooth blends, no ridges">Soft</button>
+        <button type="button" data-sm="" class="on" title="The original round tip">Round</button>
+        <button type="button" data-sm="soft" title="Feathered edge — smooth, no ridges">Soft</button>
         <button type="button" data-sm="flat" title="Chisel edge that turns with your stroke — wide sweeps">Flat</button>
-        <button type="button" data-sm="swirl" title="Twists the paint as it drags — marbling">Swirl</button>
+        <button type="button" data-sm="swirl" id="sm-swirl" style="display:none" title="Twists the paint as it drags — marbling (Smudge only)">Swirl</button>
       </div>
       <div class="seg" id="smudge-seg2">
-        <button type="button" data-sm="bristle" title="Separate hairs — streaky, combed smears">Bristle</button>
+        <button type="button" data-sm="bristle" title="Separate hairs — streaky, combed marks">Bristle</button>
         <button type="button" data-sm="fan" title="Fan brush — lots of fine hairs spread along an arc">Fan</button>
         <button type="button" data-sm="splay" title="Starts as a point and the hairs open out as you drag">Splay</button>
-        <button type="button" data-sm="dry" title="Dry brush — uneven hairs, streaks that break up and die out">Dry</button>
+        <button type="button" data-sm="dry" title="Dry brush — uneven hairs, some of them bald">Dry</button>
         <button type="button" data-sm="comb" title="A few even teeth — clean parallel tracks">Comb</button>
       </div>
     </div>
@@ -742,7 +742,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-25a";
+const BUILD = "2026-11-25b";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -753,6 +753,7 @@ const PALETTE = ["#f5f0e6","#1a1a1a","#d7263d","#f46036","#f9c22e","#2e933c",
 let tool = "brush", fg = DEFAULT_FG, bg = DEFAULT_BG;
 let size = 12, opacity = 1, airFlow = 1, dripAmt = 1;
 let drawing = false, curPts = [], curSeed = 0, curSm = null;
+let liveTip = null; /* incremental painter for a live tip stroke (see drawCurrent) */
 let opCount = 0;
 /* marks baked into a flattened background still count: walls/main/base is the
    shared running total at the last flatten; the wall shows base + live ops */
@@ -1105,6 +1106,54 @@ function smudgeMask(sh, r, d, seed) {
   return m;
 }
 const SWIRL_STEP = 0.24; /* radians of twist per smudge step */
+/* Paint with one of the smudge tips: the same mask, filled with the colour and
+   stamped along the stroke (turned to the heading, splay opening as it runs).
+   Drawn into the stroke canvas at full strength; opacity is applied when the
+   whole stroke is laid on the wall, same as the round brush. */
+let tipCache = null;
+function tipStamp(sh, r, d, seed, color) {
+  const k = sh + "|" + r + "|" + seed + "|" + color;
+  if (tipCache && tipCache.k === k) return tipCache.c;
+  const c = smudgeMask(sh, r, d, seed), x = c.getContext("2d");
+  x.globalCompositeOperation = "source-in"; x.fillStyle = color; x.fillRect(0, 0, d, d);
+  tipCache = { k, c };
+  return c;
+}
+function makeTipper(ctx, sz, color, sh, seed) {
+  const r = Math.max(sz / 2, 3), d = Math.ceil(r * 2);
+  const st = tipStamp(sh, r, d, seed, color);
+  const hairs = sh === "bristle" || sh === "fan" || sh === "dry" || sh === "splay";
+  const turns = sh === "flat" || sh === "comb" || hairs;
+  /* stamps must sit closer than the thinnest hair is wide, or lines turn into dots */
+  const hn = sh === "fan" ? Math.max(7, Math.min(18, Math.round(r / 3))) : sh === "dry" ? Math.max(6, Math.min(16, Math.round(r / 3.5)))
+    : sh === "splay" ? Math.max(5, Math.min(12, Math.round(r / 4))) : Math.max(4, Math.min(10, Math.round(r / 5)));
+  const step = hairs ? Math.max(0.6, r / hn * 0.2) : (sh === "flat" || sh === "comb") ? Math.max(r * 0.1, 0.8) : Math.max(r / 5, 1);
+  let lx = null, ly = null, vx = 0, vy = 0, trav = 0, ang = 0, first = true;
+  const put = (x, y) => {
+    if (!turns) { ctx.drawImage(st, x - r, y - r); return; }
+    ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+    if (sh === "splay") ctx.scale(1, 0.22 + 0.78 * Math.min(1, trav / (r * 5)));
+    ctx.drawImage(st, -r, -r); ctx.restore();
+  };
+  /* feed points one at a time; call with no arguments at the end so a single tap still prints */
+  return (x, y) => {
+    if (x === undefined) { if (first && lx !== null) { first = false; put(lx, ly); } return; }
+    if (lx === null) { lx = x; ly = y; return; }
+    const dist = Math.hypot(x - lx, y - ly);
+    if (dist < 0.5) return;
+    vx = vx * 0.6 + (x - lx) * 0.4; vy = vy * 0.6 + (y - ly) * 0.4;
+    ang = Math.atan2(vy, vx);
+    if (first) { first = false; put(lx, ly); } /* the first print waits for a heading */
+    const n = Math.max(1, Math.ceil(dist / step)), sx = lx, sy = ly;
+    for (let j = 1; j <= n; j++) { trav += dist / n; put(sx + (x - sx) * j / n, sy + (y - sy) * j / n); }
+    lx = x; ly = y;
+  };
+}
+function pathTip(ctx, pts, sz, color, sh, seed) {
+  const t = makeTipper(ctx, sz, color, sh, seed);
+  for (let i = 0; i < pts.length; i += 2) t(pts[i], pts[i + 1]);
+  t();
+}
 function makeSmudger(ctx, sz, strength, sh, seed) {
   const r = Math.max(sz / 2, 3), d = Math.ceil(r * 2);
   /* own scratch canvas per stroke — someone else's smudge replaying mid-stroke
@@ -1546,7 +1595,9 @@ async function applyOp(o) {
     }
     else {
       sctx.clearRect(0, 0, W, H);
-      if (o.tool === "brush" || o.tool === "drip") pathBrush(sctx, pts, o.sz, o.c);
+      liveTip = null; /* the stroke canvas is shared scratch — a live tip stroke redraws itself */
+      if (o.tool === "brush" && o.sh) pathTip(sctx, pts, o.sz, o.c, o.sh, o.seed || 1);
+      else if (o.tool === "brush" || o.tool === "drip") pathBrush(sctx, pts, o.sz, o.c);
       else pathPencil(sctx, pts, o.sz, o.tool === "eraser" ? "#000" : o.c);
       if (o.tool === "drip") drawDrips(sctx, pts, o.sz, o.c, o.seed || 0, o.dr || 1);
       paintCtx.globalAlpha = o.tool === "eraser" ? 1 : o.op;
@@ -1596,10 +1647,11 @@ let rectSel = null, genBusy = false, fillPrev = null, genDrag = null;
 let genShape = "rect";
 let smudgeTip = ""; /* "" (round) | soft | flat | swirl | bristle | fan | splay | dry | comb */
 const smudgeBtns = document.querySelectorAll("#smudge-seg button, #smudge-seg2 button");
-smudgeBtns.forEach(b => b.addEventListener("click", () => {
-  smudgeTip = b.dataset.sm;
-  smudgeBtns.forEach(o => o.classList.toggle("on", o === b));
-}));
+function setTip(sh) {
+  smudgeTip = sh;
+  smudgeBtns.forEach(o => o.classList.toggle("on", o.dataset.sm === sh));
+}
+smudgeBtns.forEach(b => b.addEventListener("click", () => setTip(b.dataset.sm)));
 /* AI Fill cans: each one is a job, with the model that tested best for it wired
    behind it (Nov 19 2026 — see CANS further down). blend/expand/restyle look at
    the wall; imagine/quick/free paint from the prompt alone. */
@@ -1733,7 +1785,7 @@ display.addEventListener("pointerdown", (e) => {
   if (tool === "gerase" && !gifOps.length) { showBanner("No GIFs on the wall yet — nothing to erase"); return; }
   drawing = true;
   curPts = [x, y];
-  curSeed = (Math.random() * 0xffffffff) >>> 0;
+  curSeed = (Math.random() * 0xffffffff) >>> 0; liveTip = null;
   if (tool === "air") { airTick(x, y); airHoldStart(); }
   else if (tool === "smudge") { curSm = makeSmudger(paintCtx, size, opacity, smudgeTip, curSeed); curSm(x, y); }
   else if (isEraser(tool)) { eraseDot(x, y); erLast = [x, y]; }
@@ -1818,7 +1870,7 @@ display.addEventListener("pointermove", (e) => {
   if (e.shiftKey && (tool === "brush" || tool === "drip")) {
     /* ⇧ = ruler: the stroke is a straight line from where it started to the pointer */
     const [x, y] = axisSnap(e, curPts[0], curPts[1], toWall(e));
-    curPts.length = 2;
+    curPts.length = 2; liveTip = null;
     curPts.push(x, y);
     drawCurrent();
     render();
@@ -1903,6 +1955,7 @@ function endStroke() {
     opCount++; updateCount(); checkMilestone();
   } else {
     if (tool === "drip") { op.seed = curSeed; op.dr = round2(dripAmt); }
+    if (tool === "brush" && smudgeTip) { op.sh = smudgeTip; op.seed = curSeed || 1; }
     enqueue(op);
   }
   curSm = null; erLast = null;
@@ -1961,6 +2014,15 @@ display.addEventListener("wheel", (e) => {
 }, { passive: false });
 
 function drawCurrent() {
+  if (tool === "brush" && smudgeTip) {
+    /* tips stamp densely, so the live stroke only adds the new points; anything
+       that rewrites the stroke (⇧ ruler, someone else's mark replaying) drops
+       liveTip and the whole stroke is laid again */
+    if (!liveTip) { sctx.clearRect(0, 0, W, H); liveTip = { t: makeTipper(sctx, size, fg, smudgeTip, curSeed || 1), n: 0 }; }
+    for (let i = liveTip.n; i < curPts.length; i += 2) liveTip.t(curPts[i], curPts[i + 1]);
+    liveTip.n = curPts.length;
+    return;
+  }
   sctx.clearRect(0, 0, W, H);
   pathBrush(sctx, curPts, size, fg);
   if (tool === "drip") drawDrips(sctx, curPts, size, fg, curSeed, dripAmt);
@@ -3415,7 +3477,10 @@ function setTool(t) {
   document.getElementById("tb-tool").textContent = TOOL_NAMES[t];
   document.getElementById("rot-row").style.display = (t === "text") ? "" : "none";
   document.getElementById("flow-row").style.display = (t === "air") ? "" : "none";
-  document.getElementById("smudge-row").style.display = (t === "smudge") ? "" : "none";
+  /* Paint and Smudge share the tips; Swirl only means something when smearing */
+  document.getElementById("smudge-row").style.display = isBrush(t) ? "" : "none";
+  document.getElementById("sm-swirl").style.display = (t === "brush") ? "none" : "";
+  if (t === "brush" && smudgeTip === "swirl") setTip("soft");
   document.getElementById("shape-row").style.display = (t === "gen" || t === "clone") ? "" : "none";
   /* Subject (click a thing, it's cut out for you) is a Clone-only shape */
   document.getElementById("shape-subject").style.display = (t === "clone") ? "" : "none";
@@ -3918,8 +3983,8 @@ window.addEventListener("keydown", (e) => {
   else if (k === "z") { if (e.shiftKey) redo(); else undo(); }
   else if (k === "x") { const t = fg; setFg(bg); setBg(t); }
   else if (k === "d") { setFg(DEFAULT_FG); setBg(DEFAULT_BG); }
-  else if (k === "[") { sizeEl.value = Math.max(1, size - 2); sizeEl.dispatchEvent(new Event("input")); }
-  else if (k === "]") { sizeEl.value = Math.min(120, size + 2); sizeEl.dispatchEvent(new Event("input")); }
+  else if (k === "[") { sizeEl.value = Math.max(1, size - (size > 60 ? 6 : 2)); sizeEl.dispatchEvent(new Event("input")); }
+  else if (k === "]") { sizeEl.value = Math.min(400, size + (size >= 60 ? 6 : 2)); sizeEl.dispatchEvent(new Event("input")); }
 });
 window.addEventListener("keyup", (e) => {
   if (e.key === " ") { spaceHeld = false; display.classList.remove("hand"); }
