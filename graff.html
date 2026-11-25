@@ -238,6 +238,7 @@
   .seg button + button { border-left: 1px solid var(--panel-border); }
   .seg button.on { background: var(--hilite); color: #fff; }
   #smudge-seg2 { margin-top: -1px; }
+  #brush-seg button { white-space: nowrap; }
   #mode-seg2 { margin-top: -1px; }
   #mode-row .seg button { white-space: nowrap; padding: 6px 1px; font-size: 10.5px; }
   #can-hint { margin-top: 5px; font-size: 10px; line-height: 1.35; color: var(--panel-dim); }
@@ -448,7 +449,7 @@
     #toolbox.collapsed #tb-title { border-bottom: none; }
     #tb-home { display: inline-block; }
     #tb-collapse { font-size: 18px; padding: 10px 16px; margin: -10px -14px -10px 0; }
-    .tool-grid { grid-template-columns: repeat(8, 1fr); gap: 0; padding: 4px 6px; background: none; }
+    .tool-grid { grid-template-columns: repeat(7, 1fr); gap: 0; padding: 4px 6px; background: none; }
     #news-row { padding: 6px 10px; }
     #news-row a { border-radius: 10px; background: rgba(255,255,255,.06); }
     .tool { aspect-ratio: auto; height: 38px; background: none; border: none; border-radius: 9px; }
@@ -457,6 +458,9 @@
     #opts-section { display: flex; gap: 10px; align-items: center; }
     #opts-section .slider-row { flex: 1; margin-bottom: 0; }
     #opts-section .tb-label { display: none; }
+    #opts-section { flex-wrap: wrap; }
+    #opts-section #brush-row { flex: 0 0 auto; }
+    #opts-section #smudge-row { flex: 1 1 100%; }
     .tb-section { padding: 6px 10px; border-top: 1px solid rgba(255,255,255,.07); }
     /* color = one tile: full swatch/palette section hidden, tile lives in the slider row */
     #color-section { display: none; }
@@ -504,19 +508,19 @@
   </div>
 
   <div class="tool-grid">
-    <div class="tool active" data-tool="brush" title="Paintbrush (P) — soft edge; hold ⇧ for a straight line">
+    <div class="tool active" data-tool="brush" title="Brush — Paint (P) lays colour, Smudge (S) drags what's already there; tap again to flip between them · hold ⇧ for a straight line, ⇧+Ctrl keeps it dead level or upright">
       <svg viewBox="0 0 24 24"><path d="M20 4c-4 1-8 5-10 9l2 2c4-2 8-6 9-10l-1-1z"/><path d="M9 14c-3 0-4 2-4 5 3 0 5-1 5-4"/></svg>
     </div>
     <div class="tool" data-tool="air" title="Airbrush (A) — spray can">
       <svg viewBox="0 0 24 24"><rect x="8" y="8" width="7" height="13" rx="1"/><path d="M10 8V6h3v2"/><path d="M11 4h1"/><path d="M18 5l2-1M18 8h3M18 11l2 1"/></svg>
     </div>
-    <div class="tool" data-tool="smudge" title="Smudge (S) — drag wet paint · hold ⇧ for a straight smear">
-      <svg viewBox="0 0 24 24"><path d="M14 3c0 3-5 7-5 11a5 5 0 0 0 10 0c0-4-5-8-5-11z"/><path d="M7 20c-2 0-3 1-3 1"/></svg>
+    <div class="tool" data-tool="drip" title="Drip (W) — paint that runs; Runniness sets how far it drips; hold ⇧ for a straight line, ⇧+Ctrl keeps it dead level or upright">
+      <svg viewBox="0 0 24 24"><path d="M3 7c4-2 8-2 12 0s5 1 6 0"/><path d="M8 8v7a1.3 1.3 0 0 0 2.6 0V8"/><path d="M14 8v4a1 1 0 0 0 2 0V8"/><path d="M18.5 8v9.5a1.5 1.5 0 0 0 3 0V8"/></svg>
     </div>
     <div class="tool" data-tool="text" title="Text (T) — random graffiti font every hit">
       <svg viewBox="0 0 24 24"><path d="M4 9 L3.4 4.6 L20.6 3.4 L20 7.8 L14.6 8.2 L15.4 18.6 Q15.5 20.8 13.2 20.8 Q11 20.8 10.9 18.8 L10 8.6 Z"/><path d="M18.3 8.4 C18.7 10.6 18.6 12.2 17.3 12.2 C16.2 12.2 16 10.8 16.6 9.3"/></svg>
     </div>
-    <div class="tool" data-tool="image" title="Upload Image (I) — or right-click the wall / Ctrl+V to paste a copied image">
+    <div class="tool" data-tool="image" title="Image (I) — add a photo, or right-click the wall / Ctrl+V to paste one. Tick Stencil while placing (or press K) to turn it into a cutout in your colour">
       <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><circle cx="8.5" cy="10" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>
     </div>
     <div class="tool" data-tool="gen" title="AI Fill (G) — box or lasso an area (⇧-drag adds regions), describe what appears there (leave empty to remove). Fill: Blend in = content-aware, Imagine = made up from the prompt">
@@ -525,8 +529,8 @@
     <div class="tool" data-tool="gif" title="GIF (M) — paste a GIF link or pick a file; it animates on its own layer">
       <svg viewBox="0 0 24 24"><text x="12" y="16.5" text-anchor="middle" font-family="'Segoe UI', Cantarell, system-ui, sans-serif" font-size="11" font-weight="800" letter-spacing=".5" fill="currentColor" stroke="none">GIF</text></svg>
     </div>
-    <div class="tool" data-tool="stencil" title="Stencil (K) — pick a picture, it becomes a cutout (hard cut or tonal) in your colour; Photo Eraser rubs it out">
-      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M12 7.5l1.4 3.1 3.4.4-2.5 2.3.7 3.4-3-1.7-3 1.7.7-3.4-2.5-2.3 3.4-.4z" fill="currentColor" stroke="none"/></svg>
+    <div class="tool" data-tool="clone" title="Clone (C) — box or lasso a bit of the wall, then drop a copy anywhere (scale, rotate, flip, invert, fade)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="12" height="12" rx="1"/><path d="M9 9h12v12H9z"/><path d="M15 9v6H9"/></svg>
     </div>
     <div class="tool" data-tool="perase" title="Photo Eraser (E) — erases uploaded photos only; AI images + paint stay">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="11" height="8" rx="1"/><circle cx="6" cy="6.8" r="1"/><path d="M3 10.5l2.5-2.5 3 3"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
@@ -540,17 +544,8 @@
     <div class="tool" data-tool="berase" title="Background Eraser (B) — rubs out today's news backdrop down to the bare concrete; nothing else is touched">
       <svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="13" height="10" rx="1"/><path d="M2.5 12l3.5-4 3 3 2-2 4.5 5"/><circle cx="12" cy="7" r="1"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
     </div>
-    <div class="tool" data-tool="clone" title="Clone (C) — box or lasso a bit of the wall, then drop a copy anywhere (scale, rotate, flip, invert, fade)">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="12" height="12" rx="1"/><path d="M9 9h12v12H9z"/><path d="M15 9v6H9"/></svg>
-    </div>
-    <div class="tool" data-tool="drip" title="Drip (W) — paint that runs; Runniness sets how far it drips; hold ⇧ for a straight line">
-      <svg viewBox="0 0 24 24"><path d="M3 7c4-2 8-2 12 0s5 1 6 0"/><path d="M8 8v7a1.3 1.3 0 0 0 2.6 0V8"/><path d="M14 8v4a1 1 0 0 0 2 0V8"/><path d="M18.5 8v9.5a1.5 1.5 0 0 0 3 0V8"/></svg>
-    </div>
     <div class="tool" data-tool="picker" title="Color Picker (O)">
       <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
-    </div>
-    <div class="tool" data-tool="hand" title="Pan (H) — or drag with two fingers / hold Space">
-      <svg viewBox="0 0 24 24"><path d="M8 12V6a1.5 1.5 0 0 1 3 0v5"/><path d="M11 11V4.5a1.5 1.5 0 0 1 3 0V11"/><path d="M14 11V6a1.5 1.5 0 0 1 3 0v7c0 4-2 7-6 7s-6-3-7-6l-1-3a1.4 1.4 0 0 1 2.6-1L7 13"/></svg>
     </div>
   </div>
 
@@ -594,6 +589,13 @@
     <div class="slider-row" id="drip-row" style="display:none">
       <div class="sr-head"><span>Runniness</span><span class="sr-val" id="drip-val">100</span></div>
       <input type="range" id="drip" min="10" max="300" value="100">
+    </div>
+    <div class="slider-row" id="brush-row">
+      <div class="sr-head"><span>Brush</span></div>
+      <div class="seg" id="brush-seg">
+        <button type="button" data-bm="brush" class="on" title="Lay down colour (P)">🖌 Paint</button>
+        <button type="button" data-bm="smudge" title="Drag the paint that's already on the wall (S)">💧 Smudge</button>
+      </div>
     </div>
     <div class="slider-row" id="smudge-row" style="display:none">
       <div class="sr-head"><span>Finger</span></div>
@@ -663,6 +665,7 @@
   <label id="pb-flip-row" title="Mirror left-right"><input type="checkbox" id="pb-flip"> Flip</label>
   <label id="pb-neg-row" title="Invert the colours (negative)"><input type="checkbox" id="pb-neg"> Invert</label>
   <label id="pb-nobg-row" title="Cut the subject out and drop the background (runs in your browser; the first time downloads a ~45MB model)"><input type="checkbox" id="pb-nobg"> No background</label>
+  <label id="pb-st-row" title="Turn the picture into a cutout in your current colour — dark parts become paint"><input type="checkbox" id="pb-st"> Stencil</label>
   <label id="pb-cut-row" style="display:none" title="Move instead of copy: when you Place, the spot you copied from is wiped down to bare concrete"><input type="checkbox" id="pb-cut"> Delete original</label>
   <label id="pb-under-row" title="Put the GIF under the paint layer so spray can cover it"><input type="checkbox" id="pb-under"> Behind paint</label>
   <label id="pb-thresh-row" style="display:none">Cut <input type="range" id="pb-thresh" min="5" max="95" value="50"></label>
@@ -675,7 +678,6 @@
 </div>
 
 <input type="file" id="gif-input" accept="image/gif,.gif" style="display:none">
-<input type="file" id="stencil-file" accept="image/*" style="display:none">
 <div id="gif-bar">
   <span class="grip" title="drag this bar out of the way">⠿</span>
   <input type="text" id="gif-q" placeholder="search GIPHY…" maxlength="100" autocomplete="off">
@@ -740,7 +742,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-19b";
+const BUILD = "2026-11-25a";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -1691,7 +1693,7 @@ display.addEventListener("pointerdown", (e) => {
     }
     dragging = true; dragOff = [placing.x - x, placing.y - y]; return;
   }
-  if (tool === "hand" || spaceHeld) {
+  if (spaceHeld) {
     pan = { sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y };
     display.classList.add("panning");
     return;
@@ -1699,7 +1701,6 @@ display.addEventListener("pointerdown", (e) => {
   if (tool === "text") { beginText(e.clientX, e.clientY, x, y, true); return; }
   if (tool === "image") { fileInput.click(); return; }
   if (tool === "gif") { openGifBar(); return; }
-  if (tool === "stencil") { stencilInput.click(); return; }
   if (tool === "picker") { pickColor(x, y); return; }
   if (tool === "clone" && genShape === "subject") {
     subjectClick(e.clientX, e.clientY, e.altKey ? "sub" : e.shiftKey ? "add" : subjMode);
@@ -1816,7 +1817,7 @@ display.addEventListener("pointermove", (e) => {
   if (!drawing) return;
   if (e.shiftKey && (tool === "brush" || tool === "drip")) {
     /* ⇧ = ruler: the stroke is a straight line from where it started to the pointer */
-    const [x, y] = toWall(e);
+    const [x, y] = axisSnap(e, curPts[0], curPts[1], toWall(e));
     curPts.length = 2;
     curPts.push(x, y);
     drawCurrent();
@@ -1828,8 +1829,8 @@ display.addEventListener("pointermove", (e) => {
        the brush line; instead ⇧ parks the finger: a guide runs from the last smeared
        point to the pointer, and the straight smear lands when ⇧ or the button is let go. */
     if (e.shiftKey) {
-      smLine = toWall(e);
       const n = curPts.length;
+      smLine = axisSnap(e, curPts[n - 2], curPts[n - 1], toWall(e));
       smudgeGuide(curPts[n - 2], curPts[n - 1], smLine[0], smLine[1]);
       render();
       return;
@@ -1849,6 +1850,12 @@ display.addEventListener("pointermove", (e) => {
   if (tool === "brush" || tool === "drip") drawCurrent();
   render();
 });
+/* ⇧+Ctrl (⇧+⌘ on a Mac): the ruler line also locks to dead horizontal or dead
+   vertical from its start point — whichever way the pointer has gone further */
+function axisSnap(e, x0, y0, pt) {
+  if (!(e.ctrlKey || e.metaKey)) return pt;
+  return Math.abs(pt[0] - x0) >= Math.abs(pt[1] - y0) ? [pt[0], y0] : [x0, pt[1]];
+}
 let smLine = null; /* pending ⇧ straight-smudge endpoint (wall coords) */
 function smudgeGuide(x0, y0, x1, y1) {
   sctx.clearRect(0, 0, W, H);
@@ -2112,11 +2119,13 @@ const pbRot = document.getElementById("pb-rot");
 const pbOp = document.getElementById("pb-op");
 let placing = null;
 
+let stencilNext = false; /* K: the next picked photo opens with Stencil ticked */
 fileInput.addEventListener("change", () => {
   const f = fileInput.files[0];
   fileInput.value = "";
-  if (f) beginImage(f);
+  if (f) beginImage(f); else stencilNext = false;
 });
+fileInput.addEventListener("cancel", () => { stencilNext = false; });
 /* f = a File/Blob; at = [wallX, wallY] to drop it there (paste), else the view centre */
 async function beginImage(f, at) {
   try {
@@ -2132,6 +2141,7 @@ async function beginImage(f, at) {
     pbRot.value = 0;
     pbOp.value = 100;
     placeBar.style.display = "flex";
+    if (stencilNext) { stencilNext = false; pbSt.checked = true; setStencil(true); }
     render();
   } catch (err) {
     showBanner("Couldn't read that image (" + err.message + ")");
@@ -2226,21 +2236,6 @@ pbOp.addEventListener("input", () => { if (placing) { placing.op = +pbOp.value /
 document.getElementById("pb-place").addEventListener("click", () => {
   if (!placing) return;
   const p = placing;
-  if (p.stencil) {
-    const [w, h] = placingSize(p);
-    const op = {
-      t: "i", ov: 1, /* photo layer like any picture, so the Photo Eraser rubs it (pt:1 stencils from 3a718af replay on paint) */
-      x: Math.round(p.x), y: Math.round(p.y),
-      w: Math.max(1, Math.round(w)), h: Math.max(1, Math.round(h)),
-      rot: Math.round(p.rot * 1000) / 1000,
-      op: round2(p.op),
-      src: encodeFill(p.flip ? mirrored(p.img) : p.img)
-    };
-    placing = null;
-    resetPlaceBar();
-    enqueue(op); publish(op);
-    return;
-  }
   if (p.gif) {
     const [w, h] = placingSize(p);
     const op = {
@@ -2265,7 +2260,7 @@ document.getElementById("pb-place").addEventListener("click", () => {
     h: Math.max(1, Math.round(p.img.height * p.scale)),
     rot: Math.round(p.rot * 1000) / 1000,
     op: round2(p.op),
-    src: (p.flip || p.neg || (p.nobg && p.imgCut)) ? encodeFill(p.flip ? mirrored(p.img) : p.img) : p.src
+    src: (p.flip || p.neg || p.st || (p.nobg && p.imgCut)) ? encodeFill(p.flip ? mirrored(p.img) : p.img) : p.src
   };
   if (p.ai) op.ai = 1;
   op.ov = 1; /* v10: pasted OVER the wall — covers existing paint at placement */
@@ -2290,6 +2285,8 @@ function resetPlaceBar() {
   pbNeg.checked = false;
   pbNobgRow.style.display = "";
   pbNobg.checked = false; pbNobg.disabled = false;
+  pbStRow.style.display = "";
+  pbSt.checked = false;
   pbCutRow.style.display = "none";
   pbCut.checked = false;
   pbThreshRow.style.display = "none";
@@ -2351,7 +2348,11 @@ function placingRefresh() {
   if (!p.img0) p.img0 = p.img;
   const cut = p.nobg && p.imgCut;
   let im = cut ? p.imgCut : p.img0;
-  if (p.neg) {
+  if (p.st) {
+    /* stencil: the picture (or its cut-out) becomes a cutout in the current colour */
+    if (p.stSrc !== im) { p.stSrc = im; p.stLum = lumOf(im); }
+    im = stencilCutout(p.stLum, +pbThresh.value / 100, pbInvert.checked, fg, pbTone.checked);
+  } else if (p.neg) {
     const k = cut ? "imgCutNeg" : "imgNeg";
     if (!p[k]) p[k] = negative(im);
     im = p[k];
@@ -2360,7 +2361,7 @@ function placingRefresh() {
   render();
 }
 pbNeg.addEventListener("change", () => {
-  if (!placing || placing.gif || placing.stencil) return;
+  if (!placing || placing.gif) return;
   placing.neg = pbNeg.checked;
   placingRefresh();
 });
@@ -2380,7 +2381,7 @@ function bgCutDone(m) {
   p.bgBusy = false;
   if (m.type === "error") {
     pbNobg.checked = false; p.nobg = false;
-    pbHint.textContent = pbHintText;
+    pbHint.textContent = placeHint();
     showBanner("Couldn't remove the background (" + m.msg + ")");
     return;
   }
@@ -2391,7 +2392,7 @@ function bgCutDone(m) {
   let kept = 0;
   for (let i = 0; i < a.length; i++) { d[i * 4 + 3] = a[i]; if (a[i] > 127) kept++; }
   mk.getContext("2d").putImageData(id, 0, 0);
-  pbHint.textContent = pbHintText;
+  pbHint.textContent = placeHint();
   if (kept < a.length * 0.004) {
     pbNobg.checked = false; p.nobg = false;
     showBanner("Couldn't find a subject in that picture — nothing was cut");
@@ -2408,7 +2409,7 @@ function bgCutDone(m) {
 }
 pbNobg.addEventListener("change", () => {
   const p = placing;
-  if (!p || p.gif || p.stencil) return;
+  if (!p || p.gif) return;
   p.nobg = pbNobg.checked;
   if (!p.nobg || p.imgCut) { placingRefresh(); return; }
   if (p.bgBusy) return;
@@ -2529,7 +2530,7 @@ async function beginGif(buf) {
   resetPlaceBar();
   pbUnderRow.style.display = "";
   pbFlipRow.style.display = "none"; /* sprite sheets aren't mirrored (yet) */
-  pbNegRow.style.display = "none"; pbNobgRow.style.display = "none";
+  pbNegRow.style.display = "none"; pbNobgRow.style.display = "none"; pbStRow.style.display = "none";
   closeGifBar();
   placeBar.style.display = "flex";
   startGifLoop();
@@ -3107,11 +3108,38 @@ window.addEventListener("keydown", (e) => {
   else if (e.key === "Escape") subjReset();
 });
 
-/* ---------- stencil: a picture → hard-edged cutout in the current colour ----------
-   Dark pixels become paint (Invert flips that); Cut is the threshold. The cutout
-   goes through the normal placement flow and lands on the PAINT layer (image op
-   with pt:1), so it behaves like spray: paint covers it, erasers ignore it. */
-const stencilInput = document.getElementById("stencil-file");
+/* ---------- stencil: a tick-box on the place bar ----------
+   Any picture being placed (photo, paste, clone, AI image) can be turned into a
+   cutout in the current colour: dark pixels become paint (Invert flips that), Cut
+   is the threshold, Tone keeps the greys. It composes with No background and Flip,
+   and lands on the photo layer like any picture (Photo Eraser rubs it). */
+const pbSt = document.getElementById("pb-st");
+const pbStRow = document.getElementById("pb-st-row");
+const stHintText = "Stencil: Cut sets what counts as dark; Invert flips the picture; Tone keeps the greys. Colour = your current colour.";
+function placeHint() { return placing && placing.st ? stHintText : pbHintText; }
+function lumOf(img) {
+  const w = img.width, h = img.height;
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); /* transparent = light = not painted */
+  ctx.drawImage(img, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h).data;
+  const lum = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) lum[i] = (d[i * 4] * 0.299 + d[i * 4 + 1] * 0.587 + d[i * 4 + 2] * 0.114) | 0;
+  return { lum, w, h };
+}
+function setStencil(on) {
+  const p = placing;
+  if (!p || p.gif) return;
+  p.st = on;
+  if (on) { pbThresh.value = 50; pbInvert.checked = false; pbTone.checked = false; }
+  pbThreshRow.style.display = pbInvertRow.style.display = pbToneRow.style.display = on ? "" : "none";
+  pbNegRow.style.display = on ? "none" : ""; /* one Invert at a time */
+  if (!p.bgBusy) pbHint.textContent = placeHint();
+  try { placingRefresh(); }
+  catch (err) { p.st = false; pbSt.checked = false; setStencil(false); showBanner("Couldn't read that picture's pixels"); }
+}
+pbSt.addEventListener("change", () => setStencil(pbSt.checked));
 const pbThreshRow = document.getElementById("pb-thresh-row");
 const pbThresh = document.getElementById("pb-thresh");
 const pbInvertRow = document.getElementById("pb-invert-row");
@@ -3139,42 +3167,9 @@ function stencilCutout(st, thresh, invert, color, tone) {
 const pbToneRow = document.getElementById("pb-tone-row");
 const pbTone = document.getElementById("pb-tone");
 function refreshStencil() {
-  if (!placing || !placing.stencil) return;
-  placing.img = stencilCutout(placing.stencil, +pbThresh.value / 100, pbInvert.checked, fg, pbTone.checked);
-  render();
+  if (!placing || !placing.st) return;
+  placingRefresh();
 }
-stencilInput.addEventListener("change", async () => {
-  const f = stencilInput.files[0];
-  stencilInput.value = "";
-  if (!f) return;
-  try {
-    const url = URL.createObjectURL(f);
-    const im = await loadImg(url);
-    URL.revokeObjectURL(url); imgCache.delete(url);
-    const sc = Math.min(1, 1024 / Math.max(im.width, im.height));
-    const w = Math.max(1, Math.round(im.width * sc)), h = Math.max(1, Math.round(im.height * sc));
-    const c = document.createElement("canvas"); c.width = w; c.height = h;
-    const ctx = c.getContext("2d", { willReadFrequently: true });
-    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); /* transparent = light = not painted */
-    ctx.drawImage(im, 0, 0, w, h);
-    const d = ctx.getImageData(0, 0, w, h).data;
-    const lum = new Uint8Array(w * h);
-    for (let i = 0; i < w * h; i++) lum[i] = (d[i * 4] * 0.299 + d[i * 4 + 1] * 0.587 + d[i * 4 + 2] * 0.114) | 0;
-    const st = { lum, w, h };
-    const s0 = Math.min(1, (W * 0.3) / w, (H * 0.3) / h);
-    const vx = cam.x + window.innerWidth / cam.s / 2, vy = cam.y + window.innerHeight / cam.s / 2;
-    pbThresh.value = 50; pbInvert.checked = false; pbTone.checked = false;
-    placing = { stencil: st, img: stencilCutout(st, 0.5, false, fg, false), x: vx, y: vy, scale: s0, rot: 0, op: 1 };
-    pbScale.value = Math.round(s0 * 100); pbRot.value = 0; pbOp.value = 100;
-    pbThreshRow.style.display = ""; pbInvertRow.style.display = ""; pbToneRow.style.display = "";
-    pbNegRow.style.display = "none"; pbNobgRow.style.display = "none";
-    placeBar.style.display = "flex";
-    pbHint.textContent = "Cut sets what counts as dark; Invert flips the picture; Tone keeps the greys. Colour = your current colour.";
-    render();
-  } catch (err) {
-    showBanner("Couldn't read that image (" + err.message + ")");
-  }
-});
 pbThresh.addEventListener("input", refreshStencil);
 pbInvert.addEventListener("change", refreshStencil);
 pbTone.addEventListener("change", refreshStencil);
@@ -3402,14 +3397,20 @@ genInput.addEventListener("keydown", (e) => {
 });
 
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gif: "GIF", gen: "AI Fill", stencil: "Stencil", clone: "Clone", drip: "Drip", perase: "Photo Eraser", aerase: "AI Eraser", berase: "Background Eraser", gerase: "GIF Eraser", picker: "Color Picker", hand: "Pan" };
+const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gif: "GIF", gen: "AI Fill", clone: "Clone", drip: "Drip", perase: "Photo Eraser", aerase: "AI Eraser", berase: "Background Eraser", gerase: "GIF Eraser", picker: "Color Picker" };
 const toolEls = document.querySelectorAll(".tool");
+/* Paint and Smudge share one button: brushMode remembers which one it last was */
+let brushMode = "brush";
+const isBrush = (t) => t === "brush" || t === "smudge";
 function setTool(t) {
   tool = t;
+  if (isBrush(t)) brushMode = t;
   if (t !== "gen" && t !== "clone" && !genBusy && (rectSel || fillPrev)) closeGen();
   if (t !== "gif") closeGifBar();
   if (t !== "text" && textBox) { textBox.remove(); textBox = null; }
-  toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === t));
+  toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === t || (el.dataset.tool === "brush" && t === "smudge")));
+  document.getElementById("brush-row").style.display = isBrush(t) ? "" : "none";
+  document.querySelectorAll("#brush-seg button").forEach(b => b.classList.toggle("on", b.dataset.bm === t));
   document.getElementById("tool-name").textContent = TOOL_NAMES[t];
   document.getElementById("tb-tool").textContent = TOOL_NAMES[t];
   document.getElementById("rot-row").style.display = (t === "text") ? "" : "none";
@@ -3424,12 +3425,14 @@ function setTool(t) {
   document.getElementById("drip-row").style.display = (t === "drip") ? "" : "none";
   /* erasers always rub at full strength — no opacity to set */
   document.getElementById("op-row").style.display = isEraser(t) ? "none" : "";
-  display.classList.toggle("hand", t === "hand");
 }
+document.querySelectorAll("#brush-seg button").forEach(b => b.addEventListener("click", () => setTool(b.dataset.bm)));
 toolEls.forEach(el => el.addEventListener("click", () => {
-  setTool(el.dataset.tool);
-  if (el.dataset.tool === "image" && !placing) fileInput.click();
-  if (el.dataset.tool === "stencil" && !placing) stencilInput.click();
+  let t = el.dataset.tool;
+  /* the brush button: first tap goes back to whichever mode it was in, a second tap flips it */
+  if (t === "brush") t = isBrush(tool) ? (tool === "brush" ? "smudge" : "brush") : brushMode;
+  setTool(t);
+  if (t === "image" && !placing) { stencilNext = false; fileInput.click(); }
   if (el.dataset.tool === "gif") openGifBar();
 }));
 
@@ -3907,12 +3910,11 @@ window.addEventListener("keydown", (e) => {
   else if (k === "g") setTool("gen");
   else if (k === "c") setTool("clone");
   else if (k === "w") setTool("drip");
-  else if (k === "k") { setTool("stencil"); if (!placing) stencilInput.click(); }
+  else if (k === "k") { setTool("image"); if (!placing) { stencilNext = true; fileInput.click(); } else if (!placing.gif && !pbSt.checked) { pbSt.checked = true; setStencil(true); } }
   else if (k === "e") setTool("perase");
   else if (k === "r") setTool("aerase");
   else if (k === "b") setTool("berase");
   else if (k === "o") setTool("picker");
-  else if (k === "h") setTool("hand");
   else if (k === "z") { if (e.shiftKey) redo(); else undo(); }
   else if (k === "x") { const t = fg; setFg(bg); setBg(t); }
   else if (k === "d") { setFg(DEFAULT_FG); setBg(DEFAULT_BG); }
@@ -3920,7 +3922,7 @@ window.addEventListener("keydown", (e) => {
   else if (k === "]") { sizeEl.value = Math.min(120, size + 2); sizeEl.dispatchEvent(new Event("input")); }
 });
 window.addEventListener("keyup", (e) => {
-  if (e.key === " ") { spaceHeld = false; if (tool !== "hand") display.classList.remove("hand"); }
+  if (e.key === " ") { spaceHeld = false; display.classList.remove("hand"); }
 });
 
 /* ---------- persistence ---------- */
