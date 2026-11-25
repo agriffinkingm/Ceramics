@@ -742,7 +742,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-25b";
+const BUILD = "2026-11-25c";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -2757,7 +2757,7 @@ window.addEventListener("paste", (e) => {
 /* Paid generation: budget-capped, models-only-scope key (visible in this public page
    by design — the cap bounds the damage if someone lifts it). ~0.039 pollen/image on
    nanobanana. When the pollen runs out the tool auto-falls back to the free flux can. */
-const POLLINATIONS_KEY = "sk_FwBD5AH5UI2unXoI4rERFIMWtFxPYKC3";
+const POLLINATIONS_KEY = "sk_CUhfs3CN9WJBTgADK0If6SHrjeUWHHt5";
 const GEN_MODEL = "nanobanana"; // needs pollen; seedream (4.0) refuses <1024px boxes so don't use it here
 /* Models picked by trying each job on real wall crops (Nov 19 2026):
    - nanobanana: the only one that extends a picture seamlessly AND leaves the rest alone
