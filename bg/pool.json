@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-11-22",
-  "image": "pool-2026-11-22.jpg",
-  "headline": "Turkey seizes control of last major independent news channel amid fraud scandal - International report",
-  "url": "https://www.rfi.fr/en/podcasts/international-report/20261121-turkey-seizes-control-of-last-major-independent-news-channel-amid-fraud-scandal",
-  "outlet": "rfi.fr",
-  "t": "2026-11-21T14:55:44+00:00",
-  "hash": 8952032223020597115
- },
- {
-  "id": "2026-11-22-b",
-  "image": "pool-2026-11-22-b.jpg",
-  "headline": "Tinubu 11 . 2 Trillion Pipeline Scandal - By SKC Ogbonnia",
-  "url": "https://www.opinionnigeria.com/tinubus-11-2-trillion-pipeline-scandal-by-skc-ogbonnia/",
-  "outlet": "opinionnigeria.com",
-  "t": "2026-11-21T14:55:44+00:00",
-  "hash": 4485068726766927905
- },
- {
-  "id": "2026-11-22-c",
-  "image": "pool-2026-11-22-c.jpg",
-  "headline": "RESEARCH UPDATE : IIT Mandi researchers develop AI - based model to predict wildlife population changes",
-  "url": "https://www.educationtimes.com/news/research-update-iit-mandi-researchers-develop-ai-based-model-to-predict-wildlife-population-changes/articleshow/136050159.cms",
-  "outlet": "educationtimes.com",
-  "t": "2026-11-21T14:55:44+00:00",
-  "hash": 18446146493450092543
- },
- {
   "id": "2026-11-21-1042-0",
   "image": "pool-2026-11-21-1042-0.jpg",
   "headline": "Body pulled from L . A . River following powerful storm",
@@ -163,5 +136,35 @@
   "outlet": "ledgertranscript.com",
   "t": "2026-11-25T17:35:51+00:00",
   "hash": 18414954575854358239
+ },
+ {
+  "id": "2026-11-25-1316-0",
+  "image": "pool-2026-11-25-1316-0.jpg",
+  "headline": "Severe drought dries up rivers , cuts off communities in Brazil Amazon",
+  "url": "https://news.mongabay.com/short-article/2026/11/severe-drought-dries-up-rivers-cuts-off-communities-in-brazils-amazon/",
+  "outlet": "news.mongabay.com",
+  "t": "2026-11-25T18:16:26+00:00",
+  "vista": 9.0,
+  "hash": 30886854655
+ },
+ {
+  "id": "2026-11-25-1316-1",
+  "image": "pool-2026-11-25-1316-1.jpg",
+  "headline": "RASUWA FLOOD : Suffering Of Financial Sector | New Spotlight Magazine",
+  "url": "https://www.spotlightnepal.com/2026/11/24/rasuwa-flood-suffering-financial-sector/",
+  "outlet": "spotlightnepal.com",
+  "t": "2026-11-25T18:16:26+00:00",
+  "vista": 8.0,
+  "hash": 1016705345504870399
+ },
+ {
+  "id": "2026-11-25-1316-2",
+  "image": "pool-2026-11-25-1316-2.jpg",
+  "headline": "Arkeus and TEKEVER Demonstrate Integrated Shipborne ISR Capability for Amphibious Operations at REPMUS 2026",
+  "url": "https://www.suasnews.com/2026/11/arkeus-and-tekever-demonstrate-integrated-shipborne-isr-capability-for-amphibious-operations-at-repmus-2026/",
+  "outlet": "suasnews.com",
+  "t": "2026-11-25T18:16:26+00:00",
+  "vista": 8.0,
+  "hash": 828609724159
  }
 ]
