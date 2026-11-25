@@ -1,35 +1,5 @@
 [
  {
-  "id": "2026-11-20-1513-1",
-  "image": "pool-2026-11-20-1513-1.jpg",
-  "headline": "Heavy Rain Hits SoCal , Prompting Flooding , Isolated Mud Flows",
-  "url": "https://mynewsla.com/orange-county/2026/11/19/heavy-rain-hits-socal-prompting-flooding-isolated-mud-flows-2/",
-  "outlet": "mynewsla.com",
-  "t": "2026-11-20T20:13:09+00:00",
-  "vista": 8.0,
-  "hash": 505250748531933183
- },
- {
-  "id": "2026-11-21-0206-0",
-  "image": "pool-2026-11-21-0206-0.jpg",
-  "headline": "UK braced as temperatures could drop to minus 10C in coldest night of autumn",
-  "url": "https://www.barryanddistrictnews.co.uk/news/national/26750301.uk-braced-temperatures-drop-minus-10c-coldest-night-autumn/",
-  "outlet": "barryanddistrictnews.co.uk",
-  "t": "2026-11-21T07:06:09+00:00",
-  "vista": 9.0,
-  "hash": 2305985811859767295
- },
- {
-  "id": "2026-11-21-0206-1",
-  "image": "pool-2026-11-21-0206-1.jpg",
-  "headline": "Burnham motorists warned of overnight M5 closures through Somerset this week for bridge works",
-  "url": "https://www.burnham-on-sea.com/news/burnham-motorists-warned-of-overnight-m5-closures-through-somerset-this-week-for-bridge-works/",
-  "outlet": "burnham-on-sea.com",
-  "t": "2026-11-21T07:06:09+00:00",
-  "vista": 7.0,
-  "hash": 2332934975722159615
- },
- {
   "id": "2026-11-22",
   "image": "pool-2026-11-22.jpg",
   "headline": "Turkey seizes control of last major independent news channel amid fraud scandal - International report",
@@ -166,5 +136,32 @@
   "outlet": "ianslive.in",
   "t": "2026-11-24T09:49:24+00:00",
   "hash": 72482694767837183
+ },
+ {
+  "id": "2026-11-26",
+  "image": "pool-2026-11-26.jpg",
+  "headline": "Greetings from Mount Kilimanjaro , Africa highest point in all its splendor",
+  "url": "https://www.wvtf.org/2026-11-25/greetings-from-mount-kilimanjaro-africas-highest-point-in-all-its-splendor",
+  "outlet": "wvtf.org",
+  "t": "2026-11-25T17:35:51+00:00",
+  "hash": 18410927211818229759
+ },
+ {
+  "id": "2026-11-26-b",
+  "image": "pool-2026-11-26-b.jpg",
+  "headline": "At least one killed , 10 injured as under - construction building collapses in Karachi",
+  "url": "https://dunyanews.tv/en/Pakistan/984824-at-least-one-killed-10-injured-as-underconstruction-building-collaps",
+  "outlet": "dunyanews.tv",
+  "t": "2026-11-25T17:35:51+00:00",
+  "hash": 2365780639313989255
+ },
+ {
+  "id": "2026-11-26-c",
+  "image": "pool-2026-11-26-c.jpg",
+  "headline": "NH developers urge reforms to federal  plague  on affordable housing - Monadnock Ledger - Transcript",
+  "url": "https://ledgertranscript.com/2026/11/25/nh-developers-urge-reforms-to-federal-plague-on-affordable-housing/",
+  "outlet": "ledgertranscript.com",
+  "t": "2026-11-25T17:35:51+00:00",
+  "hash": 18414954575854358239
  }
 ]
