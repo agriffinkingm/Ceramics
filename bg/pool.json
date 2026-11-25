@@ -1,25 +1,5 @@
 [
  {
-  "id": "2026-11-21-1042-0",
-  "image": "pool-2026-11-21-1042-0.jpg",
-  "headline": "Body pulled from L . A . River following powerful storm",
-  "url": "https://www.latimes.com/california/story/2026-11-21/body-pulled-from-la-river-following-powerful-storm",
-  "outlet": "latimes.com",
-  "t": "2026-11-21T15:42:35+00:00",
-  "vista": 7.0,
-  "hash": 8679420570619674623
- },
- {
-  "id": "2026-11-21-1416-0",
-  "image": "pool-2026-11-21-1416-0.jpg",
-  "headline": "Guarding green rainforest in China southernmost province",
-  "url": "http://www.asiabulletin.com/news/279447329/guarding-green-rainforest-in-china-southernmost-province",
-  "outlet": "asiabulletin.com",
-  "t": "2026-11-21T19:16:10+00:00",
-  "vista": 9.0,
-  "hash": 8589934544
- },
- {
   "id": "2026-11-22-0144-0",
   "image": "pool-2026-11-22-0144-0.jpg",
   "headline": "Iran claims to have destroyed 19th US MQ - 1 drone",
@@ -166,5 +146,25 @@
   "t": "2026-11-25T18:16:26+00:00",
   "vista": 8.0,
   "hash": 828609724159
+ },
+ {
+  "id": "2026-11-25-1643-0",
+  "image": "pool-2026-11-25-1643-0.jpg",
+  "headline": "El Cajon cyberattack exposes 7 . 8 terabytes of data , including undercover police records",
+  "url": "https://nypost.com/2026/11/24/us-news/el-cajon-cyberattack-exposes-7-8-terabytes-of-data-including-undercover-police-records/",
+  "outlet": "nypost.com",
+  "t": "2026-11-25T21:43:30+00:00",
+  "vista": 8.0,
+  "hash": 9150996675687092252
+ },
+ {
+  "id": "2026-11-25-1643-1",
+  "image": "pool-2026-11-25-1643-1.jpg",
+  "headline": "Christmas decorations found in washed up container from ship hit by drones off Bulgaria Black Sea coast",
+  "url": "https://www.euronews.com/2026/11/25/christmas-decorations-found-in-washed-up-container-from-ship-hit-by-drones-off-bulgarias-b",
+  "outlet": "euronews.com",
+  "t": "2026-11-25T21:43:30+00:00",
+  "vista": 7.0,
+  "hash": 65535
  }
 ]
