@@ -495,5 +495,12 @@
   "url": "https://www.wvtf.org/2026-11-25/greetings-from-mount-kilimanjaro-africas-highest-point-in-all-its-splendor",
   "outlet": "wvtf.org",
   "method": "crop"
+ },
+ {
+  "id": "2026-11-27",
+  "headline": "UAE lenders back $2 . 65bln credit facility for Centalion Group",
+  "url": "https://www.zawya.com/en/capital-markets/uae-lenders-back-2.65bln-credit-facility-for-centalion-group-2503462",
+  "outlet": "zawya.com",
+  "method": "crop-flat"
  }
 ]

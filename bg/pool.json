@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-11-23-b",
-  "image": "pool-2026-11-23-b.jpg",
-  "headline": "Suspect in Los Angele deadly Palisades fire convicted of arson at retrial",
-  "url": "https://whbl.com/2026/11/20/suspect-in-los-angeles-deadly-palisades-fire-convicted-of-arson-at-retrial/",
-  "outlet": "whbl.com",
-  "t": "2026-11-22T14:51:35+00:00",
-  "hash": 9349969547574636535
- },
- {
-  "id": "2026-11-23-c",
-  "image": "pool-2026-11-23-c.jpg",
-  "headline": "West Kelowna Warriors score 4 - 3 comeback win over Coquitlam Express",
-  "url": "https://kelownacapnews.com/2026/11/21/west-kelowna-warriors-score-4-3-comeback-win-over-coquitlam-express/",
-  "outlet": "kelownacapnews.com",
-  "t": "2026-11-22T14:51:35+00:00",
-  "hash": 16710578939271472640
- },
- {
-  "id": "2026-11-24",
-  "image": "pool-2026-11-24.jpg",
-  "headline": "Drones likely cause as Russian ship explodes in Libya",
-  "url": "https://www.canberratimes.com.au/story/9396102/drones-likely-cause-as-russian-ship-explodes-in-libya/",
-  "outlet": "canberratimes.com.au",
-  "t": "2026-11-23T18:39:47+00:00",
-  "hash": 9223371997663199232
- },
- {
   "id": "2026-11-24-b",
   "image": "pool-2026-11-24-b.jpg",
   "headline": "Libya suspects drone caused explosion on Russian ship",
@@ -167,5 +140,32 @@
   "t": "2026-11-26T08:14:39+00:00",
   "vista": 9.0,
   "hash": 36244033945003007
+ },
+ {
+  "id": "2026-11-27",
+  "image": "pool-2026-11-27.jpg",
+  "headline": "UAE lenders back $2 . 65bln credit facility for Centalion Group",
+  "url": "https://www.zawya.com/en/capital-markets/uae-lenders-back-2.65bln-credit-facility-for-centalion-group-2503462",
+  "outlet": "zawya.com",
+  "t": "2026-11-26T17:16:47+00:00",
+  "hash": 3741319167
+ },
+ {
+  "id": "2026-11-27-b",
+  "image": "pool-2026-11-27-b.jpg",
+  "headline": "UAE lenders back $2 . 65bn credit facility for Centalion Group",
+  "url": "https://www.zawya.com/en/capital-markets/uae-lenders-back-2.65bn-credit-facility-for-centalion-group-2503462",
+  "outlet": "zawya.com",
+  "t": "2026-11-26T17:16:47+00:00",
+  "hash": 4278190079
+ },
+ {
+  "id": "2026-11-27-c",
+  "image": "pool-2026-11-27-c.jpg",
+  "headline": "Guggenheim Opening , F1 Grand Prix headline Abu Dhabi December events line - up",
+  "url": "https://tradearabia.com:443/News/490112/Guggenheim-Opening-F1-Grand-Prix-headline-Abu-Dhabi-s-December-events-line-up",
+  "outlet": "tradearabia.com",
+  "t": "2026-11-26T17:16:47+00:00",
+  "hash": 55142672796418048
  }
 ]
