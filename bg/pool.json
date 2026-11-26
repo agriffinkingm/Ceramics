@@ -1,24 +1,5 @@
 [
  {
-  "id": "2026-11-22-0144-0",
-  "image": "pool-2026-11-22-0144-0.jpg",
-  "headline": "Iran claims to have destroyed 19th US MQ - 1 drone",
-  "url": "https://en.apa.az/asia/iran-claims-to-have-destroyed-19th-us-mq-1-drone-537641",
-  "outlet": "en.apa.az",
-  "t": "2026-11-22T06:44:45+00:00",
-  "vista": 8.0,
-  "hash": 4567614826464936984
- },
- {
-  "id": "2026-11-23",
-  "image": "pool-2026-11-23.jpg",
-  "headline": "Man convicted of starting deadly 2025 Palisades blaze in Los Angeles",
-  "url": "https://www.eastlondonadvertiser.co.uk/news/national/26750344.man-convicted-starting-deadly-2025-palisades-blaze-los-angeles/",
-  "outlet": "eastlondonadvertiser.co.uk",
-  "t": "2026-11-22T14:51:35+00:00",
-  "hash": 212136756246258
- },
- {
   "id": "2026-11-23-b",
   "image": "pool-2026-11-23-b.jpg",
   "headline": "Suspect in Los Angele deadly Palisades fire convicted of arson at retrial",
@@ -166,5 +147,25 @@
   "t": "2026-11-25T21:43:30+00:00",
   "vista": 7.0,
   "hash": 65535
+ },
+ {
+  "id": "2026-11-26-0314-0",
+  "image": "pool-2026-11-26-0314-0.jpg",
+  "headline": "Vodafone Brings Its TV Entertainment Experience to united kingdom Cities Through High - Impact Outdoor Campaign",
+  "url": "https://www.thefastmode.com/technology-solutions/51574-vodafone-brings-its-tv-entertainment-experience-to-uk-cities-through-high-impact-outdoor-campaign",
+  "outlet": "thefastmode.com",
+  "t": "2026-11-26T08:14:39+00:00",
+  "vista": 9.0,
+  "hash": 3258423827187636239
+ },
+ {
+  "id": "2026-11-26-0314-1",
+  "image": "pool-2026-11-26-0314-1.jpg",
+  "headline": "Under An Hour From Glasgow Is A Historic Village Surrounded By Scenic Nature Escapes And Trails",
+  "url": "https://www.islands.com/2323049/luss-uk-historic-village-under-hour-glasgow-scenic-nature-escapes-trails/",
+  "outlet": "islands.com",
+  "t": "2026-11-26T08:14:39+00:00",
+  "vista": 9.0,
+  "hash": 36244033945003007
  }
 ]
