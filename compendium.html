@@ -33,13 +33,16 @@
     transition: opacity 1.4s ease;
   }
   .layer.on { opacity: 1; }
-  .layer img {
+  .layer img, .layer canvas {
     max-width: 92vw; max-height: 84vh;
     object-fit: contain;
     box-shadow: 0 24px 80px rgba(0,0,0,.6);
   }
   /* whisper of ken burns while a slide is up */
-  .layer.on img { animation: kb 9s ease-in-out forwards; }
+  .layer.on img, .layer.on canvas { animation: kb 9s ease-in-out forwards; }
+  .layer canvas { display: none; }
+  .layer.live img { display: none; }
+  .layer.live canvas { display: block; }
   @keyframes kb { from { transform: scale(1); } to { transform: scale(1.035); } }
 
   /* ---- chrome ---- */
@@ -173,11 +176,11 @@
     #grid { padding: 50px 12px 30px; }
     #grid-list { grid-template-columns: repeat(2, 1fr); gap: 16px 10px; }
     .cell > span { font-size: 13px; }
-    .layer img { max-width: 96vw; max-height: 80vh; }
+    .layer img, .layer canvas { max-width: 96vw; max-height: 80vh; }
   }
   @media (prefers-reduced-motion: reduce) {
     .layer, #caption, #card, #grid { transition-duration: .25s; }
-    .layer.on img { animation: none; }
+    .layer.on img, .layer.on canvas { animation: none; }
   }
 </style>
 </head>
@@ -191,8 +194,8 @@
 <div id="pause-dot">❚❚ paused</div>
 
 <div id="stage">
-  <div class="layer" id="layerA"><img alt=""></div>
-  <div class="layer" id="layerB"><img alt=""></div>
+  <div class="layer" id="layerA"><img alt=""><canvas width="1728" height="972"></canvas></div>
+  <div class="layer" id="layerB"><img alt=""><canvas width="1728" height="972"></canvas></div>
 </div>
 
 <button class="turn" id="prev" aria-label="previous wall"></button>
@@ -230,7 +233,8 @@ const cardMsg = document.getElementById("card-msg");
 
 let entries = [];              /* { key, t, n, thumb } ascending by time */
 let fullSrc = new Map();       /* key -> full jpeg dataURL (lazy) */
-let getFull = null;            /* (key) => Promise<dataURL> */
+let fullGifs = new Map();      /* key -> the wall's GIFs, when it was saved with them (see playGifs) */
+let getFull = null;            /* (key) => Promise<{ img, g }> */
 let idx = -1, front = 0;
 let timer = null, paused = false;
 
@@ -269,12 +273,86 @@ async function srcFor(e) {
   if (fullSrc.has(e.key)) return fullSrc.get(e.key);
   if (getFull) {
     try {
-      const img = await getFull(e.key);
-      if (img) { fullSrc.set(e.key, img); return img; }
+      const rec = await getFull(e.key);
+      if (rec && rec.img) {
+        fullSrc.set(e.key, rec.img);
+        if (rec.g && rec.g.base && Array.isArray(rec.g.gifs) && rec.g.gifs.length) fullGifs.set(e.key, rec.g);
+        return rec.img;
+      }
     } catch (err) { /* fall through to thumb */ }
   }
   return e.thumb; /* better a soft image than a black room */
 }
+
+/* ---- walls saved with GIFs on them play ----
+   Such a wall comes with the picture minus its GIFs (base), the paint that covered
+   any "behind paint" GIFs (top), and each GIF as a sprite sheet with where it sat.
+   The slide is then a canvas: base, GIFs behind, top, GIFs in front — redrawn
+   whenever a GIF moves on to its next frame. Older walls are plain pictures. */
+const loadImg = (src) => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error("image")); im.src = src; });
+function gifFrame(m, t) {
+  if (!m.d || m.n <= 1) return 0;
+  if (!m.tot) { m.tot = 0; for (const v of m.d) m.tot += v; if (m.tot <= 0) m.tot = 1; }
+  t %= m.tot;
+  for (let i = 0; i < m.d.length; i++) { if (t < m.d[i]) return i; t -= m.d[i]; }
+  return 0;
+}
+const players = [null, null];  /* one per layer */
+function stopGifs(li) { if (players[li]) { cancelAnimationFrame(players[li].raf); players[li] = null; } }
+async function playGifs(li, g) {
+  const cv = layers[li].querySelector("canvas"), ctx = cv.getContext("2d");
+  const base = await loadImg(g.base);
+  const top = g.top ? await loadImg(g.top) : null;
+  const gifs = [];
+  for (const m of g.gifs) {
+    try {
+      const sheet = await loadImg(m.sheet);
+      const mask = m.mask ? await loadImg(m.mask) : null;
+      const cmp = document.createElement("canvas"); cmp.width = m.fw; cmp.height = m.fh;
+      gifs.push({ m, sheet, mask, cmp, cx: cmp.getContext("2d"), idx: -1 });
+    } catch (err) { /* one bad GIF doesn't stop the rest */ }
+  }
+  stopGifs(li);
+  cv.width = base.naturalWidth || 1728; cv.height = base.naturalHeight || 972;
+  const W = g.W || 3456, H = g.H || 1944, t0 = performance.now();
+  const p = { raf: 0 };
+  const paint = (under) => {
+    for (const q of gifs) {
+      const m = q.m;
+      if (!!m.under !== under) continue;
+      ctx.save();
+      ctx.scale(cv.width / W, cv.height / H);
+      ctx.translate(m.x, m.y); ctx.rotate(m.rot || 0);
+      ctx.globalAlpha = m.op == null ? 1 : m.op;
+      ctx.drawImage(q.cmp, -m.w / 2, -m.h / 2, m.w, m.h);
+      ctx.restore();
+    }
+  };
+  const tick = (now) => {
+    let moved = false;
+    for (const q of gifs) {
+      const m = q.m, i = gifFrame(m, now - t0);
+      if (i === q.idx) continue;
+      q.idx = i; moved = true;
+      q.cx.globalCompositeOperation = "source-over";
+      q.cx.clearRect(0, 0, m.fw, m.fh);
+      q.cx.drawImage(q.sheet, (i % m.cols) * m.fw, Math.floor(i / m.cols) * m.fh, m.fw, m.fh, 0, 0, m.fw, m.fh);
+      if (q.mask) { q.cx.globalCompositeOperation = "destination-in"; q.cx.drawImage(q.mask, 0, 0, m.fw, m.fh); }
+    }
+    if (moved) {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      ctx.drawImage(base, 0, 0, cv.width, cv.height);
+      paint(true);
+      if (top) ctx.drawImage(top, 0, 0, cv.width, cv.height);
+      paint(false);
+    }
+    p.raf = requestAnimationFrame(tick);
+  };
+  players[li] = p;
+  tick(performance.now());
+}
+/* the picture or canvas a layer is showing */
+const face = (li) => layers[li].querySelector(layers[li].classList.contains("live") ? "canvas" : "img");
 
 async function show(i, dir = 1) {
   if (!entries.length) return;
@@ -284,8 +362,16 @@ async function show(i, dir = 1) {
   const img = layers[back].querySelector("img");
   img.src = await srcFor(e);
   await (img.decode ? img.decode().catch(() => {}) : Promise.resolve());
+  let live = false;
+  if (fullGifs.has(e.key)) {
+    try { await playGifs(back, fullGifs.get(e.key)); live = true; }
+    catch (err) { stopGifs(back); } /* the still picture is already in place */
+  } else stopGifs(back);
+  layers[back].classList.toggle("live", live);
   layers[back].classList.add("on");
   layers[front].classList.remove("on");
+  const was = front;
+  if (was !== back) setTimeout(() => { if (front !== was) stopGifs(was); }, 1600); /* after the crossfade */
   front = back;
   captionEl.innerHTML = fate(e) + storyHtml(e, true);
   captionEl.classList.add("on");
@@ -386,7 +472,7 @@ document.getElementById("grid-link").addEventListener("click", (e) => { e.preven
 /* a click on the slide turns the page; a click on the dark around it opens the sheet */
 function offSlide(e) {
   if (e.detail === 0) return false; /* keyboard-activated button */
-  const r = layers[front].querySelector("img").getBoundingClientRect();
+  const r = face(front).getBoundingClientRect();
   if (!r.width) return false;
   return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
 }
@@ -422,7 +508,7 @@ async function load() {
   /* offline test hook */
   if (window.__TEST_ARCHIVE) {
     entries = window.__TEST_ARCHIVE.slice().sort((a, b) => a.t - b.t);
-    getFull = (k) => Promise.resolve((entries.find(x => x.key === k) || {}).img);
+    getFull = (k) => { const x = entries.find(x => x.key === k) || {}; return Promise.resolve({ img: x.img, g: x.g }); };
     history = window.__TEST_HISTORY || [];
     revive = async (e, img) => { window.__REVIVED = reviveWrites(e, img); };
     return;
@@ -444,7 +530,9 @@ async function load() {
   entries.sort((a, b) => a.t - b.t);
   getFull = async (k) => {
     const s = await get(ref(db, "walls/main/archive/" + k));
-    return s.exists() ? s.val().img : null;
+    if (!s.exists()) return null;
+    const v = s.val();
+    return { img: v.img, g: v.g || null };
   };
   revive = async (e, img) => {
     const w = reviveWrites(e, img);

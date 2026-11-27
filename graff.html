@@ -449,7 +449,7 @@
     #toolbox.collapsed #tb-title { border-bottom: none; }
     #tb-home { display: inline-block; }
     #tb-collapse { font-size: 18px; padding: 10px 16px; margin: -10px -14px -10px 0; }
-    .tool-grid { grid-template-columns: repeat(7, 1fr); gap: 0; padding: 4px 6px; background: none; }
+    .tool-grid { grid-template-columns: repeat(6, 1fr); gap: 0; padding: 4px 6px; background: none; }
     #news-row { padding: 6px 10px; }
     #news-row a { border-radius: 10px; background: rgba(255,255,255,.06); }
     .tool { aspect-ratio: auto; height: 38px; background: none; border: none; border-radius: 9px; }
@@ -508,14 +508,11 @@
   </div>
 
   <div class="tool-grid">
-    <div class="tool active" data-tool="brush" title="Brush — Paint (P) lays colour, Smudge (S) drags what's already there; tap again to flip between them; both use the same tips · hold ⇧ for a straight line, ⇧+Ctrl keeps it dead level or upright">
+    <div class="tool active" data-tool="brush" title="Brush — Paint (P) lays colour, Smudge (S) drags what's already there; tap again to flip between them; both use the same tips. Runniness above 0 makes the paint drip (W) · hold ⇧ for a straight line, ⇧+Ctrl keeps it dead level or upright">
       <svg viewBox="0 0 24 24"><path d="M20 4c-4 1-8 5-10 9l2 2c4-2 8-6 9-10l-1-1z"/><path d="M9 14c-3 0-4 2-4 5 3 0 5-1 5-4"/></svg>
     </div>
     <div class="tool" data-tool="air" title="Airbrush (A) — spray can">
       <svg viewBox="0 0 24 24"><rect x="8" y="8" width="7" height="13" rx="1"/><path d="M10 8V6h3v2"/><path d="M11 4h1"/><path d="M18 5l2-1M18 8h3M18 11l2 1"/></svg>
-    </div>
-    <div class="tool" data-tool="drip" title="Drip (W) — paint that runs; Runniness sets how far it drips; hold ⇧ for a straight line, ⇧+Ctrl keeps it dead level or upright">
-      <svg viewBox="0 0 24 24"><path d="M3 7c4-2 8-2 12 0s5 1 6 0"/><path d="M8 8v7a1.3 1.3 0 0 0 2.6 0V8"/><path d="M14 8v4a1 1 0 0 0 2 0V8"/><path d="M18.5 8v9.5a1.5 1.5 0 0 0 3 0V8"/></svg>
     </div>
     <div class="tool" data-tool="text" title="Text (T) — random graffiti font every hit">
       <svg viewBox="0 0 24 24"><path d="M4 9 L3.4 4.6 L20.6 3.4 L20 7.8 L14.6 8.2 L15.4 18.6 Q15.5 20.8 13.2 20.8 Q11 20.8 10.9 18.8 L10 8.6 Z"/><path d="M18.3 8.4 C18.7 10.6 18.6 12.2 17.3 12.2 C16.2 12.2 16 10.8 16.6 9.3"/></svg>
@@ -532,6 +529,9 @@
     <div class="tool" data-tool="clone" title="Clone (C) — box or lasso a bit of the wall, then drop a copy anywhere (scale, rotate, flip, invert, fade)">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="12" height="12" rx="1"/><path d="M9 9h12v12H9z"/><path d="M15 9v6H9"/></svg>
     </div>
+    <div class="tool" data-tool="picker" title="Color Picker (O)">
+      <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
+    </div>
     <div class="tool" data-tool="perase" title="Photo Eraser (E) — erases uploaded photos only; AI images + paint stay">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="11" height="8" rx="1"/><circle cx="6" cy="6.8" r="1"/><path d="M3 10.5l2.5-2.5 3 3"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
     </div>
@@ -543,9 +543,6 @@
     </div>
     <div class="tool" data-tool="berase" title="Background Eraser (B) — rubs out today's news backdrop down to the bare concrete; nothing else is touched">
       <svg viewBox="0 0 24 24"><rect x="2.5" y="4" width="13" height="10" rx="1"/><path d="M2.5 12l3.5-4 3 3 2-2 4.5 5"/><circle cx="12" cy="7" r="1"/><path d="M12.5 20.5l6.5-6.5a1.4 1.4 0 0 1 2 0l1 1a1.4 1.4 0 0 1 0 2l-5 5h-3.5l-1-1.5z"/><path d="M16 15l3.5 3.5"/></svg>
-    </div>
-    <div class="tool" data-tool="picker" title="Color Picker (O)">
-      <svg viewBox="0 0 24 24"><path d="M17 3l4 4-3 3-4-4 3-3z"/><path d="M15 6L5 16l-1 4 4-1L18 9"/></svg>
     </div>
   </div>
 
@@ -586,9 +583,9 @@
       </div>
       <div id="can-hint"></div>
     </div>
-    <div class="slider-row" id="drip-row" style="display:none">
-      <div class="sr-head"><span>Runniness</span><span class="sr-val" id="drip-val">100</span></div>
-      <input type="range" id="drip" min="10" max="300" value="100">
+    <div class="slider-row" id="drip-row" title="How much the paint runs — 0 is ordinary paint, higher drips more and further (W toggles)">
+      <div class="sr-head"><span>Runniness</span><span class="sr-val" id="drip-val">0</span></div>
+      <input type="range" id="drip" min="0" max="300" step="5" value="0">
     </div>
     <div class="slider-row" id="brush-row">
       <div class="sr-head"><span>Brush</span></div>
@@ -742,7 +739,7 @@ const W = 3456, H = 1944;
 /* Bump on every deploy. Open tabs poll this and reload themselves when a newer
    page is live (only while idle), so stale copies can't keep acting on old
    rules — old milestones, unknown op types, etc. */
-const BUILD = "2026-11-25c";
+const BUILD = "2026-11-25d";
 const DEFAULT_FG = "#1a1a1a", DEFAULT_BG = "#f5f0e6";
 const WALL_COLOR = "#b7b2a8";
 const WALL_BASE = "#aaa69c";   /* flat concrete stand-in behind the layers for gen-fill crops */
@@ -751,7 +748,7 @@ const PALETTE = ["#f5f0e6","#1a1a1a","#d7263d","#f46036","#f9c22e","#2e933c",
 
 /* ---------- state ---------- */
 let tool = "brush", fg = DEFAULT_FG, bg = DEFAULT_BG;
-let size = 12, opacity = 1, airFlow = 1, dripAmt = 1;
+let size = 12, opacity = 1, airFlow = 1, dripAmt = 0; /* dripAmt: 0 = plain paint, >0 = the brush drips */
 let drawing = false, curPts = [], curSeed = 0, curSm = null;
 let liveTip = null; /* incremental painter for a live tip stroke (see drawCurrent) */
 let opCount = 0;
@@ -1257,10 +1254,11 @@ function gifCompose(inst, i) {
   c.globalCompositeOperation = "source-over";
   inst.idx = i;
 }
-function drawGifs(ctx, under, now) {
+function drawGifs(ctx, under, now, only) {
   for (const inst of gifOps) {
     const o = inst.o;
     if (!!o.under !== under) continue;
+    if (only && !only(inst)) continue;
     const i = gifFrame(o, now, inst.t0);
     if (i !== inst.idx) gifCompose(inst, i);
     ctx.save();
@@ -1599,7 +1597,9 @@ async function applyOp(o) {
       if (o.tool === "brush" && o.sh) pathTip(sctx, pts, o.sz, o.c, o.sh, o.seed || 1);
       else if (o.tool === "brush" || o.tool === "drip") pathBrush(sctx, pts, o.sz, o.c);
       else pathPencil(sctx, pts, o.sz, o.tool === "eraser" ? "#000" : o.c);
+      /* "drip" = round brush + runs (the old Drip tool's ops); a tipped brush that drips is a brush op with dr */
       if (o.tool === "drip") drawDrips(sctx, pts, o.sz, o.c, o.seed || 0, o.dr || 1);
+      else if (o.tool === "brush" && o.dr) drawDrips(sctx, pts, o.sz, o.c, o.seed || 0, o.dr);
       paintCtx.globalAlpha = o.tool === "eraser" ? 1 : o.op;
       if (o.tool === "eraser") paintCtx.globalCompositeOperation = "destination-out";
       paintCtx.drawImage(strokeCv, 0, 0);
@@ -1954,8 +1954,12 @@ function endStroke() {
     /* already applied live to the wall; just count + publish */
     opCount++; updateCount(); checkMilestone();
   } else {
-    if (tool === "drip") { op.seed = curSeed; op.dr = round2(dripAmt); }
     if (tool === "brush" && smudgeTip) { op.sh = smudgeTip; op.seed = curSeed || 1; }
+    if (tool === "brush" && dripAmt > 0) {
+      op.dr = round2(dripAmt);
+      if (smudgeTip) op.seed = curSeed || 1;
+      else { op.tool = "drip"; op.seed = curSeed; } /* same op the Drip tool always wrote */
+    }
     enqueue(op);
   }
   curSm = null; erLast = null;
@@ -2018,14 +2022,16 @@ function drawCurrent() {
     /* tips stamp densely, so the live stroke only adds the new points; anything
        that rewrites the stroke (⇧ ruler, someone else's mark replaying) drops
        liveTip and the whole stroke is laid again */
+    if (dripAmt > 0) liveTip = null; /* runs are redrawn whole, so the stroke is too */
     if (!liveTip) { sctx.clearRect(0, 0, W, H); liveTip = { t: makeTipper(sctx, size, fg, smudgeTip, curSeed || 1), n: 0 }; }
     for (let i = liveTip.n; i < curPts.length; i += 2) liveTip.t(curPts[i], curPts[i + 1]);
     liveTip.n = curPts.length;
+    if (dripAmt > 0) drawDrips(sctx, curPts, size, fg, curSeed || 1, dripAmt);
     return;
   }
   sctx.clearRect(0, 0, W, H);
   pathBrush(sctx, curPts, size, fg);
-  if (tool === "drip") drawDrips(sctx, curPts, size, fg, curSeed, dripAmt);
+  if (tool === "brush" && dripAmt > 0) drawDrips(sctx, curPts, size, fg, curSeed, dripAmt);
 }
 /* airbrush paints straight onto the wall as you hold (builds up like GIMP) */
 function airTick(x, y) {
@@ -3459,7 +3465,7 @@ genInput.addEventListener("keydown", (e) => {
 });
 
 /* ---------- toolbox wiring ---------- */
-const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gif: "GIF", gen: "AI Fill", clone: "Clone", drip: "Drip", perase: "Photo Eraser", aerase: "AI Eraser", berase: "Background Eraser", gerase: "GIF Eraser", picker: "Color Picker" };
+const TOOL_NAMES = { brush: "Paintbrush", air: "Airbrush", smudge: "Smudge", text: "Text", image: "Image", gif: "GIF", gen: "AI Fill", clone: "Clone", perase: "Photo Eraser", aerase: "AI Eraser", berase: "Background Eraser", gerase: "GIF Eraser", picker: "Color Picker" };
 const toolEls = document.querySelectorAll(".tool");
 /* Paint and Smudge share one button: brushMode remembers which one it last was */
 let brushMode = "brush";
@@ -3487,7 +3493,7 @@ function setTool(t) {
   if (t !== "clone") { closeSubj(); if (genShape === "subject") setShape("rect"); }
   else if (genShape === "subject") openSubjBar();
   document.getElementById("mode-row").style.display = (t === "gen") ? "" : "none";
-  document.getElementById("drip-row").style.display = (t === "drip") ? "" : "none";
+  document.getElementById("drip-row").style.display = (t === "brush") ? "" : "none";
   /* erasers always rub at full strength — no opacity to set */
   document.getElementById("op-row").style.display = isEraser(t) ? "none" : "";
 }
@@ -3676,6 +3682,56 @@ redoBtn.addEventListener("click", redo);
 const MILESTONES = [100, 222, 333, 444, 500, 555, 666, 777, 888, 999, 1000];
 let msPrev = 0;
 let capBusy = false;
+/* GIFs for the compendium: beside the still, a milestone save keeps what the
+   compendium needs to play the wall's GIFs — the wall WITHOUT them (base), the paint
+   that sits over any "behind paint" GIFs (top, only when there are some), and each
+   GIF's sprite sheet + placement (+ its GIF-Eraser mask if it was rubbed).
+   Sheets are big, so at most ARCH_GIF_CHARS of them go along; the rest stay frozen
+   in the base picture exactly where they were. Null when there is nothing to play. */
+const ARCH_GIF_CHARS = 6e6;
+function snapshotGifs(w, h) {
+  if (!gifOps.length) return null;
+  const probe = document.createElement("canvas"); probe.width = probe.height = 2;
+  const webp = probe.toDataURL("image/webp").startsWith("data:image/webp");
+  const keep = new Set();
+  let room = ARCH_GIF_CHARS;
+  for (const inst of gifOps) {
+    const o = inst.o;
+    if (!o.sheet || (o.under && !webp)) continue; /* no alpha layer without webp: behind-paint GIFs stay still */
+    if (o.sheet.length <= room) { room -= o.sheet.length; keep.add(inst); }
+  }
+  if (!keep.size) return null;
+  const now = performance.now();
+  const anyUnder = [...keep].some(i => i.o.under);
+  const frozen = (i) => !keep.has(i);
+  const still = (cx, under) => { cx.save(); cx.scale(w / W, h / H); drawGifs(cx, under, now, frozen); cx.restore(); };
+  const base = document.createElement("canvas"); base.width = w; base.height = h;
+  const bx = base.getContext("2d");
+  bx.fillStyle = WALL_COLOR; bx.fillRect(0, 0, w, h);
+  bx.drawImage(bgCv, 0, 0, w, h); bx.drawImage(photoCv, 0, 0, w, h); bx.drawImage(aiCv, 0, 0, w, h);
+  still(bx, true);
+  const g = { v: 1, W, H };
+  if (anyUnder) {
+    const top = document.createElement("canvas"); top.width = w; top.height = h;
+    const tx = top.getContext("2d");
+    tx.drawImage(paintCv, 0, 0, w, h); still(tx, false);
+    g.top = top.toDataURL("image/webp", 0.85);
+  } else {
+    bx.drawImage(paintCv, 0, 0, w, h); still(bx, false);
+  }
+  g.base = base.toDataURL("image/jpeg", 0.85);
+  g.gifs = [...keep].map((inst) => {
+    const o = inst.o;
+    const r = { x: Math.round(o.x), y: Math.round(o.y), w: Math.round(o.w), h: Math.round(o.h), rot: o.rot || 0, op: o.op == null ? 1 : o.op,
+      sheet: o.sheet, fw: o.fw, fh: o.fh, n: o.n, cols: o.cols, d: o.d || [100] };
+    if (o.under) r.under = 1;
+    /* rubbed with the GIF Eraser? then its mask goes along */
+    const a = inst.maskCtx.getImageData(0, 0, o.fw, o.fh).data;
+    for (let i = 3; i < a.length; i += 4) if (a[i] < 255) { r.mask = inst.mask.toDataURL("image/png"); break; }
+    return r;
+  });
+  return g;
+}
 function snapshotJpeg(w, h, q) {
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
@@ -3702,6 +3758,8 @@ async function captureWall(tag) {
     const t = Date.now(), n = totalMarks(); /* the number the wall shows (base + live) */
     /* snap now, while the wall still shows this exact count */
     const img = snapshotJpeg(1728, 972, 0.85), thumb = snapshotJpeg(432, 243, 0.7);
+    let g = null;
+    try { g = snapshotGifs(1728, 972); } catch (err) { g = null; } /* the still is what matters */
     /* one flick per milestone per wall, whoever gets there first: the claim lives in
        walls/main/flicks/<tag> until the wall is wiped. Without it the same milestone
        was flicked again every time the count re-crossed it (undo at 100, then another
@@ -3710,9 +3768,14 @@ async function captureWall(tag) {
     /* the news story behind this wall — the compendium shows it as the wall's title */
     const idx = { t, n, thumb };
     if (bgMeta && bgMeta.headline) { idx.head = String(bgMeta.headline).slice(0, 200); if (bgMeta.url) idx.url = bgMeta.url; }
-    await fbArchive(era + "-" + tag,
-      { t, n, w: 1728, h: 972, img },
-      idx);
+    const full = { t, n, w: 1728, h: 972, img };
+    let saved = false;
+    if (g) {
+      /* with its GIFs if the database takes it; the plain still if not */
+      try { await fbArchive(era + "-" + tag, { ...full, g }, { ...idx, gif: g.gifs.length }); saved = true; }
+      catch (err) { saved = false; }
+    }
+    if (!saved) await fbArchive(era + "-" + tag, full, idx);
     showBanner(tag === "final"
       ? "📸 final flick — this wall made the compendium"
       : "📸 " + tag + " marks — flicked into the compendium");
@@ -3974,7 +4037,7 @@ window.addEventListener("keydown", (e) => {
   else if (k === "n") setTool("gerase");
   else if (k === "g") setTool("gen");
   else if (k === "c") setTool("clone");
-  else if (k === "w") setTool("drip");
+  else if (k === "w") { setTool("brush"); dripEl.value = dripAmt > 0 ? 0 : 100; dripEl.dispatchEvent(new Event("input")); } /* W: drips on/off */
   else if (k === "k") { setTool("image"); if (!placing) { stencilNext = true; fileInput.click(); } else if (!placing.gif && !pbSt.checked) { pbSt.checked = true; setStencil(true); } }
   else if (k === "e") setTool("perase");
   else if (k === "r") setTool("aerase");
