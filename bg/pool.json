@@ -1,32 +1,5 @@
 [
  {
-  "id": "2026-11-24-b",
-  "image": "pool-2026-11-24-b.jpg",
-  "headline": "Libya suspects drone caused explosion on Russian ship",
-  "url": "https://www.theadvocate.com.au/story/9396102/libyas-suspects-drone-caused-explosion-on-russian-ship/",
-  "outlet": "theadvocate.com.au",
-  "t": "2026-11-23T18:39:47+00:00",
-  "hash": 9187343200652623872
- },
- {
-  "id": "2026-11-24-c",
-  "image": "pool-2026-11-24-c.jpg",
-  "headline": "Libya eastern government suspects drone attack caused explosion on Russian ship in Benghazi",
-  "url": "https://www.dailymaverick.co.za/article/2026-11-22-libyas-eastern-government-suspects-drone-attack-caused-explosion-on-russian-ship-in-benghazi/",
-  "outlet": "dailymaverick.co.za",
-  "t": "2026-11-23T18:39:47+00:00",
-  "hash": 1085102592318967583
- },
- {
-  "id": "2026-11-25",
-  "image": "pool-2026-11-25.jpg",
-  "headline": "Satellite images show development changes along Gulf Coast",
-  "url": "https://www.gulfcoastnewsnow.com/article/gulf-coast-development-changes-satellite-images/74509014",
-  "outlet": "gulfcoastnewsnow.com",
-  "t": "2026-11-24T09:49:24+00:00",
-  "hash": 441104532073158680
- },
- {
   "id": "2026-11-25-b",
   "image": "pool-2026-11-25-b.jpg",
   "headline": "US Spy Drone Helps Capture FBI Most - Wanted Drug Lord In Mexico . 20 Killed In Clashes .",
@@ -167,5 +140,32 @@
   "outlet": "tradearabia.com",
   "t": "2026-11-26T17:16:47+00:00",
   "hash": 55142672796418048
+ },
+ {
+  "id": "2026-11-28",
+  "image": "pool-2026-11-28.jpg",
+  "headline": "Heavy rain , wind and flooding hit much of the US on Thanksgiving",
+  "url": "https://www.wdio.com/ap-top-news/ap-top-news-us-headlines-ap-top-news/heavy-rain-wind-and-flooding-hit-much-of-the-us-on-thanksgiving/",
+  "outlet": "wdio.com",
+  "t": "2026-11-27T16:58:29+00:00",
+  "hash": 13889242817017642815
+ },
+ {
+  "id": "2026-11-28-b",
+  "image": "pool-2026-11-28-b.jpg",
+  "headline": "Thanksgiving storms leave nearly a million without power across the US - Dominican Republic Post \u2013 Caribbean News , Business , Travel & Culture",
+  "url": "https://dominicanrepublicpost.com/thanksgiving-storms-leave-nearly-a-million-without-power-across-the-us/",
+  "outlet": "dominicanrepublicpost.com",
+  "t": "2026-11-27T16:58:29+00:00",
+  "hash": 1342177279
+ },
+ {
+  "id": "2026-11-28-c",
+  "image": "pool-2026-11-28-c.jpg",
+  "headline": "She lost her home in a wildfire and is rebuilding it with 350 recycled tires , bottles and cans",
+  "url": "https://www.cronista.com/en/today/she-lost-her-home-in-a-wildfire-and-is-rebuilding-it-with-350-recycled-tires-bottles-and-cans/",
+  "outlet": "cronista.com",
+  "t": "2026-11-27T16:58:29+00:00",
+  "hash": 4593742816682805247
  }
 ]
