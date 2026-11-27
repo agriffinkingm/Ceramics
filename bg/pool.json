@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-11-25-b",
-  "image": "pool-2026-11-25-b.jpg",
-  "headline": "US Spy Drone Helps Capture FBI Most - Wanted Drug Lord In Mexico . 20 Killed In Clashes .",
-  "url": "https://www.ibtimes.com/us-drone-intelligence-mexico-captures-el-chapo-isidro-3810112",
-  "outlet": "ibtimes.com",
-  "t": "2026-11-24T09:49:24+00:00",
-  "hash": 533411641975832576
- },
- {
-  "id": "2026-11-25-c",
-  "image": "pool-2026-11-25-c.jpg",
-  "headline": "Three civilians injured in drone strike by Pakistani forces in Balochistan",
-  "url": "https://ianslive.in/three-civilians-injured-in-drone-strike-by-pakistani-forces-in-balochistan--20261124125334",
-  "outlet": "ianslive.in",
-  "t": "2026-11-24T09:49:24+00:00",
-  "hash": 72482694767837183
- },
- {
   "id": "2026-11-26",
   "image": "pool-2026-11-26.jpg",
   "headline": "Greetings from Mount Kilimanjaro , Africa highest point in all its splendor",
@@ -167,5 +149,25 @@
   "outlet": "cronista.com",
   "t": "2026-11-27T16:58:29+00:00",
   "hash": 4593742816682805247
+ },
+ {
+  "id": "2026-11-27-1243-0",
+  "image": "pool-2026-11-27-1243-0.jpg",
+  "headline": "Barrick Chief Meets Mali Prime Minister",
+  "url": "https://www.riotimesonline.com/barrick-chief-meets-mali-prime-minister-gold-dispute/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-11-27T17:43:41+00:00",
+  "vista": 9.0,
+  "hash": 563117574651903
+ },
+ {
+  "id": "2026-11-27-1243-1",
+  "image": "pool-2026-11-27-1243-1.jpg",
+  "headline": "LatAm Expat & Nomad Daily Guide for Friday , November 27 , 2026",
+  "url": "https://www.riotimesonline.com/latam-expat-nomad-daily-guide-for-friday-november-27-2026/",
+  "outlet": "riotimesonline.com",
+  "t": "2026-11-27T17:43:41+00:00",
+  "vista": 9.0,
+  "hash": 6841178553909247
  }
 ]
