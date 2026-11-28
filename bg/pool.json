@@ -1,23 +1,5 @@
 [
  {
-  "id": "2026-11-26",
-  "image": "pool-2026-11-26.jpg",
-  "headline": "Greetings from Mount Kilimanjaro , Africa highest point in all its splendor",
-  "url": "https://www.wvtf.org/2026-11-25/greetings-from-mount-kilimanjaro-africas-highest-point-in-all-its-splendor",
-  "outlet": "wvtf.org",
-  "t": "2026-11-25T17:35:51+00:00",
-  "hash": 18410927211818229759
- },
- {
-  "id": "2026-11-26-b",
-  "image": "pool-2026-11-26-b.jpg",
-  "headline": "At least one killed , 10 injured as under - construction building collapses in Karachi",
-  "url": "https://dunyanews.tv/en/Pakistan/984824-at-least-one-killed-10-injured-as-underconstruction-building-collaps",
-  "outlet": "dunyanews.tv",
-  "t": "2026-11-25T17:35:51+00:00",
-  "hash": 2365780639313989255
- },
- {
   "id": "2026-11-26-c",
   "image": "pool-2026-11-26-c.jpg",
   "headline": "NH developers urge reforms to federal  plague  on affordable housing - Monadnock Ledger - Transcript",
@@ -169,5 +151,25 @@
   "t": "2026-11-27T17:43:41+00:00",
   "vista": 9.0,
   "hash": 6841178553909247
+ },
+ {
+  "id": "2026-11-28-0245-0",
+  "image": "pool-2026-11-28-0245-0.jpg",
+  "headline": "Maryland Storm Alert Accidentally Directs Callers to NSFW Hotline",
+  "url": "https://www.thedailybeast.com/maryland-storm-alert-accidentally-directs-callers-to-nsfw-hotline",
+  "outlet": "thedailybeast.com",
+  "t": "2026-11-28T07:45:02+00:00",
+  "vista": 9.0,
+  "hash": 30855851409407
+ },
+ {
+  "id": "2026-11-28-0245-1",
+  "image": "pool-2026-11-28-0245-1.jpg",
+  "headline": "Oxford University college data centre  not for AI slop",
+  "url": "https://www.heraldseries.co.uk/news/26768206.oxford-university-college-data-centre-not-ai-slop/",
+  "outlet": "heraldseries.co.uk",
+  "t": "2026-11-28T07:45:02+00:00",
+  "vista": 9.0,
+  "hash": 7310930873324994688
  }
 ]
